@@ -1,0 +1,311 @@
+---
+include:
+  - docassemble.AssemblyLine:assembly_line.yml
+  - docassemble.ALAnyState:any_state.yml
+---
+metadata:
+  title: |
+    Postpone your eviction hearing
+  short title: |
+    Postpone your eviction hearing
+  tags:
+    - HO-00-00-00-00
+  authors:
+    - Quinten Steenhuis
+---
+mandatory: True
+comment: |
+  Global interview metadata
+variable name: interview_metadata["eviction_motion_to_continue"]
+data:
+  al_weaver_version: "1.7.0"
+  generated on: "2022-09-08"
+  title: >-
+    Postpone your eviction hearing
+  short title: >-
+    Postpone your eviction hearing
+  description: |-
+    Postpone your eviction hearing
+  original_form: >-
+    
+  allowed courts: 
+    - "Missouri"
+  categories:
+    - "HO-00-00-00-00"
+  typical role: "defendant"
+  generate download screen: True
+---
+code: |
+  interview_metadata['main_interview_key'] =  'eviction_motion_to_continue'
+---
+code: |
+  # This controls the default country and list of states in address field questions
+  AL_DEFAULT_COUNTRY = "US"
+---
+code: |
+  # This controls the default state in address field questions
+  AL_DEFAULT_STATE = "MO"
+---
+code: |
+  github_repo_name =  'docassemble-EvictionMotionToContinue'
+---
+code: |
+  interview_short_title = "Postpone your eviction hearing"
+---
+code: |
+  al_form_type = "existing_case" 
+---
+code: |
+  AL_ORGANIZATION_TITLE = "Legal Services of Eastern Missouri"
+---
+code: |
+  user_started_case = False
+---
+objects:
+  - other_parties: ALPeopleList.using(there_are_any=True)
+  - users: ALPeopleList.using(there_are_any=True)
+---
+sections:
+  - review_eviction_motion_to_continue: Review your answers
+---
+#################### Interview order #####################
+comment: |
+  Controls order and branching logic for questions specific to this form
+id: interview_order_eviction_motion_to_continue
+code: |
+  # Set the allowed courts for this interview
+  allowed_courts = interview_metadata["eviction_motion_to_continue"]["allowed courts"]
+  nav.set_section('review_eviction_motion_to_continue')
+  user_role = 'defendant'
+  original_hearing_date
+  service_methods
+  set_progress(25)
+  trial_court.address.address
+  users.gather()
+  set_parts(subtitle=str(users))
+  docket_number
+  set_progress(50)
+  trial_court.division
+  interview_order_eviction_motion_to_continue = True
+---
+###################### Main order ######################
+comment: |
+  This block includes the logic for standalone interviews.
+  Delete mandatory: True to include in another interview
+mandatory: True
+code: |
+  al_intro_screen
+  eviction_motion_to_continue_intro
+  interview_order_eviction_motion_to_continue
+  signature_date
+  # Store anonymous data for analytics / statistics
+  store_variables_snapshot(
+      persistent=True,
+      data={
+          "zip": showifdef("users[0].address.zip"),
+          "reached_interview_end": True,
+      },
+  )
+  eviction_motion_to_continue_download
+---
+comment: |
+  This question is used to introduce your interview. Please customize
+id: Postpone_your_eviction_hearing
+continue button field: eviction_motion_to_continue_intro
+question: |
+  Postpone your eviction hearing
+subquestion: |
+  Postpone your eviction hearing
+---
+id: Information about the original hearing
+question: |
+  Information about the original hearing
+fields:
+  - "Date of original hearing": original_hearing_date
+    datatype: date
+  - "Original hearing time": original_hearing_time
+---
+id: Service to other parties
+question: |
+  Service to ${ other_parties }
+fields:
+  - "Service methods": service_methods
+    datatype: checkboxes
+    choices:
+      - E-filing: e_file
+      - Mail: us_mail
+      - Email: e_mail
+      - Fax: delivery_fax
+      - Hand delivery: hand_delivery
+  - "Date of Service": service_date
+    datatype: date
+---
+id: Delete me
+question: |
+  Delete me
+fields:
+  - "Other parties.address.address": other_parties.address.address
+---
+sets:
+  - other_parties[i].name.first
+  - other_parties[i].name.last
+  - other_parties[i].name.middle
+  - other_parties[i].name.suffix
+id: names of opposing parties
+question: |
+  Name of ${ ordinal(i) } landlord
+fields:
+  - code: |
+      other_parties[i].name_fields(person_or_business='unsure')
+---
+id: preview eviction_motion_to_continue
+question: |
+  Preview your form before you sign it
+subquestion: |
+  Here is a preview of the form you will sign on the next page.   
+  
+  ${ al_court_bundle.as_pdf(key='preview') }
+
+  Click the image to open it in a new tab. Click the "Edit answers" button
+  to edit your answers.
+
+  ${ action_button_html(url_action('review_eviction_motion_to_continue'), label='Edit answers', color='info') }
+  
+  Remember to come back to this window to continue and sign your form.
+continue button field: eviction_motion_to_continue_preview_question    
+---
+code: |
+  signature_fields = []
+---
+code: |
+  # This is a placeholder for the addresses that will be searched
+  # for matching address to court. Edit if court venue is based on 
+  # a different address than the user's
+  addresses_to_search = [user.address for user in users]
+---
+id: eviction motion to continue review screen
+event: review_eviction_motion_to_continue
+question: |
+  Review your answers
+review:
+  - Edit: service_methods
+    button: |
+      **Service methods**:
+      ${ service_methods }
+  - Edit: trial_court
+    button: |
+      **Trial court**
+  
+      % if defined("trial_court.address.county"):
+      * address: ${ trial_court.address.block() }
+      % endif
+      % if defined("trial_court.division"):
+      * division: ${ trial_court.division }
+      % endif
+  - Edit: users.revisit
+    button: |
+      **Users**
+
+      % for item in users:
+        * ${ item }
+      % endfor
+  - Edit: original_hearing_date
+    button: |
+      **Date of original hearing**:
+      ${ original_hearing_date }
+  - Edit: other_parties.revisit
+    button: |
+      **Other parties**
+
+      % for item in other_parties:
+        * ${ item }
+      % endfor
+  - Edit: service_date
+    button: |
+      **Date of Service**:
+      ${ service_date }
+  - Edit: docket_number
+    button: |
+      **Docket number**:
+      ${ docket_number }
+  - Edit: original_hearing_time
+    button: |
+      **Original hearing time**:
+      ${ original_hearing_time }
+---
+continue button field: users.revisit
+question: |
+  Edit users
+subquestion: |
+  ${ users.table }
+
+  ${ users.add_action() }
+---
+table: users.table
+rows: users
+columns:
+  - Name: |
+      row_item.name.full() if defined("row_item.name.first") else ""
+edit:
+  - name.first
+confirm: True
+
+---
+continue button field: other_parties.revisit
+question: |
+  Edit other_parties
+subquestion: |
+  ${ other_parties.table }
+
+  ${ other_parties.add_action() }
+---
+table: other_parties.table
+rows: other_parties
+columns:
+  - Address: |
+      row_item.address.block() if defined("row_item.address.address") else ""
+edit:
+  - address.address
+confirm: True
+
+---
+id: download eviction_motion_to_continue
+event: eviction_motion_to_continue_download
+question: |
+  All done
+subquestion: |
+  Thank you ${users}. Your form is ready to download and deliver.
+  
+  View, download and send your form below. Click the "Edit answers" button to fix any mistakes.
+
+  ${ action_button_html(url_action('review_eviction_motion_to_continue'), label='Edit answers', color='info') }
+  
+  
+  ${ al_user_bundle.download_list_html() }
+  
+
+  ${ al_user_bundle.send_button_html(show_editable_checkbox=True) }
+
+progress: 100
+---
+objects:
+  - eviction_motion_to_continue_post_interview_instructions: ALDocument.using(title="Instructions", filename="eviction_motion_to_continue_next_steps.docx", enabled=True, has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+  - eviction_motion_to_continue_attachment: ALDocument.using(title="Postpone your eviction hearing", filename="eviction_motion_to_continue.docx", enabled=True, has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+---
+objects:
+  - al_user_bundle: ALDocumentBundle.using(elements=[eviction_motion_to_continue_post_interview_instructions,eviction_motion_to_continue_attachment], filename="eviction_motion_to_continue.docx_package.pdf", title="All forms to download for your records", enabled=True)
+  - al_court_bundle: ALDocumentBundle.using(elements=[eviction_motion_to_continue_attachment], filename="eviction_motion_to_continue.docx_package.pdf", title="All forms to download for your records", enabled=True)
+---
+attachments:
+  - name: eviction motion to continue post interview instructions
+    filename: Post-interview-instructions     
+    variable name: eviction_motion_to_continue_post_interview_instructions[i]        
+    skip undefined: True
+    docx template file: eviction_motion_to_continue_next_steps.docx
+  - name: eviction motion to continue attachment
+    filename: eviction_motion_to_continue.docx     
+    variable name: eviction_motion_to_continue_attachment[i]        
+    skip undefined: True
+    docx template file: eviction_motion_to_continue.docx
+
+
