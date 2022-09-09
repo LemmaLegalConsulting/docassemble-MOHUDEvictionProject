@@ -85,7 +85,8 @@ code: |
   set_parts(subtitle=str(users))
   docket_number
   set_progress(50)
-  trial_court.division
+  trial_court.circuit
+  trial_court.address.county
   interview_order_eviction_motion_to_continue = True
 ---
 ###################### Main order ######################
@@ -140,11 +141,151 @@ fields:
   - "Date of Service": service_date
     datatype: date
 ---
-id: Delete me
-question: |
-  Delete me
+question:  Where is the Court?
 fields:
-  - "Other parties.address.address": other_parties.address.address
+  - Is the court in the City of St. Louis?: in_st_louis
+    datatype: yesnoradio
+  - What county is the court in?: trial_court_county
+    datatype: combobox
+    code: |
+      county_to_circuit.keys()
+    show if:
+      variable: in_st_louis
+      is: False
+  
+    
+---
+only sets: trial_court_name
+code: |
+  if in_st_louis:
+    trial_court_circuit = 22
+    trial_court_county = "City of St. Louis"
+    trial_court_name = "22nd Judicial Circuit – City of St. Louis"
+  else:
+    trial_court_circuit = county_to_circuit[trial_court_county]
+    trial_court_name = ordinal_number(trial_court_circuit, use_word=False).capitalize() + " Judicial Circuit - " + trial_court_county
+---
+code: |
+  trial_court.circuit = ordinal_number(trial_court_circuit, use_word=False)
+  trial_court.address.county = trial_court_county
+---
+code: |
+  county_to_circuit = {
+    "Adair County":2,
+    "Andrew County":5,
+    "Atchison County":4,
+    "Audrain County":12,
+    "Barry County":39,
+    "Barton County":28,
+    "Bates County":27,
+    "Benton County":30,
+    "Bollinger County":32,
+    "Boone County":13,
+    "Buchanan County":5,
+    "Butler County":36,
+    "Caldwell County":43,
+    "Callaway County":13,
+    "Camden County":26,
+    "Cape Girardeau County":32,
+    "Carroll County":8,
+    "Carter County":37,
+    "Cass County":17,
+    "Cedar County":28,
+    "Chariton County":9,
+    "Christian County":38,
+    "City of St. Louis":22,
+    "Clark County":1,
+    "Clay County":7,
+    "Clinton County":43,
+    "Cole County":19,
+    "Cooper County":18,
+    "Crawford County":42,
+    "Dade County":28,
+    "Dallas County":30,
+    "Daviess County":43,
+    "DeKalb County":43,
+    "Dent County":42,
+    "Douglas County":44,
+    "Dunklin County":35,
+    "Franklin County":20,
+    "Gasconade County":20,
+    "Gentry County":4,
+    "Greene County":31,
+    "Grundy County":3,
+    "Harrison County":3,
+    "Henry County":27,
+    "Hickory County":30,
+    "Holt County":4,
+    "Howard County":14,
+    "Howell County":37,
+    "Iron County":42,
+    "Jackson County":16,
+    "Jasper County":29,
+    "Jefferson County":23,
+    "Johnson County":17,
+    "Knox County":2,
+    "Laclede County":26,
+    "Lafayette County":15,
+    "Lawrence County":39,
+    "Lewis County":2,
+    "Lincoln County":45,
+    "Linn County":9,
+    "Livingston County":43,
+    "Macon County":41,
+    "Madison County":24,
+    "Maries County":25,
+    "Marion County":10,
+    "McDonald County":40,
+    "Mercer County":3,
+    "Miller County":26,
+    "Mississippi County":33,
+    "Moniteau County":26,
+    "Monroe County":10,
+    "Montgomery County":12,
+    "Morgan County":26,
+    "New Madrid County":34,
+    "Newton County":40,
+    "Nodaway County":4,
+    "Oregon County":37,
+    "Osage County":20,
+    "Ozark County":44,
+    "Pemiscot County":34,
+    "Perry County":32,
+    "Pettis County":18,
+    "Phelps County":25,
+    "Pike County":45,
+    "Platte County":6,
+    "Polk County":30,
+    "Pulaski County":25,
+    "Putnam County":3,
+    "Ralls County":10,
+    "Randolph County":14,
+    "Ray County":8,
+    "Reynolds County":42,
+    "Ripley County":36,
+    "Saint Francois County":24,
+    "Sainte Genevieve County":24,
+    "Saline County":15,
+    "Schuyler County":1,
+    "Scotland County":1,
+    "Scott County":33,
+    "Shannon County":37,
+    "Shelby County":41,
+    "St. Charles County":11,
+    "St. Clair County":27,
+    "St. Louis County":21,
+    "Stoddard County":35,
+    "Stone County":39,
+    "Sullivan County":9,
+    "Taney County":46,
+    "Texas County":25,
+    "Vernon County":28,
+    "Warren County":12,
+    "Washington County":24,
+    "Wayne County":42,
+    "Webster County":30,
+    "Worth County":4,
+    "Wright County":44,}
 ---
 sets:
   - other_parties[i].name.first
@@ -157,6 +298,21 @@ question: |
 fields:
   - code: |
       other_parties[i].name_fields(person_or_business='unsure')
+---
+sets: docket_number
+id: docket number
+question: |
+  What is the docket number for your case?
+fields:
+  - I don't know the docket number: dont_know_docket_number
+    datatype: yesnowide
+  - no label: docket_number
+    hide if: dont_know_docket_number
+validation code: |
+  # This should be safe to 
+  if dont_know_docket_number:
+    docket_number = ''      
+
 ---
 id: preview eviction_motion_to_continue
 question: |
