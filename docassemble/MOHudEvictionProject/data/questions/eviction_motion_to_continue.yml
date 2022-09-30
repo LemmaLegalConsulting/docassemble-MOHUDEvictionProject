@@ -47,7 +47,8 @@ code: |
   AL_DEFAULT_STATE = "MO"
 ---
 code: |
-  github_repo_name =  'docassemble-EvictionMotionToContinue'
+  github_repo_name =  'docassemble-MOHudEvictionProj
+ect'
 ---
 code: |
   interview_short_title = "Postpone your eviction hearing"
