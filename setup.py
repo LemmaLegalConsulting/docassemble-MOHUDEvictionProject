@@ -43,12 +43,10 @@ def find_package_data(where='.', package='', exclude=standard_exclude, exclude_d
                 out.setdefault(package, []).append(prefix+name)
     return out
 
-setup(name='docassemble.MOHudEvictionProj
-ect',
+setup(name='docassemble.MOHUDEvictionProject',
       version='1.0',
       description=('Postpone your eviction hearing'),
-      long_description='# docassemble.MOHudEvictionProj
-ect\r\n\r\nPostpone your eviction hearing\r\n\r\n## Author\r\n\r\nQuinten Steenhuis\r\n\r\n',
+      long_description='# docassemble.MOHudEvictionProject\r\n\r\nPostpone your eviction hearing\r\n\r\n## Author\r\n\r\nQuinten Steenhuis\r\n\r\n',
       long_description_content_type='text/markdown',
       author='Quinten Steenhuis',
       author_email='admin@lemmalegal.com',
@@ -56,10 +54,8 @@ ect\r\n\r\nPostpone your eviction hearing\r\n\r\n## Author\r\n\r\nQuinten Steenh
       url='https://courtformsonline.org',
       packages=find_packages(),
       namespace_packages=['docassemble'],
-      install_requires=['docassemble.AssemblyLine>=2.14.1'],
+      install_requires=['docassemble.AssemblyLine>=2.15.0'],
       zip_safe=False,
-      package_data=find_package_data(where='docassemble/MOHudEvictionProj
-ect/', package='docassemble.MOHudEvictionProj
-ect'),
+      package_data=find_package_data(where='docassemble/MOHUDEvictionProject/', package='docassemble.MOHUDEvictionProject'),
      )
 

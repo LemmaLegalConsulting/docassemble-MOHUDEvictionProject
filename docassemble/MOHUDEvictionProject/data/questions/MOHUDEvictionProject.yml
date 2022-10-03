@@ -1,0 +1,680 @@
+---
+include:
+  - docassemble.AssemblyLine:assembly_line.yml
+  - docassemble.ALAnyState:any_state.yml
+---
+metadata:
+  title: |
+    Eviction Helper
+  short title: |
+    Eviction Help
+  tags:
+    - HO-02-00-00-00
+  authors:
+    - Quinten Steenhuis
+    - Toby Fey
+    - Ian Eisaman
+---
+mandatory: True
+comment: |
+  Global interview metadata
+variable name: interview_metadata["eviction_helper"]
+data:
+  al_weaver_version: "1.7.0"
+  generated on: "2022-09-08"
+  title: >-
+    Eviction Helper
+  short title: >-
+    Eviction Help
+  description: |-
+    Helps with Evictions
+  original_form: >-
+    
+  allowed courts: 
+    - "Missouri"
+  categories:
+    - "HO-00-00-00-00"
+  typical role: "defendant"
+  generate download screen: True
+---
+code: |
+  interview_metadata['main_interview_key'] =  'eviction_helper'
+---
+code: |
+  # This controls the default country and list of states in address field questions
+  AL_DEFAULT_COUNTRY = "US"
+---
+code: |
+  # This controls the default state in address field questions
+  AL_DEFAULT_STATE = "MO"
+---
+code: |
+  github_repo_name =  'docassemble-MOHUDEvictionProject'
+---
+code: |
+  interview_short_title = "Eviction Helper"
+---
+code: |
+  al_form_type = "existing_case" 
+---
+code: |
+  AL_ORGANIZATION_TITLE = "Legal Services of Eastern Missouri"
+---
+code: |
+  user_started_case = False
+---
+code: |
+  landlord_doc_name = "Plaintiff"
+---
+code: |
+  tenant_doc_name = "Defendant"
+---
+objects:
+  - other_parties: ALPeopleList.using(there_are_any=True,complete_attribute="address")
+  - users: ALPeopleList.using(there_are_any=True)
+---
+sections:
+  - review_eviction_motion_to_continue: Review your answers
+---
+#################### Interview order #####################
+comment: |
+  Controls order and branching logic for questions specific to this form
+id: interview_order_eviction_motion_to_continue
+code: |
+  # Set the allowed courts for this interview
+  allowed_courts = interview_metadata["eviction_helper"]["allowed courts"]
+  nav.set_section('review_eviction_helper')
+  user_role = 'defendant'
+  landlord_doc_name
+  tenant_doc_name
+  if docket_available:
+    docket_review
+  if petition_available:
+    petition_review
+  defense_logic
+  set_progress(50)
+  trial_court.circuit
+  trial_court.address.county
+  trial_court.division
+  interview_order_eviction_helper = True
+---
+###################### Main order ######################
+comment: |
+  This block includes the logic for standalone interviews.
+  Delete mandatory: True to include in another interview
+mandatory: True
+code: |
+  al_intro_screen
+  eviction_helper_intro
+  interview_order_eviction_helper
+  signature_date
+  # Store anonymous data for analytics / statistics
+  store_variables_snapshot(
+      persistent=True,
+      data={
+          "zip": showifdef("users[0].address.zip"),
+          "reached_interview_end": True,
+      },
+  )
+  eviction_helper_download
+---
+comment: |
+  This question is used to introduce your interview. Please customize
+id: eviction_helper_introduction
+continue button field: eviction_helper_intro
+question: |
+  Eviction Helper
+subquestion: |
+  This interview will help you figure out what you can do if you are being evicted.  Answering these questions will produce a list of next steps you can take and the court documents to help.
+  This interview will also help decode the information about your case, both the information available online and in documents you may have received from the court.  Before you start this interview, you may want to gather these documents.
+---
+###################### DOCKET REVIEW ######################
+id: Docket_introduction
+question: |
+  Introducing Online Docket
+subquestion: |
+  Next, pull up your case on the Missouri **Online Docket**, 
+  also known as [Case.net](https://www.courts.mo.gov/cnet).
+
+  Having this handy will help you answer the following questions.
+  
+  If you are unable or do not want to use the **Online Docket**, 
+  you may still be able to answer the questions with just your **Petition**.
+
+  (TODO: Insert information to help user pull up their case on Case.net.)
+  
+  **Were you able to find your eviction case on the Online Docket?**
+yesno: docket_available
+---
+code: |
+  filing_date
+  original_hearing_date
+  other_parties[0].address.address
+  service_methods
+  trial_court.address.address
+  users.gather()
+  set_parts(subtitle=str(users))
+  docket_number
+  is_rent_sought
+  docket_review = True
+---
+id: Information about the original hearing
+question: |
+  Information about the original hearing
+fields:
+  - "Date of original hearing": original_hearing_date
+    datatype: date
+  - "Original hearing time": original_hearing_time
+---
+id: Calculating if hearing date is past
+code: |
+  original_hearing_date_past = original_hearing_date < today()
+---
+id: Service to other parties
+question: |
+  Service to ${ other_parties }
+fields:
+  - "Service methods": service_methods
+    datatype: checkboxes
+    choices:
+      - E-filing: e_file
+      - Mail: us_mail
+      - Email: e_mail
+      - Fax: delivery_fax
+      - Hand delivery: hand_delivery
+  - "Date of Service": service_date
+    datatype: date
+---
+question:  Where is the Court?
+fields:
+  - Is the court in the City of St. Louis?: in_st_louis
+    datatype: yesnoradio
+  - What county is the court in?: trial_court_county
+    datatype: combobox
+    code: |
+      county_to_circuit.keys()
+    show if:
+      variable: in_st_louis
+      is: False
+  
+    
+---
+only sets: trial_court_name
+code: |
+  if in_st_louis:
+    trial_court_circuit = 22
+    trial_court_county = "City of St. Louis"
+    trial_court_name = "22nd Judicial Circuit – City of St. Louis"
+  else:
+    trial_court_circuit = county_to_circuit[trial_court_county]
+    trial_court_name = ordinal_number(trial_court_circuit, use_word=False).capitalize() + " Judicial Circuit - " + trial_court_county
+---
+code: |
+  trial_court.circuit = ordinal_number(trial_court_circuit, use_word=False)
+  trial_court.address.county = trial_court_county
+---
+code: |
+  trial_court.division = "Housing Division"
+---
+code: |
+  county_to_circuit = {
+    "Adair County":2,
+    "Andrew County":5,
+    "Atchison County":4,
+    "Audrain County":12,
+    "Barry County":39,
+    "Barton County":28,
+    "Bates County":27,
+    "Benton County":30,
+    "Bollinger County":32,
+    "Boone County":13,
+    "Buchanan County":5,
+    "Butler County":36,
+    "Caldwell County":43,
+    "Callaway County":13,
+    "Camden County":26,
+    "Cape Girardeau County":32,
+    "Carroll County":8,
+    "Carter County":37,
+    "Cass County":17,
+    "Cedar County":28,
+    "Chariton County":9,
+    "Christian County":38,
+    "City of St. Louis":22,
+    "Clark County":1,
+    "Clay County":7,
+    "Clinton County":43,
+    "Cole County":19,
+    "Cooper County":18,
+    "Crawford County":42,
+    "Dade County":28,
+    "Dallas County":30,
+    "Daviess County":43,
+    "DeKalb County":43,
+    "Dent County":42,
+    "Douglas County":44,
+    "Dunklin County":35,
+    "Franklin County":20,
+    "Gasconade County":20,
+    "Gentry County":4,
+    "Greene County":31,
+    "Grundy County":3,
+    "Harrison County":3,
+    "Henry County":27,
+    "Hickory County":30,
+    "Holt County":4,
+    "Howard County":14,
+    "Howell County":37,
+    "Iron County":42,
+    "Jackson County":16,
+    "Jasper County":29,
+    "Jefferson County":23,
+    "Johnson County":17,
+    "Knox County":2,
+    "Laclede County":26,
+    "Lafayette County":15,
+    "Lawrence County":39,
+    "Lewis County":2,
+    "Lincoln County":45,
+    "Linn County":9,
+    "Livingston County":43,
+    "Macon County":41,
+    "Madison County":24,
+    "Maries County":25,
+    "Marion County":10,
+    "McDonald County":40,
+    "Mercer County":3,
+    "Miller County":26,
+    "Mississippi County":33,
+    "Moniteau County":26,
+    "Monroe County":10,
+    "Montgomery County":12,
+    "Morgan County":26,
+    "New Madrid County":34,
+    "Newton County":40,
+    "Nodaway County":4,
+    "Oregon County":37,
+    "Osage County":20,
+    "Ozark County":44,
+    "Pemiscot County":34,
+    "Perry County":32,
+    "Pettis County":18,
+    "Phelps County":25,
+    "Pike County":45,
+    "Platte County":6,
+    "Polk County":30,
+    "Pulaski County":25,
+    "Putnam County":3,
+    "Ralls County":10,
+    "Randolph County":14,
+    "Ray County":8,
+    "Reynolds County":42,
+    "Ripley County":36,
+    "Saint Francois County":24,
+    "Sainte Genevieve County":24,
+    "Saline County":15,
+    "Schuyler County":1,
+    "Scotland County":1,
+    "Scott County":33,
+    "Shannon County":37,
+    "Shelby County":41,
+    "St. Charles County":11,
+    "St. Clair County":27,
+    "St. Louis County":21,
+    "Stoddard County":35,
+    "Stone County":39,
+    "Sullivan County":9,
+    "Taney County":46,
+    "Texas County":25,
+    "Vernon County":28,
+    "Warren County":12,
+    "Washington County":24,
+    "Wayne County":42,
+    "Webster County":30,
+    "Worth County":4,
+    "Wright County":44,}
+---
+sets:
+  - other_parties[i].name.first
+  - other_parties[i].name.last
+  - other_parties[i].name.middle
+  - other_parties[i].name.suffix
+id: names of opposing parties
+question: |
+  Name of ${ ordinal(i) } landlord
+fields:
+  - code: |
+      other_parties[i].name_fields(person_or_business='unsure')
+---
+sets: docket_number
+id: docket number
+question: |
+  What is the docket number for your case?
+fields:
+  - I don't know the docket number: dont_know_docket_number
+    datatype: yesnowide
+  - no label: docket_number
+    hide if: dont_know_docket_number
+validation code: |
+  # This should be safe to 
+  if dont_know_docket_number:
+    docket_number = ''      
+---
+###################### PETITION REVIEW ######################
+id: Petition_introduction
+mandatory: True
+question: |
+  Introducing Petition
+subquestion: |
+  Before you continue, please locate your **Petition** for Eviction served to you by your Landlord.
+
+  Having this handy will help you answer the following questions.
+
+  (TODO: Insert information to help user identify and locate the Petition.)
+  
+  **Do you have a copy of the Landlord's Petition?**
+yesno: petition_available
+---
+code: |
+  filing_date
+  is_rent_sought
+  petition_requirements
+  petition_review = True
+---
+comment: |
+  This can't be the best way to do this.  Can a DADict act like a checkboxes dictionary?
+code: |
+  defense = dict()
+  if petition_alleges_nonrent or len(petition_requirements.true_values()) > 0 or (trial_court_county == "St. Louis County" and petition_separates_nonrent):
+    defense["strict_details"] = True
+  else:
+    defense["strict_details"] = False
+  if is_rent_sought and has_refused_payment and (has_attempt_evidence or will_offer_payment):
+    defense["payment_refused"] = True
+  else:
+    defense["payment_refused"] = False
+  defense_logic = True
+---
+id: petition requirements
+question: Check for Petition Requirements
+subquestion: |
+  The petition a landlord files for an eviction must contain certain information to be able to evict a tenant.
+fields:
+  - "Does the lease contain the following things?": petition_requirements
+    datatype: checkboxes
+    choices:
+      - An accurate amount of rent due at the time of filing: petition_states_rent_amount
+      - The rental periods owed: petition_states_rent_periods
+      - The terms of the lease: petition_states_terms_of_lease
+      - A statement that actual demand for rent was made: petition_states_demand_made
+  - "Does the lease only contain non-rent charges and claims no actual rent?": petition_alleges_nonrent
+    datatype: yesnoradio
+  - "Does the lease separate the non-rent claims (such as late fees, interest, utilities, parking fees, and other non-rent items) from the true rent being sought?": petition_separates_nonrent
+    datatype: yesnoradio
+    show if:
+      code: |
+        trial_court_county == "St. Louis County"
+---
+id: when was lawsuit filed
+comment: |
+  DOCKET
+  (PETITION)
+question: |
+  When was the lawsuit filed?
+help: 
+  label: |
+    How do I find this?
+  content: |
+    This information can be found on the **Docket** or the **Petition**
+    
+    (TODO: Insert information to help user locate this information on the Docket and Petition)
+fields:
+  - Filing date: filing_date
+    datatype: date
+---
+id: is seeking past due rent true
+comment: |
+  DOCKET
+  (PETITION)
+question: |
+  Is the landlord seeking recovery of past-due rent?
+help:
+  label: |
+    How do I find this?
+  content: |
+    This information can be found on the **Docket** or the **Petition**.
+    
+    (TODO: Insert information to help user locate this information on the Docket and Petition)
+fields:
+  - "": is_rent_sought
+    datatype: yesno
+    input type: yesnoradio
+---
+id: has refused payment
+comment: |
+  ADDITIONAL
+  (TODO: support multiple refusal dates)
+  (TODO: implement Other explanation)
+  (TODO: change was_attempt_full question options from Yes/No to Full/Partial)
+question: |
+  Has the landlord refused attempts to pay the past-due rent before the date this case was filed (${ filing_date }$)?
+fields:
+  - Has landlord refused payment?: has_refused_payment
+    datatype: yesno
+    input type: yesnoradio
+  - HOW did you attempt payment?: attempt_method
+    input type: radio
+    choices:
+      - via Letter
+      - via Email
+      - verbally In person
+      - verbally Over Phone Call
+      - Other
+    show if: has_refused_payment
+  - WHEN did you attempt payment?: attempt_date
+    datatype: date
+    show if: has_refused_payment
+  - Did you attempt to pay in full?: was_attempt_full
+    datatype: yesno
+    input type: yesnoradio
+    show if: has_refused_payment
+---
+id: attempt evidence
+comment: |
+  EVIDENCE
+  (TODO: possibly separate "Would you be willing..." question to a dedicated yesno screen)
+question: |
+  Do you have proof of the landlord's refusal?
+fields:
+  - Have Proof?: has_attempt_evidence
+    datatype: yesno
+    input type: yesnoradio
+    help: |
+      For example, a letter from the landlord refusing to accept the money, 
+      a written check or money order, or a witness to the landlord's refusal.
+  - Would you be willing to offer to pay the full amount of past-due rent plus court costs in exchange for dismissing this case?: will_offer_payment
+    datatype: yesno
+    input type: yesnoradio
+    help: |
+      (TODO: add explanation as to why user may want to do this)
+---
+id: preview eviction_helper
+question: |
+  Preview your form before you sign it
+subquestion: |
+  Here is a preview of the form you will sign on the next page.   
+  
+  ${ al_court_bundle.as_pdf(key='preview') }
+
+  Click the image to open it in a new tab. Click the "Edit answers" button
+  to edit your answers.
+
+  ${ action_button_html(url_action('review_eviction_helper'), label='Edit answers', color='info') }
+  
+  Remember to come back to this window to continue and sign your form.
+continue button field: eviction_helper_preview_question    
+---
+code: |
+  signature_fields = []
+---
+code: |
+  # This is a placeholder for the addresses that will be searched
+  # for matching address to court. Edit if court venue is based on 
+  # a different address than the user's
+  addresses_to_search = [user.address for user in users]
+---
+code: |
+  wants_to_file = dict()
+  wants_to_file['answer'] = True
+  if not original_hearing_date_past:
+    wants_to_file['continuance'] = True
+  else:
+    wants_to_file['continuance'] = True
+---
+id: eviction motion to continue review screen
+event: review_eviction_helper
+question: |
+  Review your answers
+review:
+  - Edit: service_methods
+    button: |
+      **Service methods**:
+      ${ service_methods }
+  - Edit: trial_court
+    button: |
+      **Trial court**
+  
+      % if defined("trial_court.address.county"):
+      * address: ${ trial_court.address.block() }
+      % endif
+      % if defined("trial_court.division"):
+      * division: ${ trial_court.division }
+      % endif
+  - Edit: users.revisit
+    button: |
+      **Users**
+
+      % for item in users:
+        * ${ item }
+      % endfor
+  - Edit: original_hearing_date
+    button: |
+      **Date of original hearing**:
+      ${ original_hearing_date }
+  - Edit: other_parties.revisit
+    button: |
+      **Other parties**
+
+      % for item in other_parties:
+        * ${ item }
+      % endfor
+  - Edit: service_date
+    button: |
+      **Date of Service**:
+      ${ service_date }
+  - Edit: docket_number
+    button: |
+      **Docket number**:
+      ${ docket_number }
+  - Edit: original_hearing_time
+    button: |
+      **Original hearing time**:
+      ${ original_hearing_time }
+---
+continue button field: users.revisit
+question: |
+  Edit users
+subquestion: |
+  ${ users.table }
+
+  ${ users.add_action() }
+---
+table: users.table
+rows: users
+columns:
+  - Name: |
+      row_item.name.full() if defined("row_item.name.first") else ""
+edit:
+  - name.first
+confirm: True
+
+---
+continue button field: other_parties.revisit
+question: |
+  Edit other_parties
+subquestion: |
+  ${ other_parties.table }
+
+  ${ other_parties.add_action() }
+---
+table: other_parties.table
+rows: other_parties
+columns:
+  - Address: |
+      row_item.address.block() if defined("row_item.address.address") else ""
+edit:
+  - address.address
+confirm: True
+
+---
+id: download eviction_helper
+event: eviction_helper_download
+question: |
+  All done
+subquestion: |
+  Thank you ${users}. Your form is ready to download and deliver.
+  
+  View, download and send your form below. Click the "Edit answers" button to fix any mistakes.
+
+  ${ action_button_html(url_action('review_eviction_helper'), label='Edit answers', color='info') }
+  
+  
+  ${ al_user_bundle.download_list_html() }
+  
+
+  ${ al_user_bundle.send_button_html(show_editable_checkbox=True) }
+
+progress: 100
+---
+objects:
+  - eviction_helper_post_interview_instructions: ALDocument.using(title="Instructions", filename="eviction_helper_next_steps.docx", enabled=True, has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+  - eviction_motion_to_continue_attachment: ALDocument.using(title="Postpone your eviction hearing", filename="eviction_motion_to_continue.docx", enabled=True, has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+  - eviction_answer_attachment: ALDocument.using(title="File an Answer and Affirmative Defenses", filename="answer_defenses.docx", enabled=True, has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+---
+objects:
+  - al_user_bundle: ALDocumentBundle.using(elements=attachment_list_user, filename="eviction_helper.docx_package.pdf", title="All forms to download for your records", enabled=True)
+  - al_court_bundle: ALDocumentBundle.using(elements=attachment_list_court, filename="eviction_helper.docx_package.pdf", title="All forms to download for your records", enabled=True)
+---
+code: |
+  attachment_list_user = list()
+  attachment_list_court = list()
+  attachment_list_user.append(eviction_helper_post_interview_instructions)
+  if original_hearing_date_past:
+    attachment_list_user = [eviction_answer_attachment]
+    attachment_list_court = [eviction_answer_attachment]
+  else:
+    if wants_to_file['continuance']:
+      attachment_list_user.append(eviction_motion_to_continue_attachment)
+      attachment_list_court.append(eviction_motion_to_continue_attachment)
+    if wants_to_file['answer']:
+      attachment_list_user.append(eviction_answer_attachment)
+      attachment_list_court.append(eviction_answer_attachment)
+---
+attachments:
+  - name: eviction motion to continue post interview instructions
+    filename: Post-interview-instructions     
+    variable name: eviction_helper_post_interview_instructions[i]        
+    skip undefined: True
+    docx template file: eviction_helper_next_steps.docx
+  - name: eviction motion to continue attachment
+    filename: eviction_motion_to_continue.docx     
+    variable name: eviction_motion_to_continue_attachment[i]        
+    skip undefined: True
+    docx template file: motionToContinue.docx
+  - name: eviction answer
+    filename: answer_defenses.docx     
+    variable name: eviction_answer_attachment[i]        
+    skip undefined: True
+    docx template file: answer_defenses.docx
+
+
