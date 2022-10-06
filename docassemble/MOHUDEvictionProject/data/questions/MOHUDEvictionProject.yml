@@ -389,7 +389,7 @@ code: |
     defense["strict_details"] = True
   else:
     defense["strict_details"] = False
-  if is_rent_sought and has_refused_payment and (has_attempt_evidence or will_offer_payment):
+  if is_rent_sought and has_refused_payment and attempt_method and (has_attempt_evidence or will_offer_payment):
     defense["payment_refused"] = True
   else:
     defense["payment_refused"] = False
@@ -457,11 +457,18 @@ comment: |
   (TODO: implement Other explanation)
   (TODO: change was_attempt_full question options from Yes/No to Full/Partial)
 question: |
-  Has the landlord refused attempts to pay the past-due rent before the date this case was filed (${ filing_date }$)?
+  Has the landlord refused attempts to pay the past-due rent before the date this case was filed (${ filing_date })?
 fields:
   - Has landlord refused payment?: has_refused_payment
     datatype: yesno
     input type: yesnoradio
+---
+id: payment attempt
+Question: |
+  Payment Attempt Information
+comment: |
+  (TODO: loop to allow multiple payment attempts)
+fields:
   - HOW did you attempt payment?: attempt_method
     input type: radio
     choices:
@@ -470,14 +477,11 @@ fields:
       - verbally In person
       - verbally Over Phone Call
       - Other
-    show if: has_refused_payment
   - WHEN did you attempt payment?: attempt_date
     datatype: date
-    show if: has_refused_payment
   - Did you attempt to pay in full?: was_attempt_full
     datatype: yesno
     input type: yesnoradio
-    show if: has_refused_payment
 ---
 id: attempt evidence
 comment: |
