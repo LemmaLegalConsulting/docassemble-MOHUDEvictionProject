@@ -87,10 +87,10 @@ code: |
   user_role = 'defendant'
   landlord_doc_name
   tenant_doc_name
-  if docket_available:
-    docket_review
   if petition_available:
     petition_review
+  if docket_available:
+    docket_review
   defense_logic
   set_progress(50)
   trial_court.circuit
