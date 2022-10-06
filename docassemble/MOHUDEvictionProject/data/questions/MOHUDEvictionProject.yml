@@ -87,10 +87,10 @@ code: |
   user_role = 'defendant'
   landlord_doc_name
   tenant_doc_name
-  if docket_available:
-    docket_review
   if petition_available:
     petition_review
+  if docket_available:
+    docket_review
   defense_logic
   set_progress(50)
   trial_court.circuit
@@ -364,15 +364,15 @@ validation code: |
 id: Petition_introduction
 mandatory: True
 question: |
-  Introducing Petition
+  Introducing Summons and Petition
 subquestion: |
-  Before you continue, please locate your **Petition** for Eviction served to you by your Landlord.
+  Before you continue, please locate your **Summons** and **Petition** for Eviction served to you by your Landlord.
 
   Having this handy will help you answer the following questions.
 
   (TODO: Insert information to help user identify and locate the Petition.)
   
-  **Do you have a copy of the Landlord's Petition?**
+  **Do you have a copy of the Summons and Landlord's Petition?**
 yesno: petition_available
 ---
 code: |
@@ -389,7 +389,7 @@ code: |
     defense["strict_details"] = True
   else:
     defense["strict_details"] = False
-  if is_rent_sought and has_refused_payment and (has_attempt_evidence or will_offer_payment):
+  if is_rent_sought and has_refused_payment and attempt_method and (has_attempt_evidence or will_offer_payment):
     defense["payment_refused"] = True
   else:
     defense["payment_refused"] = False
@@ -457,11 +457,18 @@ comment: |
   (TODO: implement Other explanation)
   (TODO: change was_attempt_full question options from Yes/No to Full/Partial)
 question: |
-  Has the landlord refused attempts to pay the past-due rent before the date this case was filed (${ filing_date }$)?
+  Has the landlord refused attempts to pay the past-due rent before the date this case was filed (${ filing_date })?
 fields:
   - Has landlord refused payment?: has_refused_payment
     datatype: yesno
     input type: yesnoradio
+---
+id: payment attempt
+Question: |
+  Payment Attempt Information
+comment: |
+  (TODO: loop to allow multiple payment attempts)
+fields:
   - HOW did you attempt payment?: attempt_method
     input type: radio
     choices:
@@ -470,14 +477,11 @@ fields:
       - verbally In person
       - verbally Over Phone Call
       - Other
-    show if: has_refused_payment
   - WHEN did you attempt payment?: attempt_date
     datatype: date
-    show if: has_refused_payment
   - Did you attempt to pay in full?: was_attempt_full
     datatype: yesno
     input type: yesnoradio
-    show if: has_refused_payment
 ---
 id: attempt evidence
 comment: |
@@ -497,6 +501,28 @@ fields:
     input type: yesnoradio
     help: |
       (TODO: add explanation as to why user may want to do this)
+---
+id: warranty of habitability
+comment: |
+  (TODO: add screen to interview order)
+question: |
+  Warranty of habitability
+subquestion: |
+  You may have a claim of **Breach of Warranty of Habitability** if he condition of the premises adversely affected your life, health or safety and rendered the dwelling uninhabitable in whole or in part.
+  
+  Winning on a Breach of Warranty of Habitability claim may excuse you from all or part of the back rent owed.
+fields: 
+  - Do any of the following apply to you?: warranty_breaches
+    datatype: checkboxes
+    choices: 
+      - Has windows and/or doors that are not lockable, or Tenant cannot lock them: is_not_lockable
+      - Is infested with bugs or vermin through no fault of the Defendant: is_infested
+      - Has inadequate or no heating, cooling, light, or electricity: is_inadequate
+      - Has electrical problems that render the home unsafe: has_electrical_problems
+      - Has plumbing not in working order or is subject to flooding: has_plumbing_problems
+      - Has standing water or sewage: has_standing_water
+      - Has dangerous structural issues: has_structural_issues
+      - Other: other
 ---
 id: preview eviction_helper
 question: |
