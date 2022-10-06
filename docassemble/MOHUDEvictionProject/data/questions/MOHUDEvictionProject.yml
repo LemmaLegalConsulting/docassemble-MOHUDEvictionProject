@@ -364,15 +364,15 @@ validation code: |
 id: Petition_introduction
 mandatory: True
 question: |
-  Introducing Petition
+  Introducing Summons and Petition
 subquestion: |
-  Before you continue, please locate your **Petition** for Eviction served to you by your Landlord.
+  Before you continue, please locate your **Summons** and **Petition** for Eviction served to you by your Landlord.
 
   Having this handy will help you answer the following questions.
 
   (TODO: Insert information to help user identify and locate the Petition.)
   
-  **Do you have a copy of the Landlord's Petition?**
+  **Do you have a copy of the Summons and Landlord's Petition?**
 yesno: petition_available
 ---
 code: |
