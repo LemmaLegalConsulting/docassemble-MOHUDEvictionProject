@@ -502,6 +502,28 @@ fields:
     help: |
       (TODO: add explanation as to why user may want to do this)
 ---
+id: warranty of habitability
+comment: |
+  (TODO: add screen to interview order)
+question: |
+  Warranty of habitability
+subquestion: |
+  You may have a claim of **Breach of Warranty of Habitability** if he condition of the premises adversely affected your life, health or safety and rendered the dwelling uninhabitable in whole or in part.
+  
+  Winning on a Breach of Warranty of Habitability claim may excuse you from all or part of the back rent owed.
+fields: 
+  - Do any of the following apply to you?: warranty_breaches
+    datatype: checkboxes
+    choices: 
+      - Has windows and/or doors that are not lockable, or Tenant cannot lock them: is_not_lockable
+      - Is infested with bugs or vermin through no fault of the Defendant: is_infested
+      - Has inadequate or no heating, cooling, light, or electricity: is_inadequate
+      - Has electrical problems that render the home unsafe: has_electrical_problems
+      - Has plumbing not in working order or is subject to flooding: has_plumbing_problems
+      - Has standing water or sewage: has_standing_water
+      - Has dangerous structural issues: has_structural_issues
+      - Other: other
+---
 id: preview eviction_helper
 question: |
   Preview your form before you sign it
