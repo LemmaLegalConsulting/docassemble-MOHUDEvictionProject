@@ -70,8 +70,31 @@ code: |
   tenant_doc_name = "Defendant"
 ---
 objects:
-  - other_parties: ALPeopleList.using(there_are_any=True,complete_attribute="address")
+  - other_parties: ALPeopleList.using(there_are_any=True,complete_attribute="complete")
+  - other_parties[i].attorney: ALPeopleList.using(complete_attribute="complete")
   - users: ALPeopleList.using(there_are_any=True)
+---
+code: |
+  other_parties[i].address.address
+  other_parties[i].attorney.gather()
+  other_parties[i].complete = True
+---
+code: |
+  other_parties[i].attorney[j].address.address
+  other_parties[i].attorney[j].complete = True
+---
+code: |
+  other_parties[i].attorney.there_is_another = False
+---
+id: any other opposing parties
+question: |
+  Is there any other **Plaintiff** in this matter?
+subquestion:  |
+  Additional Plaintiffs may be listed under the first Plaintiff.
+
+fields:
+  - no label: other_parties.there_is_another
+    datatype: yesnoradio
 ---
 sections:
   - review_eviction_motion_to_continue: Review your answers
@@ -87,15 +110,15 @@ code: |
   user_role = 'defendant'
   landlord_doc_name
   tenant_doc_name
+  users[0].name.first
+  users[0].address.address
+  trial_court_county
   if petition_available:
     petition_review
   if docket_available:
     docket_review
   defense_logic
   set_progress(50)
-  trial_court.circuit
-  trial_court.address.county
-  trial_court.division
   interview_order_eviction_helper = True
 ---
 ###################### Main order ######################
@@ -126,7 +149,10 @@ question: |
   Eviction Helper
 subquestion: |
   This interview will help you figure out what you can do if you are being evicted.  Answering these questions will produce a list of next steps you can take and the court documents to help.
-  This interview will also help decode the information about your case, both the information available online and in documents you may have received from the court.  Before you start this interview, you may want to gather these documents.
+  
+  This interview will also help decode the information about your case, both the information available online and in documents you may have received from the court.  
+  
+  Before you start this interview, you may want to gather these documents.
 ---
 ###################### DOCKET REVIEW ######################
 id: Docket_introduction
@@ -147,6 +173,17 @@ subquestion: |
 yesno: docket_available
 ---
 code: |
+  docket_header
+  for party in other_parties:
+    party.address.address
+    party.attorney.gather()
+  users.gather()
+  past_hearings
+  original_hearing_date
+  set_parts(subtitle=str(users))
+  docket_review_conclusion
+  docket_review = True
+comment: |
   filing_date
   original_hearing_date
   other_parties[0].address.address
@@ -197,13 +234,15 @@ fields:
       variable: in_st_louis
       is: False
   
-    
+---
+if: in_st_louis
+code: |
+  trial_court_county = "City of St. Louis"
 ---
 only sets: trial_court_name
 code: |
   if in_st_louis:
     trial_court_circuit = 22
-    trial_court_county = "City of St. Louis"
     trial_court_name = "22nd Judicial Circuit – City of St. Louis"
   else:
     trial_court_circuit = county_to_circuit[trial_court_county]
@@ -346,6 +385,59 @@ fields:
   - code: |
       other_parties[i].name_fields(person_or_business='unsure')
 ---
+if: docket_available
+sets:
+  - other_parties[i].name.first
+  - other_parties[i].name.last
+  - other_parties[i].name.middle
+  - other_parties[i].name.suffix
+id: names of opposing parties
+question: |
+  Name of ${ ordinal(i) } Plaintiff
+subquestion: |
+    You can click on "Parties & Attorneys", the next tab to the right.  This tab should look like this:
+  
+    [FILE Parties.png, 100%]
+    
+    Who is listed as the Plaintiff?
+fields:
+  - code: |
+      other_parties[i].name_fields(person_or_business='unsure')
+---
+question: Docket Entries
+subquestion: |
+  You can click on the Docket Entries to see a list of everything that has happened in the case, including when the Plaintiff filed the petition and any hearings.  On the left side will be a date, and the right side will have any
+  
+  If the only thing that has happened so far is that the Plaintiff filed the Petition, the docket will look like this:
+  
+  [FILE Docket.png, 100%]
+  
+  If there have been any hearings, that will be listed with a separate date and information about that hearing.
+fields:
+  - Have there been any hearings: past_hearings
+    datatype: yesnomaybe
+---
+if: docket_available
+question: Next Hearing
+subquestion: |
+  You can find the information about the next hearing on the Docket Review page, but you can also click to Scheduled Hearings & Trials to find this information more easily.
+  
+  [FILE ScheduledEvents.png, 100%]
+fields:
+  - "Date of original hearing": original_hearing_date
+    datatype: date
+  - "Original hearing time": original_hearing_time
+---
+question: Other information on Case.Net
+subquestion: |
+  Some of the other information on Case.Net will not be applicable to your eviction case, like "Charges, Judgments, & Sentences", and other tabs will only be useful after the eviction case is over, like "Civil Judgments" and "Garnishments/Execution".
+  
+  You can keep checking Case.Net regularly to make sure you aren't missing anything happening in your case.  
+  
+  You can also sign up for to get notifications of any updates to the docket.
+continue button field: docket_review_conclusion
+---
+---
 sets: docket_number
 id: docket number
 question: |
@@ -369,6 +461,10 @@ subquestion: |
   Before you continue, please locate your **Summons** and **Petition** for Eviction served to you by your Landlord.
 
   Having this handy will help you answer the following questions.
+  
+  The Landlord's Petition may generally look like this Form Petition.
+  
+  [FILE ComplaintForm.png]
 
   (TODO: Insert information to help user identify and locate the Petition.)
   
@@ -376,44 +472,149 @@ subquestion: |
 yesno: petition_available
 ---
 code: |
+  docket_number
+  filing_date
+  for party in other_parties:
+    party.address.address
+    party.attorney.gather()
+  users.gather()
+  petition_states_rent_amount
+  petition_states_terms_of_lease
+  petition_states_rent_periods
+  petition_states_demand_made
+  petition_review = True
+comment: |
   filing_date
   is_rent_sought
   petition_requirements
   petition_review = True
 ---
+id: caption - docket number and file date
+if: petition_available
+question: Caption
+subquestion: |
+  At the top of the Landlord's Petition is the section called a "caption", which has the basic information about the eviction case.
+  
+  [FILE ComplaintCaptionNumber.png, 100%]
+  
+  At the top, the Landlord's Petition should say the name of the court.  In your case, it should say "In The ${ trial_court_name }, Missouri"
+  
+fields:
+  - Case Number: docket_number
+  - note: |
+      The Filing Date should be stamped next to the caption.
+  - Filing Date: filing_date
+    datatype: date
+  
+---
+id: names of opposing parties - petition
+if: petition_available
+question: Caption - Plaintiffs
+subquestion: |
+  The Plaintiff's name and address is near the top of the Caption on the left.
+  
+  [FILE ComplaintCaptionPlaintiff.png, 100%]
+  
+  Who is the ${ ordinal(i) } Plaintiff listed?
+sets:
+  - other_parties[i].name.first
+  - other_parties[i].name.last
+  - other_parties[i].name.middle
+  - other_parties[i].name.suffix
+fields:
+  - code: |
+      other_parties[i].name_fields(person_or_business='unsure')
+---  
+---
 comment: |
   This can't be the best way to do this.  Can a DADict act like a checkboxes dictionary?
 code: |
   defense = dict()
-  if petition_alleges_nonrent or len(petition_requirements.true_values()) > 0 or (trial_court_county == "St. Louis County" and petition_separates_nonrent):
-    defense["strict_details"] = True
+  if petition_available:
+    if petition_alleges_nonrent or not petition_states_rent_amount or not petition_states_terms_of_lease or not petition_states_rent_periods or not petition_states_demand_made or (trial_court_county == "St. Louis County" and not petition_separates_nonrent):
+      defense["strict_details"] = True
+    else:
+      defense["strict_details"] = False
   else:
-    defense["strict_details"] = False
-  if is_rent_sought and has_refused_payment and attempt_method and (has_attempt_evidence or will_offer_payment):
+    defense["strict_details"] = None
+  if is_rent_sought and has_refused_payment and (has_attempt_evidence or will_offer_payment):
     defense["payment_refused"] = True
   else:
     defense["payment_refused"] = False
+  if warranty_breaches.any_true():
+    defense["habitability"] = True
+  else:
+    defense["habitability"] = False
   defense_logic = True
 ---
-id: petition requirements
-question: Check for Petition Requirements
+id: petition requirements - rent amount
+question: Rent Amount
 subquestion: |
-  The petition a landlord files for an eviction must contain certain information to be able to evict a tenant.
+  The Landlord's Petition must state how much is owed at the time the Landlord filed the petition.
+  
+  The Rent Amount may look like this, but can have different language:
+  
+  [FILE ComplaintRentAmount.png, 100%]
 fields:
-  - "Does the lease contain the following things?": petition_requirements
-    datatype: checkboxes
-    choices:
-      - An accurate amount of rent due at the time of filing: petition_states_rent_amount
-      - The rental periods owed: petition_states_rent_periods
-      - The terms of the lease: petition_states_terms_of_lease
-      - A statement that actual demand for rent was made: petition_states_demand_made
+  - "Does the lease state the amount of rent owed?": petition_states_rent_amount
+    datatype: yesnomaybe
   - "Does the lease only contain non-rent charges and claims no actual rent?": petition_alleges_nonrent
-    datatype: yesnoradio
-  - "Does the lease separate the non-rent claims (such as late fees, interest, utilities, parking fees, and other non-rent items) from the true rent being sought?": petition_separates_nonrent
-    datatype: yesnoradio
+    datatype: yesnomaybe
+    hide if:
+      variable: petition_states_rent_amount
+      is: True
+  - note: |
+      In St. Louis County, the Landlord's Petition should not include late fees and other fees that aren't rent in with the rent that is due.  The petition could have a paragraph that looks like this
+      
+      [FILE ComplaintNonRent.png, 100%]
+      
+      If there is nothing like this, and the total amount is more than the months of rent you owe, then the Landlord's Petition may not separate the non-rent claims.
     show if:
       code: |
         trial_court_county == "St. Louis County"
+  - "Does the Landlord's Petition separate the non-rent claims (such as late fees, interest, utilities, parking fees, and other non-rent items) from the true rent being sought?": petition_separates_nonrent
+    datatype: yesnomaybe
+    show if:
+      code: |
+        trial_court_county == "St. Louis County"
+---
+if: petition_states_rent_amount
+code: |
+  petition_alleges_nonrent = False
+---
+id: petition requirements - terms of lease
+question: Terms of Lease
+subquestion: |
+  The Landlord's Petition must say what the rental agreement was.
+  
+  The Terms of Lease may look like this, but can have different language:
+  
+  [FILE ComplaintTerms.png, 100%]
+fields:
+  - "Does the Landlord's Petition state the Terms of Lease?": petition_states_terms_of_lease
+    datatype: yesnomaybe
+---
+id: petition requirements - periods due
+question: Periods
+subquestion: |
+  The Landlord's Petition must say what months you allegedly owe rent for.
+ 
+fields:
+  - "Does the Landlord's Petition state the rental periods owed?": petition_states_rent_periods
+    datatype: yesnomaybe
+---
+id: petition requirements - demand
+question: Periods
+subquestion: |
+  The Landlord's Petition must say that the landlord demanded rent
+  
+  The Demand may look like this, but can have different language:
+  
+  [FILE ComplaintDemand.png, 100%]
+ 
+fields:
+  - "Does the Landlord's Petition state the landlord demanded rent?": petition_states_demand_made
+    datatype: yesnomaybe
 ---
 id: when was lawsuit filed
 comment: |
@@ -664,27 +865,18 @@ progress: 100
 ---
 objects:
   - eviction_helper_post_interview_instructions: ALDocument.using(title="Instructions", filename="eviction_helper_next_steps.docx", enabled=True, has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
-  - eviction_motion_to_continue_attachment: ALDocument.using(title="Postpone your eviction hearing", filename="eviction_motion_to_continue.docx", enabled=True, has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
-  - eviction_answer_attachment: ALDocument.using(title="File an Answer and Affirmative Defenses", filename="answer_defenses.docx", enabled=True, has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+  - eviction_motion_to_continue_attachment: ALDocument.using(title="Postpone your eviction hearing", filename="eviction_motion_to_continue.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+  - eviction_answer_attachment: ALDocument.using(title="File an Answer and Affirmative Defenses", filename="answer_defenses.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
 ---
 objects:
-  - al_user_bundle: ALDocumentBundle.using(elements=attachment_list_user, filename="eviction_helper.docx_package.pdf", title="All forms to download for your records", enabled=True)
+  - al_user_bundle: ALDocumentBundle.using(elements=[eviction_helper_post_interview_instructions,eviction_motion_to_continue_attachment,eviction_answer_attachment], filename="eviction_helper.docx_package.pdf", title="All forms to download for your records", enabled=True)
   - al_court_bundle: ALDocumentBundle.using(elements=attachment_list_court, filename="eviction_helper.docx_package.pdf", title="All forms to download for your records", enabled=True)
 ---
 code: |
-  attachment_list_user = list()
-  attachment_list_court = list()
-  attachment_list_user.append(eviction_helper_post_interview_instructions)
-  if original_hearing_date_past:
-    attachment_list_user = [eviction_answer_attachment]
-    attachment_list_court = [eviction_answer_attachment]
-  else:
-    if wants_to_file['continuance']:
-      attachment_list_user.append(eviction_motion_to_continue_attachment)
-      attachment_list_court.append(eviction_motion_to_continue_attachment)
-    if wants_to_file['answer']:
-      attachment_list_user.append(eviction_answer_attachment)
-      attachment_list_court.append(eviction_answer_attachment)
+  eviction_motion_to_continue_attachment.enabled = not original_hearing_date_past
+---
+code: |
+  eviction_answer_attachment.enabled = True
 ---
 attachments:
   - name: eviction motion to continue post interview instructions
@@ -702,5 +894,55 @@ attachments:
     variable name: eviction_answer_attachment[i]        
     skip undefined: True
     docx template file: answer_defenses.docx
+---
+only sets: docket_header
+question: Case Header
+subquestion: |
+  The first tab you see when you open your case is the "Case Header" tab, which will look something like this -
+  
+  [FILE CaseHeader.png, 100%]
+fields:
+  - Docket Number: docket_number
+  - note: |
+      The Docket Number is at the top of the page, with white type on a blue blackground.  It usually starts with the last two digits of the year (22 for 2022).  
+  - Date Filed: filing_date
+    datatype: date
+  - Case Type: case_type
+    datatype: radio
+    choices:
+      - AC Rent and Possession
+      - AC Unlawful Detainer
+      - AC Landlord Action (Bulk)
+      - Other
+continue button field: docket_header
+---
+if: docket_available and len(users)==1
+question: Parties & Attorneys
+subquestion: |
+  The Defendants are listed underneath the Plaintiffs, and your name and address should be included as a Defendant.
+  
+fields:
+  - Are there any other Defendants listed besides you?: users.there_is_another
+    datatype: yesnoradio
+---
+if: petition_available and len(users)==1
+question: Parties & Attorneys
+subquestion: |
+  The Defendants are listed underneath the Plaintiffs, and your name and address should be included as a Defendant.
+  
+  [FILE ComplaintCaptionDefendant.png, 100%]
+  
+fields:
+  - Are there any other Defendants listed besides you?: users.there_is_another
+    datatype: yesnoradio
+---
+id: Landlord representation
+question: Is ${ other_parties[i] } represented by an attorney?
+subquestion: |
+  If the landlord is represented by an attorney, then it will say "represented by" next to the landlord's name, and the attorney's name address will be to the right.
+fields:
+  - no label: other_parties[i].attorney.there_are_any
+    datatype: yesnoradio
+---  
 
 
