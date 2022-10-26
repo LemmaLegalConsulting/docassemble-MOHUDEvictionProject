@@ -2,6 +2,7 @@
 include:
   - docassemble.AssemblyLine:assembly_line.yml
   - docassemble.ALAnyState:any_state.yml
+  - defense_logic.yml
 ---
 metadata:
   title: |
@@ -529,22 +530,22 @@ fields:
 comment: |
   This can't be the best way to do this.  Can a DADict act like a checkboxes dictionary?
 code: |
-  defense = dict()
-  if petition_available:
-    if petition_alleges_nonrent or not petition_states_rent_amount or not petition_states_terms_of_lease or not petition_states_rent_periods or not petition_states_demand_made or (trial_court_county == "St. Louis County" and not petition_separates_nonrent):
-      defense["strict_details"] = True
-    else:
-      defense["strict_details"] = False
-  else:
-    defense["strict_details"] = None
-  if is_rent_sought and has_refused_payment and (has_attempt_evidence or will_offer_payment):
-    defense["payment_refused"] = True
-  else:
-    defense["payment_refused"] = False
-  if warranty_breaches.any_true():
-    defense["habitability"] = True
-  else:
-    defense["habitability"] = False
+  defense_rent_pleading_requirement
+  defense_lease_not_attached
+  defense_tender_refused
+  defense_rent_payment
+  defense_settlement
+  defense_lease_signed_under_duress
+  defense_fraud_lease
+  defense_liquidated_damages_late_fees
+  defense_breach_of_cqe
+  defense_estoppel_illegality
+  defense_breach_of_habitability
+  defense_foreclosure
+  defense_new_owner_failed_to_provide_notice_of_sale
+  defense_unrepresented_corporation
+  defense_no_landlord_tenant_relationship
+  defense_excessive_rent_for_subsidized_housing
   defense_logic = True
 ---
 id: petition requirements - rent amount
