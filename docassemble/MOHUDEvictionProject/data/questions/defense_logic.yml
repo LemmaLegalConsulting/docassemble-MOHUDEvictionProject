@@ -1,0 +1,66 @@
+code: |
+  if petition_available:
+    if petition_alleges_nonrent or not petition_states_rent_amount or not petition_states_terms_of_lease or not petition_states_rent_periods or not petition_states_demand_made or (trial_court_county == "St. Louis County" and not petition_separates_nonrent):
+      defense_rent_pleading_requirement = True
+    else:
+      defense_rent_pleading_requirement = False
+  else:
+      defense_rent_pleading_requirement = Nonee
+---
+code: |
+  defense_lease_not_attached = True
+---
+code: |
+  if was_attempt_full:
+    if has_attempt_evidence:
+      defense_tender_refused = True
+    else:
+      defense_tender_refused = False
+  else:
+    defense_tender_refused = False
+---
+code: |
+  defense_rent_payment = True
+---
+code: |
+  defense_settlement = True
+---
+code: |
+  defense_lease_signed_under_duress = True
+---
+code: |
+  defense_fraud_lease = True
+---
+code: |
+  defense_liquidated_damages_late_fees = True
+---
+code: |
+  defense_breach_of_cqe = True
+---
+code: |
+  defense_estoppel_illegality = True
+---
+code: |
+  if warranty_breaches.any_true():
+    defense_breach_of_habitability = True
+  else:
+    defense_breach_of_habitability = False
+---
+code: |
+  defense_foreclosure = True
+---
+code: |
+  defense_new_owner_failed_to_provide_notice_of_sale = True
+---
+code: |
+  defense_unrepresented_corporation = False
+  for op in other_parties:
+    if op.attorney.there_are_any and op.person_type == "business":
+      defense_unrepresented_corporation = True
+---
+code: |
+  defense_no_landlord_tenant_relationship = True
+---
+code: |
+  defense_excessive_rent_for_subsidized_housing = True
+---
