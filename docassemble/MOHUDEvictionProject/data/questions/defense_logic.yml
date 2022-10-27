@@ -8,10 +8,21 @@ code: |
       defense_rent_pleading_requirement = Nonee
 ---
 code: |
-  defense_lease_not_attached = True
+  if petition_available:
+    if lease_attached:
+      defense_lease_not_attached = True
+    else:
+      defense_lease_not_attached = False
+  else:
+      defense_lease_not_attached = None
+---
+question: Is the lease attached to the petition?
+fields:
+  -Is the lease attached to the complaint?: lease_attached
+  datatype: yesnoradio
 ---
 code: |
-  if was_attempt_full:
+  if has_refused_payment and was_attempt_full:
     if has_attempt_evidence:
       defense_tender_refused = True
     else:
@@ -23,16 +34,83 @@ code: |
   defense_rent_payment = True
 ---
 code: |
-  defense_settlement = True
+  if landlord_agreement and tenant_compliance_with_agreement:
+    defense_settlement = True
+  else:
+    defense_settlement = False
+---
+question: Did you make a settlement agreement with the landlord to avoid the eviction?
+fields:
+  - Did you make a settlement agreement with the landlord to avoid the eviction?: landlord_agreement
+    datatype: yesnoradio
+---
+question: Did you comply with the settlement agreement with the landlord?
+fields:
+  - Did you comply with the settlement agreement with the landlord?: tenant_compliance_with_agreement
+    datatype: yesnoradio
 ---
 code: |
-  defense_lease_signed_under_duress = True
+  if unfair_duress:
+    defense_lease_signed_under_duress = True
+  else:
+    defense_lease_signed_under_duress = False
+---
+question: Were you pressured to sign the lease?
+fields:
+  - Were you pressured to sign the lease?: unfair_duress
+    datatype: yesnoradio
 ---
 code: |
-  defense_fraud_lease = True
+  if len(false_promises) > 0 and not relied_on_false_promises:
+    defense_fraud_lease = True
+  else:
+    defense_fraud_lease = False
+---
+objects:
+  - false_promises: DAList
+---
+question: Did the landlord make any false promises to you before you signed the lease?
+fields: 
+  - Did the landlord make any false promises to you before you signed the lease?: false_promises.there_are_any
+    datatype: yesnoradio
+---
+question: What false promise did the landlord make to you?
+subquestion: |
+  % if len(false_promises) > 0:
+  The false promises you have already mentioned are:
+  % for promise in false_promises:
+  
+   - ${ promise }
+  % endfor
+  % endif
+fields:
+  - Describe the landlord's false promise: false_promises[i]
+---
+question: Did the landlord make any additional false promises to you?
+fields:
+  - Did the landlord make any additional false promises to you?: false_promises.there_is_another
+    datatype: yesnoradio
+---
+question: Would you have entered into the lease if the landlord didn't make this promise?
+fields:
+  - Would you have entered into the lease if the landlord didn't make this promise?: relied_on_false_promises
+    datatype: yesnoradio
 ---
 code: |
-  defense_liquidated_damages_late_fees = True
+  if late_fees_assessed and late_fees_penalty:
+    defense_liquidated_damages_late_fees = True
+  else:
+    defense_liquidated_damages_late_fees = Falsee
+---
+question: Is the landlord claiming that you owe late fees?
+fields:
+  - Is the landlord claiming that you owe late fees?: late_fees_assessed
+    datatype: yesnoradio
+---
+question: Are the late fees more than any actual costs the landlord would have to pay because of late rent?
+fields:
+  - Are the late fees more than any actual costs the landlord would have to pay because of late rent?: late_fees_penalty
+    datatype: yesnoradio
 ---
 code: |
   defense_breach_of_cqe = True
@@ -47,10 +125,36 @@ code: |
     defense_breach_of_habitability = False
 ---
 code: |
-  defense_foreclosure = True
+  if landlord_foreclosed and not notice_of_foreclosure:
+    defense_foreclosure = True
+  else:
+    defense_foreclosure = False
+---
+question: Was the rental property foreclosed on?
+fields:
+  - Was the rental property foreclosed on?: landlord_foreclosed
+    datatype: yesnoradio
+---
+question: Did you receive notice of the foreclosure?
+fields:
+  - Did you receive notice of the foreclosure?: notice_of_foreclosure
+    datatype: yesnoradio
 ---
 code: |
-  defense_new_owner_failed_to_provide_notice_of_sale = True
+  if previous_landlord_sold_property and not notice_of_sale_provided:
+    defense_new_owner_failed_to_provide_notice_of_sale = True
+  else:
+    defense_new_owner_failed_to_provide_notice_of_sale = False
+---
+question: Did you previous landlord sell the property to the new landlord?
+fields:
+  - Did you previous landlord sell the property to the new landlord?: previous_landlord_sold_property
+    datatype: yesnoradio
+---
+question: Did the landlord provide you notice of the sale?
+fields:
+  - Did the landlord provide you notice of the sale?: notice_of_sale_provided
+    datatype: yesnoradio
 ---
 code: |
   defense_unrepresented_corporation = False
@@ -59,8 +163,24 @@ code: |
       defense_unrepresented_corporation = True
 ---
 code: |
-  defense_no_landlord_tenant_relationship = True
+  if defense_lease_not_attached or defense_lease_signed_under_duress or defense_fraud_lease:
+    defense_no_landlord_tenant_relationship = True
+  else:
+    defense_no_landlord_tenant_relationship = False
 ---
 code: |
-  defense_excessive_rent_for_subsidized_housing = True
+  if is_rent_subsidized and excessive_rent:
+    defense_excessive_rent_for_subsidized_housing = True
+  else:
+    defense_excessive_rent_for_subsidized_housing = True
+---
+question: Is part of your rent paid by the government?
+fields:
+  - Is your rent subsidized?: is_rent_subsidized
+    datatype: yesnoradio
+---
+question: Did your landlord charge you excessive rent or rent owed by the government?
+fields:
+  - Did your landlord charge you excessive rent or rent owed by the government?: excessive_rent
+    datatype: yesnoradio
 ---
