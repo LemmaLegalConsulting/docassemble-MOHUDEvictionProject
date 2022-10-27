@@ -1,0 +1,58 @@
+---
+comment: |
+  Defense: Person suing is not the landlord
+  May want to vary if the landlord was a Business or Organization.
+  May want to split onto separate screens
+  
+  If does_landlord_match == False, then include Person suing is not the landlord defense
+    "There is no landlord-tenant relationship between Plaintiff and Defendant in this case."
+question: Does the name of the Plaintiff match the name of your landlord?
+subquestion: |
+  Only your landlord may file a case to evict you. Your landlord is the person you made the lease agreement with.
+  
+  If the person filing to evict you is not your landlord, the court may dismiss the case.
+fields:
+  - Did you make the lease agreement with ${ other_parties }?: does_landlord_match
+    datatype: yesnoradio
+  - Who did you make the lease agreement with?: real_landlord
+    dataype: text
+    show if:
+      variable: real_landlord
+      is: False
+  - Does the Petition allege that ${ other_parties } is your landlord?: is_landlord_status_alleged
+    datatype: yesnoradio
+    help: |
+      This would be in the "facts" section of the Petition.
+    show if:
+      variable: real_landlord
+      is: False
+---
+comment: |
+  Defense: Attornment
+  Only SHOW IF is_landlord_status_alleged == True
+  
+  If was_deed_shown == True, then DO include Attornment defense.
+    ???
+    (originally thought Attornment shouldn't be included in this case, but what if the user has seen the deed but it contained a different name than their landlord?)
+  If was_deed_shown == False, then DO include Attornment defense.
+    "Defendant did not make lease agreement with Plaintiff. Defendant has not seen the deed to the property indicating that Plaintiff indeed owns the property.
+    IF is_ownership_reliable == True, then include:
+      "The only information Defendant has received as to who owns the property is (ownership_reliable_explanation)
+  
+  OR MAYBE more simply "There is no attornment between Plaintiff and Defendant in this case."
+question: Has ${ other_parties } shown you proof that they own the property?
+subquestion:
+  If the person suing you claims to be your landlord, but has not shown you the deed to the property, 
+  and you have not received any reliable information concerning ownership of the property, 
+  the court may dismiss the case for lack of “attornment.”
+fields: 
+  - Has the Plaintiff shown you the deed to the property?: was_deed_shown
+    datatype: yesnoradio
+  - Have you received any reliable information conerning who owns the property?: is_ownership_reliable
+    datatype: yesnoradio
+    show if:
+      variable: was_deed_shown
+      is: False
+  - What reliable information?: ownership_reliable_explanation
+    datatype: text
+    show if: is_ownership_reliable
