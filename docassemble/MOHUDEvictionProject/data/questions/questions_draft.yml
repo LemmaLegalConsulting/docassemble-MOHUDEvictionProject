@@ -56,9 +56,3 @@ fields:
   - What reliable information?: ownership_reliable_explanation
     datatype: text
     show if: is_ownership_reliable
----
-question: Rent actually paid
-fields:
-  - Have you paid any of the rent allegedly owed?: has_paid
-    datatype: yesnomaybe
----
