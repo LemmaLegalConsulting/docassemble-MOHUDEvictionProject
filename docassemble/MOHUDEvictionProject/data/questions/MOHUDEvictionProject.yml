@@ -483,6 +483,7 @@ code: |
   petition_states_terms_of_lease
   petition_states_rent_periods
   petition_states_demand_made
+  lease_attached
   petition_review = True
 comment: |
   filing_date
@@ -557,9 +558,9 @@ subquestion: |
   
   [FILE ComplaintRentAmount.png, 100%]
 fields:
-  - "Does the lease state the amount of rent owed?": petition_states_rent_amount
+  - "Does the Landlord's Petition state the amount of rent owed?": petition_states_rent_amount
     datatype: yesnomaybe
-  - "Does the lease only contain non-rent charges and claims no actual rent?": petition_alleges_nonrent
+  - "Does the Landlord's Petition only contain non-rent charges and claims no actual rent?": petition_alleges_nonrent
     datatype: yesnomaybe
     hide if:
       variable: petition_states_rent_amount
@@ -586,13 +587,15 @@ code: |
 id: petition requirements - terms of lease
 question: Terms of Lease
 subquestion: |
-  The Landlord's Petition must say what the rental agreement was.
+  The Landlord's Petition must say what you and the landlord agreed to in the rental agreement - the amount of rent and other information.
   
   The Terms of Lease may look like this, but can have different language:
   
   [FILE ComplaintTerms.png, 100%]
 fields:
-  - "Does the Landlord's Petition state the Terms of Lease?": petition_states_terms_of_lease
+  - "Does the Landlord's Petition say the Terms of Lease?": petition_states_terms_of_lease
+    datatype: yesnomaybe
+  - "Is the lease attached to the Landlord's Petition?": lease_attached
     datatype: yesnomaybe
 ---
 id: petition requirements - periods due
@@ -601,7 +604,7 @@ subquestion: |
   The Landlord's Petition must say what months you allegedly owe rent for.
  
 fields:
-  - "Does the Landlord's Petition state the rental periods owed?": petition_states_rent_periods
+  - "Does the Landlord's Petition say the rental periods owed?": petition_states_rent_periods
     datatype: yesnomaybe
 ---
 id: petition requirements - demand
@@ -614,7 +617,7 @@ subquestion: |
   [FILE ComplaintDemand.png, 100%]
  
 fields:
-  - "Does the Landlord's Petition state the landlord demanded rent?": petition_states_demand_made
+  - "Does the Landlord's Petition say the landlord demanded rent?": petition_states_demand_made
     datatype: yesnomaybe
 ---
 id: when was lawsuit filed

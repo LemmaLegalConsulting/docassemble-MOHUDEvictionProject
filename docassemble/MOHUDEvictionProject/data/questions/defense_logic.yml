@@ -146,9 +146,9 @@ code: |
   else:
     defense_new_owner_failed_to_provide_notice_of_sale = False
 ---
-question: Did you previous landlord sell the property to the new landlord?
+question: Did your previous landlord sell the property to the new landlord?
 fields:
-  - Did you previous landlord sell the property to the new landlord?: previous_landlord_sold_property
+  - Did your previous landlord sell the property to the new landlord?: previous_landlord_sold_property
     datatype: yesnoradio
 ---
 question: Did the landlord provide you notice of the sale?
