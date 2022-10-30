@@ -526,29 +526,7 @@ sets:
 fields:
   - code: |
       other_parties[i].name_fields(person_or_business='unsure')
----  
----
-comment: |
-  This can't be the best way to do this.  Can a DADict act like a checkboxes dictionary?
-code: |
-  defense_rent_pleading_requirement
-  defense_lease_not_attached
-  defense_tender_refused
-  defense_rent_payment
-  defense_settlement
-  defense_lease_signed_under_duress
-  defense_fraud_lease
-  defense_liquidated_damages_late_fees
-  defense_breach_of_cqe
-  defense_estoppel_illegality
-  defense_breach_of_habitability
-  defense_foreclosure
-  defense_new_owner_failed_to_provide_notice_of_sale
-  defense_unrepresented_corporation
-  defense_no_landlord_tenant_relationship
-  defense_excessive_rent_for_subsidized_housing
-  defense_logic = True
----
+--- 
 id: petition requirements - rent amount
 question: Rent Amount
 subquestion: |

@@ -1,3 +1,26 @@
+ 
+---
+comment: |
+  This can't be the best way to do this.  Can a DADict act like a checkboxes dictionary?
+code: |
+  defense_rent_pleading_requirement
+  defense_lease_not_attached
+  defense_tender_refused
+  defense_rent_payment
+  defense_settlement
+  defense_lease_signed_under_duress
+  defense_fraud_lease
+  defense_liquidated_damages_late_fees
+  defense_breach_of_cqe
+  defense_estoppel_illegality
+  defense_breach_of_habitability
+  defense_foreclosure
+  defense_new_owner_failed_to_provide_notice_of_sale
+  defense_unrepresented_corporation
+  defense_no_landlord_tenant_relationship
+  defense_excessive_rent_for_subsidized_housing
+  defense_logic = True
+---
 code: |
   if petition_available:
     if petition_alleges_nonrent or not petition_states_rent_amount or not petition_states_terms_of_lease or not petition_states_rent_periods or not petition_states_demand_made or (trial_court_county == "St. Louis County" and not petition_separates_nonrent):
@@ -5,7 +28,7 @@ code: |
     else:
       defense_rent_pleading_requirement = False
   else:
-      defense_rent_pleading_requirement = Nonee
+      defense_rent_pleading_requirement = None
 ---
 code: |
   if petition_available:
@@ -100,7 +123,7 @@ code: |
   if late_fees_assessed and late_fees_penalty:
     defense_liquidated_damages_late_fees = True
   else:
-    defense_liquidated_damages_late_fees = Falsee
+    defense_liquidated_damages_late_fees = False
 ---
 question: Is the landlord claiming that you owe late fees?
 fields:
