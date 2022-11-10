@@ -926,5 +926,14 @@ fields:
   - no label: other_parties[i].attorney.there_are_any
     datatype: yesnoradio
 ---  
-
-
+id: Rent paid
+question: Have you paid any of the alleged rent due?
+fields:
+  - no label: was_rent_paid
+    datatype: yesnomaybe
+  - How much have you paid?: rent_amount_paid
+    input type: radio
+    show if: was_rent_paid
+    choices: 
+      - "I've paid the full amount alleged": "all"
+      - "I've paid part of the amount alleged": "a portion"

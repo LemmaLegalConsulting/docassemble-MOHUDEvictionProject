@@ -54,7 +54,11 @@ code: |
     defense_tender_refused = False
 ---
 code: |
-  defense_rent_payment = True
+  was_rent_paid
+  if was_rent_paid:
+    defense_rent_payment = True
+  else:
+    defense_rent_payment = False
 ---
 code: |
   if landlord_agreement and tenant_compliance_with_agreement:
