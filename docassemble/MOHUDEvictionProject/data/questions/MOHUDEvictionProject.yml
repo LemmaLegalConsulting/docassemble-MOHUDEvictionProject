@@ -483,6 +483,7 @@ code: |
   petition_states_terms_of_lease
   petition_states_rent_periods
   petition_states_demand_made
+  lease_attached
   petition_review = True
 comment: |
   filing_date
@@ -525,29 +526,7 @@ sets:
 fields:
   - code: |
       other_parties[i].name_fields(person_or_business='unsure')
----  
----
-comment: |
-  This can't be the best way to do this.  Can a DADict act like a checkboxes dictionary?
-code: |
-  defense_rent_pleading_requirement
-  defense_lease_not_attached
-  defense_tender_refused
-  defense_rent_payment
-  defense_settlement
-  defense_lease_signed_under_duress
-  defense_fraud_lease
-  defense_liquidated_damages_late_fees
-  defense_breach_of_cqe
-  defense_estoppel_illegality
-  defense_breach_of_habitability
-  defense_foreclosure
-  defense_new_owner_failed_to_provide_notice_of_sale
-  defense_unrepresented_corporation
-  defense_no_landlord_tenant_relationship
-  defense_excessive_rent_for_subsidized_housing
-  defense_logic = True
----
+--- 
 id: petition requirements - rent amount
 question: Rent Amount
 subquestion: |
@@ -557,9 +536,9 @@ subquestion: |
   
   [FILE ComplaintRentAmount.png, 100%]
 fields:
-  - "Does the lease state the amount of rent owed?": petition_states_rent_amount
+  - "Does the Landlord's Petition state the amount of rent owed?": petition_states_rent_amount
     datatype: yesnomaybe
-  - "Does the lease only contain non-rent charges and claims no actual rent?": petition_alleges_nonrent
+  - "Does the Landlord's Petition only contain non-rent charges and claims no actual rent?": petition_alleges_nonrent
     datatype: yesnomaybe
     hide if:
       variable: petition_states_rent_amount
@@ -586,13 +565,15 @@ code: |
 id: petition requirements - terms of lease
 question: Terms of Lease
 subquestion: |
-  The Landlord's Petition must say what the rental agreement was.
+  The Landlord's Petition must say what you and the landlord agreed to in the rental agreement - the amount of rent and other information.
   
   The Terms of Lease may look like this, but can have different language:
   
   [FILE ComplaintTerms.png, 100%]
 fields:
-  - "Does the Landlord's Petition state the Terms of Lease?": petition_states_terms_of_lease
+  - "Does the Landlord's Petition say the Terms of Lease?": petition_states_terms_of_lease
+    datatype: yesnomaybe
+  - "Is the lease attached to the Landlord's Petition?": lease_attached
     datatype: yesnomaybe
 ---
 id: petition requirements - periods due
@@ -601,7 +582,7 @@ subquestion: |
   The Landlord's Petition must say what months you allegedly owe rent for.
  
 fields:
-  - "Does the Landlord's Petition state the rental periods owed?": petition_states_rent_periods
+  - "Does the Landlord's Petition say the rental periods owed?": petition_states_rent_periods
     datatype: yesnomaybe
 ---
 id: petition requirements - demand
@@ -614,7 +595,7 @@ subquestion: |
   [FILE ComplaintDemand.png, 100%]
  
 fields:
-  - "Does the Landlord's Petition state the landlord demanded rent?": petition_states_demand_made
+  - "Does the Landlord's Petition say the landlord demanded rent?": petition_states_demand_made
     datatype: yesnomaybe
 ---
 id: when was lawsuit filed
