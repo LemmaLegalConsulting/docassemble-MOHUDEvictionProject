@@ -686,8 +686,6 @@ fields:
       (TODO: add explanation as to why user may want to do this)
 ---
 id: warranty of habitability
-comment: |
-  (TODO: add screen to interview order)
 question: |
   Warranty of habitability
 subquestion: |
@@ -705,6 +703,25 @@ fields:
       - Has plumbing not in working order or is subject to flooding: has_plumbing_problems
       - Has standing water or sewage: has_standing_water
       - Has dangerous structural issues: has_structural_issues
+      - Other: other
+---
+id: covenant of quiet enjoyment
+question: |
+  Covenant of quiet enjoyment
+subquestion: |
+  You may have a claim of **Breach of Covenant of Quiet Enjoyment** if your landlord is responsible for a substantial disruption in the use and quiet enjoyment of the rental property.
+  
+  Winning on a Breach of Covenant of Quiet Enjoyment claim may excuse you from all or part of the back rent owed.
+fields: 
+  - Do any of the following apply to you?: cqe_breaches
+    datatype: checkboxes
+    choices:
+      - Repeated harassment by the landlord in person or on the phone: harassment
+      - Frequent or unecessary visits or inspections of the property: visits
+      - Unnecessary remodeling work, or maintenance work that takes longer than initially proposed: remodeling
+      - Construction that blocks your access to the property or forces you to take a lengthy detour: access
+      - Constantly barking dog or other animal owned by the landlord: animal
+      - Vermin or pests in the walls making disruptive noises: vermin
       - Other: other
 ---
 id: preview eviction_helper

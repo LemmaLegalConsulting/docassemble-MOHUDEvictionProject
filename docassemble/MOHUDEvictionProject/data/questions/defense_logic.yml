@@ -54,7 +54,6 @@ code: |
     defense_tender_refused = False
 ---
 code: |
-  was_rent_paid
   if was_rent_paid:
     defense_rent_payment = True
   else:
@@ -139,8 +138,13 @@ fields:
   - Are the late fees more than any actual costs the landlord would have to pay because of late rent?: late_fees_penalty
     datatype: yesnoradio
 ---
+comment: |
+  Are we going to separate levels of cqe breach? E.g. (1) mere breach, (2) constructive eviction, (3) significant enough to physically deprive the tenant of possession.
 code: |
-  defense_breach_of_cqe = True
+  if cqe_breaches.any_true():
+    defense_breach_of_cqe = True
+  else:
+    defense_breach_of_cqe = False
 ---
 code: |
   defense_estoppel_illegality = True
