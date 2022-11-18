@@ -45,13 +45,15 @@ fields:
   datatype: yesnoradio
 ---
 code: |
-  if has_refused_payment and was_attempt_full:
+  if offer_attempt and has_refused_payment and was_attempt_full:
     if has_attempt_evidence:
       defense_tender_refused = True
     else:
       defense_tender_refused = False
   else:
     defense_tender_refused = False
+comment: |
+  add date requirement
 ---
 code: |
   if was_rent_paid:
@@ -164,12 +166,12 @@ code: |
 question: Was the rental property foreclosed on?
 fields:
   - Was the rental property foreclosed on?: landlord_foreclosed
-    datatype: yesnoradio
+    datatype: yesnomaybe
 ---
 question: Did you receive notice of the foreclosure?
 fields:
-  - Did you receive notice of the foreclosure?: notice_of_foreclosure
-    datatype: yesnoradio
+  - Did you get a letter that told you about the foreclosure?: notice_of_foreclosure
+    datatype: yesnomaybe
 ---
 code: |
   if previous_landlord_sold_property and not notice_of_sale_provided:
@@ -180,12 +182,12 @@ code: |
 question: Did your previous landlord sell the property to the new landlord?
 fields:
   - Did your previous landlord sell the property to the new landlord?: previous_landlord_sold_property
-    datatype: yesnoradio
+    datatype: yesnomabye
 ---
 question: Did the landlord provide you notice of the sale?
 fields:
-  - Did the landlord provide you notice of the sale?: notice_of_sale_provided
-    datatype: yesnoradio
+  - Did the landlord tell you about the sale?: notice_of_sale_provided
+    datatype: yesnomaybe
 ---
 code: |
   defense_unrepresented_corporation = False
@@ -205,10 +207,22 @@ code: |
   else:
     defense_excessive_rent_for_subsidized_housing = True
 ---
-question: Is part of your rent paid by the government?
+id: subsidized housing identification
+question: Protections for Subsidized Housing
 fields:
-  - Is your rent subsidized?: is_rent_subsidized
+  - Do you get a rent subsidy or do you live in public housing?: is_rent_subsidized
     datatype: yesnoradio
+  - What type of subsidized housing?: subsidized_housing_type
+    datatype: radio
+    choices:
+      - Section 8 voucher: voucher
+      - Public housing with the city as my landlord: public
+      - Tax credit: taxcredit
+      - Housing project with a private landlord but I pay 30% of my income for rent: project
+    show if:
+      variable: is_rent_subsidized
+      is: True
+      
 ---
 question: Did your landlord charge you excessive rent or rent owed by the government?
 fields:
