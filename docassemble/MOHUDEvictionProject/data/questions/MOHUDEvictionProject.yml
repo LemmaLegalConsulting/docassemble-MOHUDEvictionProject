@@ -19,7 +19,7 @@ metadata:
 mandatory: True
 comment: |
   Global interview metadata
-variable name: interview_metadata["eviction_helper"]
+variable name: interview_metadata["eviction_defender"]
 data:
   al_weaver_version: "1.7.0"
   generated on: "2022-09-08"
@@ -39,7 +39,7 @@ data:
   generate download screen: True
 ---
 code: |
-  interview_metadata['main_interview_key'] =  'eviction_helper'
+  interview_metadata['main_interview_key'] =  'eviction_defender'
 ---
 code: |
   # This controls the default country and list of states in address field questions
@@ -53,7 +53,7 @@ code: |
   github_repo_name =  'docassemble-MOHUDEvictionProject'
 ---
 code: |
-  interview_short_title = "Eviction Helper"
+  interview_short_title = "Eviction Defender"
 ---
 code: |
   al_form_type = "existing_case" 
@@ -106,21 +106,73 @@ comment: |
 id: interview_order_eviction_motion_to_continue
 code: |
   # Set the allowed courts for this interview
-  allowed_courts = interview_metadata["eviction_helper"]["allowed courts"]
-  nav.set_section('review_eviction_helper')
+  allowed_courts = interview_metadata["eviction_defender"]["allowed courts"]
+  nav.set_section('review_eviction_defender')
   user_role = 'defendant'
   landlord_doc_name
   tenant_doc_name
   users[0].name.first
   users[0].address.address
-  trial_court_county
-  if petition_available:
-    petition_review
+  users[0].address.geocode()
+  if received_summons and method_of_summons_service == "posting":
+    posting_warning
+  section_order
   if docket_available:
     docket_review
   defense_logic
   set_progress(50)
-  interview_order_eviction_helper = True
+  interview_order_eviction_defender = True
+---
+code: |
+  landlord_information_section
+  rent_payment_section
+  lease_section
+  landlord_agreement_section
+  landlord_problems_section
+  section_order = True
+---  
+code: |
+  other_parties[i].person_type
+  other_parties[i].attorney.there_are_any
+  is_rent_subsidized
+  if previous_landlord_sold_property:
+    notice_of_sale_provided
+  if landlord_foreclosed:
+    notice_of_foreclosure
+  landlord_information_section = True
+---
+code: |
+  if not lease_attached:
+    petition_states_terms_of_lease
+  if len(false_promises):
+    relied_on_false_promises
+  unfair_duress
+  lease_section = True
+---
+code: |
+  petition_states_rent_amount
+  petition_states_rent_periods
+  was_rent_paid
+  if has_refused_payment:
+    was_attempt_full
+    has_attempt_evidence
+  if is_rent_subsidized:
+    excessive_rent
+  if late_fees_assessed:
+    late_fees_penalty
+    if trial_court_circuit == "21":
+      petition_separates_nonrent
+  rent_payment_section = True
+---
+code: |
+  if landlord_agreement:
+    tenant_compliance_with_agreement
+  landlord_agreement_section = True
+---
+code: |
+  warranty_breaches
+  cqe_breaches
+  landlord_problems_section = True
 ---
 ###################### Main order ######################
 comment: |
@@ -129,8 +181,8 @@ comment: |
 mandatory: True
 code: |
   al_intro_screen
-  eviction_helper_intro
-  interview_order_eviction_helper
+  eviction_defender_intro
+  interview_order_eviction_defender
   signature_date
   # Store anonymous data for analytics / statistics
   store_variables_snapshot(
@@ -140,20 +192,87 @@ code: |
           "reached_interview_end": True,
       },
   )
-  eviction_helper_download
+  eviction_defender_download
+---
+id: basic questions intro screen
+decoration: form-lineal
+question: |
+  ${interview_short_title}: ${ AL_ORGANIZATION_TITLE}
+subquestion: |
+  ${ AL_ORGANIZATION_TITLE } can help you complete and download forms in 3 steps:
+
+  
+  Step 1. Answer questions that will fill in your form for you.  
+  Step 2. Preview the completed form.  
+  % if form_approved_for_email_filing:  
+  Step 3. Email the form to the court using this secure website and save copies
+  for yourself for later reference.  
+  % elif al_form_type in ['starts_case','existing_case','appeal']:
+  Step 3. Download and print the final form. You will need to deliver it
+  to the court on your own.
+  % else:
+  Step 3. Download and print the final form. You will need to deliver it 
+  on your own.
+  % endif
+  
+  This site is not a lawyer. If you would like a lawyer, find [your local
+  legal aid provider](https://www.lsc.gov/what-legal-aid/find-legal-aid).
+  
+  Tap the {green words} in any screen for a definition or more information.
+  
+  % if chat_partners_available().help:
+  Live help is currently available in this interview. Click the speech bubble
+  (:comment-alt:) in the navigation bar to connect to a live advocate for help.
+  % endif
+fields:
+  - To continue, you must accept our [terms of use](${ AL_ORGANIZATION_HOMEPAGE }/privacy/): acknowledged_information_use
+    datatype: checkboxes
+    none of the above: False    
+    minlength: 1
+    choices:
+      - I accept the terms of use.
+    validation messages:
+      minlength: |
+        You cannot continue unless you agree to the terms of use.        
+continue button field: al_intro_screen
+terms:
+  green words: |
+    Green words are legal terms or a short way of referring to something that needs more explanation. The definition or explanation pops up when you tap the green words. 
 ---
 comment: |
   This question is used to introduce your interview. Please customize
-id: eviction_helper_introduction
-continue button field: eviction_helper_intro
+id: eviction_defender_introduction
+continue button field: eviction_defender_intro
 question: |
-  Eviction Helper
+  Eviction Defender
 subquestion: |
-  This interview will help you figure out what you can do if you are being evicted.  Answering these questions will produce a list of next steps you can take and the court documents to help.
+  This interview can help you win your eviction case.
   
-  This interview will also help decode the information about your case, both the information available online and in documents you may have received from the court.  
+  Answering these questions will produce an eviction Answer and motions that you may need.  The interview will also provide a list of next steps you can take, including how to deliver the paperwork on your own.
+  
+  **This interview will not file or deliver any paperwork for you.  You must print and deliver or file the paperwork on your own.**
   
   Before you start this interview, you may want to gather these documents.
+  
+   - The Summons from the Court and the Landlord's Petition
+   - Any Eviction Notice That You Received
+   - Your Lease
+---
+id: your address
+sets:
+  - users[0].address.address
+  - users[0].address.city
+  - users[0].address.zip
+  - users[0].address.unit
+  - users[0].address.state
+  - users[0].address.country
+question: |
+  Where do you live?
+subquestion: |
+  List the address that you are being evicted from.
+fields:
+  - code: |
+      users[0].address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)
 ---
 ###################### DOCKET REVIEW ######################
 id: Docket_introduction
@@ -236,18 +355,16 @@ fields:
       is: False
   
 ---
-if: in_st_louis
+only sets: trial_court_name_default
 code: |
-  trial_court_county = "City of St. Louis"
----
-only sets: trial_court_name
-code: |
-  if in_st_louis:
+  if users[0].address.city == "St. Louis":
     trial_court_circuit = 22
-    trial_court_name = "22nd Judicial Circuit – City of St. Louis"
+    trial_court_county = "City of St. Louis"
+    trial_court_name_default = "22nd Judicial Circuit – City of St. Louis"
   else:
-    trial_court_circuit = county_to_circuit[trial_court_county]
-    trial_court_name = ordinal_number(trial_court_circuit, use_word=False).capitalize() + " Judicial Circuit - " + trial_court_county
+    trial_court_circuit = county_to_circuit[users[0].address.county]
+    trial_court_county = users[0].address.county
+    trial_court_name_default = ordinal_number(trial_court_circuit, use_word=False).capitalize() + " Judicial Circuit - " + users[0].address.county
 ---
 code: |
   trial_court.circuit = ordinal_number(trial_court_circuit, use_word=False)
@@ -457,20 +574,34 @@ validation code: |
 id: Petition_introduction
 mandatory: True
 question: |
-  Introducing Summons and Petition
+  Did you receive the Summons and Petition?
 subquestion: |
-  Before you continue, please locate your **Summons** and **Petition** for Eviction served to you by your Landlord.
-
-  Having this handy will help you answer the following questions.
+  An eviction case must start with a Summons from the Court, with an attached Landlord's Petition.
   
   The Landlord's Petition may generally look like this Form Petition.
   
   [FILE ComplaintForm.png]
 
-  (TODO: Insert information to help user identify and locate the Petition.)
-  
-  **Do you have a copy of the Summons and Landlord's Petition?**
-yesno: petition_available
+fields:
+  - "Did you receive a copy of the Summons and Landlord's Petition?": received_summons
+    datatype: yesnomaybe
+  - "How did you receive the Summons and Landlord's Petition?": method_of_summons_service
+    datatype: radio
+    choices:
+      - "By mail": mail
+      - "Posting": posting
+    show if:
+      variable: received_summons
+      is: True
+  - "Do you have a copy of the Landlord's Petition available?": petition_available
+    datatype: yesnoradio
+  - note: |
+      Having the Landlord's Petition available will make it easier to answer the following questions.
+---
+question: WARNING
+subquestion: |
+  Please note that you have been served by posting. This means that all that your landlord can receive from this court action is possession of the home in question. However, if you proceed to file any of the documents you may receive from this interview you could be subjecting yourself to a monetary judgement. This means that you could receive a judgement stating that you owe money when originally you would not have. You are welcome to continue should you choose to do so, or you may stop the process now and contact your local Legal Services provider for more details.
+continue button field: posting_warning
 ---
 code: |
   docket_number
@@ -493,27 +624,27 @@ comment: |
 ---
 id: caption - docket number and file date
 if: petition_available
-question: Caption
+question: Finding Basic Information about Your Case
 subquestion: |
-  At the top of the Landlord's Petition is the section called a "caption", which has the basic information about the eviction case.
+  You can find important basic information at the the top of the Landlord's Petition, like the name of the court, the case number, and the date the landlord filed the petition in court.
   
-  [FILE ComplaintCaptionNumber.png, 100%]
-  
-  At the top, the Landlord's Petition should say the name of the court.  In your case, it should say "In The ${ trial_court_name }, Missouri"
+  [FILE ComplaintCaptionCourt.png, 100%]
+
   
 fields:
+  - Court: trial_court_name
+    default: ${ trial_court_name_default }
   - Case Number: docket_number
   - note: |
-      The Filing Date should be stamped next to the caption.
+      The Filing Date will usually be on a stamp or a sticker.
   - Filing Date: filing_date
     datatype: date
-  
 ---
 id: names of opposing parties - petition
 if: petition_available
-question: Caption - Plaintiffs
+question: Landlord's Name
 subquestion: |
-  The Plaintiff's name and address is near the top of the Caption on the left.
+  Your landlord is called the Plaintiff in an eviction case, and the Plaintiff's name and address is near the top of the Caption on the left.
   
   [FILE ComplaintCaptionPlaintiff.png, 100%]
   
@@ -528,53 +659,57 @@ fields:
       other_parties[i].name_fields(person_or_business='unsure')
 --- 
 id: petition requirements - rent amount
-question: Rent Amount
+question: How much rent does your landlord say that you owe?
 subquestion: |
-  The Landlord's Petition must state how much is owed at the time the Landlord filed the petition.
+  The Landlord's Petition must say how much is owed at the time the Landlord filed the petition.
   
-  The Rent Amount may look like this, but can have different language:
+  A Landlord's Petition may say something like this about the rent amount, but it may also have different language:
   
   [FILE ComplaintRentAmount.png, 100%]
 fields:
-  - "Does the Landlord's Petition state the amount of rent owed?": petition_states_rent_amount
-    datatype: yesnomaybe
-  - "Does the Landlord's Petition only contain non-rent charges and claims no actual rent?": petition_alleges_nonrent
-    datatype: yesnomaybe
+  - "How much does the Landlord's Petition say that you owe **in rent**?": rent_amount_owed
+    datatype: currency
     hide if:
       variable: petition_states_rent_amount
       is: True
-  - note: |
-      In St. Louis County, the Landlord's Petition should not include late fees and other fees that aren't rent in with the rent that is due.  The petition could have a paragraph that looks like this
-      
-      [FILE ComplaintNonRent.png, 100%]
-      
-      If there is nothing like this, and the total amount is more than the months of rent you owe, then the Landlord's Petition may not separate the non-rent claims.
-    show if:
-      code: |
-        trial_court_county == "St. Louis County"
-  - "Does the Landlord's Petition separate the non-rent claims (such as late fees, interest, utilities, parking fees, and other non-rent items) from the true rent being sought?": petition_separates_nonrent
+  - "It does not say an amount": petition_states_rent_amount
+    datatype: yesnowide
+    default: False
+  - "Is there any charge on the Landlord's Petition for something other than rent?": other_charges_alleged
     datatype: yesnomaybe
-    show if:
-      code: |
-        trial_court_county == "St. Louis County"
+  - note: |
+      Other charges may include a pet fee, cleaning fee, fee for repairs.
 ---
-if: petition_states_rent_amount
+question: Does the petition separate the amount you owe in rent from other charges?
+fields:
+  - Are rent charges separated from other charges: petition_separates_nonrent
+    datatype: yesnomaybe
+---
 code: |
-  petition_alleges_nonrent = False
+  if petition_states_rent_amount:
+    petition_alleges_nonrent = False
+  else:
+    petition_alleges_nonrent = True
 ---
 id: petition requirements - terms of lease
-question: Terms of Lease
+question: Is the lease attached to the petition?
 subquestion: |
-  The Landlord's Petition must say what you and the landlord agreed to in the rental agreement - the amount of rent and other information.
+  The Landlord's Petition must either: 
   
-  The Terms of Lease may look like this, but can have different language:
+   1. attach a copy of the lease, or
+   2. say what you and the landlord agreed to in the rental agreement, such as the amount of rent and other information.
+   
+  That part of the Landlord's Petition may look like this, but can have different language:
   
   [FILE ComplaintTerms.png, 100%]
 fields:
-  - "Does the Landlord's Petition say the Terms of Lease?": petition_states_terms_of_lease
-    datatype: yesnomaybe
   - "Is the lease attached to the Landlord's Petition?": lease_attached
     datatype: yesnomaybe
+  - "Does the Landlord's Petition say what you and the landlord agreed to in the rental agreement?": petition_states_terms_of_lease
+    datatype: yesnomaybe
+    show if: 
+      variable: lease_attached
+      is: False
 ---
 id: petition requirements - periods due
 question: Periods
@@ -724,7 +859,7 @@ fields:
       - Vermin or pests in the walls making disruptive noises: vermin
       - Other: other
 ---
-id: preview eviction_helper
+id: preview eviction_defender
 question: |
   Preview your form before you sign it
 subquestion: |
@@ -735,10 +870,10 @@ subquestion: |
   Click the image to open it in a new tab. Click the "Edit answers" button
   to edit your answers.
 
-  ${ action_button_html(url_action('review_eviction_helper'), label='Edit answers', color='info') }
+  ${ action_button_html(url_action('review_eviction_defender'), label='Edit answers', color='info') }
   
   Remember to come back to this window to continue and sign your form.
-continue button field: eviction_helper_preview_question    
+continue button field: eviction_defender_preview_question    
 ---
 code: |
   signature_fields = []
@@ -758,7 +893,7 @@ code: |
     wants_to_file['continuance'] = True
 ---
 id: eviction motion to continue review screen
-event: review_eviction_helper
+event: review_eviction_defender
 question: |
   Review your answers
 review:
@@ -843,8 +978,8 @@ edit:
 confirm: True
 
 ---
-id: download eviction_helper
-event: eviction_helper_download
+id: download eviction_defender
+event: eviction_defender_download
 question: |
   All done
 subquestion: |
@@ -852,7 +987,7 @@ subquestion: |
   
   View, download and send your form below. Click the "Edit answers" button to fix any mistakes.
 
-  ${ action_button_html(url_action('review_eviction_helper'), label='Edit answers', color='info') }
+  ${ action_button_html(url_action('review_eviction_defender'), label='Edit answers', color='info') }
   
   
   ${ al_user_bundle.download_list_html() }
@@ -863,12 +998,12 @@ subquestion: |
 progress: 100
 ---
 objects:
-  - eviction_helper_post_interview_instructions: ALDocument.using(title="Instructions", filename="eviction_helper_next_steps.docx", enabled=True, has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+  - eviction_defender_post_interview_instructions: ALDocument.using(title="Instructions", filename="eviction_helper_next_steps.docx", enabled=True, has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
   - eviction_motion_to_continue_attachment: ALDocument.using(title="Postpone your eviction hearing", filename="eviction_motion_to_continue.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
   - eviction_answer_attachment: ALDocument.using(title="File an Answer and Affirmative Defenses", filename="answer_defenses.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
 ---
 objects:
-  - al_user_bundle: ALDocumentBundle.using(elements=[eviction_helper_post_interview_instructions,eviction_motion_to_continue_attachment,eviction_answer_attachment], filename="eviction_helper.docx_package.pdf", title="All forms to download for your records", enabled=True)
+  - al_user_bundle: ALDocumentBundle.using(elements=[eviction_defender_post_interview_instructions,eviction_motion_to_continue_attachment,eviction_answer_attachment], filename="eviction_helper.docx_package.pdf", title="All forms to download for your records", enabled=True)
   - al_court_bundle: ALDocumentBundle.using(elements=attachment_list_court, filename="eviction_helper.docx_package.pdf", title="All forms to download for your records", enabled=True)
 ---
 code: |
@@ -880,7 +1015,7 @@ code: |
 attachments:
   - name: eviction motion to continue post interview instructions
     filename: Post-interview-instructions     
-    variable name: eviction_helper_post_interview_instructions[i]        
+    variable name: eviction_defender_post_interview_instructions[i]        
     skip undefined: True
     docx template file: eviction_helper_next_steps.docx
   - name: eviction motion to continue attachment
@@ -916,18 +1051,18 @@ fields:
 continue button field: docket_header
 ---
 if: docket_available and len(users)==1
-question: Parties & Attorneys
+question: Is any other tenant listed on this eviction case?
 subquestion: |
-  The Defendants are listed underneath the Plaintiffs, and your name and address should be included as a Defendant.
+  In an eviction case, tenants are called Defendants.  Defendants are listed underneath the Plaintiffs, and your name and address should be included as a Defendant.
   
 fields:
   - Are there any other Defendants listed besides you?: users.there_is_another
     datatype: yesnoradio
 ---
 if: petition_available and len(users)==1
-question: Parties & Attorneys
+question: Is any other tenant listed on this eviction case?
 subquestion: |
-  The Defendants are listed underneath the Plaintiffs, and your name and address should be included as a Defendant.
+  In eviction cases, tenants are called Defendants.  Defendants are listed underneath the Plaintiffs, and your name and address should be included as a Defendant.
   
   [FILE ComplaintCaptionDefendant.png, 100%]
   
@@ -936,12 +1071,22 @@ fields:
     datatype: yesnoradio
 ---
 id: Landlord representation
-question: Is ${ other_parties[i] } represented by an attorney?
+question: Does the landlord have an attorney?
 subquestion: |
   If the landlord is represented by an attorney, then it will say "represented by" next to the landlord's name, and the attorney's name address will be to the right.
 fields:
-  - no label: other_parties[i].attorney.there_are_any
+  - Is ${ other_parties[i] } represented by an attorney?: other_parties[i].attorney.there_are_any
     datatype: yesnoradio
+---
+sets:
+  - other_parties[i].attorney[j].name.first
+  - other_parties[i].attorney[j].name.last
+  - other_parties[i].attorney[j].name.middle
+  - other_parties[i].attorney[j].name.suffix
+question: What is the name of the ${ other_parties[i] }'s attorney?
+fields:
+  - code: |
+      other_parties[i].attorney[j].name_fields()
 ---  
 id: Rent paid
 question: Have you paid any of the alleged rent due?
