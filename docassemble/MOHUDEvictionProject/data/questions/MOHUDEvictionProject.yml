@@ -116,6 +116,8 @@ code: |
   users[0].address.geocode()
   if received_summons and method_of_summons_service == "posting":
     posting_warning
+  docket_number
+  filing_date
   section_order
   if docket_available:
     docket_review
@@ -125,6 +127,7 @@ code: |
 ---
 code: |
   landlord_information_section
+  users.gather()
   rent_payment_section
   lease_section
   landlord_agreement_section
@@ -132,8 +135,9 @@ code: |
   section_order = True
 ---  
 code: |
-  other_parties[i].person_type
-  other_parties[i].attorney.there_are_any
+  for party in other_parties:
+    party.address.address
+    party.attorney.gather()
   is_rent_subsidized
   if previous_landlord_sold_property:
     notice_of_sale_provided
@@ -153,9 +157,10 @@ code: |
   petition_states_rent_amount
   petition_states_rent_periods
   was_rent_paid
-  if has_refused_payment:
+  if offer_attempt:
     was_attempt_full
-    has_attempt_evidence
+    if has_refused_payment:
+      has_attempt_evidence
   if is_rent_subsidized:
     excessive_rent
   if late_fees_assessed:
@@ -277,19 +282,14 @@ fields:
 ###################### DOCKET REVIEW ######################
 id: Docket_introduction
 question: |
-  Introducing Online Docket
+  Finding Your Case on the Online Docket
 subquestion: |
-  Next, pull up your case on the Missouri **Online Docket**, 
+  You can find your case on the Missouri **Online Docket**, 
   also known as [Case.net](https://www.courts.mo.gov/cnet).
 
-  Having this handy will help you answer the following questions.
+  Using the Online Docket lets you check on upcoming hearings.
   
-  If you are unable or do not want to use the **Online Docket**, 
-  you may still be able to answer the questions with just your **Petition**.
-
-  (TODO: Insert information to help user pull up their case on Case.net.)
-  
-  **Were you able to find your eviction case on the Online Docket?**
+  **Do you want a guide through using the online docket?**
 yesno: docket_available
 ---
 code: |
@@ -600,7 +600,11 @@ fields:
 ---
 question: WARNING
 subquestion: |
-  Please note that you have been served by posting. This means that all that your landlord can receive from this court action is possession of the home in question. However, if you proceed to file any of the documents you may receive from this interview you could be subjecting yourself to a monetary judgement. This means that you could receive a judgement stating that you owe money when originally you would not have. You are welcome to continue should you choose to do so, or you may stop the process now and contact your local Legal Services provider for more details.
+  Please note that you have been served by posting. This means that all that your landlord can receive from this court action is possession of the home in question. 
+  
+  However, if you proceed to file any of the documents you may receive from this interview you could be subjecting yourself to a monetary judgement. This means that you could receive a judgement stating that you owe money when originally you would not have. 
+  
+  You are welcome to continue should you choose to do so, or you may stop the process now and contact your local Legal Services provider for more details.
 continue button field: posting_warning
 ---
 code: |
@@ -712,7 +716,7 @@ fields:
       is: False
 ---
 id: petition requirements - periods due
-question: Periods
+question: Does the petition list each month that the landlord claims you owe rent?
 subquestion: |
   The Landlord's Petition must say what months you allegedly owe rent for.
  
@@ -721,9 +725,9 @@ fields:
     datatype: yesnomaybe
 ---
 id: petition requirements - demand
-question: Periods
+question: Does the Petition say that the landlord demanded rent?
 subquestion: |
-  The Landlord's Petition must say that the landlord demanded rent
+  The Landlord's Petition must say that the "landlord demanded rent", meaning that the landlord told you that you had to pay rent or leave.
   
   The Demand may look like this, but can have different language:
   
@@ -775,18 +779,10 @@ comment: |
   (TODO: implement Other explanation)
   (TODO: change was_attempt_full question options from Yes/No to Full/Partial)
 question: |
-  Has the landlord refused attempts to pay the past-due rent before the date this case was filed (${ filing_date })?
+  Has the landlord refused rent?
 fields:
-  - Has landlord refused payment?: has_refused_payment
-    datatype: yesno
-    input type: yesnoradio
----
-id: payment attempt
-Question: |
-  Payment Attempt Information
-comment: |
-  (TODO: loop to allow multiple payment attempts)
-fields:
+  - Did you offer to pay the rent your landlord says you owe?: offer_attempt
+    datatype: yesnoradio
   - HOW did you attempt payment?: attempt_method
     input type: radio
     choices:
@@ -795,25 +791,34 @@ fields:
       - verbally In person
       - verbally Over Phone Call
       - Other
+    show if:
+      variable: offer_attempt
+      is: True
   - WHEN did you attempt payment?: attempt_date
     datatype: date
+    show if:
+      variable: offer_attempt
+      is: True
   - Did you attempt to pay in full?: was_attempt_full
     datatype: yesno
     input type: yesnoradio
+    show if:
+      variable: offer_attempt
+      is: True
+  - Did the landlord refuse this payment?: has_refused_payment
+    datatype: yesno
+    input type: yesnoradio
+    show if:
+      variable: offer_attempt
+      is: True
 ---
-id: attempt evidence
-comment: |
-  EVIDENCE
-  (TODO: possibly separate "Would you be willing..." question to a dedicated yesno screen)
-question: |
-  Do you have proof of the landlord's refusal?
+question: Do you have proof of the landlord's refusal of rent?
+subquestion: |
+  For example, a letter from the landlord refusing to accept the money, a written check or money order, or a witness to the landlord's refusal.
 fields:
   - Have Proof?: has_attempt_evidence
     datatype: yesno
     input type: yesnoradio
-    help: |
-      For example, a letter from the landlord refusing to accept the money, 
-      a written check or money order, or a witness to the landlord's refusal.
   - Would you be willing to offer to pay the full amount of past-due rent plus court costs in exchange for dismissing this case?: will_offer_payment
     datatype: yesno
     input type: yesnoradio
@@ -822,9 +827,11 @@ fields:
 ---
 id: warranty of habitability
 question: |
-  Warranty of habitability
+  Are there problems in your home that need to be repaired?
 subquestion: |
-  You may have a claim of **Breach of Warranty of Habitability** if he condition of the premises adversely affected your life, health or safety and rendered the dwelling uninhabitable in whole or in part.
+  You may have a claim of **Breach of Warranty of Habitability** if the condition of your home affected your life, health or safety and made the dwelling uninhabitable in whole or in part.
+  
+  You can list problems that have been fixed if they happened with the last 2 years.
   
   Winning on a Breach of Warranty of Habitability claim may excuse you from all or part of the back rent owed.
 fields: 
@@ -839,6 +846,10 @@ fields:
       - Has standing water or sewage: has_standing_water
       - Has dangerous structural issues: has_structural_issues
       - Other: other
+  - What other problems do you have?: other_warrranty_breaches
+    show if:
+      variable: warranty_breaches['other']
+      is: True
 ---
 id: covenant of quiet enjoyment
 question: |
