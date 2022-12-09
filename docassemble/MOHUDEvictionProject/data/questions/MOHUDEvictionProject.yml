@@ -559,9 +559,9 @@ continue button field: docket_review_conclusion
 sets: docket_number
 id: docket number
 question: |
-  What is the docket number for your case?
+  What is the case number for your case?
 fields:
-  - I don't know the docket number: dont_know_docket_number
+  - I don't know the case number: dont_know_docket_number
     datatype: yesnowide
   - no label: docket_number
     hide if: dont_know_docket_number
@@ -946,7 +946,7 @@ review:
       ${ service_date }
   - Edit: docket_number
     button: |
-      **Docket number**:
+      **case number**:
       ${ docket_number }
   - Edit: original_hearing_time
     button: |
