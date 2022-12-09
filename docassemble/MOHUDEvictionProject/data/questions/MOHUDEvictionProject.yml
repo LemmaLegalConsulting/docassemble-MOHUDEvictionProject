@@ -641,7 +641,7 @@ fields:
   - Case Number: docket_number
   - note: |
       The Filing Date will usually be on a stamp or a sticker.
-  - Filing Date: filing_date
+  - Date File Stamp: filing_date
     datatype: date
 ---
 id: names of opposing parties - petition
