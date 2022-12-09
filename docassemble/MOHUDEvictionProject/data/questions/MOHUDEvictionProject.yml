@@ -202,9 +202,9 @@ code: |
 id: basic questions intro screen
 decoration: form-lineal
 question: |
-  ${interview_short_title}: ${ AL_ORGANIZATION_TITLE}
+  Missouri ${interview_short_title}
 subquestion: |
-  ${ AL_ORGANIZATION_TITLE } can help you complete and download forms in 3 steps:
+  Missouri ${interview_short_title} can help you complete and download forms  in 3 steps:
 
   
   Step 1. Answer questions that will fill in your form for you.  
@@ -220,7 +220,7 @@ subquestion: |
   on your own.
   % endif
   
-  This site is not a lawyer. If you would like a lawyer, find [your local
+  This site is not a lawyer. If you would like a lawyer, find [a Missouri legal aid provider](https://www.lsmo.org/).  If you are outside Missouri, find your [your local
   legal aid provider](https://www.lsc.gov/what-legal-aid/find-legal-aid).
   
   Tap the {green words} in any screen for a definition or more information.
