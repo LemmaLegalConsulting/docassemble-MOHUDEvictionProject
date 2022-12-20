@@ -3,6 +3,7 @@ include:
   - docassemble.AssemblyLine:assembly_line.yml
   - docassemble.ALAnyState:any_state.yml
   - defense_logic.yml
+  - information_collected.yml
 ---
 metadata:
   title: |
@@ -123,6 +124,7 @@ code: |
     docket_review
   defense_logic
   set_progress(50)
+  information_collected
   interview_order_eviction_defender = True
 ---
 code: |
@@ -138,12 +140,18 @@ code: |
   for party in other_parties:
     party.address.address
     party.attorney.gather()
+  other_landlord_information
   is_rent_subsidized
   if previous_landlord_sold_property:
     notice_of_sale_provided
   if landlord_foreclosed:
     notice_of_foreclosure
   landlord_information_section = True
+---
+question: Other information about your landlord
+subquestion: |
+  Now we are going to ask you some other questions about your landlord.  Please answer these questions to the best of your ability.
+continue button field: other_landlord_information
 ---
 code: |
   if not lease_attached:
