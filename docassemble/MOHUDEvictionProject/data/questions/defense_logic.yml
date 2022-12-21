@@ -163,15 +163,15 @@ code: |
   else:
     defense_foreclosure = False
 ---
-question: Was the rental property foreclosed on?
+id: had foreclosure
+question: |
+  Did the bank ever foreclose on this home?
 fields:
-  - Was the rental property foreclosed on?: landlord_foreclosed
+  - Did the bank foreclose on this property while you lived there?: landlord_foreclosed
     datatype: yesnomaybe
----
-question: Did you receive notice of the foreclosure?
-fields:
   - Did you get a letter that told you about the foreclosure?: notice_of_foreclosure
     datatype: yesnomaybe
+    show if: landlord_foreclosed
 ---
 code: |
   if previous_landlord_sold_property and not notice_of_sale_provided:
@@ -179,15 +179,15 @@ code: |
   else:
     defense_new_owner_failed_to_provide_notice_of_sale = False
 ---
-question: Did your previous landlord sell the property to the new landlord?
+id: sale of property
+question: |
+  Was your landlord ever sell the house you live in now while you lived in it?
 fields:
-  - Did your previous landlord sell the property to the new landlord?: previous_landlord_sold_property
+  - Was your house sold to a new landlord while you lived in it?: previous_landlord_sold_property
     datatype: yesnomaybe
----
-question: Did the landlord provide you notice of the sale?
-fields:
-  - Did the landlord tell you about the sale?: notice_of_sale_provided
+  - Did your landlord tell you about the sale?: notice_of_sale_provided
     datatype: yesnomaybe
+    show if: previous_landlord_sold_property
 ---
 code: |
   defense_unrepresented_corporation = False
@@ -208,17 +208,21 @@ code: |
     defense_excessive_rent_for_subsidized_housing = True
 ---
 id: subsidized housing identification
-question: Protections for Subsidized Housing
+question: |
+  What kind of housing do you have?
 fields:
   - Do you get a rent subsidy or do you live in public housing?: is_rent_subsidized
     datatype: yesnoradio
-  - What type of subsidized housing?: subsidized_housing_type
+  - What type of housing do you have?: subsidized_housing_type
     datatype: radio
     choices:
       - Section 8 voucher: voucher
-      - Public housing with the city as my landlord: public
+      - Public housing: public
+        help: |
+          In public housing, your landlord is usually the city or county.
       - Tax credit: taxcredit
-      - Housing project with a private landlord but I pay 30% of my income for rent: project
+      - Housing project run by a private landlord (and I pay 30% of my income for rent): project
+        
     show if:
       variable: is_rent_subsidized
       is: True

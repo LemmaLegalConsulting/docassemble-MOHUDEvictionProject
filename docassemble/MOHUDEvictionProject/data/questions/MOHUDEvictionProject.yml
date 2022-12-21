@@ -7,9 +7,9 @@ include:
 ---
 metadata:
   title: |
-    Eviction Helper
+    Defend against an Eviction
   short title: |
-    Eviction Help
+    Eviction Defense
   tags:
     - HO-02-00-00-00
   authors:
@@ -60,7 +60,7 @@ code: |
   al_form_type = "existing_case" 
 ---
 code: |
-  AL_ORGANIZATION_TITLE = "Legal Services of Eastern Missouri"
+  AL_ORGANIZATION_TITLE = "Missouri Tenant Help"
 ---
 code: |
   user_started_case = False
@@ -90,13 +90,17 @@ code: |
 ---
 id: any other opposing parties
 question: |
-  Is there any other **Plaintiff** in this matter?
+  Is there another **Plaintiff** in this eviction case?
 subquestion:  |
-  Additional Plaintiffs may be listed under the first Plaintiff.
+  You have already told us about ${ other_parties.complete_elements() }.
 
+  If you have the Summons and Petition, the name of each Plaintiff is listed
+  in the box labeled "Plaintiff". 
+  
+  Normally this is the owner of your home.
 fields:
-  - no label: other_parties.there_is_another
-    datatype: yesnoradio
+  - Is there another Plaintiff?: other_parties.there_is_another
+    datatype: yesnomaybe
 ---
 sections:
   - review_eviction_motion_to_continue: Review your answers
@@ -115,7 +119,7 @@ code: |
   users[0].name.first
   users[0].address.address
   users[0].address.geocode()
-  if received_summons and method_of_summons_service == "posting":
+  if tenant_got_summons and method_of_summons_service == "posting":
     posting_warning
   docket_number
   filing_date
@@ -140,18 +144,17 @@ code: |
   for party in other_parties:
     party.address.address
     party.attorney.gather()
-  other_landlord_information
   is_rent_subsidized
   if previous_landlord_sold_property:
     notice_of_sale_provided
   if landlord_foreclosed:
     notice_of_foreclosure
   landlord_information_section = True
----
-question: Other information about your landlord
-subquestion: |
-  Now we are going to ask you some other questions about your landlord.  Please answer these questions to the best of your ability.
-continue button field: other_landlord_information
+#---
+#question: Other information about your landlord
+#subquestion: |
+#  Now we are going to ask you some other questions about your landlord.  Please answer these questions to the best of your ability.
+#continue button field: other_landlord_information
 ---
 code: |
   if not lease_attached:
@@ -210,9 +213,9 @@ code: |
 id: basic questions intro screen
 decoration: form-lineal
 question: |
-  Missouri ${interview_short_title}
+  Answer and defend against an eviction: Missouri Tenant Help
 subquestion: |
-  Missouri ${interview_short_title} can help you complete and download forms  in 3 steps:
+  Missouri Tenant Help can help you complete and download forms  in 3 steps:
 
   
   Step 1. Answer questions that will fill in your form for you.  
@@ -257,19 +260,31 @@ comment: |
 id: eviction_defender_introduction
 continue button field: eviction_defender_intro
 question: |
-  Eviction Defender
+  Defend against an Eviction
 subquestion: |
-  This interview can help you win your eviction case.
+  <h2 class="h4">How this works</h2>
+  One the next screens you will:
+
+  1. Tell us about your eviction case.
+  1. Tell us why you should not be evicted.
+  1. Tell us about problems in your home and in your landlord's case that may
+     stop your eviction.
+
+  At the end of the questions, you will have completed documents that you
+  need to deliver to your landlord and to the court. The documents make up
+  your "Answer" and motions for your eviction case.
+
+  <h2 class="h4">Before you start</h2>
+  1. Get ready to print and deliver these documents. We can help you
+     fill in the documents, but you need to deliver them on your own.
+  1. Do your best to find any documents from the court and your landlord about the eviction, including:
+      - The Summons from the court
+      - The Landlord's petition
+      - The eviction notice
+      - Your lease
   
-  Answering these questions will produce an eviction Answer and motions that you may need.  The interview will also provide a list of next steps you can take, including how to deliver the paperwork on your own.
-  
-  **This interview will not file or deliver any paperwork for you.  You must print and deliver or file the paperwork on your own.**
-  
-  Before you start this interview, you may want to gather these documents.
-  
-   - The Summons from the Court and the Landlord's Petition
-   - Any Eviction Notice That You Received
-   - Your Lease
+  It takes most tenants about **30 minutes** to use this website. But you can 
+  save your work and come back at any time.
 ---
 id: your address
 sets:
@@ -282,23 +297,30 @@ sets:
 question: |
   Where do you live?
 subquestion: |
-  List the address that you are being evicted from.
+  Write the address that you are being evicted from.
 fields:
   - code: |
       users[0].address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)
+validation code: |
+  if users[0].address.state != "MO":
+    validation_error("Write an address that you are being evicted from in Missouri", field="users[0].address.state")
 ---
 ###################### DOCKET REVIEW ######################
 id: Docket_introduction
 question: |
-  Finding Your Case on the Online Docket
+  Use Case.net to lookup your case
 subquestion: |
-  You can find your case on the Missouri **Online Docket**, 
-  also known as [Case.net](https://www.courts.mo.gov/cnet).
+  You can use [Case.net](https://www.courts.mo.gov/cnet),
+  to help answer some questions on this website.
 
-  Using the Online Docket lets you check on upcoming hearings.
-  
-  **Do you want a guide through using the online docket?**
-yesno: docket_available
+  Case.net is a free website run by the Missouri Court.
+
+  Using Case.net is optional, but it can help you answer the questions more
+  accurately.
+    
+fields:
+  - Do you want to use Case.net to help answer some questions?: docket_available
+    datatype: yesnoradio
 ---
 code: |
   docket_header
@@ -368,9 +390,9 @@ code: |
   if users[0].address.city == "St. Louis":
     trial_court_circuit = 22
     trial_court_county = "City of St. Louis"
-    trial_court_name_default = "22nd Judicial Circuit – City of St. Louis"
+    trial_court_name_default = "22nd Judicial Circuit - City of St. Louis"
   else:
-    trial_court_circuit = county_to_circuit[users[0].address.county]
+    trial_court_circuit = county_to_circuit.get(users[0].address.county, "")
     trial_court_county = users[0].address.county
     trial_court_name_default = ordinal_number(trial_court_circuit, use_word=False).capitalize() + " Judicial Circuit - " + users[0].address.county
 ---
@@ -582,38 +604,63 @@ validation code: |
 id: Petition_introduction
 mandatory: True
 question: |
-  Did you receive the Summons and Petition?
+  Did you get a Summons and Landlord's Petition?
 subquestion: |
-  An eviction case must start with a Summons from the Court, with an attached Landlord's Petition.
-  
-  The Landlord's Petition may generally look like this Form Petition.
-  
+  The {Summons and Petition} looks different in some counties, but it may look like this:
+ 
+  [CENTER]
   [FILE ComplaintForm.png]
 
 fields:
-  - "Did you receive a copy of the Summons and Landlord's Petition?": received_summons
+  - "I got a copy of the {Summons and Petition}": tenant_got_summons
     datatype: yesnomaybe
-  - "How did you receive the Summons and Landlord's Petition?": method_of_summons_service
+  - "How did you get the Summons and Landlord's Petition?": method_of_summons_service
     datatype: radio
     choices:
       - "By mail": mail
-      - "Posting": posting
+      - "It was taped, stapled, or posted to my door or home": posting
     show if:
-      variable: received_summons
+      variable: tenant_got_summons
       is: True
-  - "Do you have a copy of the Landlord's Petition available?": petition_available
+  - "Do you have it next to you now?": petition_available
     datatype: yesnoradio
+    show if: tenant_got_summons
   - note: |
-      Having the Landlord's Petition available will make it easier to answer the following questions.
+      **You may want to stop and get the petition now.** It can help you answer
+      the questions on this website more accurately. If you cannot easily get it,
+      it is OK to keep going.
+    show if:
+      variable: petition_available
+      is: False
+terms:
+  Summons and Petition: |
+    The Summons and Landlord's Petition is the form that your landlord must file
+    with the court to start an eviction case.
 ---
-question: WARNING
+sets: posting_warning
+id: soft exit posting
+decoration: hand
+question: |
+  You may not want to file an answer
 subquestion: |
-  Please note that you have been served by posting. This means that all that your landlord can receive from this court action is possession of the home in question. 
-  
-  However, if you proceed to file any of the documents you may receive from this interview you could be subjecting yourself to a monetary judgement. This means that you could receive a judgement stating that you owe money when originally you would not have. 
-  
-  You are welcome to continue should you choose to do so, or you may stop the process now and contact your local Legal Services provider for more details.
-continue button field: posting_warning
+  You said that you got the Summons and Petition by "posting" (taping, stapling or pinning to your door).
+
+  Because your landlord did not mail the Summons and Petition, if you file an answer, the court may order 
+  you to pay money that you would not need to pay otherwise.
+
+  You may still want to keep going if:
+
+  * You want to find out if you have a defense that can stop the eviction
+  * You think your landlord will owe you more money than you owe them
+
+  You do not need to decide now. If you keep going, we will remind you about your choices at the end.
+  You may want to talk to a lawyer to decide for sure.
+buttons:
+  - I understand, let me keep going:
+      code: |
+        posting_warning = True
+  - Exit: exit
+    url: https://motenantassistance.org/
 ---
 code: |
   docket_number
@@ -635,40 +682,46 @@ comment: |
   petition_review = True
 ---
 id: caption - docket number and file date
-if: petition_available
-question: Finding Basic Information about Your Case
+if: tenant_got_summons and petition_available
+question: |
+  What court is your case in?
 subquestion: |
-  You can find important basic information at the the top of the Landlord's Petition, like the name of the court, the case number, and the date the landlord filed the petition in court.
-  
-  [FILE ComplaintCaptionCourt.png, 100%]
+  You can find the:
 
+  - Name of the court
+  - Case number, and
+  - Date File Stamp
+
+  At the top of the Summons and Petition.
   
+  [FILE ComplaintCaptionCourt.png, 100%] 
 fields:
   - Court: trial_court_name
     default: ${ trial_court_name_default }
   - Case Number: docket_number
+    required: False
   - note: |
       The Filing Date will usually be on a stamp or a sticker.
   - Date File Stamp: filing_date
     datatype: date
+    required: False
 ---
 id: names of opposing parties - petition
-if: petition_available
-question: Landlord's Name
+if: tenant_got_summons and petition_available
+question: |
+  % if i >= 1:
+  What is your ${ ordinal(i) } landlord's name?
+  % else:
+  What is your landlord's name?
+  % endif
 subquestion: |
-  Your landlord is called the Plaintiff in an eviction case, and the Plaintiff's name and address is near the top of the Caption on the left.
+  Look at the Summons and Petition, and write the name of the ${ ordinal(i) } "Plaintiff"
+  exactly as it is written on the Summons and Petition.
   
   [FILE ComplaintCaptionPlaintiff.png, 100%]
   
-  Who is the ${ ordinal(i) } Plaintiff listed?
-sets:
-  - other_parties[i].name.first
-  - other_parties[i].name.last
-  - other_parties[i].name.middle
-  - other_parties[i].name.suffix
 fields:
-  - code: |
-      other_parties[i].name_fields(person_or_business='unsure')
+  - Name of your landlord: other_parties[i].name.first
 --- 
 id: petition requirements - rent amount
 question: How much rent does your landlord say that you owe?
@@ -1090,9 +1143,11 @@ fields:
     datatype: yesnoradio
 ---
 id: Landlord representation
-question: Does the landlord have an attorney?
+question: |
+  Does ${ other_parties[i] } have an attorney?
 subquestion: |
-  If the landlord is represented by an attorney, then it will say "represented by" next to the landlord's name, and the attorney's name address will be to the right.
+  If the landlord is represented by an attorney, then it will say "represented by" next to the 
+  landlord's name, and the attorney's name and address will be to the right.
 fields:
   - Is ${ other_parties[i] } represented by an attorney?: other_parties[i].attorney.there_are_any
     datatype: yesnoradio
