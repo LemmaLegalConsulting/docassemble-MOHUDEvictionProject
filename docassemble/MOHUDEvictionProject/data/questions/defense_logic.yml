@@ -182,7 +182,7 @@ code: |
 question: Did your previous landlord sell the property to the new landlord?
 fields:
   - Did your previous landlord sell the property to the new landlord?: previous_landlord_sold_property
-    datatype: yesnomabye
+    datatype: yesnomaybe
 ---
 question: Did the landlord provide you notice of the sale?
 fields:

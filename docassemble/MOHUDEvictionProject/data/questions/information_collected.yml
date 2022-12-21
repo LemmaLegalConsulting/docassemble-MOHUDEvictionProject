@@ -1,0 +1,17 @@
+---
+code: |
+  what_happens_at_the_hearing_ic = list()
+  what_the_judge_can_do_at_the_hearing_ic = list()
+  what_you_can_do_at_the_hearing_ic = list()
+  warning_ic = list()
+  evidence_ic = list()
+  if defense_rent_pleading_requirement:
+    what_the_judge_can_do_at_the_hearing_ic.append("If the judge finds that the landlord's petition does not meet the requirements, the judge can dismiss the eviction case.  The judge canr allow the landlord to amend the landlord's petition, which means a new hearing date will be scheduled.")
+  if defense_lease_not_attached:
+    what_you_can_do_at_the_hearing_ic.append("If you raise this defense and the landlord offers this into evidence, they need to stand up and object because it wasn't attached to the petition.")
+    what_the_judge_can_do_at_the_hearing_ic.append("The judge is most likely to order the landlord to file an amended petition and set a new hearing, or the judge may not let the lease in, allow an eviction and not award attorney fees")
+  if defense_breach_of_habitability:
+    warning_ic.append("If you don't file an answer with the affirmative defense, they can't bring this up at all.")
+    what_the_judge_can_do_at_the_hearing_ic.append("So long as possession is issue, the judge can make you deposit all the rent is due.  Judges generally grant this, unless there is unusual circumstances like the tenant using the move.")
+  information_collected = True
+---
