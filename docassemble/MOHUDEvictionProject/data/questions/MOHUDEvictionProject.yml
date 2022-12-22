@@ -76,8 +76,98 @@ objects:
   - other_parties[i].attorney: ALPeopleList.using(complete_attribute="complete")
   - users: ALPeopleList.using(there_are_any=True)
 ---
+sections:
+  - section_eviction_answer_intro: Introduction
+  - section_eviction_answer_can_i: Should you file an Answer?
+  - section_eviction_answer_you: Information about you
+  - section_eviction_answer_other: Information about the other party
+  - section_eviction_answer_tenancy: Information about your rental agreement
+  - section_eviction_answer_case: Information about the eviction
+  - section_eviction_answer_casenet: Using Case.net
+  - section_eviction_answer_defenses: Your claims and defenses
+  - review_eviction_answer: Review your answers
+  - section_serve_other_side: Getting a copy to your landlord
+  - section_eviction_answer_download: Download, print and file
+---
+###################### Main order ######################
+mandatory: True
 code: |
-  other_parties[i].address.address
+  al_intro_screen
+  eviction_defender_intro
+  interview_order_eviction_defender
+  signature_date
+  # Store anonymous data for analytics / statistics
+  nav.set_section("review_eviction_answer")
+  review_eviction_answer
+  store_variables_snapshot(
+      persistent=True,
+      data={
+          "zip": showifdef("users[0].address.zip"),
+          "reached_interview_end": True,
+      },
+  )
+  nav.set_section("section_serve_other_side")
+  if other_parties[0].service_method == "email":
+    other_parties[0].email
+  elif other_parties[0].service_method in ["mail", "hand"]:
+    other_parties[0].service_address
+  nav.set_section("section_eviction_answer_download")
+  eviction_defender_download
+---
+#################### Interview order #####################
+comment: |
+  Controls order and branching logic for questions specific to this form
+id: interview_order_eviction_motion_to_continue
+code: |
+  # Set the allowed courts for this interview
+  allowed_courts = interview_metadata["eviction_defender"]["allowed courts"]
+  nav.set_section('section_eviction_answer_intro')
+  user_role = 'defendant'
+  landlord_doc_name
+  tenant_doc_name
+  users[0].name.first
+  greet_user
+  nav.set_section("section_eviction_answer_can_i")
+  if tenant_got_summons and method_of_summons_service == "posting":
+    posting_warning
+  else:
+    recommend_filing_answer
+  nav.set_section("section_eviction_answer_you")
+  users[0].address.address
+  users[0].address.geocode()
+  nav.set_section("section_eviction_answer_other")
+  other_parties.gather()
+  for party in other_parties:
+    party.address.address
+    party.attorney.gather()
+  nav.set_section("section_eviction_answer_tenancy")  
+  is_rent_subsidized
+  lease_section
+  if previous_landlord_sold_property:
+    notice_of_sale_provided
+  if landlord_foreclosed:
+    notice_of_foreclosure
+  nav.set_section("section_eviction_answer_casenet")
+  if docket_available:
+    docket_review
+  nav.set_section("section_eviction_answer_case")
+  trial_court_name
+  original_hearing_date
+  docket_number
+  filing_date
+  users.gather()
+  petition_states_rent_amount
+  nav.set_section("section_eviction_answer_defenses")
+  landlord_agreement_section
+  rent_defenses_section
+  defense_logic
+  landlord_problems_section
+  set_progress(50)
+  information_collected
+  interview_order_eviction_defender = True
+---
+code: |
+  other_parties[i].name.first
   other_parties[i].attorney.gather()
   other_parties[i].complete = True
 ---
@@ -101,55 +191,6 @@ subquestion:  |
 fields:
   - Is there another Plaintiff?: other_parties.there_is_another
     datatype: yesnomaybe
----
-sections:
-  - review_eviction_motion_to_continue: Review your answers
----
-#################### Interview order #####################
-comment: |
-  Controls order and branching logic for questions specific to this form
-id: interview_order_eviction_motion_to_continue
-code: |
-  # Set the allowed courts for this interview
-  allowed_courts = interview_metadata["eviction_defender"]["allowed courts"]
-  nav.set_section('review_eviction_defender')
-  user_role = 'defendant'
-  landlord_doc_name
-  tenant_doc_name
-  users[0].name.first
-  users[0].address.address
-  users[0].address.geocode()
-  if tenant_got_summons and method_of_summons_service == "posting":
-    posting_warning
-  docket_number
-  filing_date
-  section_order
-  if docket_available:
-    docket_review
-  defense_logic
-  set_progress(50)
-  information_collected
-  interview_order_eviction_defender = True
----
-code: |
-  landlord_information_section
-  users.gather()
-  rent_payment_section
-  lease_section
-  landlord_agreement_section
-  landlord_problems_section
-  section_order = True
----  
-code: |
-  for party in other_parties:
-    party.address.address
-    party.attorney.gather()
-  is_rent_subsidized
-  if previous_landlord_sold_property:
-    notice_of_sale_provided
-  if landlord_foreclosed:
-    notice_of_foreclosure
-  landlord_information_section = True
 #---
 #question: Other information about your landlord
 #subquestion: |
@@ -178,7 +219,7 @@ code: |
     late_fees_penalty
     if trial_court_circuit == "21":
       petition_separates_nonrent
-  rent_payment_section = True
+  rent_defenses_section = True
 ---
 code: |
   if landlord_agreement:
@@ -189,26 +230,7 @@ code: |
   warranty_breaches
   cqe_breaches
   landlord_problems_section = True
----
-###################### Main order ######################
-comment: |
-  This block includes the logic for standalone interviews.
-  Delete mandatory: True to include in another interview
-mandatory: True
-code: |
-  al_intro_screen
-  eviction_defender_intro
-  interview_order_eviction_defender
-  signature_date
-  # Store anonymous data for analytics / statistics
-  store_variables_snapshot(
-      persistent=True,
-      data={
-          "zip": showifdef("users[0].address.zip"),
-          "reached_interview_end": True,
-      },
-  )
-  eviction_defender_download
+
 ---
 id: basic questions intro screen
 decoration: form-lineal
@@ -255,8 +277,6 @@ terms:
   green words: |
     Green words are legal terms or a short way of referring to something that needs more explanation. The definition or explanation pops up when you tap the green words. 
 ---
-comment: |
-  This question is used to introduce your interview. Please customize
 id: eviction_defender_introduction
 continue button field: eviction_defender_intro
 question: |
@@ -282,9 +302,19 @@ subquestion: |
       - The Landlord's petition
       - The eviction notice
       - Your lease
-  
+---
+id: you can do it affirmation
+question: |
+  ${ users[0].familiar() }, you can do this!
+subquestion: |
   It takes most tenants about **30 minutes** to use this website. But you can 
   save your work and come back at any time.
+
+  Just answer the questions on each screen as well as you can. Make sure
+  to tell the truth.
+
+  At the end you will have customized documents, ready to file in court.
+continue button field: greet_user
 ---
 id: your address
 sets:
@@ -420,7 +450,8 @@ fields:
   - "Date of Service": service_date
     datatype: date
 ---
-question:  Where is the Court?
+question: |
+  Where is the Court?
 fields:
   - Is the court in the City of St. Louis?: in_st_louis
     datatype: yesnoradio
@@ -692,9 +723,15 @@ sets:
 id: names of opposing parties
 question: |
   Name of ${ ordinal(i) } landlord
+subquestion: |
+  Write the name of the person who owns your home. Not the name of a property manager.
 fields:
-  - code: |
-      other_parties[i].name_fields(person_or_business='unsure')
+  - Landlord's name: other_parties[i].name.first
+  - Is this owner a business, or an individual?: other_parties[i].person_type
+    datatype: radio
+    choices:
+      - Individual: person
+      - Business: business
 ---
 if: docket_available
 sets:
@@ -844,6 +881,29 @@ buttons:
   - Exit: exit
     url: https://motenantassistance.org/
 ---
+id: yep file an answer
+question: |
+  Tenants in your situation usually file an answer
+subquestion: |
+  % if tenant_got_summons:
+  You said that you got the Summons and Petition by mail. 
+  % else:
+  You said you do not know if you got the Summons and Petition.
+  % endif
+  In your situation,
+  most tenants file an answer.
+
+  Filing an answer may:
+
+  * Stop your eviction, or
+  * Lower the amount that you need to pay your landlord,
+
+  or both.
+
+  The rest of the questions on this website will complete your
+  answer.
+continue button field: recommend_filing_answer
+---
 code: |
   docket_number
   filing_date
@@ -864,10 +924,10 @@ comment: |
   petition_review = True
 ---
 id: caption - docket number and file date
-if: tenant_got_summons and petition_available
 question: |
   What court is your case in?
 subquestion: |
+  % if tenant_got_summons and petition_available:
   You can find the:
 
   - Name of the court
@@ -877,6 +937,7 @@ subquestion: |
   At the top of the Summons and Petition.
   
   [FILE ComplaintCaptionCourt.png, 100%] 
+  % endif
 fields:
   - Court: trial_court_name
     default: ${ trial_court_name_default }
@@ -1097,29 +1158,30 @@ fields:
   - Have you had any of these problems **in the last 2 years**?: warranty_breaches
     datatype: checkboxes
     choices: 
-      - ${ conditions_text[no_heat] }: no_heat
-      - ${ conditions_text[no_cooling] }: no_cooling
-      - ${ conditions_text[insufficient_water] }: insufficient_water
-      - ${ conditions_text[insecure_locks] }: insecure_locks
-      - ${ conditions_text[mice_or_rats] }: mice_or_rats
-      - ${ conditions_text[roaches] }: roaches
-      - ${ conditions_text[bedbugs] }: bedbugs
-      - ${ conditions_text[chronic_dampness] }: chronic_dampness
-      - ${ conditions_text[standing_water] }: standing_water
-      - ${ conditions_text[electric_problem] }: electric_problem
-      - ${ conditions_text[lead_paint] }: lead_paint
-      - ${ conditions_text[leaky_windows] }: leaky_windows
-      - ${ conditions_text[has_plumbing_problems] }: has_plumbing_problems
-      - ${ conditions_text[has_structural_issues] }: has_structural_issues
-      - ${ conditions_text[ceiling_not_weathertight] }: ceiling_not_weathertight
-      - ${ conditions_text[floor_holes] }: floor_holes
-      - ${ conditions_text[other] }: other
+      - ${ conditions_text["no_heat"] }: no_heat
+      - ${ conditions_text["no_cooling"] }: no_cooling
+      - ${ conditions_text["insufficient_water"] }: insufficient_water
+      - ${ conditions_text["insecure_locks"] }: insecure_locks
+      - ${ conditions_text["mice_or_rats"] }: mice_or_rats
+      - ${ conditions_text["roaches"] }: roaches
+      - ${ conditions_text["bedbugs"] }: bedbugs
+      - ${ conditions_text["chronic_dampness"] }: chronic_dampness
+      - ${ conditions_text["standing_water"] }: standing_water
+      - ${ conditions_text["electric_problem"] }: electric_problem
+      - ${ conditions_text["lead_paint"] }: lead_paint
+      - ${ conditions_text["leaky_windows"] }: leaky_windows
+      - ${ conditions_text["has_plumbing_problems"] }: has_plumbing_problems
+      - ${ conditions_text["has_structural_issues"] }: has_structural_issues
+      - ${ conditions_text["ceiling_not_weathertight"] }: ceiling_not_weathertight
+      - ${ conditions_text["floor_holes"] }: floor_holes
+      - Other: other
   - What other problems do you have?: other_warrranty_breaches
     show if:
       variable: warranty_breaches['other']
       is: True
 ---
 variable name: conditions_text
+use objects: True
 data:
   no_heat:
     question: No heat or not enough heat in the winter time
@@ -1170,6 +1232,28 @@ data:
     question: Floor has holes or cracks
     document: Floor has holes or cracks
 ---
+variable name: cqe_breaches_text
+use objects: True
+data:
+  harassment:
+    question: Harass you in person or on the phone
+    document: Harassed Tenant in person or on the phone
+  visits:
+    question: Make frequent or unnecessary visits or inspections of the property
+    document: Made frequent or unnecessary visits or inspections of the property
+  remodeling:
+    question: Do unnecessary remodeling work, or maintenance work that takes longer than they promised
+    document: Performed unnecessary remodeling work, or maintenance work that took longer than they promised
+  access:
+    question: Allow construction that stops you from easily getting into your home or makes you take a long detour
+    document: Allowed construction that stops you from easily getting into your home or makes you take a long detour
+  animal:
+    question: Allow their own dog or pet to bark constantly and disturb you
+    document: Allowed their dog or pet to bark constantly and disturb Tenant
+  vermin:
+    question: Not exterminate or take care of vermin or pests in the walls making disruptive noises
+    document: Failed to exterminate or take care of vermin or pests in the walls making disruptive noises
+---
 template: bad_conditions_explanation_template
 subject: |
   Why does the condition of my house matter?
@@ -1189,12 +1273,12 @@ fields:
   - "Did your landlord:": cqe_breaches
     datatype: checkboxes
     choices:
-      - Harass you in person or on the phone: harassment
-      - Make frequent or unnecessary visits or inspections of the property: visits
-      - Do unnecessary remodeling work, or maintenance work that takes longer than they promised: remodeling
-      - Allow construction that stops you from easily getting into your home or makes you take a long detour: access
-      - Allow their own dog or pet to bark constantly and disturb you: animal
-      - Not exterminate or take care of vermin or pests in the walls making disruptive noises: vermin
+      - ${ cqe_breaches_text["harassment"] }: harassment
+      - ${ cqe_breaches_text["visits"] }: visits
+      - ${ cqe_breaches_text["remodeling"] }: remodeling
+      - ${ cqe_breaches_text["access"] }: access
+      - ${ cqe_breaches_text["animal"] }: animal
+      - ${ cqe_breaches_text["vermin"] }: vermin
       - Other violation of your right to live peacefully in your home: other
   - Other (explain): other_cqe_breach
     datatype: area
@@ -1221,7 +1305,7 @@ subquestion: |
   Click the image to open it in a new tab. Click the "Edit answers" button
   to edit your answers.
 
-  ${ action_button_html(url_action('review_eviction_defender'), label='Edit answers', color='info') }
+  ${ action_button_html(url_action('review_eviction_answer'), label='Edit answers', color='info') }
   
   Remember to come back to this window to continue and sign your form.
 continue button field: eviction_defender_preview_question    
@@ -1244,7 +1328,7 @@ code: |
     wants_to_file['continuance'] = True
 ---
 id: eviction motion to continue review screen
-event: review_eviction_defender
+continue button field: review_eviction_answer
 question: |
   Review your answers
 review:
@@ -1338,7 +1422,7 @@ subquestion: |
   
   View, download and send your form below. Click the "Edit answers" button to fix any mistakes.
 
-  ${ action_button_html(url_action('review_eviction_defender'), label='Edit answers', color='info') }
+  ${ action_button_html(url_action('review_eviction_answer'), label='Edit answers', color='info') }
   
   
   ${ al_user_bundle.download_list_html() }
@@ -1416,7 +1500,7 @@ fields:
   - Are there any other Defendants listed besides you?: users.there_is_another
     datatype: yesnomaybe
 ---
-if: petition_available and len(users)==1
+if: tenant_got_summons and petition_available and len(users)==1
 question: Is any other tenant listed on this eviction case?
 subquestion: |
   In eviction cases, tenants are called Defendants.  Defendants are listed underneath the Plaintiffs, and your name and address should be included as a Defendant.
