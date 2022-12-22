@@ -67,26 +67,39 @@ code: |
   else:
     defense_settlement = False
 ---
-question: Did you make a settlement agreement with the landlord to avoid the eviction?
+id: made settlement
+question: |
+  Did you already make an agreement with the landlord to stop the eviction?
 fields:
-  - Did you make a settlement agreement with the landlord to avoid the eviction?: landlord_agreement
+  - Did you make a settlement agreement with the landlord?: landlord_agreement
     datatype: yesnoradio
----
-question: Did you comply with the settlement agreement with the landlord?
-fields:
-  - Did you comply with the settlement agreement with the landlord?: tenant_compliance_with_agreement
+  - Did you follow the terms of the agreement?: tenant_compliance_with_agreement
     datatype: yesnoradio
+    show if: landlord_agreement
 ---
+depends on:
+  - unfair_duress
 code: |
-  if unfair_duress:
-    defense_lease_signed_under_duress = True
-  else:
-    defense_lease_signed_under_duress = False
+  defense_lease_signed_under_duress = unfair_duress
 ---
-question: Were you pressured to sign the lease?
+id: duress
+question: |
+  Did the landlord unfairly make or pressure you to sign the lease?
+subquestion: |
+  ${ collapse_template(unfair_duress_explanation_template) }
 fields:
-  - Were you pressured to sign the lease?: unfair_duress
+  - Did the landlord unfairly pressure you to sign the lease?: unfair_duress
     datatype: yesnoradio
+---
+template: unfair_duress_explanation_template
+subject: |
+  What counts as "unfair pressure"?
+content: |
+  Only a judge can decide. But unfair pressure may include:
+
+  * A threat to hurt you or someone else
+  * An **implied** threat to hurt you or someone else, or
+  * Extreme psychological pressure
 ---
 code: |
   if len(false_promises) > 0 and not relied_on_false_promises:
@@ -97,32 +110,84 @@ code: |
 objects:
   - false_promises: DAList
 ---
-question: Did the landlord make any false promises to you before you signed the lease?
-fields: 
+id: landlord lied
+question: |
+  Did the landlord tell you something that wasn't true to get you to sign the lease?
+subquestion: |
+  ${ collapse_template(false_promise_example_template) }
+fields:
   - Did the landlord make any false promises to you before you signed the lease?: false_promises.there_are_any
     datatype: yesnoradio
+  - What was the **first** false promise your landlord made to you?: false_promises[0]
+    show if: false_promises.there_are_any
 ---
-question: What false promise did the landlord make to you?
+template: false_promise_example_template
+subject: |
+  What counts as a false promise?
+content: |
+  If your landlord told you something that got you to sign the lease and
+  that turned out not to be true, it may be a false promise.
+
+  For example:
+
+  * Promising to paint a room, or
+  * Promising to replace a carpet, or
+  * Promising that an old appliance would get replaced before you moved in
+
+  Those may count as false promises. What matters is that you would not
+  have signed the lease if your landlord hadn't told you something that
+  turned out not to be true.
+---
+id: promises i
+question: |
+  What was the **${ ordinal(i) }** false promise your landlord made?
 subquestion: |
-  % if len(false_promises) > 0:
-  The false promises you have already mentioned are:
+  You already told us about:
+
   % for promise in false_promises:
-  
-   - ${ promise }
+  * ${ promise }
   % endfor
-  % endif
 fields:
   - Describe the landlord's false promise: false_promises[i]
 ---
-question: Did the landlord make any additional false promises to you?
+id: false promises there is another
+question: |
+  Did the landlord promise anything else that was not true?
+subquestion: |
+  You already told us about:
+
+  % for promise in false_promises:
+  * ${ promise }
+  % endfor
 fields:
-  - Did the landlord make any additional false promises to you?: false_promises.there_is_another
+  - Did the landlord promise anything else that was not true?: false_promises.there_is_another
     datatype: yesnoradio
 ---
-question: Would you have entered into the lease if the landlord didn't make this promise?
+id: relied on promise
+question: |
+  Did the landlord's promise get you to sign the lease?
+subquestion: |
+  % if false_promises.number() == 1:
+  You told use the landlord made 1 false promise:
+  % else:
+  You told use the landlord made ${ false_promises.number() } false promises:
+  % endif
+
+  % for promise in false_promises:
+  * ${ promise }
+  % endfor  
 fields:
-  - Would you have entered into the lease if the landlord didn't make this promise?: relied_on_false_promises
+  - label: |
+      % if false_promises.number() == 1:
+      Did the landlord's promise get you to sign the lease?
+      % else:
+      Did the landlord's promises get you to sign the lease?
+      % endif
+    field: relied_on_false_promises
     datatype: yesnoradio
+    help: |
+      If you were more likely to sign the lease **because** of the
+      landlord's promise, answer yes.
 ---
 code: |
   if late_fees_assessed and late_fees_penalty:
@@ -130,15 +195,23 @@ code: |
   else:
     defense_liquidated_damages_late_fees = False
 ---
-question: Is the landlord claiming that you owe late fees?
+id: late fees
+question: |
+  Did your landlord say that you owe a late fee?
 fields:
-  - Is the landlord claiming that you owe late fees?: late_fees_assessed
+  - Did your landlord say that you owe fee for paying rent late?: late_fees_assessed
     datatype: yesnoradio
----
-question: Are the late fees more than any actual costs the landlord would have to pay because of late rent?
-fields:
-  - Are the late fees more than any actual costs the landlord would have to pay because of late rent?: late_fees_penalty
-    datatype: yesnoradio
+  - Is the rent more than a fair amount to cover the landlord's cost?: late_fees_penalty
+    datatype: yesnomaybe
+    show if: late_fees_assessed
+    help: |
+      It is up to a judge to decide if the late fee is "fair". But if the late fee is
+      a lot more than:
+
+      * The interest the money could earn in a bank, plus
+      * The cost of the landlord's time to handle the late payment,
+
+      The fee may be too high.
 ---
 comment: |
   Are we going to separate levels of cqe breach? E.g. (1) mere breach, (2) constructive eviction, (3) significant enough to physically deprive the tenant of possession.
@@ -221,15 +294,24 @@ fields:
         help: |
           In public housing, your landlord is usually the city or county.
       - Tax credit: taxcredit
-      - Housing project run by a private landlord (and I pay 30% of my income for rent): project
-        
+      - Housing project run by a private landlord (and I pay 30% of my income for rent): project        
     show if:
       variable: is_rent_subsidized
       is: True
       
 ---
-question: Did your landlord charge you excessive rent or rent owed by the government?
+id: rent not owed by tenant
+question: |
+  Because you get a rent subsidy
+subquestion: |
+  Some landlords ask their tenant to pay:
+
+  * Extra rent that is more than the rent the housing authority said the landlord can charge, or
+  * Part of the rent the housing authority would normally pay but the housing authority has stopped payment.
+
+  Your landlord can only charge you the amount that your Section 8 contract says. You never
+  owe more than your rent share.
 fields:
-  - Did your landlord charge you excessive rent or rent owed by the government?: excessive_rent
+  - Is your landlord asking you to pay an amount that is more than your tenant rent share?: excessive_rent
     datatype: yesnoradio
 ---
