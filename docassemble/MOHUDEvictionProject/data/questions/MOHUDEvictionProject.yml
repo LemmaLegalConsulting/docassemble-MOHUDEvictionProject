@@ -7,9 +7,9 @@ include:
 ---
 metadata:
   title: |
-    Eviction Helper
+    Defend against an Eviction
   short title: |
-    Eviction Help
+    Eviction Defense
   tags:
     - HO-02-00-00-00
   authors:
@@ -60,7 +60,7 @@ code: |
   al_form_type = "existing_case" 
 ---
 code: |
-  AL_ORGANIZATION_TITLE = "Legal Services of Eastern Missouri"
+  AL_ORGANIZATION_TITLE = "Missouri Tenant Help"
 ---
 code: |
   user_started_case = False
@@ -76,8 +76,98 @@ objects:
   - other_parties[i].attorney: ALPeopleList.using(complete_attribute="complete")
   - users: ALPeopleList.using(there_are_any=True)
 ---
+sections:
+  - section_eviction_answer_intro: Introduction
+  - section_eviction_answer_can_i: Should you file an Answer?
+  - section_eviction_answer_you: Information about you
+  - section_eviction_answer_other: Information about the other party
+  - section_eviction_answer_tenancy: Information about your rental agreement
+  - section_eviction_answer_case: Information about the eviction
+  - section_eviction_answer_casenet: Using Case.net
+  - section_eviction_answer_defenses: Your claims and defenses
+  - review_eviction_answer: Review your answers
+  - section_serve_other_side: Getting a copy to your landlord
+  - section_eviction_answer_download: Download, print and file
+---
+###################### Main order ######################
+mandatory: True
 code: |
-  other_parties[i].address.address
+  al_intro_screen
+  eviction_defender_intro
+  interview_order_eviction_defender
+  signature_date
+  # Store anonymous data for analytics / statistics
+  nav.set_section("review_eviction_answer")
+  review_eviction_answer
+  store_variables_snapshot(
+      persistent=True,
+      data={
+          "zip": showifdef("users[0].address.zip"),
+          "reached_interview_end": True,
+      },
+  )
+  nav.set_section("section_serve_other_side")
+  if other_parties[0].service_method == "email":
+    other_parties[0].email
+  elif other_parties[0].service_method in ["mail", "hand"]:
+    other_parties[0].service_address
+  nav.set_section("section_eviction_answer_download")
+  eviction_defender_download
+---
+#################### Interview order #####################
+comment: |
+  Controls order and branching logic for questions specific to this form
+id: interview_order_eviction_motion_to_continue
+code: |
+  # Set the allowed courts for this interview
+  allowed_courts = interview_metadata["eviction_defender"]["allowed courts"]
+  nav.set_section('section_eviction_answer_intro')
+  user_role = 'defendant'
+  landlord_doc_name
+  tenant_doc_name
+  users[0].name.first
+  greet_user
+  nav.set_section("section_eviction_answer_can_i")
+  if tenant_got_summons and method_of_summons_service == "posting":
+    posting_warning
+  else:
+    recommend_filing_answer
+  nav.set_section("section_eviction_answer_you")
+  users[0].address.address
+  users[0].address.geocode()
+  nav.set_section("section_eviction_answer_other")
+  other_parties.gather()
+  for party in other_parties:
+    party.address.address
+    party.attorney.gather()
+  nav.set_section("section_eviction_answer_tenancy")  
+  is_rent_subsidized
+  lease_section
+  if previous_landlord_sold_property:
+    notice_of_sale_provided
+  if landlord_foreclosed:
+    notice_of_foreclosure
+  nav.set_section("section_eviction_answer_casenet")
+  if docket_available:
+    docket_review
+  nav.set_section("section_eviction_answer_case")
+  trial_court_name
+  original_hearing_date
+  docket_number
+  filing_date
+  users.gather()
+  petition_states_rent_amount
+  nav.set_section("section_eviction_answer_defenses")
+  landlord_agreement_section
+  rent_defenses_section
+  defense_logic
+  landlord_problems_section
+  set_progress(50)
+  information_collected
+  interview_order_eviction_defender = True
+---
+code: |
+  other_parties[i].name.first
   other_parties[i].attorney.gather()
   other_parties[i].complete = True
 ---
@@ -90,68 +180,22 @@ code: |
 ---
 id: any other opposing parties
 question: |
-  Is there any other **Plaintiff** in this matter?
+  Is there another **Plaintiff** in this eviction case?
 subquestion:  |
-  Additional Plaintiffs may be listed under the first Plaintiff.
+  You have already told us about ${ other_parties.complete_elements() }.
 
+  If you have the Summons and Petition, the name of each Plaintiff is listed
+  in the box labeled "Plaintiff". 
+  
+  Normally this is the owner of your home.
 fields:
-  - no label: other_parties.there_is_another
-    datatype: yesnoradio
----
-sections:
-  - review_eviction_motion_to_continue: Review your answers
----
-#################### Interview order #####################
-comment: |
-  Controls order and branching logic for questions specific to this form
-id: interview_order_eviction_motion_to_continue
-code: |
-  # Set the allowed courts for this interview
-  allowed_courts = interview_metadata["eviction_defender"]["allowed courts"]
-  nav.set_section('review_eviction_defender')
-  user_role = 'defendant'
-  landlord_doc_name
-  tenant_doc_name
-  users[0].name.first
-  users[0].address.address
-  users[0].address.geocode()
-  if received_summons and method_of_summons_service == "posting":
-    posting_warning
-  docket_number
-  filing_date
-  section_order
-  if docket_available:
-    docket_review
-  defense_logic
-  set_progress(50)
-  information_collected
-  interview_order_eviction_defender = True
----
-code: |
-  landlord_information_section
-  users.gather()
-  rent_payment_section
-  lease_section
-  landlord_agreement_section
-  landlord_problems_section
-  section_order = True
----  
-code: |
-  for party in other_parties:
-    party.address.address
-    party.attorney.gather()
-  other_landlord_information
-  is_rent_subsidized
-  if previous_landlord_sold_property:
-    notice_of_sale_provided
-  if landlord_foreclosed:
-    notice_of_foreclosure
-  landlord_information_section = True
----
-question: Other information about your landlord
-subquestion: |
-  Now we are going to ask you some other questions about your landlord.  Please answer these questions to the best of your ability.
-continue button field: other_landlord_information
+  - Is there another Plaintiff?: other_parties.there_is_another
+    datatype: yesnomaybe
+#---
+#question: Other information about your landlord
+#subquestion: |
+#  Now we are going to ask you some other questions about your landlord.  Please answer these questions to the best of your ability.
+#continue button field: other_landlord_information
 ---
 code: |
   if not lease_attached:
@@ -175,7 +219,7 @@ code: |
     late_fees_penalty
     if trial_court_circuit == "21":
       petition_separates_nonrent
-  rent_payment_section = True
+  rent_defenses_section = True
 ---
 code: |
   if landlord_agreement:
@@ -186,33 +230,14 @@ code: |
   warranty_breaches
   cqe_breaches
   landlord_problems_section = True
----
-###################### Main order ######################
-comment: |
-  This block includes the logic for standalone interviews.
-  Delete mandatory: True to include in another interview
-mandatory: True
-code: |
-  al_intro_screen
-  eviction_defender_intro
-  interview_order_eviction_defender
-  signature_date
-  # Store anonymous data for analytics / statistics
-  store_variables_snapshot(
-      persistent=True,
-      data={
-          "zip": showifdef("users[0].address.zip"),
-          "reached_interview_end": True,
-      },
-  )
-  eviction_defender_download
+
 ---
 id: basic questions intro screen
 decoration: form-lineal
 question: |
-  Missouri ${interview_short_title}
+  Answer and defend against an eviction: Missouri Tenant Help
 subquestion: |
-  Missouri ${interview_short_title} can help you complete and download forms  in 3 steps:
+  Missouri Tenant Help can help you complete and download forms  in 3 steps:
 
   
   Step 1. Answer questions that will fill in your form for you.  
@@ -252,24 +277,44 @@ terms:
   green words: |
     Green words are legal terms or a short way of referring to something that needs more explanation. The definition or explanation pops up when you tap the green words. 
 ---
-comment: |
-  This question is used to introduce your interview. Please customize
 id: eviction_defender_introduction
 continue button field: eviction_defender_intro
 question: |
-  Eviction Defender
+  Defend against an Eviction
 subquestion: |
-  This interview can help you win your eviction case.
-  
-  Answering these questions will produce an eviction Answer and motions that you may need.  The interview will also provide a list of next steps you can take, including how to deliver the paperwork on your own.
-  
-  **This interview will not file or deliver any paperwork for you.  You must print and deliver or file the paperwork on your own.**
-  
-  Before you start this interview, you may want to gather these documents.
-  
-   - The Summons from the Court and the Landlord's Petition
-   - Any Eviction Notice That You Received
-   - Your Lease
+  <h2 class="h4">How this works</h2>
+  One the next screens you will:
+
+  1. Tell us about your eviction case.
+  1. Tell us why you should not be evicted.
+  1. Tell us about problems in your home and in your landlord's case that may
+     stop your eviction.
+
+  At the end of the questions, you will have completed documents that you
+  need to deliver to your landlord and to the court. The documents make up
+  your "Answer" and motions for your eviction case.
+
+  <h2 class="h4">Before you start</h2>
+  1. Get ready to print and deliver these documents. We can help you
+     fill in the documents, but you need to deliver them on your own.
+  1. Do your best to find any documents from the court and your landlord about the eviction, including:
+      - The Summons from the court
+      - The Landlord's petition
+      - The eviction notice
+      - Your lease
+---
+id: you can do it affirmation
+question: |
+  ${ users[0].familiar() }, you can do this!
+subquestion: |
+  It takes most tenants about **30 minutes** to use this website. But you can 
+  save your work and come back at any time.
+
+  Just answer the questions on each screen as well as you can. Make sure
+  to tell the truth.
+
+  At the end you will have customized documents, ready to file in court.
+continue button field: greet_user
 ---
 id: your address
 sets:
@@ -282,25 +327,80 @@ sets:
 question: |
   Where do you live?
 subquestion: |
-  List the address that you are being evicted from.
+  Write the address that you are being evicted from.
 fields:
   - code: |
       users[0].address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)
+validation code: |
+  if users[0].address.state != "MO":
+    validation_error("Write an address that you are being evicted from in Missouri", field="users[0].address.state")
 ---
 ###################### DOCKET REVIEW ######################
 id: Docket_introduction
 question: |
-  Finding Your Case on the Online Docket
+  Use Case.net to lookup your case
 subquestion: |
-  You can find your case on the Missouri **Online Docket**, 
-  also known as [Case.net](https://www.courts.mo.gov/cnet).
+  You can use [Case.net](https://www.courts.mo.gov/cnet)
+  to help answer some questions on this website.
 
-  Using the Online Docket lets you check on upcoming hearings.
-  
-  **Do you want a guide through using the online docket?**
-yesno: docket_available
+  Case.net is a free website run by the Missouri Court. You do not need an
+  account to access Case.net.
+
+  Using Case.net is optional, but it can help you answer the questions more
+  accurately.    
+
+  You will need both this website and the Case.net website open at the same time. You will
+  need to switch back and forth between the two websites.
+fields:
+  - Do you want to use Case.net to help answer some questions?: docket_available
+    datatype: yesnoradio
+---
+depends on:
+  - users[0].address.county
+  - users[0].name.first
+code: |
+  import urllib
+  url = 'https://www.courts.mo.gov/cnet/nameSearchResult.do?'
+  params = {
+    "courtType": "SW",
+    "countyCode": county_casenet_code.get(users[0].normalized_address().county, ""),
+    "newSearch": "Y",
+    "essn": "",
+    "courtCode": "SW",
+    "lastName": users[0].name.last,
+    "_inclAlias": "on",
+    "firstName": users[0].name.first,
+    "middleName": "",
+    "caseType": "All",
+    "yearFiled": "",
+  }
+  formatted_casenet_url = f"{url}{urllib.parse.urlencode(params)}"
+---
+id: how to login to Case net
+question: |
+  Getting started with Case.net
+subquestion: |
+  To answer the questions on the next few screens, you need to:
+
+  1. Open the [Case.net](https://www.courts.mo.gov/cnet) website in a new tab.
+  1. Use the case lookup feature to find your eviction case.
+
+  You will need both this website and the Case.net website open at the same time. You will
+  need to switch back and forth between the two windows.
+
+  <h2 class="h4">Before you start, read these instructions</h2>
+  Use the button below to open Case.net website with your address and court
+  already filled in.
+
+  Look for your eviction case. Click the link with the case number for your case
+  to see the details about your case. If you do not see your case, try a different
+  search.
+
+  ${ action_button_html(formatted_casenet_url, label="Search Case.net in a new window", icon="up-right-from-square") }
+continue button field: casenet_login_instructions  
 ---
 code: |
+  casenet_login_instructions
   docket_header
   for party in other_parties:
     party.address.address
@@ -350,7 +450,8 @@ fields:
   - "Date of Service": service_date
     datatype: date
 ---
-question:  Where is the Court?
+question: |
+  Where is the Court?
 fields:
   - Is the court in the City of St. Louis?: in_st_louis
     datatype: yesnoradio
@@ -368,9 +469,9 @@ code: |
   if users[0].address.city == "St. Louis":
     trial_court_circuit = 22
     trial_court_county = "City of St. Louis"
-    trial_court_name_default = "22nd Judicial Circuit – City of St. Louis"
+    trial_court_name_default = "22nd Judicial Circuit - City of St. Louis"
   else:
-    trial_court_circuit = county_to_circuit[users[0].address.county]
+    trial_court_circuit = county_to_circuit.get(users[0].address.county, "")
     trial_court_county = users[0].address.county
     trial_court_name_default = ordinal_number(trial_court_circuit, use_word=False).capitalize() + " Judicial Circuit - " + users[0].address.county
 ---
@@ -499,17 +600,138 @@ code: |
     "Worth County":4,
     "Wright County":44,}
 ---
+variable name: county_casenet_code
+data:
+  Adair County: ADR
+  Andrew County: ADW
+  Atchison County: ATN
+  Audrain County: AUD
+  Barry County: BRY
+  Barton County: BAR
+  Bates County: BAT
+  Benton County: BEN
+  Bollinger County: BOL
+  Boone County: BNE
+  Buchanan County: BUC
+  Butler County: BTR
+  Caldwell County: CDL
+  Callaway County: CWY
+  Camden County: CAM
+  Cape Girardeau: CPG
+  Carroll County: CRL
+  Carter County: CTR
+  Cass County: CAS
+  Cedar County: CDR
+  Chariton County: CHN
+  Christian County: CTN
+  City of St Louis: STL
+  Clark County: CLK
+  Clay County: CLY
+  Clinton County: CLN
+  Cole County: COL
+  Cooper County: CPR
+  Crawford County: CFD
+  Dade County: DAD
+  Dallas County: DAL
+  Daviess County: DAV
+  DeKalb County: DEK
+  Dent County: DEN
+  Douglas County: DGS
+  Dunklin County: DUN
+  Franklin County: FKN
+  Gasconade County: GAS
+  Gentry County: GEN
+  Greene County: GRE
+  Grundy County: GRU
+  Harrison County: HAR
+  Henry County: HEN
+  Hickory County: HIK
+  Holt County: HOL
+  Howard County: HWD
+  Howell County: HWL
+  Iron County: IRN
+  Jackson County: JAK
+  Jasper County: JAS
+  Jefferson County: JEF
+  Johnson County: JON
+  Knox County: KNX
+  Laclede County: LAC
+  Lafayette County: LAF
+  Lawrence County: LAW
+  Lewis County: LEW
+  Lincoln County: LCN
+  Linn County: LIN
+  Livingston County: LIV
+  Macon County: MAC
+  Madison County: MAD
+  Maries County: MRS
+  Marion County: MRN
+  McDonald County: MCD
+  Mercer County: MER
+  Miller County: MIL
+  Mississippi County: MIS
+  Moniteau County: MTU
+  Monroe County: MNR
+  Montgomery County: MTY
+  Morgan County: MOR
+  New Madrid: ountycode="NMD
+  Newton County: NWT
+  Nodaway County: NDY
+  Oregon County: ORE
+  Osage County: OSG
+  Ozark County: OZK
+  Pemiscot County: PEM
+  Perry County: PER
+  Pettis County: PET
+  Phelps County: PHE
+  Pike County: PIK
+  Platte County: PLA
+  Polk County: POL
+  Pulaski County: PUL
+  Putnam County: PUT
+  Ralls County: RAL
+  Randolph County: RAN
+  Ray County: RAY
+  Reynolds County: REY
+  Ripley County: RIP
+  Saline County: SAL
+  Schuyler County: SYR
+  Scotland County: SLD
+  Scott County: SCT
+  Shannon County: SHA
+  Shelby County: SBY
+  St. Charles County: SCH
+  St. Clair County: SCL
+  St. Francois County: SFR
+  St. Louis County: SLC
+  Ste. Genevieve County: SGE
+  Stoddard County: SDD
+  Stone County: STN
+  Sullivan County: SUL
+  Taney County: TAN
+  Texas County: TEX
+  Vernon County: VER
+  Warren County: WRN
+  Washington County: WAS
+  Wayne County: WAY
+  Webster County: WEB
+  Worth County: WOR
+  Wright County: WRI
+---
 sets:
   - other_parties[i].name.first
-  - other_parties[i].name.last
-  - other_parties[i].name.middle
-  - other_parties[i].name.suffix
 id: names of opposing parties
 question: |
   Name of ${ ordinal(i) } landlord
+subquestion: |
+  Write the name of the person who owns your home. Not the name of a property manager.
 fields:
-  - code: |
-      other_parties[i].name_fields(person_or_business='unsure')
+  - Landlord's name: other_parties[i].name.first
+  - Is this owner a business, or an individual?: other_parties[i].person_type
+    datatype: radio
+    choices:
+      - Individual: person
+      - Business: business
 ---
 if: docket_available
 sets:
@@ -530,39 +752,58 @@ fields:
   - code: |
       other_parties[i].name_fields(person_or_business='unsure')
 ---
-question: Docket Entries
+id: any hearings
+question: |
+  Has the court held any hearings on your eviction yet?
 subquestion: |
-  You can click on the Docket Entries to see a list of everything that has happened in the case, including when the Plaintiff filed the petition and any hearings.  On the left side will be a date, and the right side will have any
+  Click the "Docket Entries" tab to see what has happened in your case so far.
+
+  The "Docket Entries" tab has a list of events. Each event has a date, a name,
+  and a few facts about what happened.
   
-  If the only thing that has happened so far is that the Plaintiff filed the Petition, the docket will look like this:
+  If the court has not had a hearing for your case yet, the "Docket Entries"
+  tab will **only** show an event named "Summons Issued - Landlord/Tenant", like this:
   
-  [FILE Docket.png, 100%]
-  
-  If there have been any hearings, that will be listed with a separate date and information about that hearing.
+  [FILE Docket.png, 100%]  
 fields:
-  - Have there been any hearings: past_hearings
+  - Has the court already had a hearing on your case?: past_hearings
     datatype: yesnomaybe
 ---
 if: docket_available
-question: Next Hearing
+question: |
+  When is your eviction hearing?
 subquestion: |
-  You can find the information about the next hearing on the Docket Review page, but you can also click to Scheduled Hearings & Trials to find this information more easily.
+  Click the "Scheduled Hearings and Trials" tab and find the
+  date scheduled for your case.
   
+  Your results may look like this:
+
   [FILE ScheduledEvents.png, 100%]
 fields:
-  - "Date of original hearing": original_hearing_date
+  - "Date of hearing": original_hearing_date
     datatype: date
-  - "Original hearing time": original_hearing_time
+    required: False
+  - "Time of hearing": original_hearing_time
+    required: False
 ---
-question: Other information on Case.Net
+id: explain other case net uses
+question: |
+  Other information on Case.net
 subquestion: |
-  Some of the other information on Case.Net will not be applicable to your eviction case, like "Charges, Judgments, & Sentences", and other tabs will only be useful after the eviction case is over, like "Civil Judgments" and "Garnishments/Execution".
-  
-  You can keep checking Case.Net regularly to make sure you aren't missing anything happening in your case.  
-  
-  You can also sign up for to get notifications of any updates to the docket.
+  Keep a link to [Case.net](https://www.courts.mo.gov/cnet) so you can check it regularly.
+
+  The court will mail you notices about important dates. But you may want to use Case.net
+  to make sure you do not miss anything. You can use it to find:
+
+  * Hearings that are scheduled
+  * If the judge made a decision (judgment) in your case
+  * If your landlord got a garnishment or execution to make you pay back rent
+  * If your landlord got permission to move you from your home
+
+  If you have an email address or cell phone, click the "Track this case" button to get
+  an email or text message when important things happen in your case. You can also
+  get a reminder 10 days and 2 days before your court date.
 continue button field: docket_review_conclusion
----
 ---
 sets: docket_number
 id: docket number
@@ -582,38 +823,86 @@ validation code: |
 id: Petition_introduction
 mandatory: True
 question: |
-  Did you receive the Summons and Petition?
+  Did you get a Summons and Landlord's Petition?
 subquestion: |
-  An eviction case must start with a Summons from the Court, with an attached Landlord's Petition.
-  
-  The Landlord's Petition may generally look like this Form Petition.
-  
+  The {Summons and Petition} looks different in some counties, but it may look like this:
+ 
+  [CENTER]
   [FILE ComplaintForm.png]
 
 fields:
-  - "Did you receive a copy of the Summons and Landlord's Petition?": received_summons
+  - "I got a copy of the {Summons and Petition}": tenant_got_summons
     datatype: yesnomaybe
-  - "How did you receive the Summons and Landlord's Petition?": method_of_summons_service
+  - "How did you get the Summons and Landlord's Petition?": method_of_summons_service
     datatype: radio
     choices:
       - "By mail": mail
-      - "Posting": posting
+      - "It was taped, stapled, or posted to my door or home": posting
     show if:
-      variable: received_summons
+      variable: tenant_got_summons
       is: True
-  - "Do you have a copy of the Landlord's Petition available?": petition_available
+  - "Do you have it next to you now?": petition_available
     datatype: yesnoradio
+    show if: tenant_got_summons
   - note: |
-      Having the Landlord's Petition available will make it easier to answer the following questions.
+      **You may want to stop and get the petition now.** It can help you answer
+      the questions on this website more accurately. If you cannot easily get it,
+      it is OK to keep going.
+    show if:
+      variable: petition_available
+      is: False
+terms:
+  Summons and Petition: |
+    The Summons and Landlord's Petition is the form that your landlord must file
+    with the court to start an eviction case.
 ---
-question: WARNING
+sets: posting_warning
+id: soft exit posting
+decoration: hand
+question: |
+  You may not want to file an answer
 subquestion: |
-  Please note that you have been served by posting. This means that all that your landlord can receive from this court action is possession of the home in question. 
-  
-  However, if you proceed to file any of the documents you may receive from this interview you could be subjecting yourself to a monetary judgement. This means that you could receive a judgement stating that you owe money when originally you would not have. 
-  
-  You are welcome to continue should you choose to do so, or you may stop the process now and contact your local Legal Services provider for more details.
-continue button field: posting_warning
+  You said that you got the Summons and Petition by "posting" (taping, stapling or pinning to your door).
+
+  Because your landlord did not mail the Summons and Petition, if you file an answer, the court may order 
+  you to pay money that you would not need to pay otherwise.
+
+  You may still want to keep going if:
+
+  * You want to find out if you have a defense that can stop the eviction
+  * You think your landlord will owe you more money than you owe them
+
+  You do not need to decide now. If you keep going, we will remind you about your choices at the end.
+  You may want to talk to a lawyer to decide for sure.
+buttons:
+  - I understand, let me keep going:
+      code: |
+        posting_warning = True
+  - Exit: exit
+    url: https://motenantassistance.org/
+---
+id: yep file an answer
+question: |
+  Tenants in your situation usually file an answer
+subquestion: |
+  % if tenant_got_summons:
+  You said that you got the Summons and Petition by mail. 
+  % else:
+  You said you do not know if you got the Summons and Petition.
+  % endif
+  In your situation,
+  most tenants file an answer.
+
+  Filing an answer may:
+
+  * Stop your eviction, or
+  * Lower the amount that you need to pay your landlord,
+
+  or both.
+
+  The rest of the questions on this website will complete your
+  answer.
+continue button field: recommend_filing_answer
 ---
 code: |
   docket_number
@@ -635,59 +924,69 @@ comment: |
   petition_review = True
 ---
 id: caption - docket number and file date
-if: petition_available
-question: Finding Basic Information about Your Case
+question: |
+  What court is your case in?
 subquestion: |
-  You can find important basic information at the the top of the Landlord's Petition, like the name of the court, the case number, and the date the landlord filed the petition in court.
-  
-  [FILE ComplaintCaptionCourt.png, 100%]
+  % if tenant_got_summons and petition_available:
+  You can find the:
 
+  - Name of the court
+  - Case number, and
+  - Date File Stamp
+
+  At the top of the Summons and Petition.
   
+  [FILE ComplaintCaptionCourt.png, 100%] 
+  % endif
 fields:
   - Court: trial_court_name
     default: ${ trial_court_name_default }
   - Case Number: docket_number
+    required: False
   - note: |
       The Filing Date will usually be on a stamp or a sticker.
   - Date File Stamp: filing_date
     datatype: date
+    required: False
 ---
 id: names of opposing parties - petition
-if: petition_available
-question: Landlord's Name
+if: tenant_got_summons and petition_available
+question: |
+  % if i >= 1:
+  What is your ${ ordinal(i) } landlord's name?
+  % else:
+  What is your landlord's name?
+  % endif
 subquestion: |
-  Your landlord is called the Plaintiff in an eviction case, and the Plaintiff's name and address is near the top of the Caption on the left.
+  Look at the Summons and Petition, and write the name of the ${ ordinal(i) } "Plaintiff"
+  exactly as it is written on the Summons and Petition.
   
   [FILE ComplaintCaptionPlaintiff.png, 100%]
   
-  Who is the ${ ordinal(i) } Plaintiff listed?
-sets:
-  - other_parties[i].name.first
-  - other_parties[i].name.last
-  - other_parties[i].name.middle
-  - other_parties[i].name.suffix
 fields:
-  - code: |
-      other_parties[i].name_fields(person_or_business='unsure')
+  - Name of your landlord: other_parties[i].name.first
 --- 
 id: petition requirements - rent amount
-question: How much rent does your landlord say that you owe?
+question: |
+  How much rent does your landlord say that you owe?
 subquestion: |
-  The Landlord's Petition must say how much is owed at the time the Landlord filed the petition.
-  
-  A Landlord's Petition may say something like this about the rent amount, but it may also have different language:
-  
+  % if tenant_got_summons:
+  Look at the Summons and Petition to answer this question.
+
+  Look for a line that looks something like this:
+
   [FILE ComplaintRentAmount.png, 100%]
+
+  Your landlord's petition may look different.
+  % endif
+  
 fields:
+  - Does the petition say what amount of rent you owe?: petition_states_rent_amount
+    datatype: yesnoradio
   - "How much does the Landlord's Petition say that you owe **in rent**?": rent_amount_owed
     datatype: currency
-    hide if:
-      variable: petition_states_rent_amount
-      is: True
-  - "It does not say an amount": petition_states_rent_amount
-    datatype: yesnowide
-    default: False
-  - "Is there any charge on the Landlord's Petition for something other than rent?": other_charges_alleged
+    show if: petition_states_rent_amount
+  - Does the petition say you owe an amount **other** than rent?: other_charges_alleged
     datatype: yesnomaybe
   - note: |
       Other charges may include a pet fee, cleaning fee, fee for repairs.
@@ -704,36 +1003,41 @@ code: |
     petition_alleges_nonrent = True
 ---
 id: petition requirements - terms of lease
-question: Is the lease attached to the petition?
+question: |
+  Is a copy of your lease attached to the petition?
 subquestion: |
-  The Landlord's Petition must either: 
+  With the Landlord's Petition, your landlord needs to either:
   
    1. attach a copy of the lease, or
-   2. say what you and the landlord agreed to in the rental agreement, such as the amount of rent and other information.
-   
-  That part of the Landlord's Petition may look like this, but can have different language:
-  
+   2. write a summary of your rental agreement, including the monthly rent, the kind of agreement (year to year or month to month), and the day rent is due.
+
+  The petition looks different in different counties. But it may look like this:
+
   [FILE ComplaintTerms.png, 100%]
 fields:
   - "Is the lease attached to the Landlord's Petition?": lease_attached
-    datatype: yesnomaybe
-  - "Does the Landlord's Petition say what you and the landlord agreed to in the rental agreement?": petition_states_terms_of_lease
+    datatype: yesnoradio
+  - "Does the Landlord's Petition include a summary of your rental agreement?": petition_states_terms_of_lease
     datatype: yesnomaybe
     show if: 
       variable: lease_attached
       is: False
+    help: |
+      For example, does it include the monthly rent, the kind of agreement (year to year or month to month), and the day rent is due?
 ---
 id: petition requirements - periods due
-question: Does the petition list each month that the landlord claims you owe rent?
+question: |
+  Does the petition say the amount you owe for each month?
 subquestion: |
   The Landlord's Petition must say what months you allegedly owe rent for.
  
 fields:
-  - "Does the Landlord's Petition say the rental periods owed?": petition_states_rent_periods
+  - Does the petition say a specific month and amount for each month your landlord says you owe rent?: petition_states_rent_periods
     datatype: yesnomaybe
 ---
 id: petition requirements - demand
-question: Does the Petition say that the landlord demanded rent?
+question: |
+  Does the Petition say that the landlord demanded rent?
 subquestion: |
   The Landlord's Petition must say that the "landlord demanded rent", meaning that the landlord told you that you had to pay rent or leave.
   
@@ -787,96 +1091,208 @@ comment: |
   (TODO: implement Other explanation)
   (TODO: change was_attempt_full question options from Yes/No to Full/Partial)
 question: |
-  Has the landlord refused rent?
+  Did you try to pay the rent?
+subquestion: |
+  % if petition_states_rent_amount:
+  Your landlord said you owe ${ currency(rent_amount_owed) }. Think about this amount when you answer
+  the questions on this page.
+  % endif
 fields:
-  - Did you offer to pay the rent your landlord says you owe?: offer_attempt
+  - Did you offer to give your landlord the money they say you owe?: offer_attempt
     datatype: yesnoradio
-  - HOW did you attempt payment?: attempt_method
+  - When?: attempt_date
+    datatype: date
+    show if: offer_attempt
+  - How did you try to give your landlord the money?: attempt_method
     input type: radio
     choices:
-      - via Letter
-      - via Email
-      - verbally In person
-      - verbally Over Phone Call
+      - I wrote a letter
+      - I sent an email
+      - I told my landlord in person
+      - I told my landlord in a phone call
       - Other
-    show if:
-      variable: offer_attempt
-      is: True
-  - WHEN did you attempt payment?: attempt_date
-    datatype: date
-    show if:
-      variable: offer_attempt
-      is: True
-  - Did you attempt to pay in full?: was_attempt_full
+    show if: offer_attempt
+  - How much did you offer to pay?: was_attempt_full
+    datatype: radio
+    choices:
+      - All of the money: True
+      - Part of the money: False
+    show if: offer_attempt
+  - Did the landlord say no to your offer to pay?: has_refused_payment
     datatype: yesno
     input type: yesnoradio
-    show if:
-      variable: offer_attempt
-      is: True
-  - Did the landlord refuse this payment?: has_refused_payment
-    datatype: yesno
-    input type: yesnoradio
-    show if:
-      variable: offer_attempt
-      is: True
----
-question: Do you have proof of the landlord's refusal of rent?
-subquestion: |
-  For example, a letter from the landlord refusing to accept the money, a written check or money order, or a witness to the landlord's refusal.
-fields:
-  - Have Proof?: has_attempt_evidence
-    datatype: yesno
-    input type: yesnoradio
-  - Would you be willing to offer to pay the full amount of past-due rent plus court costs in exchange for dismissing this case?: will_offer_payment
-    datatype: yesno
-    input type: yesnoradio
+    show if: offer_attempt
+  - Did your landlord say no in writing that you can bring to court, or did someone else see your landlord say "no"?: has_attempt_evidence
+    datatype: yesnoradio
+    show if: has_refused_payment
     help: |
-      (TODO: add explanation as to why user may want to do this)
+      For example, a letter from the landlord refusing to accept the money, a written check or money order, or a witness to the landlord's refusal.
+---
+id: pay and stop eviction
+decoration: circle-info
+question: |
+  You may be able to pay and stop the eviction
+subquestion: |
+  If you:
+  % if petition_states_rent_amount:
+  * Pay the full ${ currency(rent_amount_owed) }
+  % else:
+  * Pay the full amount you owe
+  % endif
+  * Pay the full court costs
+
+  You can stop the eviction and stay in your home.
+fields:
+  - Will you pay the full amount your landlord says you owe, plus court costs, to stop the eviction?: will_offer_payment
+    datatype: yesno
+    input type: yesnoradio
 ---
 id: warranty of habitability
 question: |
-  Are there problems in your home that need to be repaired?
+  Does your home have any of the problems listed below?
 subquestion: |
-  You may have a claim of **Breach of Warranty of Habitability** if the condition of your home affected your life, health or safety and made the dwelling uninhabitable in whole or in part.
-  
-  You can list problems that have been fixed if they happened with the last 2 years.
-  
-  Winning on a Breach of Warranty of Habitability claim may excuse you from all or part of the back rent owed.
+  ${ collapse_template(bad_conditions_explanation_template) }
+
+  You can also list problems that have been fixed if they happened with the last 2 years. 
 fields: 
-  - Do any of the following apply to you?: warranty_breaches
+  - Have you had any of these problems **in the last 2 years**?: warranty_breaches
     datatype: checkboxes
     choices: 
-      - Has windows and/or doors that are not lockable, or Tenant cannot lock them: is_not_lockable
-      - Is infested with bugs or vermin through no fault of the Defendant: is_infested
-      - Has inadequate or no heating, cooling, light, or electricity: is_inadequate
-      - Has electrical problems that render the home unsafe: has_electrical_problems
-      - Has plumbing not in working order or is subject to flooding: has_plumbing_problems
-      - Has standing water or sewage: has_standing_water
-      - Has dangerous structural issues: has_structural_issues
+      - ${ conditions_text["no_heat"] }: no_heat
+      - ${ conditions_text["no_cooling"] }: no_cooling
+      - ${ conditions_text["insufficient_water"] }: insufficient_water
+      - ${ conditions_text["insecure_locks"] }: insecure_locks
+      - ${ conditions_text["mice_or_rats"] }: mice_or_rats
+      - ${ conditions_text["roaches"] }: roaches
+      - ${ conditions_text["bedbugs"] }: bedbugs
+      - ${ conditions_text["chronic_dampness"] }: chronic_dampness
+      - ${ conditions_text["standing_water"] }: standing_water
+      - ${ conditions_text["electric_problem"] }: electric_problem
+      - ${ conditions_text["lead_paint"] }: lead_paint
+      - ${ conditions_text["leaky_windows"] }: leaky_windows
+      - ${ conditions_text["has_plumbing_problems"] }: has_plumbing_problems
+      - ${ conditions_text["has_structural_issues"] }: has_structural_issues
+      - ${ conditions_text["ceiling_not_weathertight"] }: ceiling_not_weathertight
+      - ${ conditions_text["floor_holes"] }: floor_holes
       - Other: other
   - What other problems do you have?: other_warrranty_breaches
     show if:
       variable: warranty_breaches['other']
       is: True
 ---
+variable name: conditions_text
+use objects: True
+data:
+  no_heat:
+    question: No heat or not enough heat in the winter time
+    document: No heat or not enough heat in the winter time
+  no_cooling:
+    question: Too hot in the summer
+    document: Too hot in the summer
+  insufficient_water:
+    question: Not enough hot or cold water
+    document: Not enough hot or cold water
+  insecure_locks:
+    question: Locks are missing or not secure on windows or doors
+    document: Locks are missing or not secure on windows or doors
+  mice_or_rats:
+    question: Mice or rats
+    document: Mice or rats
+  roaches:
+    question: Cockroaches
+    document: Cockroaches
+  bedbugs:
+    question: Bedbugs
+    document: Bedbugs
+  chronic_dampness:
+    question: Mold, damp walls, ceilings or walls
+    document: Mold, damp walls, ceilings or walls
+  standing_water:
+    question: Standing water or sewage
+    document: Standing water or sewage
+  electric_problem:
+    question: Problem with electric wiring, outlets or switches
+    document: Problem with electric wiring, outlets or switches
+  lead_paint:
+    question: Lead paint on a surface reachable by a young child
+    document: Lead paint on a surface reachable by a young child
+  leaky_windows:
+    question: Windows are leaky
+    document: Windows are leaky
+  has_plumbing_problems:
+    question: Has plumbing not in working order or is subject to flooding
+    document: Has plumbing not in working order or is subject to flooding
+  has_structural_issues:
+    question: Dangerous structural problem
+    document: Dangerous structural problem
+  ceiling_not_weathertight:
+    question: Ceiling has holes or cracks or is not weathertight
+    document: Ceiling has holes or cracks or is not weathertight
+  floor_holes:
+    question: Floor has holes or cracks
+    document: Floor has holes or cracks
+---
+variable name: cqe_breaches_text
+use objects: True
+data:
+  harassment:
+    question: Harass you in person or on the phone
+    document: Harassed Tenant in person or on the phone
+  visits:
+    question: Make frequent or unnecessary visits or inspections of the property
+    document: Made frequent or unnecessary visits or inspections of the property
+  remodeling:
+    question: Do unnecessary remodeling work, or maintenance work that takes longer than they promised
+    document: Performed unnecessary remodeling work, or maintenance work that took longer than they promised
+  access:
+    question: Allow construction that stops you from easily getting into your home or makes you take a long detour
+    document: Allowed construction that stops you from easily getting into your home or makes you take a long detour
+  animal:
+    question: Allow their own dog or pet to bark constantly and disturb you
+    document: Allowed their dog or pet to bark constantly and disturb Tenant
+  vermin:
+    question: Not exterminate or take care of vermin or pests in the walls making disruptive noises
+    document: Failed to exterminate or take care of vermin or pests in the walls making disruptive noises
+---
+template: bad_conditions_explanation_template
+subject: |
+  Why does the condition of my house matter?
+content: |
+  Your landlord may owe you money if there are problems in your home. The money your landlord owes you might
+  mean you do not owe part or all of the rent your landlord says you owe.
+  
+  Problems in your home may give you a claim for **Breach of Warranty of Habitability** 
+  if the condition of your home affected your life, health or safety and made the dwelling uninhabitable in whole or in part.
+---
 id: covenant of quiet enjoyment
 question: |
-  Covenant of quiet enjoyment
+  Did your landlord violate your right to live peacefully in your home?  
 subquestion: |
-  You may have a claim of **Breach of Covenant of Quiet Enjoyment** if your landlord is responsible for a substantial disruption in the use and quiet enjoyment of the rental property.
-  
-  Winning on a Breach of Covenant of Quiet Enjoyment claim may excuse you from all or part of the back rent owed.
+  ${ collapse_template(bqe_explanation_template) }
 fields: 
-  - Do any of the following apply to you?: cqe_breaches
+  - "Did your landlord:": cqe_breaches
     datatype: checkboxes
     choices:
-      - Repeated harassment by the landlord in person or on the phone: harassment
-      - Frequent or unecessary visits or inspections of the property: visits
-      - Unnecessary remodeling work, or maintenance work that takes longer than initially proposed: remodeling
-      - Construction that blocks your access to the property or forces you to take a lengthy detour: access
-      - Constantly barking dog or other animal owned by the landlord: animal
-      - Vermin or pests in the walls making disruptive noises: vermin
-      - Other: other
+      - ${ cqe_breaches_text["harassment"] }: harassment
+      - ${ cqe_breaches_text["visits"] }: visits
+      - ${ cqe_breaches_text["remodeling"] }: remodeling
+      - ${ cqe_breaches_text["access"] }: access
+      - ${ cqe_breaches_text["animal"] }: animal
+      - ${ cqe_breaches_text["vermin"] }: vermin
+      - Other violation of your right to live peacefully in your home: other
+  - Other (explain): other_cqe_breach
+    datatype: area
+    show if: cqe_breaches["other"]
+---
+template: bqe_explanation_template
+subject: |
+  Why does this matter?
+content: |
+  Your landlord may owe you money if they violated your right to live peacefully in your home. The money may
+  reduce the amount of rent you owe or mean that you do not owe any rent to your landlord.
+
+  You have a claim of **Breach of Covenant of Quiet Enjoyment** if your landlord is responsible for a substantial
+  disruption in the use and quiet enjoyment of the rental property.
 ---
 id: preview eviction_defender
 question: |
@@ -889,7 +1305,7 @@ subquestion: |
   Click the image to open it in a new tab. Click the "Edit answers" button
   to edit your answers.
 
-  ${ action_button_html(url_action('review_eviction_defender'), label='Edit answers', color='info') }
+  ${ action_button_html(url_action('review_eviction_answer'), label='Edit answers', color='info') }
   
   Remember to come back to this window to continue and sign your form.
 continue button field: eviction_defender_preview_question    
@@ -912,7 +1328,7 @@ code: |
     wants_to_file['continuance'] = True
 ---
 id: eviction motion to continue review screen
-event: review_eviction_defender
+continue button field: review_eviction_answer
 question: |
   Review your answers
 review:
@@ -1006,7 +1422,7 @@ subquestion: |
   
   View, download and send your form below. Click the "Edit answers" button to fix any mistakes.
 
-  ${ action_button_html(url_action('review_eviction_defender'), label='Edit answers', color='info') }
+  ${ action_button_html(url_action('review_eviction_answer'), label='Edit answers', color='info') }
   
   
   ${ al_user_bundle.download_list_html() }
@@ -1049,19 +1465,23 @@ attachments:
     docx template file: answer_defenses.docx
 ---
 only sets: docket_header
-question: Case Header
+question: |
+  Case header
 subquestion: |
   The first tab you see when you open your case is the "Case Header" tab, which will look something like this -
   
   [FILE CaseHeader.png, 100%]
 fields:
   - Docket Number: docket_number
+    required: False
   - note: |
       The Docket Number is at the top of the page, with white type on a blue blackground.  It usually starts with the last two digits of the year (22 for 2022).  
   - Date Filed: filing_date
+    required: False
     datatype: date
   - Case Type: case_type
     datatype: radio
+    required: False
     choices:
       - AC Rent and Possession
       - AC Unlawful Detainer
@@ -1070,15 +1490,17 @@ fields:
 continue button field: docket_header
 ---
 if: docket_available and len(users)==1
-question: Is any other tenant listed on this eviction case?
+question: |
+  Is any other tenant listed on this eviction case?
 subquestion: |
+  Look in the box labeled "Defendants"
   In an eviction case, tenants are called Defendants.  Defendants are listed underneath the Plaintiffs, and your name and address should be included as a Defendant.
   
 fields:
   - Are there any other Defendants listed besides you?: users.there_is_another
-    datatype: yesnoradio
+    datatype: yesnomaybe
 ---
-if: petition_available and len(users)==1
+if: tenant_got_summons and petition_available and len(users)==1
 question: Is any other tenant listed on this eviction case?
 subquestion: |
   In eviction cases, tenants are called Defendants.  Defendants are listed underneath the Plaintiffs, and your name and address should be included as a Defendant.
@@ -1090,9 +1512,11 @@ fields:
     datatype: yesnoradio
 ---
 id: Landlord representation
-question: Does the landlord have an attorney?
+question: |
+  Does ${ other_parties[i] } have an attorney?
 subquestion: |
-  If the landlord is represented by an attorney, then it will say "represented by" next to the landlord's name, and the attorney's name address will be to the right.
+  If the landlord is represented by an attorney, then it will say "represented by" next to the 
+  landlord's name, and the attorney's name and address will be to the right.
 fields:
   - Is ${ other_parties[i] } represented by an attorney?: other_parties[i].attorney.there_are_any
     datatype: yesnoradio
@@ -1108,13 +1532,18 @@ fields:
       other_parties[i].attorney[j].name_fields()
 ---  
 id: Rent paid
-question: Have you paid any of the alleged rent due?
+question: |
+  Have you paid at least part of the rent your landlord says you owe?
+subquestion: |
+  % if petition_states_rent_amount:
+  You said your landlord said you owe ${ currency(rent_amount_owed) }.
+  % endif
 fields:
-  - no label: was_rent_paid
-    datatype: yesnomaybe
-  - How much have you paid?: rent_amount_paid
+  - I paid at least part of the rent: was_rent_paid
+    datatype: yesnoradio
+  - How much did you pay?: rent_amount_paid
     input type: radio
     show if: was_rent_paid
     choices: 
-      - "I've paid the full amount alleged": "all"
-      - "I've paid part of the amount alleged": "a portion"
+      - "I paid all of the rent": "all"
+      - "I paid part of the rent": "a portion"
