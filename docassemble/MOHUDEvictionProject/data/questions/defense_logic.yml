@@ -32,7 +32,7 @@ code: |
 ---
 code: |
   if tenant_got_summons and petition_available:
-    if lease_attached:
+    if not lease_attached:
       defense_lease_not_attached = True
     else:
       defense_lease_not_attached = False
@@ -278,7 +278,7 @@ code: |
   if is_rent_subsidized and excessive_rent:
     defense_excessive_rent_for_subsidized_housing = True
   else:
-    defense_excessive_rent_for_subsidized_housing = True
+    defense_excessive_rent_for_subsidized_housing = False
 ---
 id: subsidized housing identification
 question: |

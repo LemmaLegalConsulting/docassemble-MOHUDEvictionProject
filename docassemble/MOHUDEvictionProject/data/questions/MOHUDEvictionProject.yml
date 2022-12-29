@@ -363,7 +363,7 @@ code: |
   url = 'https://www.courts.mo.gov/cnet/nameSearchResult.do?'
   params = {
     "courtType": "SW",
-    "countyCode": county_casenet_code.get(trial_court_county, ""),
+    "countyCode": county_casenet_code.get(users[0].address.normalized_address().county, ""),
     "newSearch": "Y",
     "essn": "",
     "courtCode": "SW",
@@ -425,7 +425,12 @@ comment: |
 ---
 id: Information about the original hearing
 question: |
-  Information about the original hearing
+  When is your court hearing?
+subquestion: |
+  The Summons will say the time and date of your original court hearing.
+  
+  [FILE MOSummonsCourtDate.png]
+  
 fields:
   - "Date of original hearing": original_hearing_date
     datatype: date
@@ -472,10 +477,12 @@ code: |
     trial_court_name_default = ordinal_number(trial_court_circuit, use_word=False).capitalize() + " Judicial Circuit - " + users[0].address.county
   elif users[0].address.city == "St. Louis":
     trial_court_circuit = 22
+    users[0].address.county = "City of St Louis"
     trial_court_county = "City of St Louis"
     trial_court_name_default = "22nd Judicial Circuit - City of St. Louis"
   else:
     trial_court_circuit = county_to_circuit.get(users[0].address.county, "")
+    users[0].address.county = "Unknown"
     trial_court_county = "Unknown"
     docket_available = False
     trial_court_name_default = ordinal_number(trial_court_circuit, use_word=False).capitalize() + " Judicial Circuit - " + users[0].address.county
@@ -830,7 +837,12 @@ mandatory: True
 question: |
   Did you get a Summons and Landlord's Petition?
 subquestion: |
-  The {Summons and Petition} looks different in some counties, but it may look like this:
+  The {Summons} will look like this:
+ 
+  [CENTER]
+  [FILE MOSummons.png]
+ 
+  The {Petition} looks different in some counties, but it may look like this:
  
   [CENTER]
   [FILE ComplaintForm.png]
@@ -857,8 +869,11 @@ fields:
       variable: petition_available
       is: False
 terms:
-  Summons and Petition: |
-    The Summons and Landlord's Petition is the form that your landlord must file
+  Summons: |
+    The Summons is the form that the Court sends you to tell you to attend
+    a court hearing.
+  Petition: |
+    The Landlord's Petition is the form that your landlord must file
     with the court to start an eviction case.
 ---
 sets: posting_warning
@@ -917,10 +932,10 @@ code: |
     party.attorney.gather()
   users.gather()
   petition_states_rent_amount
-  petition_states_terms_of_lease
+  if not lease_attached:
+    petition_states_terms_of_lease
   petition_states_rent_periods
   petition_states_demand_made
-  lease_attached
   petition_review = True
 comment: |
   filing_date
