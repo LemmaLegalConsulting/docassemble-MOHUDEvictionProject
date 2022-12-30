@@ -1,0 +1,143 @@
+---
+id: reminders
+decoration: bell
+question: |
+  Court Date Reminders
+subquestion: |
+  We can remind you about important dates by text or email.
+  Uncheck any options that you do not want.
+
+  The reminder will use the best information that we have today.
+fields:
+  - Email or text me a copy of what I create today: email_after_completion
+    datatype: yesno
+    default: True
+  - Remind me about deadlines: remind_user
+    datatype: yesno
+    default: True
+  - Text message reminder?: wants_text
+    datatype: yesno
+    default: True
+  - Mobile phone number for text messaging: users[0].phone_number
+    show if: wants_text
+  - Email reminder?: wants_email
+    datatype: yesno
+    default: True
+  - Email address: users[0].email
+    datatype: email
+    show if: wants_email
+help: |
+  If you agree, we can send you a reminder text message and email message when you
+  have a deadline or need to appear in court. *The reminders will only be based on
+  the information you gave us in this interview.* If your court date changes for
+  any reason, keep in mind that the reminder might be for the wrong date. It's important
+  that you still pay attention to the dates that the court tells you about.
+  
+  We can also save information about your case if you choose. Saved information
+  will be used only by a non-profit legal aid organization. It may be used to help
+  you if your case is accepted for full representation, or it may be used to identify
+  trends to help the non-profit legal aid organization bettter decide how to use
+  its resources to prevent evictions.
+  
+  Sharing your information is optional. You can use this service for free whether or not
+  you want your information to be shared.
+---
+code: |
+  if email_after_completion and wants_email and task_not_yet_performed("interview complete email"):
+      send_email(task="interview complete email",to=users[0].email, template=interview_complete_email, attachments=[zip_file(al_user_bundle.as_list(), filename="Eviction_Forms.zip")])
+  if email_after_completion and wants_text and task_not_yet_performed('interview complete text'):
+      send_sms(to=phone_number_in_e164(users[0].phone_number), template=interview_complete_text, task='interview complete text')
+  send_user_email = True
+---
+event: cron_daily
+code: |
+  import time
+  from random import randint, random
+  time.sleep(random())
+  
+  # Only run cron jobs below if the tenant reached the service screen. No need to email people who didn't finish interview
+  if defined('method_of_service'):
+    store_made_snapshot  
+    if remind_user and date_difference(starting=original_hearing_date).days >= -1 and date_difference(starting=original_hearing_date).days < 1 :    
+      if wants_email and task_not_yet_performed('court reminder'):
+        send_email(to=users[0].email, template=court_reminder_email, task='court reminder')
+        mark_task_as_performed('court reminder')
+      if wants_text and task_not_yet_performed('court reminder text'):
+        send_sms(to=phone_number_in_e164(user_cell), template=attend_court_text, task='court reminder text')
+        mark_task_as_performed('court reminder text')    
+    if task_performed('court reminder'):
+      allow_cron = False # disable cron when we have run all jobs
+      
+  response() # This stops Docassemble from running the rest of the interview and potentially running into an error
+---
+template: court_reminder_email
+subject: |
+  You have a court date on ${court_date}! (Massachusetts Defense for Eviction) for ${landlord} v. ${tenant}
+content: |
+  Hi ${ tenant.name.first }! This is MADE (Massachusetts Defense for Eviction) from Greater Boston
+  Legal Services.
+  
+  Your court date in ${landlord} v. ${tenant} is ${format_date(court_date)}!
+  
+  Check the court event notice you got from the court to find out:
+  
+  - if the hearing is in person or virtual
+  - the time and place to attend court
+    
+  % if court_date_is_holiday:
+  It looks like ${court_date} is a holiday, ${court_date_holiday}. 
+  If you didn't get a notice from the court, you may want to call to find out
+  when your case will be heard.
+  % endif
+  You are getting this email because you used our self-help eviction tool
+  on ${format_date(start_time())}.
+---
+template: attend_court_text
+content: |
+  Reminder: your court date in ${landlord} v. ${tenant} is ${format_date(court_date)}!
+  % if court_date_is_holiday:
+  ${court_date} is ${court_date_holiday} so your date may have been
+  postponed. If the court didn't tell you the new date, call the court to find out.
+  % endif
+  
+  Check the court event notice you got from the court to find out if the hearing is in 
+  person or virtual and the time and place to attend court.
+  
+  Get ready here: https://gbls.org/tactics/12
+   - MADE from GBLS
+---
+template: interview_complete_email
+subject: |
+  You finished the eviction interview! Keep this for your records (Massachusetts Defense for Eviction) for ${other_parties} v. ${users}
+content: |
+  Hi ${ users[0].name.first }! This is MADE (Massachusetts Defense for Eviction) from Greater Boston
+  Legal Services.
+  
+  This is a copy for you of all of the forms you completed today.
+  
+  If you want to go back to your interview, click here ${interview_url()}.
+  
+  As a reminder, your court date will be ${format_date(original_hearing_date)},
+  unless you hear otherwise from the court.
+  
+  Once you have a case ID number (docket number), you can also sign up
+  to [get notices directly from the court](https://www.mass.gov/forms/ereminder-court-date-notification-system).
+  You will likely get a "notice of court event" from the court that tells you:
+  
+  - whether to appear in person or virtually
+  - the time of your hearing
+
+  Get ready for court! [MassLegalHelp](https://www.masslegalhelp.org/housing/lt1-booklet-1-representing-yourself.pdf)
+  has information that can help you be prepared.  
+  Was MADE helpful? [Tell us here](https://www.surveymonkey.com/r/8T2KZBV).
+---
+template: interview_complete_text
+content: |
+  Congrats on finishing the interview! Don't forget:
+  File your paperwork and attend court on ${ format_date(original_hearing_date) }.
+
+  Get ready here: https://gbls.org/tactics/12
+  
+   - MADE from GBLS.
+  How was MADE? Tell us here: https://www.surveymonkey.com/r/8T2KZBV
+---

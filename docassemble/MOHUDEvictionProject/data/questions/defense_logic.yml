@@ -45,13 +45,11 @@ fields:
   datatype: yesnoradio
 ---
 code: |
-  if offer_attempt and has_refused_payment and was_attempt_full:
-    if has_attempt_evidence:
-      defense_tender_refused = True
-    else:
-      defense_tender_refused = False
-  else:
-    defense_tender_refused = False
+  defense_tender_refused = False
+  if offer_attempts.there_are_any:
+    for offer in offer_attempts:
+      if offer.has_refused_payment and offer.has_attempt_evidence and offer.was_attempt_full:
+        defense_tender_refused = True
 comment: |
   add date requirement
 ---

@@ -76,6 +76,7 @@ objects:
   - other_parties: ALPeopleList.using(there_are_any=True,complete_attribute="complete")
   - other_parties[i].attorney: ALPeopleList.using(complete_attribute="complete")
   - users: ALPeopleList.using(there_are_any=True)
+  - offer_attempts: DAList.using(object_type=DAObject, complete_attribute="attempt_date")
 ---
 sections:
   - section_eviction_answer_intro: Introduction
@@ -210,10 +211,7 @@ code: |
   petition_states_rent_amount
   petition_states_rent_periods
   was_rent_paid
-  if offer_attempt:
-    was_attempt_full
-    if has_refused_payment:
-      has_attempt_evidence
+  offer_attempts.gather()
   if is_rent_subsidized:
     excessive_rent
   if late_fees_assessed:
@@ -1122,35 +1120,59 @@ subquestion: |
   the questions on this page.
   % endif
 fields:
-  - Did you offer to give your landlord the money they say you owe?: offer_attempt
+  - Did you offer to give your landlord the money they say you owe?: offer_attempts.there_are_any
     datatype: yesnoradio
-  - When?: attempt_date
+---
+question: |
+  Information about the ${ ordinal(i) } time you tried to pay the rent?
+subquestion: |
+  % if i > 0:
+  So far, you said you
+  % for offer in offer_attempts.complete_elements():
+  
+   - Tried to pay ${ "the full amount" if offer.was_attempt_full else "part of the rent" } on ${ offer.attempt_date } ${ offer.attempt_method } but the landlord refused.
+   
+  % endfor
+  % endif
+fields:
+  - When?: offer_attempts[i].attempt_date
     datatype: date
-    show if: offer_attempt
-  - How did you try to give your landlord the money?: attempt_method
+  - How did you try to give your landlord the money?: offer_attempts[i].attempt_method
     input type: radio
     choices:
-      - I wrote a letter
-      - I sent an email
-      - I told my landlord in person
-      - I told my landlord in a phone call
-      - Other
-    show if: offer_attempt
-  - How much did you offer to pay?: was_attempt_full
+      - I wrote a letter: "by letter"
+      - I sent an email: "by email"
+      - I told my landlord in person: "in person"
+      - I told my landlord in a phone call: "in a phone_call"
+      - Other: "other"
+  - How much did you offer to pay?: offer_attempts[i].was_attempt_full
     datatype: radio
     choices:
       - All of the money: True
       - Part of the money: False
-    show if: offer_attempt
-  - Did the landlord say no to your offer to pay?: has_refused_payment
+  - Did the landlord say no to this offer to pay?: offer_attempts[i].has_refused_payment
     datatype: yesno
     input type: yesnoradio
-    show if: offer_attempt
-  - Did your landlord say no in writing that you can bring to court, or did someone else see your landlord say "no"?: has_attempt_evidence
+  - Did your landlord say no in writing that you can bring to court, or did someone else see your landlord say "no"?: offer_attempts[i].has_attempt_evidence
     datatype: yesnoradio
-    show if: has_refused_payment
+    show if: offer_attempts[i].has_refused_payment
     help: |
       For example, a letter from the landlord refusing to accept the money, a written check or money order, or a witness to the landlord's refusal.
+---
+question: |
+  Did you make any other attempts to pay the rent?
+subquestion: |
+  % if len(offer_attempts.complete_elements()) > 0:
+  So far, you said you
+  % for offer in offer_attempts.complete_elements():
+  
+   - tried to pay ${ "the full amount" if offer.was_attempt_full else "part of the rent" } on ${ offer.attempt_date } ${ offer.attempt_method } but the landlord refused.
+   
+  % endfor
+  % endif
+fields:
+  -  Did you make any other attempts to pay the rent?: offer_attempts.there_is_another
+     datatype: yesnoradio
 ---
 id: pay and stop eviction
 decoration: circle-info
