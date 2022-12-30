@@ -229,6 +229,7 @@ code: |
 ---
 code: |
   warranty_breaches
+  estoppel_breaches
   cqe_breaches
   landlord_problems_section = True
 
@@ -1202,6 +1203,35 @@ fields:
     show if:
       variable: warranty_breaches['other']
       is: True
+---
+id: estoppel breaches
+question: |
+  Did the landlord violate other laws?
+subquestion: |
+  ${ collapse_template(estoppel_explanation_template) }
+  
+fields:
+  - Check any statement that applies: estoppel_breaches
+    datatype: checkboxes
+    choices:
+      - "The home is not up to code.": not_up_to_code
+      - "The landlord violated local or state laws about the condition of the home.": violated_law
+      - "The landlord doesn't have an occupancy permit for the home": occupancy_permit
+      - Other: other
+  - What other problems do you have?: other_estoppel_breaches
+    show if:
+      variable: estoppel_breaches['other']
+      is: True
+---
+template: estoppel_explanation_template
+subject: |
+  What other laws does a landlord have to follow?
+content: |
+  In some areas, a landlord has to follow a "housing code" that specifies the condition of the home that the landlord must maintain.
+  
+  Other local or state laws can create requirements that a landlord must meet.
+  
+  An occupancy permit may be required for a landlord to rent a home.
 ---
 variable name: conditions_text
 use objects: True

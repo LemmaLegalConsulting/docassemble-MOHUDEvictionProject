@@ -222,7 +222,10 @@ code: |
     defense_breach_of_cqe = False
 ---
 code: |
-  defense_estoppel_illegality = True
+  if estoppel_breaches.any_true():
+    defense_estoppel_illegality = True
+  else:
+    defense_estoppel_illegality = False
 ---
 code: |
   if warranty_breaches.any_true():
