@@ -4,6 +4,7 @@ include:
   - docassemble.ALAnyState:any_state.yml
   - defense_logic.yml
   - information_collected.yml
+  - reminder.yml
 ---
 metadata:
   title: |
@@ -474,18 +475,20 @@ code: |
   if hasattr(users[0].address,"county"):
     trial_court_circuit = county_to_circuit.get(users[0].address.county, "")
     trial_court_county = users[0].address.normalized_address().county
-    trial_court_name_default = ordinal_number(trial_court_circuit, use_word=False).capitalize() + " Judicial Circuit - " + users[0].address.county
+    trial_court_name = ordinal_number(trial_court_circuit, use_word=False).capitalize() + " Judicial Circuit - " + users[0].address.county
   elif users[0].address.city == "St. Louis":
     trial_court_circuit = 22
     users[0].address.county = "City of St Louis"
+    users[0].address.norm_long.county = "City of St Louis"
     trial_court_county = "City of St Louis"
-    trial_court_name_default = "22nd Judicial Circuit - City of St. Louis"
+    trial_court_name = "22nd Judicial Circuit - City of St. Louis"
   else:
     trial_court_circuit = county_to_circuit.get(users[0].address.county, "")
-    users[0].address.county = "Unknown"
+    users[0].address.county =  "Unknown"
+    users[0].address.norm_long.county = "Unknown"
     trial_court_county = "Unknown"
     docket_available = False
-    trial_court_name_default = ordinal_number(trial_court_circuit, use_word=False).capitalize() + " Judicial Circuit - " + users[0].address.county
+    trial_court_name = ordinal_number(trial_court_circuit, use_word=False).capitalize() + " Judicial Circuit - " + users[0].address.county
 ---
 code: |
   trial_court.circuit = ordinal_number(trial_court_circuit, use_word=False)
