@@ -32,7 +32,7 @@ code: |
 ---
 code: |
   if tenant_got_summons and petition_available:
-    if lease_attached:
+    if not lease_attached:
       defense_lease_not_attached = True
     else:
       defense_lease_not_attached = False
@@ -168,7 +168,7 @@ question: |
   Did the landlord's promise get you to sign the lease?
 subquestion: |
   % if false_promises.number() == 1:
-  You told use the landlord made 1 false promise:
+  You told us the landlord made 1 false promise:
   % else:
   You told use the landlord made ${ false_promises.number() } false promises:
   % endif
@@ -278,7 +278,7 @@ code: |
   if is_rent_subsidized and excessive_rent:
     defense_excessive_rent_for_subsidized_housing = True
   else:
-    defense_excessive_rent_for_subsidized_housing = True
+    defense_excessive_rent_for_subsidized_housing = False
 ---
 id: subsidized housing identification
 question: |
