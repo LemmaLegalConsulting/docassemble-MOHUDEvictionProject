@@ -220,7 +220,7 @@ code: |
     defense_breach_of_cqe = False
 ---
 code: |
-  if estoppel_breaches.any_true():
+  if estoppel_breaches.any_true() or defense_breach_of_cqe:
     defense_estoppel_illegality = True
   else:
     defense_estoppel_illegality = False
