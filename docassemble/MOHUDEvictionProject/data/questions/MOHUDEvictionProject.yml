@@ -850,7 +850,7 @@ subquestion: |
   [FILE ComplaintForm.png]
 
 fields:
-  - "I got a copy of the {Summons and Petition}": tenant_got_summons
+  - "I got a copy of the {Summons} and {Petition}": tenant_got_summons
     datatype: yesnomaybe
   - "How did you get the Summons and Landlord's Petition?": method_of_summons_service
     datatype: radio
@@ -1044,8 +1044,17 @@ fields:
     show if: 
       variable: lease_attached
       is: False
-    help: |
-      For example, does it include the monthly rent, the kind of agreement (year to year or month to month), and the day rent is due?
+  - note: |
+      ${ collapse_template(terms_of_lease_explanation) }
+    show if: 
+      variable: lease_attached
+      is: False
+---
+template: terms_of_lease_explanation
+subject: |
+  What kind of summary?
+content: |
+  For example, does it include the monthly rent, the kind of agreement (year to year or month to month), and the day rent is due?
 ---
 id: petition requirements - periods due
 question: |
@@ -1070,23 +1079,6 @@ subquestion: |
 fields:
   - "Does the Landlord's Petition say the landlord demanded rent?": petition_states_demand_made
     datatype: yesnomaybe
----
-id: when was lawsuit filed
-comment: |
-  DOCKET
-  (PETITION)
-question: |
-  When was the lawsuit filed?
-help: 
-  label: |
-    How do I find this?
-  content: |
-    This information can be found on the **Docket** or the **Petition**
-    
-    (TODO: Insert information to help user locate this information on the Docket and Petition)
-fields:
-  - Filing date: filing_date
-    datatype: date
 ---
 id: is seeking past due rent true
 comment: |
@@ -1123,6 +1115,7 @@ fields:
   - Did you offer to give your landlord the money they say you owe?: offer_attempts.there_are_any
     datatype: yesnoradio
 ---
+id: payment attempt loop
 question: |
   Information about the ${ ordinal(i) } time you tried to pay the rent?
 subquestion: |
@@ -1156,8 +1149,15 @@ fields:
   - Did your landlord say no in writing that you can bring to court, or did someone else see your landlord say "no"?: offer_attempts[i].has_attempt_evidence
     datatype: yesnoradio
     show if: offer_attempts[i].has_refused_payment
-    help: |
-      For example, a letter from the landlord refusing to accept the money, a written check or money order, or a witness to the landlord's refusal.
+  - note: |
+      ${ collapse_template(example_of_refused_payment_evidence) }
+    show if: offer_attempts[i].has_refused_payment
+---
+template: example_of_refused_payment_evidence
+subject: |
+  What kind of evidence?
+content: |
+  For example, a letter from the landlord refusing to accept the money, a written check or money order, or a witness to the landlord's refusal.
 ---
 question: |
   Did you make any other attempts to pay the rent?
