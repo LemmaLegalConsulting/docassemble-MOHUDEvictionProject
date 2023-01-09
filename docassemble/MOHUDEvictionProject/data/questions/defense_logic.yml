@@ -197,7 +197,7 @@ id: late fees
 question: |
   Did your landlord say that you owe a late fee?
 fields:
-  - Did your landlord say that you owe fee for paying rent late?: late_fees_assessed
+  - Did your landlord say that you owe fees for paying rent late?: late_fees_assessed
     datatype: yesnoradio
   - Is the rent more than a fair amount to cover the landlord's cost?: late_fees_penalty
     datatype: yesnomaybe
