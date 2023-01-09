@@ -858,6 +858,8 @@ fields:
     choices:
       - "By mail": mail
       - "It was taped, stapled, or posted to my door or home": posting
+      - "It was delivered by the sheriff": sheriff
+      - "It was delivered by the landlord or somebody other than the sheriff": personal
     show if:
       variable: tenant_got_summons
       is: True
