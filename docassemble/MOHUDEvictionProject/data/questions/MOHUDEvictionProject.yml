@@ -4,7 +4,7 @@ include:
   - docassemble.ALAnyState:any_state.yml
   - defense_logic.yml
   - information_collected.yml
-  - reminder.yml
+  - al_reminders.yml
 ---
 metadata:
   title: |
@@ -101,6 +101,7 @@ code: |
   # Store anonymous data for analytics / statistics
   nav.set_section("review_eviction_answer")
   review_eviction_answer
+  al_user_wants_reminders
   store_variables_snapshot(
       persistent=True,
       data={
@@ -1328,6 +1329,9 @@ data:
   vermin:
     question: Not exterminate or take care of vermin or pests in the walls making disruptive noises
     document: Failed to exterminate or take care of vermin or pests in the walls making disruptive noises
+  other:
+    question: Other
+    document: ${ other_cqe_breach }
 ---
 template: bad_conditions_explanation_template
 subject: |
