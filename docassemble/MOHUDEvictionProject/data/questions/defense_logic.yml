@@ -23,7 +23,7 @@ code: |
 ---
 code: |
   if tenant_got_summons and petition_available:
-    if petition_alleges_nonrent or not petition_states_rent_amount or not petition_states_terms_of_lease or not petition_states_rent_periods or not petition_states_demand_made or (trial_court_county == "St. Louis County" and not petition_separates_nonrent):
+    if petition_alleges_nonrent or not petition_states_rent_amount or (not lease_attached and not petition_states_terms_of_lease) or not petition_states_rent_periods or not petition_states_demand_made or (trial_court_county == "St. Louis County" and not petition_separates_nonrent):
       defense_rent_pleading_requirement = True
     else:
       defense_rent_pleading_requirement = False
@@ -32,7 +32,7 @@ code: |
 ---
 code: |
   if tenant_got_summons and petition_available:
-    if lease_attached:
+    if not lease_attached:
       defense_lease_not_attached = True
     else:
       defense_lease_not_attached = False
@@ -45,13 +45,11 @@ fields:
   datatype: yesnoradio
 ---
 code: |
-  if offer_attempt and has_refused_payment and was_attempt_full:
-    if has_attempt_evidence:
-      defense_tender_refused = True
-    else:
-      defense_tender_refused = False
-  else:
-    defense_tender_refused = False
+  defense_tender_refused = False
+  if offer_attempts.there_are_any:
+    for offer in offer_attempts:
+      if offer.has_refused_payment and offer.has_attempt_evidence and offer.was_attempt_full:
+        defense_tender_refused = True
 comment: |
   add date requirement
 ---
@@ -168,7 +166,7 @@ question: |
   Did the landlord's promise get you to sign the lease?
 subquestion: |
   % if false_promises.number() == 1:
-  You told use the landlord made 1 false promise:
+  You told us the landlord made 1 false promise:
   % else:
   You told use the landlord made ${ false_promises.number() } false promises:
   % endif
@@ -222,7 +220,10 @@ code: |
     defense_breach_of_cqe = False
 ---
 code: |
-  defense_estoppel_illegality = True
+  if estoppel_breaches.any_true() or defense_breach_of_cqe:
+    defense_estoppel_illegality = True
+  else:
+    defense_estoppel_illegality = False
 ---
 code: |
   if warranty_breaches.any_true():
@@ -278,7 +279,7 @@ code: |
   if is_rent_subsidized and excessive_rent:
     defense_excessive_rent_for_subsidized_housing = True
   else:
-    defense_excessive_rent_for_subsidized_housing = True
+    defense_excessive_rent_for_subsidized_housing = False
 ---
 id: subsidized housing identification
 question: |
