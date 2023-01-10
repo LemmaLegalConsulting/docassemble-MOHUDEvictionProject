@@ -1331,9 +1331,6 @@ data:
   vermin:
     question: Not exterminate or take care of vermin or pests in the walls making disruptive noises
     document: Failed to exterminate or take care of vermin or pests in the walls making disruptive noises
-  other:
-    question: Other
-    document: ${ other_cqe_breach }
 ---
 template: bad_conditions_explanation_template
 subject: |
