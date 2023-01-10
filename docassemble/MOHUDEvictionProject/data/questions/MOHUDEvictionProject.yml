@@ -212,6 +212,7 @@ code: |
   petition_states_rent_amount
   petition_states_rent_periods
   was_rent_paid
+  will_offer_payment
   offer_attempts.gather()
   if is_rent_subsidized:
     excessive_rent
@@ -1187,8 +1188,10 @@ question: |
 subquestion: |
   If you:
   % if petition_states_rent_amount:
+  
   * Pay the full ${ currency(rent_amount_owed) }
   % else:
+  
   * Pay the full amount you owe
   % endif
   * Pay the full court costs
