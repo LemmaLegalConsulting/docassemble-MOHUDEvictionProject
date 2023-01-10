@@ -217,8 +217,9 @@ code: |
     excessive_rent
   if late_fees_assessed:
     late_fees_penalty
-    if trial_court_circuit == "21":
+    if trial_court_circuit == 21:
       petition_separates_nonrent
+  petition_states_demand_made
   rent_defenses_section = True
 ---
 code: |
@@ -1224,7 +1225,7 @@ fields:
       - ${ conditions_text["ceiling_not_weathertight"] }: ceiling_not_weathertight
       - ${ conditions_text["floor_holes"] }: floor_holes
       - Other: other
-  - What other problems do you have?: other_warrranty_breaches
+  - What other problems do you have?: warranty_breach_other
     show if:
       variable: warranty_breaches['other']
       is: True
