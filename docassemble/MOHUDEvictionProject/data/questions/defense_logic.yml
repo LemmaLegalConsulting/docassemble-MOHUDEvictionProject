@@ -68,6 +68,8 @@ code: |
 id: made settlement
 question: |
   Did you already make an agreement with the landlord to stop the eviction?
+subquestion: |
+  A landlord and tenant can agree to "settle" an eviction case, which means an agreement to stop the eviction.
 fields:
   - Did you make a settlement agreement with the landlord?: landlord_agreement
     datatype: yesnoradio
@@ -183,7 +185,7 @@ fields:
       % endif
     field: relied_on_false_promises
     datatype: yesnoradio
-    help: |
+  - note: |
       If you were more likely to sign the lease **because** of the
       landlord's promise, answer yes.
 ---
@@ -197,12 +199,12 @@ id: late fees
 question: |
   Did your landlord say that you owe a late fee?
 fields:
-  - Did your landlord say that you owe fee for paying rent late?: late_fees_assessed
+  - Did your landlord say that you owe fees for paying rent late?: late_fees_assessed
     datatype: yesnoradio
   - Is the rent more than a fair amount to cover the landlord's cost?: late_fees_penalty
     datatype: yesnomaybe
     show if: late_fees_assessed
-    help: |
+  - note: |
       It is up to a judge to decide if the late fee is "fair". But if the late fee is
       a lot more than:
 
@@ -210,6 +212,7 @@ fields:
       * The cost of the landlord's time to handle the late payment,
 
       The fee may be too high.
+    show if: late_fees_assessed
 ---
 comment: |
   Are we going to separate levels of cqe breach? E.g. (1) mere breach, (2) constructive eviction, (3) significant enough to physically deprive the tenant of possession.
@@ -292,7 +295,7 @@ fields:
     choices:
       - Section 8 voucher: voucher
       - Public housing: public
-        help: |
+      - note: |
           In public housing, your landlord is usually the city or county.
       - Tax credit: taxcredit
       - Housing project run by a private landlord (and I pay 30% of my income for rent): project        

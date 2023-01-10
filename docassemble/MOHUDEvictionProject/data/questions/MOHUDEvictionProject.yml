@@ -4,7 +4,7 @@ include:
   - docassemble.ALAnyState:any_state.yml
   - defense_logic.yml
   - information_collected.yml
-  - reminder.yml
+  - al_reminders.yml
 ---
 metadata:
   title: |
@@ -101,6 +101,7 @@ code: |
   # Store anonymous data for analytics / statistics
   nav.set_section("review_eviction_answer")
   review_eviction_answer
+  al_user_wants_reminders
   store_variables_snapshot(
       persistent=True,
       data={
@@ -857,6 +858,8 @@ fields:
     choices:
       - "By mail": mail
       - "It was taped, stapled, or posted to my door or home": posting
+      - "It was delivered by the sheriff": sheriff
+      - "It was delivered by the landlord or somebody other than the sheriff": personal
     show if:
       variable: tenant_got_summons
       is: True
