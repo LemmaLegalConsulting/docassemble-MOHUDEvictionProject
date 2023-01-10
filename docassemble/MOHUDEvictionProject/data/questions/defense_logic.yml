@@ -23,7 +23,7 @@ code: |
 ---
 code: |
   if tenant_got_summons and petition_available:
-    if petition_alleges_nonrent or not petition_states_rent_amount or (not lease_attached and not petition_states_terms_of_lease) or not petition_states_rent_periods or not petition_states_demand_made or (trial_court_county == "St. Louis County" and not petition_separates_nonrent):
+    if petition_alleges_nonrent or not petition_states_rent_amount or (not lease_attached and not petition_states_terms_of_lease) or not petition_states_rent_periods or not petition_states_demand_made or (trial_court_circuit == 21 and not petition_separates_nonrent):
       defense_rent_pleading_requirement = True
     else:
       defense_rent_pleading_requirement = False
