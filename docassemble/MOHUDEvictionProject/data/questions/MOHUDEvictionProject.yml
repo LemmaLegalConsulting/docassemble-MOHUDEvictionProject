@@ -862,8 +862,8 @@ fields:
     choices:
       - "By mail": mail
       - "It was taped, stapled, or posted to my door or home": posting
-      - "It was delivered by the sheriff": sheriff
-      - "It was delivered by the landlord or somebody other than the sheriff": personal
+      - "It was handed to you by the sheriff": sheriff
+      - "It was handed to you by the landlord or somebody other than the sheriff": personal
     show if:
       variable: tenant_got_summons
       is: True
@@ -915,7 +915,14 @@ question: |
   Tenants in your situation usually file an answer
 subquestion: |
   % if tenant_got_summons:
-  You said that you got the Summons and Petition by mail. 
+  You said that you got the Summons and Petition by 
+  % if method_of_summons_service in ['personal','sheriff']:
+  personal delivery
+  % else:
+  mail
+  % endif
+  .
+  
   % else:
   You said you do not know if you got the Summons and Petition.
   % endif
