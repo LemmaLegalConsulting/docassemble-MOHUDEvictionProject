@@ -475,6 +475,7 @@ fields:
       is: False
   
 ---
+depends on: users[0].address
 id: county information
 code: |
   if hasattr(users[0].address,"county") and not users[0].address.county == "City of St Louis":
@@ -495,6 +496,9 @@ code: |
     docket_available = False
     trial_court_name_default = ordinal_number(trial_court_circuit, use_word=False).capitalize() + " Judicial Circuit - " + users[0].address.county
 ---
+depends on:
+  - trial_court_circuit
+  - trial_court_county
 code: |
   trial_court.circuit = ordinal_number(trial_court_circuit, use_word=False)
   trial_court.address.county = trial_court_county
@@ -1033,6 +1037,7 @@ fields:
   - Are rent charges separated from other charges: petition_separates_nonrent
     datatype: yesnomaybe
 ---
+depends on: petition_states_rent_amount
 code: |
   if petition_states_rent_amount:
     petition_alleges_nonrent = False
@@ -1411,6 +1416,7 @@ code: |
   # a different address than the user's
   addresses_to_search = [user.address for user in users]
 ---
+depends on: original_hearing_date_past
 code: |
   wants_to_file = dict()
   wants_to_file['answer'] = True
@@ -1424,50 +1430,315 @@ continue button field: review_eviction_answer
 question: |
   Review your answers
 review:
-  - Edit: service_methods
+  - note: | 
+  - note: | 
+      ##Information about you##
+  - Edit:
+      - users.revisit
+      - recompute:
+          - defense_logic
     button: |
-      **Service methods**:
-      ${ service_methods }
-  - Edit: trial_court
-    button: |
-      **Trial court**
-  
-      % if defined("trial_court.address.county"):
-      * address: ${ trial_court.address.block() }
-      % endif
-      % if defined("trial_court.division"):
-      * division: ${ trial_court.division }
-      % endif
-  - Edit: users.revisit
-    button: |
-      **Users**
-
+      Defendants:
+      % if users.there_are_any:
       % for item in users:
-        * ${ item }
+        **${ item }**
       % endfor
-  - Edit: original_hearing_date
+      % else:
+      **None**
+      % endif
+  - Edit:
+      - will_offer_payment
+      - recompute:
+        - defense_logic
     button: |
-      **Date of original hearing**:
-      ${ original_hearing_date }
-  - Edit: other_parties.revisit
+      You may be able to pay and stop the eviction:
+      **${ will_offer_payment }**
+  - note: | 
+      ##Information about the other party##
+  - Edit:
+      - other_parties.revisit
+      - recompute:
+          - defense_logic
     button: |
-      **Other parties**
-
+      Plaintiffs:
+      % if other_parties.there_are_any:
       % for item in other_parties:
-        * ${ item }
+        **${ item }**
       % endfor
-  - Edit: service_date
+      % else:
+      **None**
+      % endif
+  - note: | 
+      ##Information about your rental agreement##
+  - Edit:
+      - lease_attached
+      - recompute:
+        - defense_logic
     button: |
-      **Date of Service**:
-      ${ service_date }
-  - Edit: docket_number
+      Does the summons and petition packet have the lease attached as an exhibit? :
+      **${ lease_attached }**
+  - Edit:
+      - petition_states_terms_of_lease
+      - recompute:
+        - defense_logic
     button: |
-      **case number**:
-      ${ docket_number }
-  - Edit: original_hearing_time
+      Is the lease attached to the petition?:
+      **${ petition_states_terms_of_lease }**
+  - Edit:
+      - is_rent_subsidized
+      - recompute:
+        - defense_logic
     button: |
-      **Original hearing time**:
-      ${ original_hearing_time }
+      Do you get a rent subsidy or do you live in public housing?:
+      **${ is_rent_subsidized }**
+  - Edit:
+      - subsidized_housing_type
+      - recompute:
+        - defense_logic
+    button: |
+      Type of Subsidized Housing::
+      **${ subsidized_housing_type }**
+  - Edit:
+      - unfair_duress
+      - recompute:
+        - defense_logic
+    button: |
+      Did the landlord unfairly pressure you to sign the lease?:
+      **${ unfair_duress }**
+  - Edit:
+      - false_promises.revisit
+      - recompute:
+          - defense_logic
+    button: |
+      False Promises Made By The Landlord:
+      % if false_promises.there_are_any:
+      % for item in false_promises:
+        **${ item }**
+      % endfor
+      % else:
+      **None**
+      % endif
+  - Edit:
+      - relied_on_false_promises
+      - recompute:
+        - defense_logic
+    button: |
+      Did the landlord's promise get you to sign the lease?:
+      **${ relied_on_false_promises }**
+  - Edit:
+      - landlord_foreclosed
+      - recompute:
+        - defense_logic
+    button: |
+      Did the bank foreclose on this property while you lived there?:
+      **${ landlord_foreclosed }**
+  - Edit:
+      - notice_of_foreclosure
+      - recompute:
+        - defense_logic
+    button: |
+      Did the bank ever foreclose on this home?:
+      **${ notice_of_foreclosure }**
+  - Edit:
+      - previous_landlord_sold_property
+      - recompute:
+        - defense_logic
+    button: |
+      Did your previous landlord sell the property to the new landlord?:
+      **${ previous_landlord_sold_property }**
+  - Edit:
+      - notice_of_sale_provided
+      - recompute:
+        - defense_logic
+    button: |
+      Did the landlord provide you notice of the sale?:
+      **${ notice_of_sale_provided }**
+  - note: | 
+      ##Information about the eviction##
+  - Edit:
+      - received_summons
+      - recompute:
+        - defense_logic
+    button: |
+      Did you receive a copy of the Summons and Landlord's Petition?:
+      **${ received_summons }**
+  - Edit:
+      - method_of_summons_service
+      - recompute:
+        - defense_logic
+    button: |
+      How did you receive the Summons and Landlord's Petition?:
+      **${ method_of_summons_service }**
+  - Edit:
+      - petition_available
+      - recompute:
+        - defense_logic
+    button: |
+      Do you have a copy of the Landlord's Petition available?:
+      **${ petition_available }**
+  - note: | 
+      ##Your claims and defenses##
+  - Edit:
+      - petition_states_rent_amount
+      - recompute:
+        - defense_logic
+    button: |
+      Does the petition say what amount of rent you owe?:
+      **${ petition_states_rent_amount }**
+  - Edit:
+      - petition_states_rent_periods
+      - recompute:
+        - defense_logic
+    button: |
+      Does the petition list each month that the landlord claims you owe rent?:
+      **${ petition_states_rent_periods }**
+  - Edit:
+      - was_rent_paid
+      - recompute:
+        - defense_logic
+    button: |
+      Did you pay at least part of the rent?:
+      **${ was_rent_paid }**
+  - Edit:
+      - rent_amount_paid
+      - recompute:
+        - defense_logic
+    button: |
+      How much did you pay?:
+      **${ rent_amount_paid }**
+  - Edit:
+      - offer_attempts.revisit
+      - recompute:
+          - defense_logic
+    button: |
+      Attempts to Pay Rent:
+      % if offer_attempts.there_are_any:
+      % for item in offer_attempts:
+        **${ item }**
+      % endfor
+      % else:
+      **None**
+      % endif
+  - Edit:
+      - excessive_rent
+      - recompute:
+        - defense_logic
+    button: |
+      Is your landlord asking you to pay an amount that is more than your tenant rent share?:
+      **${ excessive_rent }**
+  - Edit:
+      - late_fees_assessed
+      - recompute:
+        - defense_logic
+    button: |
+      Is the landlord claiming that you owe late fees?:
+      **${ late_fees_assessed }**
+  - Edit:
+      - late_fees_penalty
+      - recompute:
+        - defense_logic
+    button: |
+      Are the late fees more than any actual costs the landlord would have to pay because of late rent?:
+      **${ late_fees_penalty }**
+  - Edit:
+      - late_fees_provision_in_lease
+      - recompute:
+        - defense_logic
+    button: |
+      Does the lease say that they landlord can charge late fees?:
+      **${ late_fees_provision_in_lease }**
+  - Edit:
+      - petition_separates_nonrent
+      - recompute:
+        - defense_logic
+    button: |
+      Does the petition separate the amount you owe in rent from other charges?:
+      **${ petition_separates_nonrent }**
+  - Edit:
+      - petition_states_demand_made
+      - recompute:
+        - defense_logic
+    button: |
+      Does the Petition say that the landlord demanded rent?:
+      **${ petition_states_demand_made }**
+  - note: | 
+      ##Landlord Agreement##
+  - Edit:
+      - landlord_agreement
+      - recompute:
+        - defense_logic
+    button: |
+      Did you make a settlement agreement with the landlord to avoid the eviction?:
+      **${ landlord_agreement }**
+  - Edit:
+      - landlord_agreement_type
+      - recompute:
+        - defense_logic
+    button: |
+      What type of agreement did you make?:
+      **${ landlord_agreement_type }**
+  - Edit:
+      - landlord_agreement_terms
+      - recompute:
+        - defense_logic
+    button: |
+      What were the terms of the settlement agreement with the landlord?:
+      **${ landlord_agreement_terms }**
+  - Edit:
+      - tenant_compliance_with_agreement
+      - recompute:
+        - defense_logic
+    button: |
+      Did you comply with the settlement agreement with the landlord?:
+      **${ tenant_compliance_with_agreement }**
+  - Edit:
+      - tenant_compliance_with_agreement_proof
+      - recompute:
+        - defense_logic
+    button: |
+      Do you have proof that you complied with the agreement?:
+      **${ tenant_compliance_with_agreement_proof }**
+  - note: | 
+      ##Landlord Problems##
+  - Edit:
+      - warranty_breaches
+      - recompute:
+        - defense_logic
+    button: |
+      Problems Landlord Failed to Repair:
+      % if warranty_breaches.any_true():
+      % for item in warranty_breaches.true_values():
+        **${ item }**
+      % endfor
+      % else:
+      **None**
+      % endif
+  - Edit:
+      - cqe_breaches
+      - recompute:
+        - defense_logic
+    button: |
+      Harassment and other breaches of quiet enjoyment:
+      % if cqe_breaches.any_true():
+      % for item in cqe_breaches.true_values():
+        **${ item }**
+      % endfor
+      % else:
+      **None**
+      % endif
+  - Edit:
+      - estoppel_breaches
+      - recompute:
+        - defense_logic
+    button: |
+      Other Landlord Violations:
+      % if estoppel_breaches.any_true():
+      % for item in estoppel_breaches.true_values():
+        **${ item }**
+      % endfor
+      % else:
+      **None**
+      % endif
 ---
 continue button field: users.revisit
 question: |
@@ -1489,7 +1760,7 @@ confirm: True
 ---
 continue button field: other_parties.revisit
 question: |
-  Edit other_parties
+  Edit Plaintiffs/Landlord
 subquestion: |
   ${ other_parties.table }
 
@@ -1498,12 +1769,70 @@ subquestion: |
 table: other_parties.table
 rows: other_parties
 columns:
+  - Name: |
+      row_item.name.full() if defined("row_item.name.first") else ""
+  - Address: |
+      row_item.address.block() if defined("row_item.address.address") else ""
+  - Person or Business: |
+      row_item.person_type
+  - Represened by an attorney?: |
+      row_item.attorney.there_are_any
+edit:
+  - address.address
+confirm: True
+---
+continue button field: false_promises.revisit
+question: |
+  Edit False Promises Made By Landlord
+subquestion: |
+  ${ false_promises.table }
+  
+  ${ false_promises.add_action() }
+---
+table: false_promises.table
+rows: false_promises
+columns:
+  - no label: |
+      row_item
+edit: True
+---
+continue button field: offer_attempts.revisit
+question: |
+  Edit Attempts to Pay Rent
+subquestion: |
+  ${ offer_attempts.table }
+  
+  ${ offer_attempts.add_action() }
+---
+table: offer_attempts.table
+rows: offer_attempts
+columns:
+  - Attempt Date: |
+      row_item.attempt_date
+  - Attempt Method: |
+      row_item.attempt_method
+  - Was Attempt to Pay Full Rent?: |
+      row_item.was_attempt_full
+  - Did The Landlord Refuse This Attempt?: |
+      row_item.has_refused_payment
+  - Do You Have Evidence of this Attempt?: |
+      row_item.has_attempt_evidence if defined('row_item.has_attempt_evidence') else ""
+edit:
+  - attempt_date
+  - attempt_method
+  - was_attempt_full
+  - has_refused_payment
+---
+table: other_parties[i].attorney.table
+rows: other_parties[i].attorney
+columns:
+  - Name: |
+      row_item.name.full() if defined("row_item.name.first") else ""
   - Address: |
       row_item.address.block() if defined("row_item.address.address") else ""
 edit:
   - address.address
-confirm: True
-
+  - name.first
 ---
 id: download eviction_defender
 event: eviction_defender_download
@@ -1533,6 +1862,7 @@ objects:
   - al_user_bundle: ALDocumentBundle.using(elements=[eviction_defender_post_interview_instructions,eviction_motion_to_continue_attachment,eviction_answer_attachment], filename="eviction_helper.docx_package.pdf", title="All forms to download for your records", enabled=True)
   - al_court_bundle: ALDocumentBundle.using(elements=attachment_list_court, filename="eviction_helper.docx_package.pdf", title="All forms to download for your records", enabled=True)
 ---
+depends on: original_hearing_date_past
 code: |
   eviction_motion_to_continue_attachment.enabled = not original_hearing_date_past
 ---
