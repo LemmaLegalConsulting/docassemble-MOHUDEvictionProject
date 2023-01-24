@@ -131,7 +131,7 @@ code: |
   users[0].name.first
   greet_user
   nav.set_section("section_eviction_answer_can_i")
-  if tenant_got_summons and method_of_summons_service == "posting":
+  if not tenant_got_summons or method_of_summons_service == "posting":
     posting_warning
   else:
     recommend_filing_answer
@@ -404,6 +404,7 @@ subquestion: |
   ${ action_button_html(formatted_casenet_url, label="Search Case.net in a new window", icon="up-right-from-square") }
 continue button field: casenet_login_instructions  
 ---
+id: docket review order
 code: |
   casenet_login_instructions
   docket_header
@@ -439,7 +440,6 @@ subquestion: |
 fields:
   - "Date of original hearing": original_hearing_date
     datatype: date
-  - "Original hearing time": original_hearing_time
 ---
 depends on: original_hearing_date
 id: Calculating if hearing date is past
@@ -807,8 +807,6 @@ fields:
   - "Date of hearing": original_hearing_date
     datatype: date
     required: False
-  - "Time of hearing": original_hearing_time
-    required: False
 ---
 id: explain other case net uses
 question: |
@@ -896,7 +894,7 @@ decoration: hand
 question: |
   You may not want to file an answer
 subquestion: |
-  You said that you got the Summons and Petition by "posting" (taping, stapling or pinning to your door).
+  You said that you got the Summons and Petition by "posting" (taping, stapling or pinning to your door) or that you did not receive the Summons and Petition at all.
 
   Because your landlord did not mail the Summons and Petition, if you file an answer, the court may order 
   you to pay money that you would not need to pay otherwise.
@@ -1431,7 +1429,6 @@ question: |
   Review your answers
 review:
   - note: | 
-  - note: | 
       ##Information about you##
   - Edit:
       - users.revisit
@@ -1459,6 +1456,7 @@ review:
       - other_parties.revisit
       - recompute:
           - defense_logic
+          - defense_unrepresented_corporation
     button: |
       Plaintiffs:
       % if other_parties.there_are_any:
@@ -1509,6 +1507,7 @@ review:
       - false_promises.revisit
       - recompute:
           - defense_logic
+          - defense_fraud_lease
     button: |
       False Promises Made By The Landlord:
       % if false_promises.there_are_any:
@@ -1610,6 +1609,7 @@ review:
       - offer_attempts.revisit
       - recompute:
           - defense_logic
+          - defense_tender_refused
     button: |
       Attempts to Pay Rent:
       % if offer_attempts.there_are_any:
@@ -1704,6 +1704,7 @@ review:
       - warranty_breaches
       - recompute:
         - defense_logic
+        - defense_breach_of_habitability
     button: |
       Problems Landlord Failed to Repair:
       % if warranty_breaches.any_true():
@@ -1717,6 +1718,8 @@ review:
       - cqe_breaches
       - recompute:
         - defense_logic
+        - defense_breach_of_cqe
+        - defense_estoppel_illegality
     button: |
       Harassment and other breaches of quiet enjoyment:
       % if cqe_breaches.any_true():
@@ -1730,6 +1733,7 @@ review:
       - estoppel_breaches
       - recompute:
         - defense_logic
+        - defense_estoppel_illegality
     button: |
       Other Landlord Violations:
       % if estoppel_breaches.any_true():

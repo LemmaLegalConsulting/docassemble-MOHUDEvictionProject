@@ -342,7 +342,7 @@ fields:
     choices:
       - Section 8 voucher: voucher
       - Public housing: public
-      - note: |
+        help: |
           In public housing, your landlord is usually the city or county.
       - Tax credit: taxcredit
       - Housing project run by a private landlord (and I pay 30% of my income for rent): project        
