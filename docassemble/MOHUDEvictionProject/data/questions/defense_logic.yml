@@ -21,15 +21,30 @@ code: |
   defense_excessive_rent_for_subsidized_housing
   defense_logic = True
 ---
+depends on:
+  - tenant_got_summons
+  - petition_available
+  - petition_alleges_nonrent
+  - petition_states_rent_amount
+  - lease_attached
+  - petition_states_terms_of_lease
+  - petition_states_rent_periods
+  - petition_states_demand_made
+  - trial_court_circuit
+  - etition_separates_nonrent
 code: |
   if tenant_got_summons and petition_available:
-    if petition_alleges_nonrent or not petition_states_rent_amount or (not lease_attached and not petition_states_terms_of_lease) or not petition_states_rent_periods or not petition_states_demand_made or (trial_court_county == "St. Louis County" and not petition_separates_nonrent):
+    if petition_alleges_nonrent or not petition_states_rent_amount or (not lease_attached and not petition_states_terms_of_lease) or not petition_states_rent_periods or not petition_states_demand_made or (trial_court_circuit == 21 and not petition_separates_nonrent):
       defense_rent_pleading_requirement = True
     else:
       defense_rent_pleading_requirement = False
   else:
       defense_rent_pleading_requirement = None
 ---
+depends on:
+  - tenant_got_summons
+  - petition_available
+  - lease_attached
 code: |
   if tenant_got_summons and petition_available:
     if not lease_attached:
@@ -44,6 +59,7 @@ fields:
   -Is the lease attached to the complaint?: lease_attached
   datatype: yesnoradio
 ---
+depends on: offer_attempts
 code: |
   defense_tender_refused = False
   if offer_attempts.there_are_any:
@@ -58,12 +74,16 @@ code: |
     defense_rent_payment = True
   else:
     defense_rent_payment = False
+depends on: was_rent_paid
 ---
 code: |
   if landlord_agreement and tenant_compliance_with_agreement:
     defense_settlement = True
   else:
     defense_settlement = False
+depends on:
+  - landlord_agreement
+  - tenant_compliance_with_agreement
 ---
 id: made settlement
 question: |
@@ -77,10 +97,10 @@ fields:
     datatype: yesnoradio
     show if: landlord_agreement
 ---
-depends on:
-  - unfair_duress
 code: |
   defense_lease_signed_under_duress = unfair_duress
+depends on:
+  - unfair_duress
 ---
 id: duress
 question: |
@@ -106,6 +126,9 @@ code: |
     defense_fraud_lease = True
   else:
     defense_fraud_lease = False
+depends on:
+  - false_promises
+  - relied_on_false_promises
 ---
 objects:
   - false_promises: DAList
@@ -194,6 +217,9 @@ code: |
     defense_liquidated_damages_late_fees = True
   else:
     defense_liquidated_damages_late_fees = False
+depends on:
+  - late_fees_assessed
+  - late_fees_penalty
 ---
 id: late fees
 question: |
@@ -221,24 +247,33 @@ code: |
     defense_breach_of_cqe = True
   else:
     defense_breach_of_cqe = False
+depends on: cqe_breaches
 ---
 code: |
   if estoppel_breaches.any_true() or defense_breach_of_cqe:
     defense_estoppel_illegality = True
   else:
     defense_estoppel_illegality = False
+depends on:
+  - estoppel_breaches
+  - defense_breach_of_cqe
 ---
 code: |
   if warranty_breaches.any_true():
     defense_breach_of_habitability = True
   else:
     defense_breach_of_habitability = False
+depends on:
+  - warranty_breaches
 ---
 code: |
   if landlord_foreclosed and not notice_of_foreclosure:
     defense_foreclosure = True
   else:
     defense_foreclosure = False
+depends on:
+  - landlord_foreclosed
+  - notice_of_foreclosure
 ---
 id: had foreclosure
 question: |
@@ -255,6 +290,9 @@ code: |
     defense_new_owner_failed_to_provide_notice_of_sale = True
   else:
     defense_new_owner_failed_to_provide_notice_of_sale = False
+depends on:
+  - previous_landlord_sold_property
+  - notice_of_sale_provided
 ---
 id: sale of property
 question: |
@@ -271,18 +309,27 @@ code: |
   for op in other_parties:
     if not op.attorney.there_are_any and op.person_type == "business":
       defense_unrepresented_corporation = True
+depends on:
+  - other_parties
 ---
 code: |
   if defense_lease_not_attached or defense_lease_signed_under_duress or defense_fraud_lease:
     defense_no_landlord_tenant_relationship = True
   else:
     defense_no_landlord_tenant_relationship = False
+depends on:
+  - defense_lease_not_attached
+  - defense_lease_signed_under_duress
+  - defense_fraud_lease
 ---
 code: |
   if is_rent_subsidized and excessive_rent:
     defense_excessive_rent_for_subsidized_housing = True
   else:
     defense_excessive_rent_for_subsidized_housing = False
+depends on:
+  - is_rent_subsidized
+  - excessive_rent
 ---
 id: subsidized housing identification
 question: |
@@ -295,7 +342,7 @@ fields:
     choices:
       - Section 8 voucher: voucher
       - Public housing: public
-      - note: |
+        help: |
           In public housing, your landlord is usually the city or county.
       - Tax credit: taxcredit
       - Housing project run by a private landlord (and I pay 30% of my income for rent): project        

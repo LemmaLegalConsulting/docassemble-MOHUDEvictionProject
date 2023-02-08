@@ -30,5 +30,7 @@ code: |
     evidence_ic.append("A copy of the notice that you sent to the landlord about the problem that needs repaired")
   if defense_foreclosure:
     more_information_ic.append("You can find more information about the Protecting Tenants at Foreclosure Act at this link.")
+  if will_offer_payment:
+    what_you_can_do_at_the_hearing_ic.append("You have the right to pay the full amount of rent you owe and the court costs to stop the eviction.  Tell the judge you can immediately pay the full rent and court costs.")
   information_collected = True
 ---
