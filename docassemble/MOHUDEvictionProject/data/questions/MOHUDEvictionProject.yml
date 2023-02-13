@@ -168,6 +168,48 @@ code: |
   set_progress(50)
   information_collected
   interview_order_eviction_defender = True
+
+---
+id: who is using this interview
+question: |
+  Who is using this website?
+fields:
+  - I am: person_answering
+    datatype: radio
+    choices:
+      - The tenant: tenant
+      - An attorney: attorney
+      - Someone **else** helping a tenant: tenant_helper
+  - Will you file an appearance?: representation_type
+    input type: radio
+    choices:
+      - Yes. I am entering an appearance.: entering_appearance
+      - No. I am only helping "ghostwrite" this document.: ghostwriting
+    show if:
+      variable: person_answering
+      is: attorney
+  - note: |
+      **Okay. The court documents will state "Prepared with assistance of counsel" in the footer.**
+    show if:
+      variable: representation_type
+      is: ghostwriting
+---
+id: your name
+question:  |
+  % if person_answering == "tenant":
+  Your name
+  % else:
+  Tenant's name
+  % endif
+fields:
+  - First: users[0].name.first
+  - Middle: users[0].name.middle
+    required: False
+  - Last: users[0].name.last
+  - Suffix: users[0].name.suffix
+    code: |
+      name_suffix()
+    required: False
 ---
 code: |
   other_parties[i].name.first
