@@ -482,6 +482,7 @@ subquestion: |
 fields:
   - "Date of original hearing": original_hearing_date
     datatype: date
+  - "Original hearing time": original_hearing_time
 ---
 depends on: original_hearing_date
 id: Calculating if hearing date is past
