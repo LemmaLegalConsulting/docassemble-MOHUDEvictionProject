@@ -305,10 +305,14 @@ fields:
     show if: previous_landlord_sold_property
 ---
 code: |
-  defense_unrepresented_corporation = False
+  temp_counter = 0
   for op in other_parties:
     if not op.attorney.there_are_any and op.person_type == "business":
+      temp_counter += 1
+  if temp_counter > 0:
       defense_unrepresented_corporation = True
+  else:
+      defense_unrepresented_corporation = False
 depends on:
   - other_parties
 ---

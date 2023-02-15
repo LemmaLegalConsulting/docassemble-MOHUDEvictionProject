@@ -213,6 +213,7 @@ fields:
 ---
 code: |
   other_parties[i].name.first
+  other_parties[i].person_type
   other_parties[i].attorney.gather()
   other_parties[i].complete = True
 ---
