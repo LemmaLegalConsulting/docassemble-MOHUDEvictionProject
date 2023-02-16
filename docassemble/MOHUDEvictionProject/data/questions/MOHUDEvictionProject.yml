@@ -12,7 +12,7 @@ metadata:
   short title: |
     Eviction Defense
   title url: |
-    https://www.lsmo.org/
+    https://motenantassistance.org/
   tags:
     - HO-02-00-00-00
   authors:
@@ -64,6 +64,9 @@ code: |
 ---
 code: |
   AL_ORGANIZATION_TITLE = "Missouri Tenant Help"
+---
+code: |
+  AL_ORGANIZATION_HOMEPAGE = "https://motenantassistance.org/"
 ---
 code: |
   user_started_case = False
@@ -133,7 +136,7 @@ code: |
   users[0].name.first
   greet_user
   nav.set_section("section_eviction_answer_can_i")
-  if not tenant_got_summons or method_of_summons_service == "posting":
+  if not tenant_got_summons or not (method_of_summons_service['personal'] or method_of_summons_service['sheriff']):
     posting_warning
   else:
     recommend_filing_answer
@@ -141,6 +144,8 @@ code: |
   users[0].address.address
   users[0].address.geocode()
   trial_court_name_default
+  if case_type == "AC Unlawful Detainer":
+    unlawful_detainer_kick_out
   nav.set_section("section_eviction_answer_other")
   other_parties.gather()
   for party in other_parties:
@@ -311,7 +316,7 @@ subquestion: |
   (:comment-alt:) in the navigation bar to connect to a live advocate for help.
   % endif
 fields:
-  - To continue, you must accept our [terms of use](${ AL_ORGANIZATION_HOMEPAGE }/privacy/): acknowledged_information_use
+  - To continue, you must accept our [terms of use](https://www.lsmo.org/node/15/web-site-privacy-policy): acknowledged_information_use
     datatype: checkboxes
     none of the above: False    
     minlength: 1
@@ -480,7 +485,7 @@ question: |
 subquestion: |
   The Summons will say the time and date of your original court hearing.
   
-  [FILE MOSummonsCourtDate.png]
+  [FILE MOSummonsCourtDate.png, 100%]
   
 fields:
   - "Date of original hearing": original_hearing_date
@@ -790,18 +795,18 @@ data:
 ---
 sets:
   - other_parties[i].name.first
+  - other_parties[i].name.last
+  - other_parties[i].name.middle
+  - other_parties[i].name.suffix
+  - other_parties[i].person_type
 id: names of opposing parties
 question: |
   Name of ${ ordinal(i) } landlord
 subquestion: |
   Write the name of the person who owns your home. Not the name of a property manager.
 fields:
-  - Landlord's name: other_parties[i].name.first
-  - Is this owner a business, or an individual?: other_parties[i].person_type
-    datatype: radio
-    choices:
-      - Individual: person
-      - Business: business
+  - code: |
+      other_parties[i].name_fields(person_or_business='unsure')   
 ---
 if: docket_available
 sets:
@@ -809,6 +814,7 @@ sets:
   - other_parties[i].name.last
   - other_parties[i].name.middle
   - other_parties[i].name.suffix
+  - other_parties[i].person_type
 id: names of opposing parties
 question: |
   Name of ${ ordinal(i) } Plaintiff
@@ -821,12 +827,31 @@ subquestion: |
 fields:
   - code: |
       other_parties[i].name_fields(person_or_business='unsure')    
-  - Is this owner a business, or an individual?: other_parties[i].person_type
-    datatype: radio
-    choices:
-      - Individual: person
-      - Business: business
 ---
+id: names of opposing parties - petition
+if: tenant_got_summons and petition_available
+sets:
+  - other_parties[i].name.first
+  - other_parties[i].name.last
+  - other_parties[i].name.middle
+  - other_parties[i].name.suffix
+  - other_parties[i].person_type
+question: |
+  % if i >= 1:
+  What is your ${ ordinal(i) } landlord's name?
+  % else:
+  What is your landlord's name?
+  % endif
+subquestion: |
+  Look at the Summons and Petition, and write the name of the ${ ordinal(i) } "Plaintiff"
+  exactly as it is written on the Summons and Petition.
+  
+  [FILE ComplaintCaptionPlaintiff.png, 100%]
+  
+fields:
+  - code: |
+      other_parties[i].name_fields(person_or_business='unsure')   
+--- 
 id: any hearings
 question: |
   Has the court held any hearings on your eviction yet?
@@ -844,6 +869,7 @@ fields:
   - Has the court already had a hearing on your case?: past_hearings
     datatype: yesnomaybe
 ---
+id: eviction hearing date if docket available
 if: docket_available
 question: |
   When is your eviction hearing?
@@ -857,7 +883,7 @@ subquestion: |
 fields:
   - "Date of hearing": original_hearing_date
     datatype: date
-    required: False
+  - "Original hearing time": original_hearing_time
 ---
 id: explain other case net uses
 question: |
@@ -911,8 +937,8 @@ subquestion: |
 fields:
   - "I got a copy of the {Summons} and {Petition}": tenant_got_summons
     datatype: yesnomaybe
-  - "How did you get the Summons and Landlord's Petition?": method_of_summons_service
-    datatype: radio
+  - "How did you get the Summons and Landlord's Petition? Check all that apply.": method_of_summons_service
+    datatype: checkboxes
     choices:
       - "By mail": mail
       - "It was taped, stapled, or posted to my door or home": posting
@@ -1022,45 +1048,38 @@ subquestion: |
 
   - Name of the court
   - Case number, and
-  - Date File Stamp
+  - Nature of Action
 
   At the top of the Summons and Petition.
   
-  [FILE ComplaintCaptionCourt.png, 100%] 
+    [FILE MOSummonsCourtDate.png]
+    
   % endif
 fields:
   - Court: trial_court_name
     default: ${ trial_court_name_default }
   - Case Number: docket_number
     required: False
-  - note: |
-      The Filing Date will usually be on a stamp or a sticker.
-  - Date File Stamp: filing_date
-    datatype: date
-    required: False
----
-id: names of opposing parties - petition
-if: tenant_got_summons and petition_available
-question: |
-  % if i >= 1:
-  What is your ${ ordinal(i) } landlord's name?
-  % else:
-  What is your landlord's name?
-  % endif
-subquestion: |
-  Look at the Summons and Petition, and write the name of the ${ ordinal(i) } "Plaintiff"
-  exactly as it is written on the Summons and Petition.
-  
-  [FILE ComplaintCaptionPlaintiff.png, 100%]
-  
-fields:
-  - Name of your landlord: other_parties[i].name.first
-  - Is this owner a business, or an individual?: other_parties[i].person_type
+  - Nature of Action: case_type
     datatype: radio
+    required: False
     choices:
-      - Individual: person
-      - Business: business
---- 
+      - AC Rent and Possession
+      - AC Unlawful Detainer
+      - AC Landlord Action (Bulk)
+      - Other
+---
+id: unlawful detainer kick out
+question: Sorry, we can't help with your eviction
+subquestion: |
+  **Currently, we can only help when your landlord is evicting you because you have not paid your rent.**  This type of eviction is called a Rent and Possession case.  If you are being evicted for another reason, contact [a Missouri legal aid provider](https://www.lsmo.org/).
+buttons:
+  - I understand, let me keep going:
+      code: |
+        unlawful_detainer_kick_out = True
+  - Exit: exit
+    url: https://motenantassistance.org/
+---
 id: petition requirements - rent amount
 question: |
   How much rent does your landlord say that you owe?
@@ -1971,17 +1990,6 @@ fields:
       - Other
 continue button field: docket_header
 ---
-if: docket_available and len(users)==1
-question: |
-  Is any other tenant listed on this eviction case?
-subquestion: |
-  Look in the box labeled "Defendants"
-  In an eviction case, tenants are called Defendants.  Defendants are listed underneath the Plaintiffs, and your name and address should be included as a Defendant.
-  
-fields:
-  - Are there any other Defendants listed besides you?: users.there_is_another
-    datatype: yesnomaybe
----
 if: tenant_got_summons and petition_available and len(users)==1
 question: Is any other tenant listed on this eviction case?
 subquestion: |
@@ -1992,6 +2000,17 @@ subquestion: |
 fields:
   - Are there any other Defendants listed besides you?: users.there_is_another
     datatype: yesnoradio
+---
+if: defined('docket_available') and docket_available and len(users)==1
+question: |
+  Is any other tenant listed on this eviction case?
+subquestion: |
+  Look in the box labeled "Defendants"
+  In an eviction case, tenants are called Defendants.  Defendants are listed underneath the Plaintiffs, and your name and address should be included as a Defendant.
+  
+fields:
+  - Are there any other Defendants listed besides you?: users.there_is_another
+    datatype: yesnomaybe
 ---
 id: Landlord representation
 question: |
