@@ -725,18 +725,18 @@ data:
 ---
 sets:
   - other_parties[i].name.first
+  - other_parties[i].name.last
+  - other_parties[i].name.middle
+  - other_parties[i].name.suffix
+  - other_parties[i].person_type
 id: names of opposing parties
 question: |
   Name of ${ ordinal(i) } landlord
 subquestion: |
   Write the name of the person who owns your home. Not the name of a property manager.
 fields:
-  - Landlord's name: other_parties[i].name.first
-  - Is this owner a business, or an individual?: other_parties[i].person_type
-    datatype: radio
-    choices:
-      - Individual: person
-      - Business: business
+  - code: |
+      other_parties[i].name_fields(person_or_business='unsure')   
 ---
 if: docket_available
 sets:
@@ -744,6 +744,7 @@ sets:
   - other_parties[i].name.last
   - other_parties[i].name.middle
   - other_parties[i].name.suffix
+  - other_parties[i].person_type
 id: names of opposing parties
 question: |
   Name of ${ ordinal(i) } Plaintiff
@@ -755,8 +756,32 @@ subquestion: |
     Who is listed as the Plaintiff?
 fields:
   - code: |
-      other_parties[i].name_fields(person_or_business='unsure')
+      other_parties[i].name_fields(person_or_business='unsure')    
 ---
+id: names of opposing parties - petition
+if: tenant_got_summons and petition_available
+sets:
+  - other_parties[i].name.first
+  - other_parties[i].name.last
+  - other_parties[i].name.middle
+  - other_parties[i].name.suffix
+  - other_parties[i].person_type
+question: |
+  % if i >= 1:
+  What is your ${ ordinal(i) } landlord's name?
+  % else:
+  What is your landlord's name?
+  % endif
+subquestion: |
+  Look at the Summons and Petition, and write the name of the ${ ordinal(i) } "Plaintiff"
+  exactly as it is written on the Summons and Petition.
+  
+  [FILE ComplaintCaptionPlaintiff.png, 100%]
+  
+fields:
+  - code: |
+      other_parties[i].name_fields(person_or_business='unsure')   
+--- 
 if: docket_available
 question: |
   When is your eviction hearing?
@@ -1074,17 +1099,6 @@ fields:
       - Other
 continue button field: docket_header
 ---
-if: docket_available and len(users)==1
-question: |
-  Is any other tenant listed on this eviction case?
-subquestion: |
-  Look in the box labeled "Defendants"
-  In an eviction case, tenants are called Defendants.  Defendants are listed underneath the Plaintiffs, and your name and address should be included as a Defendant.
-  
-fields:
-  - Are there any other Defendants listed besides you?: users.there_is_another
-    datatype: yesnomaybe
----
 if: tenant_got_summons and petition_available and len(users)==1
 question: Is any other tenant listed on this eviction case?
 subquestion: |
@@ -1095,6 +1109,17 @@ subquestion: |
 fields:
   - Are there any other Defendants listed besides you?: users.there_is_another
     datatype: yesnoradio
+---
+if: defined('docket_available') and docket_available and len(users)==1
+question: |
+  Is any other tenant listed on this eviction case?
+subquestion: |
+  Look in the box labeled "Defendants"
+  In an eviction case, tenants are called Defendants.  Defendants are listed underneath the Plaintiffs, and your name and address should be included as a Defendant.
+  
+fields:
+  - Are there any other Defendants listed besides you?: users.there_is_another
+    datatype: yesnomaybe
 ---
 id: Landlord representation
 question: |
