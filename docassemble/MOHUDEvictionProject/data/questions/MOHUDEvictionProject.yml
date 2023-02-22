@@ -12,7 +12,7 @@ metadata:
   short title: |
     Eviction Defense
   title url: |
-    https://www.lsmo.org/
+    https://motenantassistance.org/
   tags:
     - HO-02-00-00-00
   authors:
@@ -66,7 +66,7 @@ code: |
   AL_ORGANIZATION_TITLE = "Missouri Tenant Help"
 ---
 code: |
-  AL_ORGANIZATION_HOMEPAGE = "https://www.lsmo.org/"
+  AL_ORGANIZATION_HOMEPAGE = "https://motenantassistance.org/"
 ---
 code: |
   user_started_case = False
@@ -136,7 +136,7 @@ code: |
   users[0].name.first
   greet_user
   nav.set_section("section_eviction_answer_can_i")
-  if not tenant_got_summons or method_of_summons_service == "posting":
+  if not tenant_got_summons or not (method_of_summons_service['personal'] or method_of_summons_service['sheriff']):
     posting_warning
   else:
     recommend_filing_answer
@@ -144,6 +144,8 @@ code: |
   users[0].address.address
   users[0].address.geocode()
   trial_court_name_default
+  if case_type == "AC Unlawful Detainer":
+    unlawful_detainer_kick_out
   nav.set_section("section_eviction_answer_other")
   other_parties.gather()
   for party in other_parties:
@@ -483,7 +485,7 @@ question: |
 subquestion: |
   The Summons will say the time and date of your original court hearing.
   
-  [FILE MOSummonsCourtDate.png]
+  [FILE MOSummonsCourtDate.png, 100%]
   
 fields:
   - "Date of original hearing": original_hearing_date
@@ -935,8 +937,8 @@ subquestion: |
 fields:
   - "I got a copy of the {Summons} and {Petition}": tenant_got_summons
     datatype: yesnomaybe
-  - "How did you get the Summons and Landlord's Petition?": method_of_summons_service
-    datatype: radio
+  - "How did you get the Summons and Landlord's Petition? Check all that apply.": method_of_summons_service
+    datatype: checkboxes
     choices:
       - "By mail": mail
       - "It was taped, stapled, or posted to my door or home": posting
@@ -1046,22 +1048,37 @@ subquestion: |
 
   - Name of the court
   - Case number, and
-  - Date File Stamp
+  - Nature of Action
 
   At the top of the Summons and Petition.
   
-  [FILE ComplaintCaptionCourt.png, 100%] 
+    [FILE MOSummonsCourtDate.png]
+    
   % endif
 fields:
   - Court: trial_court_name
     default: ${ trial_court_name_default }
   - Case Number: docket_number
     required: False
-  - note: |
-      The Filing Date will usually be on a stamp or a sticker.
-  - Date File Stamp: filing_date
-    datatype: date
+  - Nature of Action: case_type
+    datatype: radio
     required: False
+    choices:
+      - AC Rent and Possession
+      - AC Unlawful Detainer
+      - AC Landlord Action (Bulk)
+      - Other
+---
+id: unlawful detainer kick out
+question: Sorry, we can't help with your eviction
+subquestion: |
+  **Currently, we can only help when your landlord is evicting you because you have not paid your rent.**  This type of eviction is called a Rent and Possession case.  If you are being evicted for another reason, contact [a Missouri legal aid provider](https://www.lsmo.org/).
+buttons:
+  - I understand, let me keep going:
+      code: |
+        unlawful_detainer_kick_out = True
+  - Exit: exit
+    url: https://motenantassistance.org/
 ---
 id: petition requirements - rent amount
 question: |

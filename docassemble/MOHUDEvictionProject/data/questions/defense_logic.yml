@@ -31,7 +31,7 @@ depends on:
   - petition_states_rent_periods
   - petition_states_demand_made
   - trial_court_circuit
-  - etition_separates_nonrent
+  - petition_separates_nonrent
 code: |
   if tenant_got_summons and petition_available:
     if petition_alleges_nonrent or not petition_states_rent_amount or (not lease_attached and not petition_states_terms_of_lease) or not petition_states_rent_periods or not petition_states_demand_made or (trial_court_circuit == 21 and not petition_separates_nonrent):
@@ -286,13 +286,14 @@ fields:
     show if: landlord_foreclosed
 ---
 code: |
-  if previous_landlord_sold_property and not notice_of_sale_provided:
+  if previous_landlord_sold_property and (notice_of_sale_provided_new_landlord == False or not notice_contains_sale_document == False):
     defense_new_owner_failed_to_provide_notice_of_sale = True
   else:
     defense_new_owner_failed_to_provide_notice_of_sale = False
 depends on:
   - previous_landlord_sold_property
-  - notice_of_sale_provided
+  - notice_of_sale_provided_new_landlord
+  - notice_contains_sale_document
 ---
 id: sale of property
 question: |
@@ -300,9 +301,12 @@ question: |
 fields:
   - Was your house sold to a new landlord while you lived in it?: previous_landlord_sold_property
     datatype: yesnomaybe
-  - Did your original landlord tell you about the sale?: notice_of_sale_provided
+  - Did your new landlord give you a notice about the sale?: notice_of_sale_provided_new_landlord
     datatype: yesnomaybe
     show if: previous_landlord_sold_property
+  - Did that notice have a copy of the deed, or a notarized document signed both by the original landlord and the new landlord?: notice_contains_sale_document
+    datatype: yesnomaybe
+    show if: notice_of_sale_provided_new_landlord
 ---
 code: |
   temp_counter = 0
