@@ -525,7 +525,7 @@ fields:
 depends on: users[0].address
 id: county information
 code: |
-  if hasattr(users[0].norm_long,"county") and not users[0].address.county == "City of St Louis":
+  if hasattr(users[0],"county") and not users[0].address.county == "City of St Louis":
     trial_court_circuit = county_to_circuit.get(users[0].address.county, "")
     trial_court_county = users[0].address.normalized_address().county
     trial_court_name_default = ordinal_number(trial_court_circuit, use_word=False).capitalize() + " Judicial Circuit - " + users[0].address.county
