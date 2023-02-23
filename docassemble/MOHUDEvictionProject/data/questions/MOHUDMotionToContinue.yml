@@ -132,7 +132,7 @@ code: |
   users[0].name.first
   greet_user
   nav.set_section("section_eviction_answer_can_i")
-  if not tenant_got_summons or method_of_summons_service == "posting":
+  if not tenant_got_summons or not (method_of_summons_service["sheriff"] or method_of_summons_service["personal"]):
     posting_warning
   else:
     recommend_filing_answer
@@ -853,7 +853,7 @@ fields:
   - "You got a copy of the {Summons} and {Petition}": tenant_got_summons
     datatype: yesnomaybe
   - "How did you get the Summons and Landlord's Petition?": method_of_summons_service
-    datatype: radio
+    datatype: checkboxes
     choices:
       - "By mail": mail
       - "It was taped, stapled, or posted to my door or home": posting
@@ -922,7 +922,7 @@ question: |
 subquestion: |
   % if tenant_got_summons:
   You said that you got the Summons and Petition by 
-  % if method_of_summons_service in ['personal','sheriff']:
+  % if method_of_summons_service['personal'] or method_of_summons_service['sheriff']:
   personal delivery
   % else:
   mail
