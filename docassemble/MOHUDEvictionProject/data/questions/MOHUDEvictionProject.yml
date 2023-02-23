@@ -155,7 +155,7 @@ code: |
   is_rent_subsidized
   lease_section
   if previous_landlord_sold_property:
-    notice_of_sale_provided
+    notice_of_sale_provided_new_landlord
   if landlord_foreclosed:
     notice_of_foreclosure
   nav.set_section("section_eviction_answer_casenet")
@@ -200,6 +200,16 @@ fields:
     show if:
       variable: representation_type
       is: ghostwriting
+  - note: |
+      Throughout the interview, "You" often means the Tenant, not you as attorney
+    show if:
+      variable: person_answering
+      is: attorney
+  - note: |
+      Throughout the interview, "You" often means the Tenant, not you as tenant helper.
+    show if:
+      variable: person_answering
+      is: tenant_helper
 ---
 id: your name
 question:  |
@@ -462,7 +472,6 @@ code: |
     party.address.address
     party.attorney.gather()
   users.gather()
-  past_hearings
   original_hearing_date
   set_parts(subtitle=str(users))
   docket_review_conclusion
@@ -512,24 +521,10 @@ fields:
   - "Date of Service": service_date
     datatype: date
 ---
-question: |
-  Where is the Court?
-fields:
-  - Is the court in the City of St. Louis?: in_st_louis
-    datatype: yesnoradio
-  - What county is the court in?: trial_court_county
-    datatype: combobox
-    code: |
-      county_to_circuit.keys()
-    show if:
-      variable: in_st_louis
-      is: False
-  
----
 depends on: users[0].address
 id: county information
 code: |
-  if hasattr(users[0].address,"county") and not users[0].address.county == "City of St Louis":
+  if hasattr(users[0],"county") and not users[0].address.county == "City of St Louis":
     trial_court_circuit = county_to_circuit.get(users[0].address.county, "")
     trial_court_county = users[0].address.normalized_address().county
     trial_court_name_default = ordinal_number(trial_court_circuit, use_word=False).capitalize() + " Judicial Circuit - " + users[0].address.county
@@ -922,7 +917,11 @@ validation code: |
 id: Petition_introduction
 mandatory: True
 question: |
+  % if person_answering == "tenant":
   Did you get a Summons and Landlord's Petition?
+  % else:
+  Did the tenant get a Summons and Landlord's Petition?
+  % endif
 subquestion: |
   The {Summons} will look like this:
  
@@ -933,15 +932,14 @@ subquestion: |
  
   [CENTER]
   [FILE ComplaintForm.png]
-
 fields:
-  - "I got a copy of the {Summons} and {Petition}": tenant_got_summons
+  - "You got a copy of the {Summons} and {Petition}": tenant_got_summons
     datatype: yesnomaybe
-  - "How did you get the Summons and Landlord's Petition? Check all that apply.": method_of_summons_service
+  - "How did you get the Summons and Landlord's Petition?": method_of_summons_service
     datatype: checkboxes
     choices:
       - "By mail": mail
-      - "It was taped, stapled, or posted to my door or home": posting
+      - "It was taped, stapled, or posted to your door or home": posting
       - "It was handed to you by the sheriff": sheriff
       - "It was handed to you by the landlord or somebody other than the sheriff": personal
     show if:
@@ -963,7 +961,7 @@ terms:
     a court hearing.
   Petition: |
     The Landlord's Petition is the form that your landlord must file
-    with the court to start an eviction case.
+    with the court to start an eviction case."
 ---
 sets: posting_warning
 id: soft exit posting
@@ -996,7 +994,7 @@ question: |
 subquestion: |
   % if tenant_got_summons:
   You said that you got the Summons and Petition by 
-  % if method_of_summons_service in ['personal','sheriff']:
+  % if method_of_summons_service['personal'] or method_of_summons_service['sheriff']:
   personal delivery
   % else:
   mail
@@ -1621,12 +1619,12 @@ review:
       Did your previous landlord sell the property to the new landlord?:
       **${ previous_landlord_sold_property }**
   - Edit:
-      - notice_of_sale_provided
+      - notice_of_sale_provided_new_landlord
       - recompute:
         - defense_logic
     button: |
-      Did the landlord provide you notice of the sale?:
-      **${ notice_of_sale_provided }**
+      Did the new landlord provide you notice of the sale?:
+      **${ notice_of_sale_provided_new_landlord }**
   - note: | 
       ##Information about the eviction##
   - Edit:

@@ -132,7 +132,7 @@ code: |
   users[0].name.first
   greet_user
   nav.set_section("section_eviction_answer_can_i")
-  if not tenant_got_summons or method_of_summons_service == "posting":
+  if not tenant_got_summons or not (method_of_summons_service["sheriff"] or method_of_summons_service["personal"]):
     posting_warning
   else:
     recommend_filing_answer
@@ -179,6 +179,16 @@ fields:
     show if:
       variable: representation_type
       is: ghostwriting
+  - note: |
+      Throughout the interview, "You" often means the Tenant, not you as attorney
+    show if:
+      variable: person_answering
+      is: attorney
+  - note: |
+      Throughout the interview, "You" often means the Tenant, not you as tenant helper.
+    show if:
+      variable: person_answering
+      is: tenant_helper
 ---
 id: your name
 question:  |
@@ -323,9 +333,17 @@ sets:
   - users[0].address.state
   - users[0].address.country
 question: |
+  % if person_answering == "tenant":
   Where do you live?
+  % else:
+  Where does the tenant live?
+  % endif
 subquestion: |
+  % if person_answering == "tenant":
   Write the address that you are being evicted from.
+  % else:
+  Write the address that the tenant is being evicted from.
+  % endif
 fields:
   - code: |
       users[0].address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)
@@ -405,7 +423,6 @@ code: |
     party.address.address
     party.attorney.gather()
   users.gather()
-  past_hearings
   original_hearing_date
   set_parts(subtitle=str(users))
   docket_review_conclusion
@@ -816,7 +833,11 @@ validation code: |
 id: Petition_introduction
 mandatory: True
 question: |
+  % if person_answering == "tenant":
   Did you get a Summons and Landlord's Petition?
+  % else:
+  Did the tenant get a Summons and Landlord's Petition?
+  % endif
 subquestion: |
   The {Summons} will look like this:
  
@@ -828,10 +849,10 @@ subquestion: |
   [CENTER]
   [FILE ComplaintForm.png]
 fields:
-  - "I got a copy of the {Summons} and {Petition}": tenant_got_summons
+  - "You got a copy of the {Summons} and {Petition}": tenant_got_summons
     datatype: yesnomaybe
   - "How did you get the Summons and Landlord's Petition?": method_of_summons_service
-    datatype: radio
+    datatype: checkboxes
     choices:
       - "By mail": mail
       - "It was taped, stapled, or posted to my door or home": posting
@@ -856,22 +877,37 @@ terms:
     a court hearing.
   Petition: |
     The Landlord's Petition is the form that your landlord must file
-    with the court to start an eviction case.
+    with the court to start an eviction case."
 ---
 sets: posting_warning
 id: soft exit posting
 decoration: hand
 question: |
-  You may not want to file an answer
+  % if person_answering == "tenant":
+  You may not want to file a Motion to Continue
+  % else:
+  The tenant may not want to file a Motion to Continue
+  % endif
 subquestion: |
+  % if person_answering == "tenant":
   You said that you got the Summons and Petition by "posting" (taping, stapling or pinning to your door) or that you did not receive the Summons and Petition at all.
-  Because your landlord did not mail the Summons and Petition, if you file an answer, the court may order 
+  Because your landlord did not personally serve the Summons and Petition, if you file anything in court, the court may order 
   you to pay money that you would not need to pay otherwise.
   You may still want to keep going if:
   * You want to find out if you have a defense that can stop the eviction
   * You think your landlord will owe you more money than you owe them
   You do not need to decide now. If you keep going, we will remind you about your choices at the end.
   You may want to talk to a lawyer to decide for sure.
+  % else:
+  You said that the tenant got the Summons and Petition by "posting" (taping, stapling or pinning to your door) or that the tenant did not receive the Summons and Petition at all.
+  Because the landlord did not personally serve the Summons and Petition, if the tenant files anything in court, the court may order the tenant to pay money that the tenant would not need to pay otherwise.
+  You may still want to keep going if:
+  * You want to find out if the tenant has a defense that can stop the eviction
+  * You think the landlord will owe the tenant more money than the landlord owes them
+  The tenant does not need to decide now. If you keep going, we will remind you about the tenant's choices at the end.
+  The tenant may want to talk to a lawyer to decide for sure.
+  % endif
+
 buttons:
   - I understand, let me keep going:
       code: |
@@ -881,11 +917,11 @@ buttons:
 ---
 id: yep file an answer
 question: |
-  Tenants in your situation usually file an answer
+  Tenants in your situation may be able to file a motion for continuance
 subquestion: |
   % if tenant_got_summons:
   You said that you got the Summons and Petition by 
-  % if method_of_summons_service in ['personal','sheriff']:
+  % if method_of_summons_service['personal'] or method_of_summons_service['sheriff']:
   personal delivery
   % else:
   mail
@@ -896,19 +932,16 @@ subquestion: |
   You said you do not know if you got the Summons and Petition.
   % endif
   In your situation,
-  most tenants file an answer.
-  Filing an answer may:
-  * Stop your eviction, or
-  * Lower the amount that you need to pay your landlord,
-  or both.
+  most tenants file a motion for continuance.
+  Filing an answer may get your eviction hearing moved to another date.
   The rest of the questions on this website will complete your
-  answer.
+  motion for continuance.
 continue button field: recommend_filing_answer
 ---
 ---
 id: caption - docket number and file date
 question: |
-  What court is your case in?
+  What court is the case in?
 subquestion: |
   % if tenant_got_summons and petition_available:
   You can find the:
@@ -936,9 +969,9 @@ id: names of opposing parties - petition
 if: tenant_got_summons and petition_available
 question: |
   % if i >= 1:
-  What is your ${ ordinal(i) } landlord's name?
+  What is the ${ ordinal(i) } landlord's name?
   % else:
-  What is your landlord's name?
+  What is the landlord's name?
   % endif
 subquestion: |
   Look at the Summons and Petition, and write the name of the ${ ordinal(i) } "Plaintiff"
@@ -947,7 +980,7 @@ subquestion: |
   [FILE ComplaintCaptionPlaintiff.png, 100%]
   
 fields:
-  - Name of your landlord: other_parties[i].name.first
+  - Name of the landlord: other_parties[i].name.first
   - Is this owner a business, or an individual?: other_parties[i].person_type
     datatype: radio
     choices:
@@ -1078,7 +1111,7 @@ only sets: docket_header
 question: |
   Case header
 subquestion: |
-  The first tab you see when you open your case is the "Case Header" tab, which will look something like this -
+  The first tab you see when you open the case is the "Case Header" tab, which will look something like this -
   
   [FILE CaseHeader.png, 100%]
 fields:
@@ -1107,7 +1140,7 @@ subquestion: |
   [FILE ComplaintCaptionDefendant.png, 100%]
   
 fields:
-  - Are there any other Defendants listed besides you?: users.there_is_another
+  - Are there any other Defendants listed?: users.there_is_another
     datatype: yesnoradio
 ---
 if: defined('docket_available') and docket_available and len(users)==1
@@ -1118,7 +1151,7 @@ subquestion: |
   In an eviction case, tenants are called Defendants.  Defendants are listed underneath the Plaintiffs, and your name and address should be included as a Defendant.
   
 fields:
-  - Are there any other Defendants listed besides you?: users.there_is_another
+  - Are there any other Defendants listed?: users.there_is_another
     datatype: yesnomaybe
 ---
 id: Landlord representation
@@ -1264,12 +1297,12 @@ review:
       Did your previous landlord sell the property to the new landlord?:
       **${ previous_landlord_sold_property }**
   - Edit:
-      - notice_of_sale_provided
+      - notice_of_sale_provided_new_landlord
       - recompute:
         - defense_logic
     button: |
-      Did the landlord provide you notice of the sale?:
-      **${ notice_of_sale_provided }**
+      Did the new landlord provide you notice of the sale?:
+      **${ notice_of_sale_provided_new_landlord }**
   - note: | 
       ##Information about the eviction##
   - Edit:
