@@ -1298,12 +1298,12 @@ review:
       Did your previous landlord sell the property to the new landlord?:
       **${ previous_landlord_sold_property }**
   - Edit:
-      - notice_of_sale_provided
+      - notice_of_sale_provided_new_landlord
       - recompute:
         - defense_logic
     button: |
-      Did the landlord provide you notice of the sale?:
-      **${ notice_of_sale_provided }**
+      Did the new landlord provide you notice of the sale?:
+      **${ notice_of_sale_provided_new_landlord }**
   - note: | 
       ##Information about the eviction##
   - Edit:

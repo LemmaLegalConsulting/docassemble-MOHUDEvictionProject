@@ -155,7 +155,7 @@ code: |
   is_rent_subsidized
   lease_section
   if previous_landlord_sold_property:
-    notice_of_sale_provided
+    notice_of_sale_provided_new_landlord
   if landlord_foreclosed:
     notice_of_foreclosure
   nav.set_section("section_eviction_answer_casenet")
@@ -531,8 +531,8 @@ code: |
     trial_court_name_default = ordinal_number(trial_court_circuit, use_word=False).capitalize() + " Judicial Circuit - " + users[0].address.county
   elif users[0].address.city in ["St. Louis","Saint Louis"]:
     trial_court_circuit = 22
-    # users[0].address.county = "City of St Louis"
-    # users[0].address.norm_long.county = "City of St Louis"
+    users[0].address.county = "City of St Louis"
+    users[0].address.norm_long.county = "City of St Louis"
     trial_court_county = "City of St Louis"
     trial_court_name_default = "22nd Judicial Circuit - City of St. Louis"
   else:
@@ -1620,12 +1620,12 @@ review:
       Did your previous landlord sell the property to the new landlord?:
       **${ previous_landlord_sold_property }**
   - Edit:
-      - notice_of_sale_provided
+      - notice_of_sale_provided_new_landlord
       - recompute:
         - defense_logic
     button: |
-      Did the landlord provide you notice of the sale?:
-      **${ notice_of_sale_provided }**
+      Did the new landlord provide you notice of the sale?:
+      **${ notice_of_sale_provided_new_landlord }**
   - note: | 
       ##Information about the eviction##
   - Edit:
