@@ -33,4 +33,5 @@ code: |
   if will_offer_payment:
     what_you_can_do_at_the_hearing_ic.append("You have the right to pay the full amount of rent you owe and the court costs to stop the eviction.  Tell the judge you can immediately pay the full rent and court costs.")
   information_collected = True
+  warning_ic.append("Some courts do not allow tenants to bring their cell phone without prior approval. If you intend to use your cell phone to show the judge photos or other documentation, you should contact the court to see if there are any special requirements.")
 ---
