@@ -246,12 +246,12 @@ fields:
       variable: representation_type
       is: ghostwriting
   - note: |
-      Throughout the interview, "You" often means the Tenant, not you as attorney
+      Throughout the interview, "You" often means the Tenant, not you as the tenant's attorney.
     show if:
       variable: person_answering
       is: attorney
   - note: |
-      Throughout the interview, "You" often means the Tenant, not you as tenant helper.
+      Throughout the interview, "You" often means the Tenant, not you as the tenant's helper.
     show if:
       variable: person_answering
       is: tenant_helper
@@ -980,7 +980,7 @@ question: |
   Is the landlord seeking recovery of past-due rent?
 help:
   label: |
-    How do I find this?
+    How to find this?
   content: |
     This information can be found on the **Docket** or the **Petition**.
     
@@ -1025,20 +1025,20 @@ fields:
   - How did you try to give your landlord the money?: offer_attempts[i].attempt_method
     input type: radio
     choices:
-      - I wrote a letter: "by letter"
-      - I sent an email: "by email"
-      - I told my landlord in person: "in person"
-      - I told my landlord in a phone call: "in a phone_call"
+      - Wrote a letter: "by letter"
+      - Sent an email: "by email"
+      - Told your landlord in person: "in person"
+      - Told your landlord in a phone call: "in a phone_call"
       - Other: "other"
   - How much did you offer to pay?: offer_attempts[i].was_attempt_full
     datatype: radio
     choices:
       - All of the money: True
       - Part of the money: False
-  - Did the landlord say no to this offer to pay?: offer_attempts[i].has_refused_payment
+  - Did the landlord say no to your offer to pay?: offer_attempts[i].has_refused_payment
     datatype: yesno
     input type: yesnoradio
-  - Did your landlord say no in writing that you can bring to court, or did someone else see your landlord say "no"?: offer_attempts[i].has_attempt_evidence
+  - Did your landlord say no in a writing that you can bring to court, or did someone else see your landlord say "no"?: offer_attempts[i].has_attempt_evidence
     datatype: yesnoradio
     show if: offer_attempts[i].has_refused_payment
   - note: |
@@ -1122,17 +1122,17 @@ fields:
 ---
 id: estoppel breaches
 question: |
-  Did the landlord violate other laws?
+  Did your landlord violate other laws?
 subquestion: |
   ${ collapse_template(estoppel_explanation_template) }
   
 fields:
-  - Check any statement that applies: estoppel_breaches
+  - Check any statement that is true: estoppel_breaches
     datatype: checkboxes
     choices:
       - "The home is not up to code.": not_up_to_code
       - "The landlord violated local or state laws about the condition of the home.": violated_law
-      - "The landlord doesn't have an occupancy permit for the home": occupancy_permit
+      - "The landlord doesn't have an occupancy permit for the home.": occupancy_permit
       - Other: other
   - What other problems do you have?: other_estoppel_breaches
     show if:
@@ -1225,13 +1225,13 @@ data:
 ---
 template: bad_conditions_explanation_template
 subject: |
-  Why does the condition of my house matter?
+  Why does the condition of your house matter?
 content: |
   Your landlord may owe you money if there are problems in your home. The money your landlord owes you might
   mean you do not owe part or all of the rent your landlord says you owe.
   
   Problems in your home may give you a claim for **Breach of Warranty of Habitability** 
-  if the condition of your home affected your life, health or safety and made the dwelling uninhabitable in whole or in part.
+  if the condition of your home affected your life, health, or safety, and made the dwelling uninhabitable in whole or in part.
 ---
 id: covenant of quiet enjoyment
 question: |
@@ -1870,11 +1870,11 @@ subquestion: |
   You said your landlord said you owe ${ currency(rent_amount_owed) }.
   % endif
 fields:
-  - I paid at least part of the rent: was_rent_paid
+  - You paid at least part of the rent: was_rent_paid
     datatype: yesnoradio
   - How much did you pay?: rent_amount_paid
     input type: radio
     show if: was_rent_paid
     choices: 
-      - "I paid all of the rent": "all"
-      - "I paid part of the rent": "a portion"
+      - "You paid all of the rent": "all"
+      - "You paid part of the rent": "a portion"

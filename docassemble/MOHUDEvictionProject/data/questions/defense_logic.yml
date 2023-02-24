@@ -1,7 +1,7 @@
  
 ---
 comment: |
-  This can't be the best way to do this.  Can a DADict act like a checkboxes dictionary?
+  This can't be the best way to do this. Can a DADict act like a checkboxes dictionary?
 code: |
   defense_rent_pleading_requirement
   defense_lease_not_attached
@@ -56,8 +56,8 @@ code: |
 ---
 question: Is the lease attached to the petition?
 fields:
-  -Is the lease attached to the complaint?: lease_attached
-  datatype: yesnoradio
+  - Is the lease attached to the complaint?: lease_attached
+    datatype: yesnoradio
 ---
 depends on: offer_attempts
 code: |
@@ -117,9 +117,9 @@ subject: |
 content: |
   Only a judge can decide. But unfair pressure may include:
 
-  * A threat to hurt you or someone else
+  * A threat to hurt you or someone else,
   * An **implied** threat to hurt you or someone else, or
-  * Extreme psychological pressure
+  * Extreme psychological pressure.
 ---
 code: |
   if len(false_promises) > 0 and not relied_on_false_promises:
@@ -135,11 +135,11 @@ objects:
 ---
 id: landlord lied
 question: |
-  Did the landlord tell you something that wasn't true to get you to sign the lease?
+  Did your landlord tell you something that wasn't true to get you to sign the lease?
 subquestion: |
   ${ collapse_template(false_promise_example_template) }
 fields:
-  - Did the landlord make any false promises to you before you signed the lease?: false_promises.there_are_any
+  - Did your landlord make any false promises to you before you signed the lease?: false_promises.there_are_any
     datatype: yesnoradio
   - What was the **first** false promise your landlord made to you?: false_promises[0]
     show if: false_promises.there_are_any
@@ -175,7 +175,7 @@ fields:
 ---
 id: false promises there is another
 question: |
-  Did the landlord promise anything else that was not true?
+  Did your landlord promise anything else that was not true?
 subquestion: |
   You already told us about:
 
@@ -188,7 +188,7 @@ fields:
 ---
 id: relied on promise
 question: |
-  Did the landlord's promise get you to sign the lease?
+  Did your landlord's promise get you to sign the lease?
 subquestion: |
   % if false_promises.number() == 1:
   You told us the landlord made 1 false promise:
@@ -202,15 +202,15 @@ subquestion: |
 fields:
   - label: |
       % if false_promises.number() == 1:
-      Did the landlord's promise get you to sign the lease?
+      Did your landlord's promise get you to sign the lease?
       % else:
-      Did the landlord's promises get you to sign the lease?
+      Did your landlord's promises get you to sign the lease?
       % endif
     field: relied_on_false_promises
     datatype: yesnoradio
   - note: |
-      If you were more likely to sign the lease **because** of the
-      landlord's promise, answer yes.
+      If you were more likely to sign the lease **because** of 
+      your landlord's promise(s), answer yes.
 ---
 code: |
   if late_fees_assessed and late_fees_penalty:
@@ -227,7 +227,7 @@ question: |
 fields:
   - Did your landlord say that you owe fees for paying rent late?: late_fees_assessed
     datatype: yesnoradio
-  - Is the rent more than a fair amount to cover the landlord's cost?: late_fees_penalty
+  - Is your rent more than a fair amount to cover the landlord's cost?: late_fees_penalty
     datatype: yesnomaybe
     show if: late_fees_assessed
   - note: |
@@ -301,10 +301,10 @@ question: |
 fields:
   - Was your house sold to a new landlord while you lived in it?: previous_landlord_sold_property
     datatype: yesnomaybe
-  - Did your new landlord give you a notice about the sale?: notice_of_sale_provided_new_landlord
+  - Did your new landlord give you a letter that told you about the sale?: notice_of_sale_provided_new_landlord
     datatype: yesnomaybe
     show if: previous_landlord_sold_property
-  - Did that notice have a copy of the deed, or a notarized document signed both by the original landlord and the new landlord?: notice_contains_sale_document
+  - Did that letter have a copy of the deed, or a notarized document signed both by the original landlord and the new landlord?: notice_contains_sale_document
     datatype: yesnomaybe
     show if: notice_of_sale_provided_new_landlord
 ---

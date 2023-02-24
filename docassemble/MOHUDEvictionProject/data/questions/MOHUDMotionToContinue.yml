@@ -181,12 +181,12 @@ fields:
       variable: representation_type
       is: ghostwriting
   - note: |
-      Throughout the interview, "You" often means the Tenant, not you as attorney
+      Throughout the interview, "You" often means the Tenant, not you as the tenant's attorney.
     show if:
       variable: person_answering
       is: attorney
   - note: |
-      Throughout the interview, "You" often means the Tenant, not you as tenant helper.
+      Throughout the interview, "You" often means the Tenant, not you as the tenant's helper.
     show if:
       variable: person_answering
       is: tenant_helper
@@ -555,7 +555,7 @@ id: docket number
 question: |
   What is the case number for your case?
 fields:
-  - I don't know the case number: dont_know_docket_number
+  - Don't know the case number: dont_know_docket_number
     datatype: yesnowide
   - no label: docket_number
     hide if: dont_know_docket_number
@@ -590,7 +590,7 @@ fields:
     datatype: checkboxes
     choices:
       - "By mail": mail
-      - "It was taped, stapled, or posted to my door or home": posting
+      - "It was taped, stapled, or posted to your door or home": posting
       - "It was handed to you by the sheriff": sheriff
       - "It was handed to you by the landlord or somebody other than the sheriff": personal
     show if:
