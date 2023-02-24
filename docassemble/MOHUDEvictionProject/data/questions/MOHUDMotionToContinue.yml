@@ -5,6 +5,7 @@ include:
   - defense_logic.yml
   - information_collected.yml
   - al_reminders.yml
+  - court_information.yml
 ---
 metadata:
   title: |
@@ -132,7 +133,7 @@ code: |
   users[0].name.first
   greet_user
   nav.set_section("section_eviction_answer_can_i")
-  if not tenant_got_summons or method_of_summons_service == "posting":
+  if not tenant_got_summons or not (method_of_summons_service["sheriff"] or method_of_summons_service["personal"]):
     posting_warning
   else:
     recommend_filing_answer
@@ -179,6 +180,16 @@ fields:
     show if:
       variable: representation_type
       is: ghostwriting
+  - note: |
+      Throughout the interview, "You" often means the Tenant, not you as attorney
+    show if:
+      variable: person_answering
+      is: attorney
+  - note: |
+      Throughout the interview, "You" often means the Tenant, not you as tenant helper.
+    show if:
+      variable: person_answering
+      is: tenant_helper
 ---
 id: your name
 question:  |
@@ -217,8 +228,6 @@ subquestion:  |
 
   If you have the Summons and Petition, the name of each Plaintiff is listed
   in the box labeled "Plaintiff". 
-  
-  Normally this is the owner of your home.
 fields:
   - Is there another Plaintiff?: other_parties.there_is_another
     datatype: yesnomaybe
@@ -323,9 +332,17 @@ sets:
   - users[0].address.state
   - users[0].address.country
 question: |
+  % if person_answering == "tenant":
   Where do you live?
+  % else:
+  Where does the tenant live?
+  % endif
 subquestion: |
+  % if person_answering == "tenant":
   Write the address that you are being evicted from.
+  % else:
+  Write the address that the tenant is being evicted from.
+  % endif
 fields:
   - code: |
       users[0].address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)
@@ -405,10 +422,8 @@ code: |
     party.address.address
     party.attorney.gather()
   users.gather()
-  past_hearings
   original_hearing_date
   set_parts(subtitle=str(users))
-  docket_review_conclusion
   docket_review = True
 comment: |
   filing_date
@@ -456,273 +471,6 @@ fields:
     datatype: date
   
 ---
-depends on: users[0].address
-id: county information
-code: |
-  if hasattr(users[0].address,"county") and not users[0].address.county == "City of St Louis":
-    trial_court_circuit = county_to_circuit.get(users[0].address.county, "")
-    trial_court_county = users[0].address.normalized_address().county
-    trial_court_name_default = ordinal_number(trial_court_circuit, use_word=False).capitalize() + " Judicial Circuit - " + users[0].address.county
-  elif users[0].address.city in ["St. Louis","Saint Louis"]:
-    trial_court_circuit = 22
-    users[0].address.county = "City of St Louis"
-    users[0].address.norm_long.county = "City of St Louis"
-    trial_court_county = "City of St Louis"
-    trial_court_name_default = "22nd Judicial Circuit - City of St. Louis"
-  else:
-    trial_court_circuit = county_to_circuit.get(users[0].address.county, "")
-    users[0].address.county =  "Unknown"
-    users[0].address.norm_long.county = "Unknown"
-    trial_court_county = "Unknown"
-    docket_available = False
-    trial_court_name_default = ordinal_number(trial_court_circuit, use_word=False).capitalize() + " Judicial Circuit - " + users[0].address.county
----
-depends on:
-  - trial_court_circuit
-  - trial_court_county
-code: |
-  trial_court.circuit = ordinal_number(trial_court_circuit, use_word=False)
-  trial_court.address.county = trial_court_county
----
-code: |
-  trial_court.division = "Housing Division"
----
-code: |
-  county_to_circuit = {
-    "Adair County":2,
-    "Andrew County":5,
-    "Atchison County":4,
-    "Audrain County":12,
-    "Barry County":39,
-    "Barton County":28,
-    "Bates County":27,
-    "Benton County":30,
-    "Bollinger County":32,
-    "Boone County":13,
-    "Buchanan County":5,
-    "Butler County":36,
-    "Caldwell County":43,
-    "Callaway County":13,
-    "Camden County":26,
-    "Cape Girardeau County":32,
-    "Carroll County":8,
-    "Carter County":37,
-    "Cass County":17,
-    "Cedar County":28,
-    "Chariton County":9,
-    "Christian County":38,
-    "City of St. Louis":22,
-    "Clark County":1,
-    "Clay County":7,
-    "Clinton County":43,
-    "Cole County":19,
-    "Cooper County":18,
-    "Crawford County":42,
-    "Dade County":28,
-    "Dallas County":30,
-    "Daviess County":43,
-    "DeKalb County":43,
-    "Dent County":42,
-    "Douglas County":44,
-    "Dunklin County":35,
-    "Franklin County":20,
-    "Gasconade County":20,
-    "Gentry County":4,
-    "Greene County":31,
-    "Grundy County":3,
-    "Harrison County":3,
-    "Henry County":27,
-    "Hickory County":30,
-    "Holt County":4,
-    "Howard County":14,
-    "Howell County":37,
-    "Iron County":42,
-    "Jackson County":16,
-    "Jasper County":29,
-    "Jefferson County":23,
-    "Johnson County":17,
-    "Knox County":2,
-    "Laclede County":26,
-    "Lafayette County":15,
-    "Lawrence County":39,
-    "Lewis County":2,
-    "Lincoln County":45,
-    "Linn County":9,
-    "Livingston County":43,
-    "Macon County":41,
-    "Madison County":24,
-    "Maries County":25,
-    "Marion County":10,
-    "McDonald County":40,
-    "Mercer County":3,
-    "Miller County":26,
-    "Mississippi County":33,
-    "Moniteau County":26,
-    "Monroe County":10,
-    "Montgomery County":12,
-    "Morgan County":26,
-    "New Madrid County":34,
-    "Newton County":40,
-    "Nodaway County":4,
-    "Oregon County":37,
-    "Osage County":20,
-    "Ozark County":44,
-    "Pemiscot County":34,
-    "Perry County":32,
-    "Pettis County":18,
-    "Phelps County":25,
-    "Pike County":45,
-    "Platte County":6,
-    "Polk County":30,
-    "Pulaski County":25,
-    "Putnam County":3,
-    "Ralls County":10,
-    "Randolph County":14,
-    "Ray County":8,
-    "Reynolds County":42,
-    "Ripley County":36,
-    "Saint Francois County":24,
-    "Sainte Genevieve County":24,
-    "Saline County":15,
-    "Schuyler County":1,
-    "Scotland County":1,
-    "Scott County":33,
-    "Shannon County":37,
-    "Shelby County":41,
-    "St. Charles County":11,
-    "St. Clair County":27,
-    "St. Louis County":21,
-    "Stoddard County":35,
-    "Stone County":39,
-    "Sullivan County":9,
-    "Taney County":46,
-    "Texas County":25,
-    "Vernon County":28,
-    "Warren County":12,
-    "Washington County":24,
-    "Wayne County":42,
-    "Webster County":30,
-    "Worth County":4,
-    "Wright County":44,}
----
-variable name: county_casenet_code
-data:
-  Adair County: ADR
-  Andrew County: ADW
-  Atchison County: ATN
-  Audrain County: AUD
-  Barry County: BRY
-  Barton County: BAR
-  Bates County: BAT
-  Benton County: BEN
-  Bollinger County: BOL
-  Boone County: BNE
-  Buchanan County: BUC
-  Butler County: BTR
-  Caldwell County: CDL
-  Callaway County: CWY
-  Camden County: CAM
-  Cape Girardeau: CPG
-  Carroll County: CRL
-  Carter County: CTR
-  Cass County: CAS
-  Cedar County: CDR
-  Chariton County: CHN
-  Christian County: CTN
-  City of St Louis: STL
-  Clark County: CLK
-  Clay County: CLY
-  Clinton County: CLN
-  Cole County: COL
-  Cooper County: CPR
-  Crawford County: CFD
-  Dade County: DAD
-  Dallas County: DAL
-  Daviess County: DAV
-  DeKalb County: DEK
-  Dent County: DEN
-  Douglas County: DGS
-  Dunklin County: DUN
-  Franklin County: FKN
-  Gasconade County: GAS
-  Gentry County: GEN
-  Greene County: GRE
-  Grundy County: GRU
-  Harrison County: HAR
-  Henry County: HEN
-  Hickory County: HIK
-  Holt County: HOL
-  Howard County: HWD
-  Howell County: HWL
-  Iron County: IRN
-  Jackson County: JAK
-  Jasper County: JAS
-  Jefferson County: JEF
-  Johnson County: JON
-  Knox County: KNX
-  Laclede County: LAC
-  Lafayette County: LAF
-  Lawrence County: LAW
-  Lewis County: LEW
-  Lincoln County: LCN
-  Linn County: LIN
-  Livingston County: LIV
-  Macon County: MAC
-  Madison County: MAD
-  Maries County: MRS
-  Marion County: MRN
-  McDonald County: MCD
-  Mercer County: MER
-  Miller County: MIL
-  Mississippi County: MIS
-  Moniteau County: MTU
-  Monroe County: MNR
-  Montgomery County: MTY
-  Morgan County: MOR
-  New Madrid: ountycode="NMD
-  Newton County: NWT
-  Nodaway County: NDY
-  Oregon County: ORE
-  Osage County: OSG
-  Ozark County: OZK
-  Pemiscot County: PEM
-  Perry County: PER
-  Pettis County: PET
-  Phelps County: PHE
-  Pike County: PIK
-  Platte County: PLA
-  Polk County: POL
-  Pulaski County: PUL
-  Putnam County: PUT
-  Ralls County: RAL
-  Randolph County: RAN
-  Ray County: RAY
-  Reynolds County: REY
-  Ripley County: RIP
-  Saline County: SAL
-  Schuyler County: SYR
-  Scotland County: SLD
-  Scott County: SCT
-  Shannon County: SHA
-  Shelby County: SBY
-  St. Charles County: SCH
-  St. Clair County: SCL
-  St. Francois County: SFR
-  St. Louis County: SLC
-  Ste. Genevieve County: SGE
-  Stoddard County: SDD
-  Stone County: STN
-  Sullivan County: SUL
-  Taney County: TAN
-  Texas County: TEX
-  Vernon County: VER
-  Warren County: WRN
-  Washington County: WAS
-  Wayne County: WAY
-  Webster County: WEB
-  Worth County: WOR
-  Wright County: WRI
----
 sets:
   - other_parties[i].name.first
   - other_parties[i].name.last
@@ -731,9 +479,13 @@ sets:
   - other_parties[i].person_type
 id: names of opposing parties
 question: |
-  Name of ${ ordinal(i) } landlord
+  % if i >= 1:
+  What is your ${ ordinal(i) } landlord's name?
+  % else:
+  What is your landlord's name?
+  % endif
 subquestion: |
-  Write the name of the person who owns your home. Not the name of a property manager.
+  Look at the Summons and Petition, and write the name of the ${ ordinal(i) } "Plaintiff" exactly as it is written on the Summons and Petition.
 fields:
   - code: |
       other_parties[i].name_fields(person_or_business='unsure')   
@@ -816,7 +568,11 @@ validation code: |
 id: Petition_introduction
 mandatory: True
 question: |
+  % if person_answering == "tenant":
   Did you get a Summons and Landlord's Petition?
+  % else:
+  Did the tenant get a Summons and Landlord's Petition?
+  % endif
 subquestion: |
   The {Summons} will look like this:
  
@@ -828,10 +584,10 @@ subquestion: |
   [CENTER]
   [FILE ComplaintForm.png]
 fields:
-  - "I got a copy of the {Summons} and {Petition}": tenant_got_summons
+  - "You got a copy of the {Summons} and {Petition}": tenant_got_summons
     datatype: yesnomaybe
   - "How did you get the Summons and Landlord's Petition?": method_of_summons_service
-    datatype: radio
+    datatype: checkboxes
     choices:
       - "By mail": mail
       - "It was taped, stapled, or posted to my door or home": posting
@@ -856,22 +612,37 @@ terms:
     a court hearing.
   Petition: |
     The Landlord's Petition is the form that your landlord must file
-    with the court to start an eviction case.
+    with the court to start an eviction case."
 ---
 sets: posting_warning
 id: soft exit posting
 decoration: hand
 question: |
-  You may not want to file an answer
+  % if person_answering == "tenant":
+  You may not want to file a Motion to Continue
+  % else:
+  The tenant may not want to file a Motion to Continue
+  % endif
 subquestion: |
+  % if person_answering == "tenant":
   You said that you got the Summons and Petition by "posting" (taping, stapling or pinning to your door) or that you did not receive the Summons and Petition at all.
-  Because your landlord did not mail the Summons and Petition, if you file an answer, the court may order 
+  Because your landlord did not personally serve the Summons and Petition, if you file anything in court, the court may order 
   you to pay money that you would not need to pay otherwise.
   You may still want to keep going if:
   * You want to find out if you have a defense that can stop the eviction
   * You think your landlord will owe you more money than you owe them
   You do not need to decide now. If you keep going, we will remind you about your choices at the end.
   You may want to talk to a lawyer to decide for sure.
+  % else:
+  You said that the tenant got the Summons and Petition by "posting" (taping, stapling or pinning to your door) or that the tenant did not receive the Summons and Petition at all.
+  Because the landlord did not personally serve the Summons and Petition, if the tenant files anything in court, the court may order the tenant to pay money that the tenant would not need to pay otherwise.
+  You may still want to keep going if:
+  * You want to find out if the tenant has a defense that can stop the eviction
+  * You think the landlord will owe the tenant more money than the landlord owes them
+  The tenant does not need to decide now. If you keep going, we will remind you about the tenant's choices at the end.
+  The tenant may want to talk to a lawyer to decide for sure.
+  % endif
+
 buttons:
   - I understand, let me keep going:
       code: |
@@ -881,11 +652,11 @@ buttons:
 ---
 id: yep file an answer
 question: |
-  Tenants in your situation usually file an answer
+  Tenants in your situation may be able to file a motion for continuance
 subquestion: |
   % if tenant_got_summons:
   You said that you got the Summons and Petition by 
-  % if method_of_summons_service in ['personal','sheriff']:
+  % if method_of_summons_service['personal'] or method_of_summons_service['sheriff']:
   personal delivery
   % else:
   mail
@@ -896,19 +667,16 @@ subquestion: |
   You said you do not know if you got the Summons and Petition.
   % endif
   In your situation,
-  most tenants file an answer.
-  Filing an answer may:
-  * Stop your eviction, or
-  * Lower the amount that you need to pay your landlord,
-  or both.
+  most tenants file a motion for continuance.
+  Filing an answer may get your eviction hearing moved to another date.
   The rest of the questions on this website will complete your
-  answer.
+  motion for continuance.
 continue button field: recommend_filing_answer
 ---
 ---
 id: caption - docket number and file date
 question: |
-  What court is your case in?
+  What court is the case in?
 subquestion: |
   % if tenant_got_summons and petition_available:
   You can find the:
@@ -923,7 +691,8 @@ subquestion: |
   % endif
 fields:
   - Court: trial_court_name
-    default: ${ trial_court_name_default }
+    default: |
+      ${ ordinal_number(trial_court.circuit, use_word=False).capitalize() + " Judicial Circuit - " + trial_court.county }
   - Case Number: docket_number
     required: False
   - note: |
@@ -936,9 +705,9 @@ id: names of opposing parties - petition
 if: tenant_got_summons and petition_available
 question: |
   % if i >= 1:
-  What is your ${ ordinal(i) } landlord's name?
+  What is the ${ ordinal(i) } landlord's name?
   % else:
-  What is your landlord's name?
+  What is the landlord's name?
   % endif
 subquestion: |
   Look at the Summons and Petition, and write the name of the ${ ordinal(i) } "Plaintiff"
@@ -947,7 +716,7 @@ subquestion: |
   [FILE ComplaintCaptionPlaintiff.png, 100%]
   
 fields:
-  - Name of your landlord: other_parties[i].name.first
+  - Name of the landlord: other_parties[i].name.first
   - Is this owner a business, or an individual?: other_parties[i].person_type
     datatype: radio
     choices:
@@ -992,8 +761,11 @@ rows: users
 columns:
   - Name: |
       row_item.name.full() if defined("row_item.name.first") else ""
+  - Address: |
+      row_item.address
 edit:
   - name.first
+  - address
 confirm: True
 
 ---
@@ -1017,8 +789,18 @@ columns:
   - Represened by an attorney?: |
       row_item.attorney.there_are_any
 edit:
+  - name.first
   - address.address
+  - attorney.revisit
 confirm: True
+---
+continue button field: other_parties[i].attorney.revisit
+question: |
+  Edit Plaintiffs/Landlord
+subquestion: |
+  ${ other_parties[i].attorney.table }
+
+  ${ other_parties[i].attorney.add_action() }
 ---
 table: other_parties[i].attorney.table
 rows: other_parties[i].attorney
@@ -1059,6 +841,9 @@ objects:
   - al_court_bundle: ALDocumentBundle.using(elements=attachment_list_court, filename="eviction_helper.docx_package.pdf", title="All forms to download for your records", enabled=True)
 ---
 code: |
+  eviction_defender_post_interview_instructions.enabled = False
+---
+code: |
   eviction_motion_to_continue_attachment.enabled = True
 
 ---
@@ -1078,7 +863,7 @@ only sets: docket_header
 question: |
   Case header
 subquestion: |
-  The first tab you see when you open your case is the "Case Header" tab, which will look something like this -
+  The first tab you see when you open the case is the "Case Header" tab, which will look something like this -
   
   [FILE CaseHeader.png, 100%]
 fields:
@@ -1107,7 +892,7 @@ subquestion: |
   [FILE ComplaintCaptionDefendant.png, 100%]
   
 fields:
-  - Are there any other Defendants listed besides you?: users.there_is_another
+  - Are there any other Defendants listed?: users.there_is_another
     datatype: yesnoradio
 ---
 if: defined('docket_available') and docket_available and len(users)==1
@@ -1118,7 +903,7 @@ subquestion: |
   In an eviction case, tenants are called Defendants.  Defendants are listed underneath the Plaintiffs, and your name and address should be included as a Defendant.
   
 fields:
-  - Are there any other Defendants listed besides you?: users.there_is_another
+  - Are there any other Defendants listed?: users.there_is_another
     datatype: yesnomaybe
 ---
 id: Landlord representation
@@ -1150,21 +935,19 @@ review:
       ##Information about you##
   - Edit:
       - users.revisit
-      - recompute:
-          - defense_logic
     button: |
       Defendants:
       % if users.there_are_any:
       % for item in users:
         **${ item }**
+        **${ showifdef('item.address.one_line') }**
+        
       % endfor
       % else:
       **None**
       % endif
   - Edit:
       - will_offer_payment
-      - recompute:
-        - defense_logic
     button: |
       You may be able to pay and stop the eviction:
       **${ will_offer_payment }**
@@ -1172,293 +955,73 @@ review:
       ##Information about the other party##
   - Edit:
       - other_parties.revisit
-      - recompute:
-          - defense_logic
-          - defense_unrepresented_corporation
     button: |
       Plaintiffs:
       % if other_parties.there_are_any:
       % for item in other_parties:
-        **${ item }**
+      
+      **${ item }**,
+         **${ item.address }**
+      
+      % if item.attorney.there_are_any:
+         - Attorney: **${ item.attorney[0] }**
+      **${ item.attorney[0].address }**
+      
+      % else:
+         - Attorney: **None**
+      
+      % endif
+         - Person Type: **${ item.person_type }**
       % endfor
       % else:
       **None**
       % endif
-  - note: | 
-      ##Information about your rental agreement##
-  - Edit:
-      - lease_attached
-      - recompute:
-        - defense_logic
-    button: |
-      Does the summons and petition packet have the lease attached as an exhibit? :
-      **${ lease_attached }**
-  - Edit:
-      - petition_states_terms_of_lease
-      - recompute:
-        - defense_logic
-    button: |
-      Is the lease attached to the petition?:
-      **${ petition_states_terms_of_lease }**
-  - Edit:
-      - is_rent_subsidized
-      - recompute:
-        - defense_logic
-    button: |
-      Do you get a rent subsidy or do you live in public housing?:
-      **${ is_rent_subsidized }**
-  - Edit:
-      - subsidized_housing_type
-      - recompute:
-        - defense_logic
-    button: |
-      Type of Subsidized Housing::
-      **${ subsidized_housing_type }**
-  - Edit:
-      - unfair_duress
-      - recompute:
-        - defense_logic
-    button: |
-      Did the landlord unfairly pressure you to sign the lease?:
-      **${ unfair_duress }**
-  - Edit:
-      - false_promises.revisit
-      - recompute:
-          - defense_logic
-          - defense_fraud_lease
-    button: |
-      False Promises Made By The Landlord:
-      % if false_promises.there_are_any:
-      % for item in false_promises:
-        **${ item }**
-      % endfor
-      % else:
-      **None**
-      % endif
-  - Edit:
-      - relied_on_false_promises
-      - recompute:
-        - defense_logic
-    button: |
-      Did the landlord's promise get you to sign the lease?:
-      **${ relied_on_false_promises }**
-  - Edit:
-      - landlord_foreclosed
-      - recompute:
-        - defense_logic
-    button: |
-      Did the bank foreclose on this property while you lived there?:
-      **${ landlord_foreclosed }**
-  - Edit:
-      - notice_of_foreclosure
-      - recompute:
-        - defense_logic
-    button: |
-      Did the bank ever foreclose on this home?:
-      **${ notice_of_foreclosure }**
-  - Edit:
-      - previous_landlord_sold_property
-      - recompute:
-        - defense_logic
-    button: |
-      Did your previous landlord sell the property to the new landlord?:
-      **${ previous_landlord_sold_property }**
-  - Edit:
-      - notice_of_sale_provided
-      - recompute:
-        - defense_logic
-    button: |
-      Did the landlord provide you notice of the sale?:
-      **${ notice_of_sale_provided }**
   - note: | 
       ##Information about the eviction##
   - Edit:
-      - received_summons
-      - recompute:
-        - defense_logic
+      - trial_court_name
     button: |
-      Did you receive a copy of the Summons and Landlord's Petition?:
-      **${ received_summons }**
+      Trial Court Name:
+      **${ trial_court_name }**
+  - Edit:
+      - original_hearing_date
+    button: |
+      Date of hearing:
+      **${ original_hearing_date }**
+  - Edit:
+      - original_hearing_time
+    button: |
+      Time of hearing:
+      **${ original_hearing_time }**
+  - Edit:
+      - case_type
+    button: |
+      Case Type:
+      **${ case_type }**
+  - Edit:
+      - filing_date
+    button: |
+      Filing Date:
+      **${ filing_date }**
+  - Edit:
+      - tenant_got_summons
+    button: |
+      Did you receive the summons?:
+      **${ tenant_got_summons }**
   - Edit:
       - method_of_summons_service
-      - recompute:
-        - defense_logic
     button: |
       How did you receive the Summons and Landlord's Petition?:
-      **${ method_of_summons_service }**
+      % if method_of_summons_service.any_true():
+      % for item in method_of_summons_service.true_values():
+        **${ item }**
+      % endfor
+      % else:
+      **None**
+      % endif
   - Edit:
       - petition_available
-      - recompute:
-        - defense_logic
     button: |
       Do you have a copy of the Landlord's Petition available?:
       **${ petition_available }**
-  - note: | 
-      ##Your claims and defenses##
-  - Edit:
-      - petition_states_rent_amount
-      - recompute:
-        - defense_logic
-    button: |
-      Does the petition say what amount of rent you owe?:
-      **${ petition_states_rent_amount }**
-  - Edit:
-      - petition_states_rent_periods
-      - recompute:
-        - defense_logic
-    button: |
-      Does the petition list each month that the landlord claims you owe rent?:
-      **${ petition_states_rent_periods }**
-  - Edit:
-      - was_rent_paid
-      - recompute:
-        - defense_logic
-    button: |
-      Did you pay at least part of the rent?:
-      **${ was_rent_paid }**
-  - Edit:
-      - rent_amount_paid
-      - recompute:
-        - defense_logic
-    button: |
-      How much did you pay?:
-      **${ rent_amount_paid }**
-  - Edit:
-      - offer_attempts.revisit
-      - recompute:
-          - defense_logic
-          - defense_tender_refused
-    button: |
-      Attempts to Pay Rent:
-      % if offer_attempts.there_are_any:
-      % for item in offer_attempts:
-        **${ item }**
-      % endfor
-      % else:
-      **None**
-      % endif
-  - Edit:
-      - excessive_rent
-      - recompute:
-        - defense_logic
-    button: |
-      Is your landlord asking you to pay an amount that is more than your tenant rent share?:
-      **${ excessive_rent }**
-  - Edit:
-      - late_fees_assessed
-      - recompute:
-        - defense_logic
-    button: |
-      Is the landlord claiming that you owe late fees?:
-      **${ late_fees_assessed }**
-  - Edit:
-      - late_fees_penalty
-      - recompute:
-        - defense_logic
-    button: |
-      Are the late fees more than any actual costs the landlord would have to pay because of late rent?:
-      **${ late_fees_penalty }**
-  - Edit:
-      - late_fees_provision_in_lease
-      - recompute:
-        - defense_logic
-    button: |
-      Does the lease say that they landlord can charge late fees?:
-      **${ late_fees_provision_in_lease }**
-  - Edit:
-      - petition_separates_nonrent
-      - recompute:
-        - defense_logic
-    button: |
-      Does the petition separate the amount you owe in rent from other charges?:
-      **${ petition_separates_nonrent }**
-  - Edit:
-      - petition_states_demand_made
-      - recompute:
-        - defense_logic
-    button: |
-      Does the Petition say that the landlord demanded rent?:
-      **${ petition_states_demand_made }**
-  - note: | 
-      ##Landlord Agreement##
-  - Edit:
-      - landlord_agreement
-      - recompute:
-        - defense_logic
-    button: |
-      Did you make a settlement agreement with the landlord to avoid the eviction?:
-      **${ landlord_agreement }**
-  - Edit:
-      - landlord_agreement_type
-      - recompute:
-        - defense_logic
-    button: |
-      What type of agreement did you make?:
-      **${ landlord_agreement_type }**
-  - Edit:
-      - landlord_agreement_terms
-      - recompute:
-        - defense_logic
-    button: |
-      What were the terms of the settlement agreement with the landlord?:
-      **${ landlord_agreement_terms }**
-  - Edit:
-      - tenant_compliance_with_agreement
-      - recompute:
-        - defense_logic
-    button: |
-      Did you comply with the settlement agreement with the landlord?:
-      **${ tenant_compliance_with_agreement }**
-  - Edit:
-      - tenant_compliance_with_agreement_proof
-      - recompute:
-        - defense_logic
-    button: |
-      Do you have proof that you complied with the agreement?:
-      **${ tenant_compliance_with_agreement_proof }**
-  - note: | 
-      ##Landlord Problems##
-  - Edit:
-      - warranty_breaches
-      - recompute:
-        - defense_logic
-        - defense_breach_of_habitability
-    button: |
-      Problems Landlord Failed to Repair:
-      % if warranty_breaches.any_true():
-      % for item in warranty_breaches.true_values():
-        **${ item }**
-      % endfor
-      % else:
-      **None**
-      % endif
-  - Edit:
-      - cqe_breaches
-      - recompute:
-        - defense_logic
-        - defense_breach_of_cqe
-        - defense_estoppel_illegality
-    button: |
-      Harassment and other breaches of quiet enjoyment:
-      % if cqe_breaches.any_true():
-      % for item in cqe_breaches.true_values():
-        **${ item }**
-      % endfor
-      % else:
-      **None**
-      % endif
-  - Edit:
-      - estoppel_breaches
-      - recompute:
-        - defense_logic
-        - defense_estoppel_illegality
-    button: |
-      Other Landlord Violations:
-      % if estoppel_breaches.any_true():
-      % for item in estoppel_breaches.true_values():
-        **${ item }**
-      % endfor
-      % else:
-      **None**
-      % endif
 ---
