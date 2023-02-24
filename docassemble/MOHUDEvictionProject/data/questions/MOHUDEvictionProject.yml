@@ -22,6 +22,9 @@ metadata:
     - Toby Fey
     - Ian Eisaman
 ---
+features:
+  bootstrap theme: lsem.bootstrap.css    
+---
 mandatory: True
 comment: |
   Global interview metadata
@@ -78,6 +81,9 @@ code: |
 ---
 code: |
   tenant_doc_name = "Defendant"
+---
+objects:
+  - al_logo: DAStaticFile.using(filename="logo.svg")
 ---
 objects:
   - other_parties: ALPeopleList.using(there_are_any=True,complete_attribute="complete")
