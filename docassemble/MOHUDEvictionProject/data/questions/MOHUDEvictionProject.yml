@@ -126,7 +126,7 @@ code: |
 #################### Interview order #####################
 comment: |
   Controls order and branching logic for questions specific to this form
-id: interview_order_eviction_motion_to_continue
+id: interview_order_eviction
 code: |
   # Set the allowed courts for this interview
   allowed_courts = interview_metadata["eviction_defender"]["allowed courts"]
@@ -146,7 +146,9 @@ code: |
   users[0].address.geocode()
   trial_court.county
   if case_type == "AC Unlawful Detainer":
-    unlawful_detainer_kick_out
+    if unlawful_detainer_kick_out_option:
+      motion_to_continue_order
+      interview_order_eviction_defender = True
   nav.set_section("section_eviction_answer_other")
   other_parties.gather()
   for party in other_parties:
@@ -165,7 +167,6 @@ code: |
   nav.set_section("section_eviction_answer_case")
   original_hearing_date
   docket_number
-  filing_date
   users.gather()
   petition_states_rent_amount
   nav.set_section("section_eviction_answer_defenses")
@@ -176,7 +177,43 @@ code: |
   set_progress(50)
   information_collected
   interview_order_eviction_defender = True
-
+---
+#################### Interview order #####################
+comment: |
+  Controls order and branching logic for questions specific to this form
+id: interview_order_eviction_motion_to_continue
+code: |
+  # Set the allowed courts for this interview
+  allowed_courts = interview_metadata["eviction_defender"]["allowed courts"]
+  nav.set_section('section_eviction_answer_intro')
+  user_role = 'defendant'
+  landlord_doc_name
+  tenant_doc_name
+  users[0].name.first
+  greet_user
+  nav.set_section("section_eviction_answer_can_i")
+  if not tenant_got_summons or not (method_of_summons_service["sheriff"] or method_of_summons_service["personal"]):
+    posting_warning
+  else:
+    recommend_filing_answer
+  nav.set_section("section_eviction_answer_you")
+  users[0].address.address
+  users[0].address.geocode()
+  trial_court_name_default
+  nav.set_section("section_eviction_answer_other")
+  other_parties.gather()
+  for party in other_parties:
+    party.address.address
+    party.attorney.gather()
+  nav.set_section("section_eviction_answer_casenet")
+  if docket_available:
+    docket_review
+  nav.set_section("section_eviction_answer_case")
+  original_hearing_date
+  docket_number
+  users.gather()
+  set_progress(50)
+  motion_to_continue_order = True
 ---
 id: who is using this interview
 question: |
@@ -250,8 +287,7 @@ subquestion:  |
 
   If you have the Summons and Petition, the name of each Plaintiff is listed
   in the box labeled "Plaintiff". 
-  
-  Normally this is the owner of your home.
+
 fields:
   - Is there another Plaintiff?: other_parties.there_is_another
     datatype: yesnomaybe
@@ -530,9 +566,14 @@ sets:
   - other_parties[i].person_type
 id: names of opposing parties
 question: |
-  Name of ${ ordinal(i) } landlord
+  % if i >= 1:
+  What is your ${ ordinal(i) } landlord's name?
+  % else:
+  What is your landlord's name?
+  % endif
 subquestion: |
-  Write the name of the person who owns your home. Not the name of a property manager.
+  Look at the Summons and Petition, and write the name of the ${ ordinal(i) } "Plaintiff" exactly as it is written on the Summons and Petition.
+  
 fields:
   - code: |
       other_parties[i].name_fields(person_or_business='unsure')   
@@ -775,10 +816,14 @@ id: unlawful detainer kick out
 question: Sorry, we can't help with your eviction
 subquestion: |
   **Currently, we can only help when your landlord is evicting you because you have not paid your rent.**  This type of eviction is called a Rent and Possession case.  If you are being evicted for another reason, contact [a Missouri legal aid provider](https://www.lsmo.org/).
+
 buttons:
   - I understand, let me keep going:
       code: |
-        unlawful_detainer_kick_out = True
+        unlawful_detainer_kick_out_option = False
+  - Just make a motion to continue:
+      code: |
+        unlawful_detainer_kick_out_option = True
   - Exit: exit
     url: https://motenantassistance.org/
 ---
@@ -1216,6 +1261,8 @@ review:
       % if users.there_are_any:
       % for item in users:
         **${ item }**
+        **${ showifdef('item.address.one_line') }**
+        
       % endfor
       % else:
       **None**
@@ -1238,7 +1285,19 @@ review:
       Plaintiffs:
       % if other_parties.there_are_any:
       % for item in other_parties:
-        **${ item }**
+      
+      **${ item }**,
+         **${ item.address }**
+      
+      % if item.attorney.there_are_any:
+         - Attorney: **${ item.attorney[0] }**
+      **${ item.attorney[0].address }**
+      
+      % else:
+         - Attorney: **None**
+      
+      % endif
+         - Person Type: **${ item.person_type }**
       % endfor
       % else:
       **None**
@@ -1344,7 +1403,7 @@ review:
         - defense_logic
     button: |
       How did you receive the Summons and Landlord's Petition?:
-      **${ method_of_summons_service }**
+      **${ method_of_summons_service.true_values() }**
   - Edit:
       - petition_available
       - recompute:
@@ -1534,8 +1593,11 @@ rows: users
 columns:
   - Name: |
       row_item.name.full() if defined("row_item.name.first") else ""
+  - Address: |
+      row_item.address
 edit:
   - name.first
+  - address
 confirm: True
 
 ---
@@ -1559,8 +1621,11 @@ columns:
   - Represened by an attorney?: |
       row_item.attorney.there_are_any
 edit:
+  - name.first
   - address.address
+  - attorney.revisit
 confirm: True
+---
 ---
 continue button field: false_promises.revisit
 question: |
@@ -1603,6 +1668,14 @@ edit:
   - attempt_method
   - was_attempt_full
   - has_refused_payment
+---
+continue button field: other_parties[i].attorney.revisit
+question: |
+  Edit Plaintiffs/Landlord
+subquestion: |
+  ${ other_parties[i].attorney.table }
+
+  ${ other_parties[i].attorney.add_action() }
 ---
 table: other_parties[i].attorney.table
 rows: other_parties[i].attorney
@@ -1648,7 +1721,10 @@ code: |
   eviction_motion_to_continue_attachment.enabled = not original_hearing_date_past
 ---
 code: |
-  eviction_answer_attachment.enabled = True
+  if case_type == "AC Unlawful Detainer" and unlawful_detainer_kick_out_option:
+    eviction_answer_attachment.enabled = True
+  else:
+    eviction_answer_attachment.enabled = True
 ---
 attachments:
   - name: eviction motion to continue post interview instructions
