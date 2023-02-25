@@ -930,7 +930,7 @@ subquestion: |
 
   [FILE ComplaintTerms.png, 100%]
 fields:
-  - "Is the lease agreement attached to the Landlord's Petition?": lease_attached
+  - "Is the lease attached to the Landlord's Petition?": lease_attached
     datatype: yesnoradio
   - "Does the Landlord's Petition include a summary of your rental agreement?": petition_states_terms_of_lease
     datatype: yesnomaybe
