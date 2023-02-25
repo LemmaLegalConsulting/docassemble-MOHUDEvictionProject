@@ -555,7 +555,7 @@ id: docket number
 question: |
   What is the case number for your case?
 fields:
-  - Don't know the case number: dont_know_docket_number
+  - I don't know the case number: dont_know_docket_number
     datatype: yesnowide
   - no label: docket_number
     hide if: dont_know_docket_number
@@ -590,9 +590,9 @@ fields:
     datatype: checkboxes
     choices:
       - "By mail": mail
-      - "It was taped, stapled, or posted to your door or home": posting
-      - "It was handed to you by the sheriff": sheriff
-      - "It was handed to you by the landlord or somebody other than the sheriff": personal
+      - "It was taped, stapled, or posted to my door or home": posting
+      - "It was handed to me by the sheriff": sheriff
+      - "It was handed to me by my landlord or somebody other than the sheriff": personal
     show if:
       variable: tenant_got_summons
       is: True

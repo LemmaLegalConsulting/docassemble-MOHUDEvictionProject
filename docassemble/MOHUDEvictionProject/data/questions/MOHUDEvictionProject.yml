@@ -761,7 +761,7 @@ subquestion: |
   [CENTER]
   [FILE ComplaintForm.png]
 fields:
-  - "You got a copy of the {Summons} and {Petition}": tenant_got_summons
+  - "I got a copy of the {Summons} and {Petition}": tenant_got_summons
     datatype: yesnomaybe
   - "How did you get the Summons and Landlord's Petition?": method_of_summons_service
     datatype: checkboxes
@@ -981,7 +981,7 @@ question: |
   Is the landlord seeking recovery of past-due rent?
 help:
   label: |
-    How to find this?
+    How do I find this?
   content: |
     This information can be found on the **Docket** or the **Petition**.
     
@@ -1026,10 +1026,10 @@ fields:
   - How did you try to give your landlord the money?: offer_attempts[i].attempt_method
     input type: radio
     choices:
-      - Wrote a letter: "by letter"
-      - Sent an email: "by email"
-      - Told your landlord in person: "in person"
-      - Told your landlord in a phone call: "in a phone_call"
+      - I wrote a letter: "by letter"
+      - I sent an email: "by email"
+      - I told my landlord in person: "in person"
+      - I told my landlord in a phone call: "in a phone_call"
       - Other: "other"
   - How much did you offer to pay?: offer_attempts[i].was_attempt_full
     datatype: radio
@@ -1226,7 +1226,7 @@ data:
 ---
 template: bad_conditions_explanation_template
 subject: |
-  Why does the condition of your house matter?
+  Why does the condition of my house matter?
 content: |
   Your landlord may owe you money if there are problems in your home. The money your landlord owes you might
   mean you do not owe part or all of the rent your landlord says you owe.
@@ -1871,11 +1871,11 @@ subquestion: |
   You said your landlord said you owe ${ currency(rent_amount_owed) }.
   % endif
 fields:
-  - You paid at least part of the rent: was_rent_paid
+  - I paid at least part of the rent: was_rent_paid
     datatype: yesnoradio
   - How much did you pay?: rent_amount_paid
     input type: radio
     show if: was_rent_paid
     choices: 
-      - "You paid all of the rent": "all"
-      - "You paid part of the rent": "a portion"
+      - "I paid all of the rent": "all"
+      - "I paid part of the rent": "a portion"
