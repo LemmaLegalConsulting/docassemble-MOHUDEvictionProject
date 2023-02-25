@@ -152,6 +152,7 @@ code: |
   users[0].address.address
   users[0].address.geocode()
   trial_court.county
+  trial_court.circuit
   if case_type == "AC Unlawful Detainer":
     if unlawful_detainer_kick_out_option:
       motion_to_continue_order
