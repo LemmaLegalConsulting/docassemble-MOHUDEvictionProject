@@ -435,11 +435,11 @@ question: |
   Defend against an Eviction
 subquestion: |
   <h2 class="h4">How this works</h2>
-  One the next screens you will:
+  On the next screens you will tell us:
 
-  1. Tell us about your eviction case.
-  1. Tell us why you should not be evicted.
-  1. Tell us about problems in your home and in your landlord's case that may
+  1. About your eviction case.
+  1. Why you should not be evicted.
+  1. About problems in your home and in your landlord's case that may
      stop your eviction.
 
   At the end of the questions, you will have completed documents that you
@@ -450,6 +450,7 @@ subquestion: |
   1. Get ready to print and deliver these documents. We can help you
      fill in the documents, but you need to deliver them on your own.
   1. Do your best to find any documents from the court and your landlord about the eviction, including:
+  
       - The Summons from the court
       - The Landlord's petition
       - The eviction notice
@@ -788,7 +789,7 @@ terms:
     a court hearing.
   Petition: |
     The Landlord's Petition is the form that your landlord must file
-    with the court to start an eviction case."
+    with the court to start an eviction case.
 ---
 sets: posting_warning
 id: soft exit posting
@@ -796,15 +797,15 @@ decoration: hand
 question: |
   You may not want to file an answer
 subquestion: |
-  You said that you got the Summons and Petition by "posting" (taping, stapling or pinning to your door) or that you did not receive the Summons and Petition at all.
+  You said that you got the Summons and Petition by "posting" (taping, stapling, or pinning to your door) or that you did not receive the Summons and Petition at all.
 
   Because your landlord did not mail the Summons and Petition, if you file an answer, the court may order 
   you to pay money that you would not need to pay otherwise.
 
-  You may still want to keep going if:
+  You may still want to keep going if you:
 
-  * You want to find out if you have a defense that can stop the eviction
-  * You think your landlord will owe you more money than you owe them
+  * Want to find out if you have a defense that can stop the eviction, or
+  * Think your landlord will owe you more money than you owe them.
 
   You do not need to decide now. If you keep going, we will remind you about your choices at the end.
   You may want to talk to a lawyer to decide for sure.
@@ -902,7 +903,7 @@ fields:
   - Does the petition say you owe an amount **other** than rent?: other_charges_alleged
     datatype: yesnomaybe
   - note: |
-      Other charges may include a pet fee, cleaning fee, fee for repairs.
+      Other charges may include a pet fee, cleaning fee, fee for repairs, etc.
 ---
 question: Does the petition separate the amount you owe in rent from other charges?
 fields:
@@ -922,14 +923,14 @@ question: |
 subquestion: |
   With the Landlord's Petition, your landlord needs to either:
   
-   1. attach a copy of the lease, or
+   1. attach a copy of the lease agreement, or
    2. write a summary of your rental agreement, including the monthly rent, the kind of agreement (year to year or month to month), and the day rent is due.
 
   The petition looks different in different counties. But it may look like this:
 
   [FILE ComplaintTerms.png, 100%]
 fields:
-  - "Is the lease attached to the Landlord's Petition?": lease_attached
+  - "Is the lease agreement attached to the Landlord's Petition?": lease_attached
     datatype: yesnoradio
   - "Does the Landlord's Petition include a summary of your rental agreement?": petition_states_terms_of_lease
     datatype: yesnomaybe
@@ -955,7 +956,7 @@ subquestion: |
   The Landlord's Petition must say what months you allegedly owe rent for.
  
 fields:
-  - Does the petition say a specific month and amount for each month your landlord says you owe rent?: petition_states_rent_periods
+  - Does the petition say a specific amount for each month your landlord says you owe rent?: petition_states_rent_periods
     datatype: yesnomaybe
 ---
 id: petition requirements - demand
@@ -1035,7 +1036,7 @@ fields:
     choices:
       - All of the money: True
       - Part of the money: False
-  - Did the landlord say no to your offer to pay?: offer_attempts[i].has_refused_payment
+  - Did your landlord say no to your offer to pay?: offer_attempts[i].has_refused_payment
     datatype: yesno
     input type: yesnoradio
   - Did your landlord say no in a writing that you can bring to court, or did someone else see your landlord say "no"?: offer_attempts[i].has_attempt_evidence
@@ -1074,10 +1075,10 @@ subquestion: |
   If you:
   % if petition_states_rent_amount:
   
-  * Pay the full ${ currency(rent_amount_owed) }
+  * Pay the full ${ currency(rent_amount_owed) }, and 
   % else:
   
-  * Pay the full amount you owe
+  * Pay the full amount you owe, and 
   % endif
   * Pay the full court costs
 
@@ -1361,7 +1362,7 @@ review:
       - recompute:
         - defense_logic
     button: |
-      Does the summons and petition packet have the lease attached as an exhibit? :
+      Does the summons and petition packet have the lease attached as an exhibit?:
       **${ lease_attached }**
   - Edit:
       - petition_states_terms_of_lease
