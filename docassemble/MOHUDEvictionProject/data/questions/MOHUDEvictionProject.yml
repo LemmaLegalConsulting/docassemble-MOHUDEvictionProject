@@ -1391,10 +1391,18 @@ fields:
 #  For example, a letter from the landlord refusing to accept the money, a written check or money order, or a witness to the landlord's refusal.
 ---
 question: |
+  % if person_answering == "tenant":
   Did you make any other attempts to pay the rent?
+  % else: 
+  Did the tenant make any other attempts to pay the rent?
+  % endif
 subquestion: |
   % if len(offer_attempts.complete_elements()) > 0:
+  % if person_answering == "tenant":
   So far, you said you
+  % else: 
+  So far, the tenant said they
+  % endif
   % for offer in offer_attempts.complete_elements():
   
    - tried to pay ${ "the full amount" if offer.was_attempt_full else "part of the rent" } on ${ offer.attempt_date } ${ offer.attempt_method } but the landlord refused.
@@ -1402,14 +1410,27 @@ subquestion: |
   % endfor
   % endif
 fields:
-  -  Did you make any other attempts to pay the rent?: offer_attempts.there_is_another
-     datatype: yesnoradio
+  - Did you make any other attempts to pay the rent?: offer_attempts.there_is_another
+    datatype: yesnoradio
+    show if: 
+      code: |
+        person_answering == "tenant"
+  - Did the tenant make any other attempts to pay the rent?: offer_attempts.there_is_another
+    datatype: yesnoradio
+    show if: 
+      code: |
+        person_answering == "attorney" or person_answering == "tenant_helper"
 ---
 id: pay and stop eviction
 decoration: circle-info
 question: |
+  % if person_answering == "tenant":
   You may be able to pay and stop the eviction
+  % else:
+  The tenant may be able to pay and stop the eviction
+  % endif
 subquestion: |
+  % if person_answering == "tenant":
   If you:
   % if petition_states_rent_amount:
   
@@ -1421,18 +1442,44 @@ subquestion: |
   * Pay the full court costs
 
   You can stop the eviction and stay in your home.
+  % else: 
+  If the tenant:
+  % if petition_states_rent_amount:
+  
+  * Pays the full ${ currency(rent_amount_owed) }, and 
+  % else:
+  
+  * Pays the full amount they owe, and 
+  % endif
+  * Pays the full court costs
+
+  The tenant can stop the eviction and stay in their home.
+  % endif
 fields:
   - Will you pay the full amount your landlord says you owe, plus court costs, to stop the eviction?: will_offer_payment
     datatype: yesno
     input type: yesnoradio
+    show if: 
+      code: |
+        person_answering == "tenant"
+  - Will the tenant pay the full amount their landlord says you them, plus court costs, to stop their eviction?: will_offer_payment
+    datatype: yesno
+    input type: yesnoradio
+    show if: 
+      code: |
+        person_answering == "attorney" or person_answering == "tenant_helper"
 ---
 id: warranty of habitability
 question: |
+  % if person_answering == "tenant":
   Does your home have any of the problems listed below?
+  % else: 
+  Does the tenant's home have any of the problems listed below?
+  % endif
 subquestion: |
   ${ collapse_template(bad_conditions_explanation_template) }
 
-  You can also list problems that have been fixed if they happened with the last 2 years. 
+  List problems that have been fixed if they happened with the last 2 years. 
 fields: 
   - Have you had any of these problems **in the last 2 years**?: warranty_breaches
     datatype: checkboxes
@@ -1454,10 +1501,40 @@ fields:
       - ${ conditions_text["ceiling_not_weathertight"] }: ceiling_not_weathertight
       - ${ conditions_text["floor_holes"] }: floor_holes
       - Other: other
+    show if: 
+      code: |
+        person_answering == "tenant"
+  - Has the tenant had any of these problems **in the last 2 years**?: warranty_breaches
+    datatype: checkboxes
+    choices: 
+      - ${ conditions_text["no_heat"] }: no_heat
+      - ${ conditions_text["no_cooling"] }: no_cooling
+      - ${ conditions_text["insufficient_water"] }: insufficient_water
+      - ${ conditions_text["insecure_locks"] }: insecure_locks
+      - ${ conditions_text["mice_or_rats"] }: mice_or_rats
+      - ${ conditions_text["roaches"] }: roaches
+      - ${ conditions_text["bedbugs"] }: bedbugs
+      - ${ conditions_text["chronic_dampness"] }: chronic_dampness
+      - ${ conditions_text["standing_water"] }: standing_water
+      - ${ conditions_text["electric_problem"] }: electric_problem
+      - ${ conditions_text["lead_paint"] }: lead_paint
+      - ${ conditions_text["leaky_windows"] }: leaky_windows
+      - ${ conditions_text["has_plumbing_problems"] }: has_plumbing_problems
+      - ${ conditions_text["has_structural_issues"] }: has_structural_issues
+      - ${ conditions_text["ceiling_not_weathertight"] }: ceiling_not_weathertight
+      - ${ conditions_text["floor_holes"] }: floor_holes
+      - Other: other
+    show if: 
+      code: |
+        person_answering == "attorney" or person_answering == "tenant_helper"
   - What other problems do you have?: warranty_breach_other
-    show if:
-      variable: warranty_breaches['other']
-      is: True
+    show if: 
+      code: |
+        person_answering == "tenant" and warranty_breaches['other']
+  - What other problems do you have?: warranty_breach_other
+    show if: 
+      code: |
+        person_answering == "attorney" or person_answering == "tenant_helper" and warranty_breaches['other']
 ---
 id: estoppel breaches
 question: |
