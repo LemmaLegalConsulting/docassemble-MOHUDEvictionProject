@@ -1159,13 +1159,23 @@ code: |
 ---
 id: petition requirements - terms of lease
 question: |
+  % if person_answering == "tenant":
   Is a copy of your lease attached to the petition?
+  % else: 
+  Is a copy of the tenant's lease attached to the petition? 
+  % endif
 subquestion: |
+  % if person_answering == "tenant":
   With the Landlord's Petition, your landlord needs to either:
   
    1. attach a copy of the lease, or
    2. write a summary of your rental agreement, including the monthly rent, the kind of agreement (year to year or month to month), and the day rent is due.
-
+  % else: 
+    With the Landlord's Petition, the tenant's landlord needs to either:
+  
+   1. attach a copy of the lease, or
+   2. write a summary of the tenant's rental agreement, including the monthly rent, the kind of agreement (year to year or month to month), and the day rent is due.
+  % endif
   The petition looks different in different counties. But it may look like this:
 
   [FILE ComplaintTerms.png, 100%]
@@ -1175,8 +1185,13 @@ fields:
   - "Does the Landlord's Petition include a summary of your rental agreement?": petition_states_terms_of_lease
     datatype: yesnomaybe
     show if: 
-      variable: lease_attached
-      is: False
+      code: |
+        lease_attached and person_answering == "tenant"
+  - "Does the Landlord's Petition include a summary of the tenant's rental agreement?": petition_states_terms_of_lease
+    datatype: yesnomaybe
+    show if: 
+      code: |
+        lease_attached and person_answering == "attorney" or person_answering == "tenant_helper"
   - note: |
       ${ collapse_template(terms_of_lease_explanation) }
     show if: 
@@ -1191,19 +1206,38 @@ content: |
 ---
 id: petition requirements - periods due
 question: |
+  % if person_answering == "tenant":
   Does the petition say the amount you owe for each month?
+  % else: 
+  Does the petition say the amount the tenant owes for each month?
+  % endif
 subquestion: |
+  % if person_answering == "tenant":
   The Landlord's Petition must say what months you allegedly owe rent for.
- 
+  % else: 
+  The Landlord's Petition must say what months the tenant allegedly owes rent for.
+  % endif
 fields:
   - Does the petition say a specific amount for each month your landlord says you owe rent?: petition_states_rent_periods
     datatype: yesnomaybe
+    show if: 
+      code: |
+        person_answering == "tenant"
+  - Does the petition say a specific amount for each month the tenant's landlord says they owe rent?: petition_states_rent_periods
+    datatype: yesnomaybe
+    show if: 
+      code: |
+        person_answering == "attorney" or person_answering == "tenant_helper"
 ---
 id: petition requirements - demand
 question: |
   Does the Petition say that the landlord demanded rent?
 subquestion: |
+  % if person_answering == "tenant":
   The Landlord's Petition must say that the "landlord demanded rent", meaning that the landlord told you that you had to pay rent or leave.
+  % else:
+  The Landlord's Petition must say that the "landlord demanded rent", meaning that the landlord told the tenant that they had to pay rent or leave.
+  % endif
   
   The Demand may look like this, but can have different language:
   
@@ -1238,22 +1272,45 @@ comment: |
   (TODO: implement Other explanation)
   (TODO: change was_attempt_full question options from Yes/No to Full/Partial)
 question: |
+  % if person_answering == "tenant":
   Did you try to pay the rent?
+  % else: 
+  Did the tenant try to pay the rent?
+  % endif
 subquestion: |
-  % if petition_states_rent_amount:
+  % if person_answering == "tenant" and petition_states_rent_amount:
   Your landlord said you owe ${ currency(rent_amount_owed) }. Think about this amount when you answer
+  the questions on this page.
+  % elif person_answering == "attorney" or person_answering == "tenant_helper" and petition_states_rent_amount:
+    The landlord said the tenant owes ${ currency(rent_amount_owed) }. The tenant should think about this amount when they answer
   the questions on this page.
   % endif
 fields:
   - Did you offer to give your landlord the money they say you owe?: offer_attempts.there_are_any
     datatype: yesnoradio
+    show if: 
+      code: |
+        person_answering == "tenant"
+  - Did the tenant offer to give the landlord the money they say the tenant owes?: offer_attempts.there_are_any
+    datatype: yesnoradio
+    show if: 
+      code: |
+        person_answering == "attorney" or person_answering == "tenant_helper"
 ---
 id: payment attempt loop
 question: |
-  Information about the ${ ordinal(i) } time you tried to pay the rent?
+  % if person_answering == "tenant":
+  Information about the ${ ordinal(i) } time you tried to pay the rent
+  % else: 
+  Information about the ${ ordinal(i) } time the tenant tried to pay the rent
+  % endif
 subquestion: |
   % if i > 0:
+  % if person_answering == "tenant":
   So far, you said you
+  % else: 
+  So far, the tenant said they
+  % endif
   % for offer in offer_attempts.complete_elements():
   
    - Tried to pay ${ "the full amount" if offer.was_attempt_full else "part of the rent" } on ${ offer.attempt_date } ${ offer.attempt_method } but the landlord refused.
@@ -1271,26 +1328,67 @@ fields:
       - I told my landlord in person: "in person"
       - I told my landlord in a phone call: "in a phone_call"
       - Other: "other"
+    show if: 
+      code: |
+        person_answering == "tenant"
+  - How did the tenant try to give the landlord the money?: offer_attempts[i].attempt_method
+    input type: radio
+    choices:
+      - Wrote a letter: "by letter"
+      - Sent an email: "by email"
+      - Told the landlord in person: "in person"
+      - Told the landlord in a phone call: "in a phone_call"
+      - Other: "other"
+    show if: 
+      code: |
+        person_answering == "attorney" or person_answering == "tenant_helper"
   - How much did you offer to pay?: offer_attempts[i].was_attempt_full
     datatype: radio
     choices:
       - All of the money: True
       - Part of the money: False
+    show if: 
+      code: |
+        person_answering == "tenant"
+  - How much did the tenant offer to pay?: offer_attempts[i].was_attempt_full
+    datatype: radio
+    choices:
+      - All of the money: True
+      - Part of the money: False
+    show if: 
+      code: |
+        person_answering == "attorney" or person_answering == "tenant_helper"
   - Did your landlord say no to your offer to pay?: offer_attempts[i].has_refused_payment
     datatype: yesno
     input type: yesnoradio
+    show if: 
+      code: |
+        person_answering == "tenant"
+  - Did the landlord say no to the tenant's offer to pay?: offer_attempts[i].has_refused_payment
+    datatype: yesno
+    input type: yesnoradio
+    show if: 
+      code: |
+        person_answering == "attorney" or person_answering == "tenant_helper"
   - Did your landlord say no in a writing that you can bring to court, or did someone else see your landlord say "no"?: offer_attempts[i].has_attempt_evidence
     datatype: yesnoradio
-    show if: offer_attempts[i].has_refused_payment
-  - note: |
-      ${ collapse_template(example_of_refused_payment_evidence) }
-    show if: offer_attempts[i].has_refused_payment
----
-template: example_of_refused_payment_evidence
-subject: |
-  What kind of evidence?
-content: |
-  For example, a letter from the landlord refusing to accept the money, a written check or money order, or a witness to the landlord's refusal.
+    show if: 
+      code: |
+        offer_attempts[i].has_refused_payment and person_answering == "tenant"
+  - Did the landlord say no in a writing that the tenant can bring to court, or did someone else see the tenant's landlord say "no"?: offer_attempts[i].has_attempt_evidence
+    datatype: yesnoradio
+    show if: 
+      code: |
+        offer_attempts[i].has_refused_payment and person_answering == "attorney" or person_answering == "tenant_helper"
+#  - note: |
+#      ${ collapse_template(example_of_refused_payment_evidence) }
+#    show if: offer_attempts[i].has_refused_payment
+#---
+#template: example_of_refused_payment_evidence
+#subject: |
+#  What kind of evidence?
+#content: |
+#  For example, a letter from the landlord refusing to accept the money, a written check or money order, or a witness to the landlord's refusal.
 ---
 question: |
   Did you make any other attempts to pay the rent?
