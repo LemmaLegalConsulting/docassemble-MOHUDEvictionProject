@@ -8,18 +8,18 @@ comment: |
     "There is no landlord-tenant relationship between Plaintiff and Defendant in this case."
 question: Does the name of the Plaintiff match the name of your landlord?
 subquestion: |
-  Only your landlord may file a case to evict you. Your landlord is the person you made the lease agreement with.
+  Only your landlord may file a case to evict you. Your landlord is the person you made your lease agreement with.
   
   If the person filing to evict you is not your landlord, the court may dismiss the case.
 fields:
-  - Did you make the lease agreement with ${ other_parties }?: does_landlord_match
+  - Did you make your lease agreement with ${ other_parties }?: does_landlord_match
     datatype: yesnoradio
-  - Who did you make the lease agreement with?: real_landlord
+  - Who did you make your lease agreement with?: real_landlord
     dataype: text
     show if:
       variable: real_landlord
       is: False
-  - Does the Petition allege that ${ other_parties } is your landlord?: is_landlord_status_alleged
+  - Does the Petition claim that ${ other_parties } is your landlord?: is_landlord_status_alleged
     datatype: yesnoradio
     help: |
       This would be in the "facts" section of the Petition.

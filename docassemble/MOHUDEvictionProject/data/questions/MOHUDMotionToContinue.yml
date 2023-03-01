@@ -180,12 +180,12 @@ fields:
       variable: representation_type
       is: ghostwriting
   - note: |
-      Throughout the interview, "You" often means the Tenant, not you as attorney
+      Throughout the interview, "You" often means the Tenant, not you as the tenant's attorney.
     show if:
       variable: person_answering
       is: attorney
   - note: |
-      Throughout the interview, "You" often means the Tenant, not you as tenant helper.
+      Throughout the interview, "You" often means the Tenant, not you as the tenant's helper.
     show if:
       variable: person_answering
       is: tenant_helper
@@ -590,8 +590,8 @@ fields:
     choices:
       - "By mail": mail
       - "It was taped, stapled, or posted to my door or home": posting
-      - "It was handed to you by the sheriff": sheriff
-      - "It was handed to you by the landlord or somebody other than the sheriff": personal
+      - "It was handed to me by the sheriff": sheriff
+      - "It was handed to me by my landlord or somebody other than the sheriff": personal
     show if:
       variable: tenant_got_summons
       is: True

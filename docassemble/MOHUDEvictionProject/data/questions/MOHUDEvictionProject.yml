@@ -247,12 +247,12 @@ fields:
       variable: representation_type
       is: ghostwriting
   - note: |
-      Throughout the interview, "You" often means the Tenant, not you as attorney
+      Throughout the interview, "You" often means the Tenant, not you as the tenant's attorney.
     show if:
       variable: person_answering
       is: attorney
   - note: |
-      Throughout the interview, "You" often means the Tenant, not you as tenant helper.
+      Throughout the interview, "You" often means the Tenant, not you as the tenant's helper.
     show if:
       variable: person_answering
       is: tenant_helper
@@ -436,11 +436,11 @@ question: |
   Defend against an Eviction
 subquestion: |
   <h2 class="h4">How this works</h2>
-  One the next screens you will:
+  On the next screens you will tell us:
 
-  1. Tell us about your eviction case.
-  1. Tell us why you should not be evicted.
-  1. Tell us about problems in your home and in your landlord's case that may
+  1. About your eviction case.
+  1. Why you should not be evicted.
+  1. About problems in your home and in your landlord's case that may
      stop your eviction.
 
   At the end of the questions, you will have completed documents that you
@@ -451,6 +451,7 @@ subquestion: |
   1. Get ready to print and deliver these documents. We can help you
      fill in the documents, but you need to deliver them on your own.
   1. Do your best to find any documents from the court and your landlord about the eviction, including:
+  
       - The Summons from the court
       - The Landlord's petition
       - The eviction notice
@@ -761,7 +762,7 @@ subquestion: |
   [CENTER]
   [FILE ComplaintForm.png]
 fields:
-  - "You got a copy of the {Summons} and {Petition}": tenant_got_summons
+  - "I got a copy of the {Summons} and {Petition}": tenant_got_summons
     datatype: yesnomaybe
   - "How did you get the Summons and Landlord's Petition?": method_of_summons_service
     datatype: checkboxes
@@ -789,7 +790,7 @@ terms:
     a court hearing.
   Petition: |
     The Landlord's Petition is the form that your landlord must file
-    with the court to start an eviction case."
+    with the court to start an eviction case.
 ---
 sets: posting_warning
 id: soft exit posting
@@ -797,15 +798,15 @@ decoration: hand
 question: |
   You may not want to file an answer
 subquestion: |
-  You said that you got the Summons and Petition by "posting" (taping, stapling or pinning to your door) or that you did not receive the Summons and Petition at all.
+  You said that you got the Summons and Petition by "posting" (taping, stapling, or pinning to your door) or that you did not receive the Summons and Petition at all.
 
   Because your landlord did not mail the Summons and Petition, if you file an answer, the court may order 
   you to pay money that you would not need to pay otherwise.
 
-  You may still want to keep going if:
+  You may still want to keep going if you:
 
-  * You want to find out if you have a defense that can stop the eviction
-  * You think your landlord will owe you more money than you owe them
+  * Want to find out if you have a defense that can stop the eviction, or
+  * Think your landlord will owe you more money than you owe them.
 
   You do not need to decide now. If you keep going, we will remind you about your choices at the end.
   You may want to talk to a lawyer to decide for sure.
@@ -903,7 +904,7 @@ fields:
   - Does the petition say you owe an amount **other** than rent?: other_charges_alleged
     datatype: yesnomaybe
   - note: |
-      Other charges may include a pet fee, cleaning fee, fee for repairs.
+      Other charges may include a pet fee, cleaning fee, fee for repairs, etc.
 ---
 question: Does the petition separate the amount you owe in rent from other charges?
 fields:
@@ -956,7 +957,7 @@ subquestion: |
   The Landlord's Petition must say what months you allegedly owe rent for.
  
 fields:
-  - Does the petition say a specific month and amount for each month your landlord says you owe rent?: petition_states_rent_periods
+  - Does the petition say a specific amount for each month your landlord says you owe rent?: petition_states_rent_periods
     datatype: yesnomaybe
 ---
 id: petition requirements - demand
@@ -1036,10 +1037,10 @@ fields:
     choices:
       - All of the money: True
       - Part of the money: False
-  - Did the landlord say no to this offer to pay?: offer_attempts[i].has_refused_payment
+  - Did your landlord say no to your offer to pay?: offer_attempts[i].has_refused_payment
     datatype: yesno
     input type: yesnoradio
-  - Did your landlord say no in writing that you can bring to court, or did someone else see your landlord say "no"?: offer_attempts[i].has_attempt_evidence
+  - Did your landlord say no in a writing that you can bring to court, or did someone else see your landlord say "no"?: offer_attempts[i].has_attempt_evidence
     datatype: yesnoradio
     show if: offer_attempts[i].has_refused_payment
   - note: |
@@ -1075,10 +1076,10 @@ subquestion: |
   If you:
   % if petition_states_rent_amount:
   
-  * Pay the full ${ currency(rent_amount_owed) }
+  * Pay the full ${ currency(rent_amount_owed) }, and 
   % else:
   
-  * Pay the full amount you owe
+  * Pay the full amount you owe, and 
   % endif
   * Pay the full court costs
 
@@ -1123,17 +1124,17 @@ fields:
 ---
 id: estoppel breaches
 question: |
-  Did the landlord violate other laws?
+  Did your landlord violate other laws?
 subquestion: |
   ${ collapse_template(estoppel_explanation_template) }
   
 fields:
-  - Check any statement that applies: estoppel_breaches
+  - Check any statement that is true: estoppel_breaches
     datatype: checkboxes
     choices:
       - "The home is not up to code.": not_up_to_code
       - "The landlord violated local or state laws about the condition of the home.": violated_law
-      - "The landlord doesn't have an occupancy permit for the home": occupancy_permit
+      - "The landlord doesn't have an occupancy permit for the home.": occupancy_permit
       - Other: other
   - What other problems do you have?: other_estoppel_breaches
     show if:
@@ -1232,7 +1233,7 @@ content: |
   mean you do not owe part or all of the rent your landlord says you owe.
   
   Problems in your home may give you a claim for **Breach of Warranty of Habitability** 
-  if the condition of your home affected your life, health or safety and made the dwelling uninhabitable in whole or in part.
+  if the condition of your home affected your life, health, or safety, and made the dwelling uninhabitable in whole or in part.
 ---
 id: covenant of quiet enjoyment
 question: |
@@ -1362,7 +1363,7 @@ review:
       - recompute:
         - defense_logic
     button: |
-      Does the summons and petition packet have the lease attached as an exhibit? :
+      Does the summons and petition packet have the lease attached as an exhibit?:
       **${ lease_attached }**
   - Edit:
       - petition_states_terms_of_lease
