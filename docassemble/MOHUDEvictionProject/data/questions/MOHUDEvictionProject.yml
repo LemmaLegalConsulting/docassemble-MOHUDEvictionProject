@@ -144,7 +144,7 @@ code: |
   users[0].name.first
   greet_user
   nav.set_section("section_eviction_answer_can_i")
-  if not tenant_got_summons or not (method_of_summons_service['personal'] or method_of_summons_service['sheriff']):
+  if not tenant_got_summons or not method_of_summons_service['sheriff']:
     posting_warning
   else:
     recommend_filing_answer
@@ -200,7 +200,7 @@ code: |
   users[0].name.first
   greet_user
   nav.set_section("section_eviction_answer_can_i")
-  if not tenant_got_summons or not (method_of_summons_service["sheriff"] or method_of_summons_service["personal"]):
+  if not tenant_got_summons or not method_of_summons_service["sheriff"]:
     posting_warning
   else:
     recommend_filing_answer
@@ -518,7 +518,7 @@ code: |
   url = 'https://www.courts.mo.gov/cnet/nameSearchResult.do?'
   params = {
     "courtType": "SW",
-    "countyCode": county_casenet_code.get(users[0].address.normalized_address().county, ""),
+    "countyCode": county_dictionary[users[0].address.normalized_address().county]['casenet'],
     "newSearch": "Y",
     "essn": "",
     "courtCode": "SW",
@@ -768,8 +768,11 @@ fields:
     choices:
       - "By mail": mail
       - "It was taped, stapled, or posted to your door or home": posting
-      - "It was handed to you by the sheriff": sheriff
-      - "It was handed to you by the landlord or somebody other than the sheriff": personal
+      - "It was stuffed in the screen door or left somewhere without being taped, stapled or posted": left
+      - "It was handed to you or a person 15 or older who lives with you by a sheriff's deputy or a process server": sheriff
+      - "It was handed to you or a person 15 or older who lives with you by somebody else, like the landlord or a neighbor": other_delivery
+      - "Some other method of getting the petition": other
+    none of the above: False
     show if:
       variable: tenant_got_summons
       is: True
@@ -797,9 +800,29 @@ decoration: hand
 question: |
   You may not want to file an answer
 subquestion: |
-  You said that you got the Summons and Petition by "posting" (taping, stapling, or pinning to your door) or that you did not receive the Summons and Petition at all.
+  % if tenant_got_summons:
+  You said that you got the Summons and Petition by 
+  
+  % if method_of_summons_service['posting']:
+  - "posting" (taping, stapling, or pinning to your door) 
+  % endif
+  % if method_of_summons_service['mail']:
+  - mail
+  % endif
+  % if method_of_summons_service['left']:
+  - left on the property
+  % endif
+  % if method_of_summons_service['other_delivery']:
+  - handed to you by somebody other than a sheriff's deputy or process server
+  % endif
+  % if method_of_summons_service['other']: 
+  - some other method
+  % endif
+  % elif tenant_got_summons == False:
+  You said that you did not receive the Summons and Petition.
+  % endif
 
-  Because your landlord did not mail the Summons and Petition, if you file an answer, the court may order 
+  Because your landlord did not serve you personally, the landlord cannot sue you for money damages.  If you file an answer, the court may order 
   you to pay money that you would not need to pay otherwise.
 
   You may still want to keep going if you:
@@ -821,14 +844,7 @@ question: |
   Tenants in your situation usually file an answer
 subquestion: |
   % if tenant_got_summons:
-  You said that you got the Summons and Petition by 
-  % if method_of_summons_service['personal'] or method_of_summons_service['sheriff']:
-  personal delivery
-  % else:
-  mail
-  % endif
-  .
-  
+  You said that you got the Summons and Petition by personal delivery.
   % else:
   You said you do not know if you got the Summons and Petition.
   % endif
