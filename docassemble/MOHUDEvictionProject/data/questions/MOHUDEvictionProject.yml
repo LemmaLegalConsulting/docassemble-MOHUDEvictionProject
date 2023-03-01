@@ -207,7 +207,6 @@ code: |
   nav.set_section("section_eviction_answer_you")
   users[0].address.address
   users[0].address.geocode()
-  trial_court_name_default
   nav.set_section("section_eviction_answer_other")
   other_parties.gather()
   for party in other_parties:
@@ -323,7 +322,7 @@ code: |
     excessive_rent
   if late_fees_assessed:
     late_fees_penalty
-    if trial_court_circuit == 21:
+    if trial_court.circuit == 21:
       petition_separates_nonrent
   petition_states_demand_made
   rent_defenses_section = True

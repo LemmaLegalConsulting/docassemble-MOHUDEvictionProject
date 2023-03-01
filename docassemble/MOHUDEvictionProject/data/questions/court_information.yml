@@ -7,10 +7,10 @@ code: |
     trial_court.county = "City of St Louis"
     trial_court.circuit = 22
   else:
-    try:
+    if hasattr(users[0].normalized_address(), "county"):
       trial_court.county = users[0].normalized_address().county
       trial_court.circuit = county_to_circuit.get(trial_court.county)
-    except:
+    else:
       trial_court.county = None
       trial_court.circuit = None
   trial_court.division = "Housing Division"
