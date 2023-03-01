@@ -839,6 +839,7 @@ validation code: |
   if dont_know_docket_number:
     docket_number = ''      
 ---
+## leaving "you" references for the terms because unsure how to make conditional
 ###################### PETITION REVIEW ######################
 id: Petition_introduction
 mandatory: True
@@ -913,7 +914,6 @@ fields:
     show if:
       code: |
         petition_available and person_answering == "attorney" or person_answering == "tenant_helper"
-## leaving "you" references for the terms because unsure how to make conditional
 terms:
   Summons: |
     The Summons is the form that the Court sends you to tell you to attend
@@ -1538,7 +1538,11 @@ fields:
 ---
 id: estoppel breaches
 question: |
+  % if person_answering == "tenant":
   Did your landlord violate other laws?
+  % else: 
+  Did the tenant violate other laws?
+  % endif
 subquestion: |
   ${ collapse_template(estoppel_explanation_template) }
   
@@ -1551,9 +1555,13 @@ fields:
       - "The landlord doesn't have an occupancy permit for the home.": occupancy_permit
       - Other: other
   - What other problems do you have?: other_estoppel_breaches
-    show if:
-      variable: estoppel_breaches['other']
-      is: True
+    show if: 
+      code: |
+        person_answering == "tenant" and estoppel_breaches['other']
+  - What other problems do you have?: other_estoppel_breaches
+    show if: 
+      code: |
+        person_answering == "attorney" or person_answering == "tenant_helper" and estoppel_breaches['other']
 ---
 template: estoppel_explanation_template
 subject: |
@@ -1617,6 +1625,7 @@ data:
     question: Floor has holes or cracks
     document: Floor has holes or cracks
 ---
+## leaving "you" references because not sure how to make conditional
 variable name: cqe_breaches_text
 use objects: True
 data:
@@ -1641,17 +1650,33 @@ data:
 ---
 template: bad_conditions_explanation_template
 subject: |
+  % if person_answering == "tenant":
   Why does the condition of my house matter?
+  % else: 
+  Why does the condition of the tenant's house matter?
+  % endif
 content: |
+  % if person_answering == "tenant":
   Your landlord may owe you money if there are problems in your home. The money your landlord owes you might
   mean you do not owe part or all of the rent your landlord says you owe.
   
   Problems in your home may give you a claim for **Breach of Warranty of Habitability** 
   if the condition of your home affected your life, health, or safety, and made the dwelling uninhabitable in whole or in part.
+  % else: 
+  The landlord may owe the tenant money if there are problems in their home. The money the landlord owes the tenant might
+  mean they do not owe part or all of the rent the landlord says the tenant owes.
+  
+  Problems in the tenant's home may give them a claim for **Breach of Warranty of Habitability** 
+  if the condition of their home affected their life, health, or safety, and made the dwelling uninhabitable in whole or in part.  
+  % endif
 ---
 id: covenant of quiet enjoyment
 question: |
-  Did your landlord violate your right to live peacefully in your home?  
+  % if person_answering == "tenant":
+  Did your landlord violate your right to live peacefully in your home?
+  % else:
+  Did the landlord violate the tenant's right to live peacefully in their home?
+  % endif
 subquestion: |
   ${ collapse_template(bqe_explanation_template) }
 fields: 
@@ -1664,7 +1689,23 @@ fields:
       - ${ cqe_breaches_text["access"] }: access
       - ${ cqe_breaches_text["animal"] }: animal
       - ${ cqe_breaches_text["vermin"] }: vermin
-      - Other violation of your right to live peacefully in your home: other
+      - Otherwise violate your right to live peacefully in your home: other
+    show if: 
+      code: |
+        person_answering == "tenant"
+  - "Did the landlord:": cqe_breaches
+    datatype: checkboxes
+    choices:
+      - ${ cqe_breaches_text["harassment"] }: harassment
+      - ${ cqe_breaches_text["visits"] }: visits
+      - ${ cqe_breaches_text["remodeling"] }: remodeling
+      - ${ cqe_breaches_text["access"] }: access
+      - ${ cqe_breaches_text["animal"] }: animal
+      - ${ cqe_breaches_text["vermin"] }: vermin
+      - Otherwise violate the tenant's right to live peacefully in their home: other
+    show if: 
+      code: |
+        person_answering == "attorney" or person_answering == "tenant_helper"
   - Other (explain): other_cqe_breach
     datatype: area
     show if: cqe_breaches["other"]
@@ -1673,17 +1714,33 @@ template: bqe_explanation_template
 subject: |
   Why does this matter?
 content: |
+  % if person_answering == "tenant":
   Your landlord may owe you money if they violated your right to live peacefully in your home. The money may
   reduce the amount of rent you owe or mean that you do not owe any rent to your landlord.
 
   You have a claim of **Breach of Covenant of Quiet Enjoyment** if your landlord is responsible for a substantial
+  disruption in the use and quiet enjoyment of your rental property.
+  % else: 
+  The landlord may owe the tenant money if they violated the tenant's right to live peacefully in their home. The money may
+  reduce the amount of rent the tenant owes or mean that the tenant does not owe any rent to the landlord.
+
+  The tenant has a claim of **Breach of Covenant of Quiet Enjoyment** if the landlord is responsible for a substantial
   disruption in the use and quiet enjoyment of the rental property.
+  % endif
 ---
 id: preview eviction_defender
 question: |
+  % if person_answering == "tenant":
   Preview your form before you sign it
+  % else:
+  Preview the form before signing
+  % endif
 subquestion: |
-  Here is a preview of the form you will sign on the next page.   
+  % if person_answering == "tenant":
+  Here is a preview of the form you will sign on the next page.
+  % else:
+  Here is a preview of the form to be signed on the next page.
+  % endif
   
   ${ al_court_bundle.as_pdf(key='preview') }
 
@@ -1692,7 +1749,11 @@ subquestion: |
 
   ${ action_button_html(url_action('review_eviction_answer'), label='Edit answers', color='info') }
   
+  % if person_answering == "tenant":
   Remember to come back to this window to continue and sign your form.
+  % else:
+  Remember to come back to this window to continue and sign the form.
+  % endif
 continue button field: eviction_defender_preview_question    
 ---
 code: |
@@ -1716,10 +1777,18 @@ code: |
 id: eviction motion to continue review screen
 continue button field: review_eviction_answer
 question: |
+  % if person_answering == "tenant":
   Review your answers
+  % else: 
+  Review the answers
+  % endif
 review:
   - note: | 
+      % if person_answering == "tenant":
       ##Information about you##
+      % else: 
+      ##Information about the tenant##
+      % endif
   - Edit:
       - users.revisit
       - recompute:
