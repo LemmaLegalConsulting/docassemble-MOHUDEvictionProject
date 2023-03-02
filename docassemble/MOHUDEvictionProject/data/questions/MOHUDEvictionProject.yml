@@ -878,22 +878,39 @@ fields:
       % endif
     field: method_of_summons_service
     datatype: checkboxes
-    code: | 
-      if person_answering == "tenant": 
-        [
-          {'mail': "By mail"},
-          {'It was taped, stapled, or posted to your door or home': "posting"}
-        ]
-      else: 
-        [
-          {'mail': "By mail"},
-              {'It was taped, stapled, or posted to the tenant's door or home': "posting"},
-        ]
-      endif
+    choices:
+      - "By mail": mail
+
+### for this option, whatever is placed where "label" currently is will appear on screen and it does not recognize or pick up anything past ": |"
+#      - label: |
+#          % if person_answering == "tenant":
+#          It was taped, stapled, or posted to your door or home
+#          % else:
+#          It was taped, stapled, or posted to the tenant's door or home
+#          % endif
+#          value: posting
+#---      
+#    code: | 
+#      options
 #---
+#### This method seemed promising and an ai provided it as an option to me but docassemble does not like the ?
 #code: |
 #  options = [
 #              {'mail': "By mail"},
+#              {'posting': (person_answering == "tenant" ? "It was taped, stapled, or posted to your door or home" : "It was taped, stapled, or posted to the tenant's door or home")}
+#            ]
+---
+## another one from ai but the if formatting getting syntax error
+#code: |
+#  options = [
+#              {'mail': "By mail"},
+#              if (person_answering == "tenant") {
+#                 {'posting': "It was taped, stapled, or posted to your door or home"}, 
+#              } else {
+#                 {'posting': "It was taped, stapled, or posted to the tenant's door or home"},
+#              }
+#            ]
+---
 #              if person_answering == "tenant"
 #              {'It was taped, stapled, or posted to your door or home': "posting"},
 #              else
