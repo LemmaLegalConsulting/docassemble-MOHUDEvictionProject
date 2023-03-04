@@ -294,7 +294,27 @@ depends on:
   - previous_landlord_sold_property
   - notice_of_sale_provided_new_landlord
   - notice_contains_sale_document
+  - trial_court.classification
 ---
+depends on: trial_court.classification
+if: |
+  trial_court.classification != 1
+id: sale of property
+question: |
+  Did your landlord ever sell the house while you were a tenant at this address?
+fields:
+  - Was your house sold to a new landlord while you lived in it?: previous_landlord_sold_property
+    datatype: yesnomaybe
+  - Did your new landlord give you a letter that told you about the sale?: notice_of_sale_provided_new_landlord
+    datatype: yesnomaybe
+    show if: previous_landlord_sold_property
+  - Did that letter have a copy of the deed?: notice_contains_sale_document
+    datatype: yesnomaybe
+    show if: notice_of_sale_provided_new_landlord
+---
+depends on: trial_court.classification
+if: |
+  trial_court.classification == 1
 id: sale of property
 question: |
   Did your landlord ever sell the house while you were a tenant at this address?

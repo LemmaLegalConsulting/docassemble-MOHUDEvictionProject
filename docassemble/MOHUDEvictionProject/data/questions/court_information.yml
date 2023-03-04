@@ -16,6 +16,10 @@ code: |
   trial_court.division = "Housing Division"
   trial_court.address.county = trial_court.county
 ---
+depends on: trial_court.county
+code: |
+  trial_court.classification = county_dictionary[trial_court.county]['classification']
+---
 variable name: county_dictionary
 data:  
   Adair County:
