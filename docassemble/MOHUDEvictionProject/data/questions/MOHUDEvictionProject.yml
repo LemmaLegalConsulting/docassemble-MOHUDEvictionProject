@@ -880,97 +880,35 @@ fields:
     datatype: checkboxes
     choices:
       - "By mail": mail
-
-### for this option, whatever is placed where "label" currently is will appear on screen and it does not recognize or pick up anything past ": |"
-#      - label: |
-#          % if person_answering == "tenant":
-#          It was taped, stapled, or posted to your door or home
-#          % else:
-#          It was taped, stapled, or posted to the tenant's door or home
-#          % endif
-#          value: posting
-#---      
-#    code: | 
-#      options
-#---
-#### This method seemed promising and an ai provided it as an option to me but docassemble does not like the ?
-#code: |
-#  options = [
-#              {'mail': "By mail"},
-#              {'posting': (person_answering == "tenant" ? "It was taped, stapled, or posted to your door or home" : "It was taped, stapled, or posted to the tenant's door or home")}
-#            ]
----
-## another one from ai but the if formatting getting syntax error
-#code: |
-#  options = [
-#              {'mail': "By mail"},
-#              if (person_answering == "tenant") {
-#                 {'posting': "It was taped, stapled, or posted to your door or home"}, 
-#              } else {
-#                 {'posting': "It was taped, stapled, or posted to the tenant's door or home"},
-#              }
-#            ]
----
-#              if person_answering == "tenant"
-#              {'It was taped, stapled, or posted to your door or home': "posting"},
-#              else
-#              {'It was taped, stapled, or posted to the tenant's door or home': "posting"},
-#              % endif
-#            ]
-#---
-#    choices:
-#      - "By mail": mail
-#      - label: |
-#          % if person_answering == "tenant":
-#          It was taped, stapled, or posted to your door or home
-#          % else:
-#          It was taped, stapled, or posted to the tenant's door or home
-#          % endif
-#        value: posting
-#      - label: |
-#          % if person_answering == "tenant":
-#          It was handed to you by the sheriff
-#          % else:
-#          It was handed to the tenant by the sheriff
-#          % endif
-#        value: sheriff
-#      - label: |
-#          % if person_answering == "tenant":
-#          It was handed to you by your landlord or somebody other than the sheriff
-#          % else:
-#          It was handed to the tenant by the landlord or somebody other than the sheriff
-#          % endif
-#        value: personal
-#  - label: |
-#      % if person_answering == "tenant":
-#      Do you have the Summons next to you now?
-#      % else:
-#      Does the tenant have the Summons next to them now?
-#      % endif
-#    field: petition_available
-#    datatype: yesnoradio
-#---
-##  - note: |
-##      **You may want to stop and get the petition now.** It can help you answer
-##      the questions on this website more accurately. If you cannot easily get it,
-##      it is OK to keep going.
-##    show if:
-##      code: |
-##        petition_available and person_answering == "tenant"
-#  - note: |
-#      **The tenant may want to stop and get the petition now.** It can help them answer
-#      the questions on this website more accurately. If they cannot easily get it,
-#      it is OK to keep going.
-#    show if:
-#      code: |
-#        petition_available and person_answering == "attorney" or person_answering == "tenant_helper"
-#terms:
-#  Summons: |
-#    The Summons is the form that the Court sends you to tell you to attend
-#    a court hearing.
-#  Petition: |
-#    The Landlord's Petition is the form that your landlord must file
-#    with the court to start an eviction case.
+      - ${ "It was taped, stapled, or posted to your door or home" if person_answering == "tenant" else "It was taped, stapled, or posted to the tenant's door or home" } 
+      - ${ "It was handed to you by the sheriff" if person_answering == "tenant" else "It was handed to the tenant by the sheriff" } 
+      - ${ "It was handed to you by your landlord or somebody other than the sheriff" if person_answering == "tenant" else "It was handed to the tenant by the landlord or somebody other than the sheriff" } 
+  - label: |
+      % if person_answering == "tenant":
+      Do you have the Summons next to you now?
+      % else:
+      Does the tenant have the Summons next to them now?
+      % endif
+    field: petition_available
+    datatype: yesnoradio
+  - note: |
+      % if person_answering == "tenant":
+      **You may want to stop and get the petition now.** It can help you answer
+      the questions on this website more accurately. If you cannot easily get it,
+      it is OK to keep going.
+      % else: 
+      **The tenant may want to stop and get the petition now.** It can help them answer
+      the questions on this website more accurately. If they cannot easily get it,
+      it is OK to keep going.
+      % endif
+    show if: petition_available
+terms:
+  Summons: |
+    The Summons is the form that the Court sends you to tell you to attend
+    a court hearing.
+  Petition: |
+    The Landlord's Petition is the form that your landlord must file
+    with the court to start an eviction case.
 ---
 sets: posting_warning
 id: soft exit posting
