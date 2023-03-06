@@ -4,15 +4,32 @@ decoration: bell
 question: |
   Court Date Reminders
 subquestion: |
+  % if person_answering == "tenant":
   We can remind you about important dates by text or email.
   Uncheck any options that you do not want.
+  % else: 
+  We can remind the tenant about important dates by text or email.
+  Uncheck any options that the tenant does not want.
+  % endif
 
   The reminder will use the best information that we have today.
 fields:
-  - Email or text me a copy of what I create today: email_after_completion
+  - label: |
+      % if person_answering == "tenant":
+      Email or text me a copy of what I create today
+      % else:
+      Email or text the tenant a copy of what I create today
+      % endif 
+    field: email_after_completion
     datatype: yesno
     default: True
-  - Remind me about deadlines: remind_user
+  - label: |
+      % if person_answering == "tenant":
+      Remind me about deadlines
+      % else:
+      Remind the tenant about deadlines
+      % endif 
+    field: remind_user
     datatype: yesno
     default: True
   - Text message reminder?: wants_text
@@ -27,6 +44,7 @@ fields:
     datatype: email
     show if: wants_email
 help: |
+  % if person_answering == "tenant":
   If you agree, we can send you a reminder text message and email message when you
   have a deadline or need to appear in court. *The reminders will only be based on
   the information you gave us in this interview.* If your court date changes for
@@ -41,6 +59,22 @@ help: |
   
   Sharing your information is optional. You can use this service for free whether or not
   you want your information to be shared.
+  else:
+  If the tenant agrees, we can send them a reminder text message and email message when they
+  have a deadline or need to appear in court. *The reminders will only be based on
+  the information you gave us in this interview.* If the tenant's court date changes for
+  any reason, keep in mind that the reminder might be for the wrong date. It's important
+  that the tenant still pay attention to the dates that the court tells them about.
+  
+  We can also save information about the tenant's case if you choose. Saved information
+  will be used only by a non-profit legal aid organization. It may be used to help
+  the tenant if their case is accepted for full representation, or it may be used to identify
+  trends to help the non-profit legal aid organization bettter decide how to use
+  its resources to prevent evictions.
+  
+  Sharing the tenant's information is optional. You can use this service for free whether or not
+  you want the tenant's information to be shared.
+  % endif
 ---
 code: |
   if email_after_completion and wants_email and task_not_yet_performed("interview complete email"):
@@ -72,8 +106,13 @@ code: |
 ---
 template: court_reminder_email
 subject: |
+  % if person_answering == "tenant":
   You have a court date on ${court_date}! (Massachusetts Defense for Eviction) for ${landlord} v. ${tenant}
+  % else:
+  Tenant has a court date on ${court_date}! (Massachusetts Defense for Eviction) for ${landlord} v. ${tenant}
+  % endif
 content: |
+  % if person_answering == "tenant":
   Hi ${ tenant.name.first }! This is MADE (Massachusetts Defense for Eviction) from Greater Boston
   Legal Services.
   
@@ -86,18 +125,38 @@ content: |
     
   % if court_date_is_holiday:
   It looks like ${court_date} is a holiday, ${court_date_holiday}. 
-  If you didn't get a notice from the court, you may want to call to find out
+  If you did not get a notice from the court, you may want to call to find out
   when your case will be heard.
   % endif
   You are getting this email because you used our self-help eviction tool
   on ${format_date(start_time())}.
+  % else: 
+  Hi ${ users[0].name.first }! This is MADE (Massachusetts Defense for Eviction) from Greater Boston
+  Legal Services.
+  
+  Tenant's court date in ${landlord} v. ${tenant} is ${format_date(court_date)}!
+  
+  Check the court event notice tenant got from the court to find out:
+  
+  - if the hearing is in person or virtual
+  - the time and place to attend court
+    
+  % if court_date_is_holiday:
+  It looks like ${court_date} is a holiday, ${court_date_holiday}. 
+  If tenant did not get a notice from the court, tenant may want to call to find out
+  when their case will be heard.
+  % endif
+  You are getting this email because you used our self-help eviction tool
+  on ${format_date(start_time())}.
+  % endif
 ---
 template: attend_court_text
 content: |
-  Reminder: your court date in ${landlord} v. ${tenant} is ${format_date(court_date)}!
+  % if person_answering == "tenant":
+  Reminder: Your court date in ${landlord} v. ${tenant} is ${format_date(court_date)}!
   % if court_date_is_holiday:
-  ${court_date} is ${court_date_holiday} so your date may have been
-  postponed. If the court didn't tell you the new date, call the court to find out.
+  ${court_date} is ${court_date_holiday} so your court date may have been
+  postponed. If the court did not tell you the new date, call the court to find out.
   % endif
   
   Check the court event notice you got from the court to find out if the hearing is in 
@@ -105,6 +164,19 @@ content: |
   
   Get ready here: https://gbls.org/tactics/12
    - MADE from GBLS
+  % else:
+    Reminder: Tenant's court date in ${landlord} v. ${tenant} is ${format_date(court_date)}!
+  % if court_date_is_holiday:
+  ${court_date} is ${court_date_holiday} so tenant's court date may have been
+  postponed. If the court did not tell tenant the new date, call the court to find out.
+  % endif
+  
+  Check the court event notice tenant got from the court to find out if the hearing is in 
+  person or virtual and the time and place to attend court.
+  
+  Get ready here: https://gbls.org/tactics/12
+   - MADE from GBLS
+  % endif
 ---
 template: interview_complete_email
 subject: |
@@ -117,6 +189,7 @@ content: |
   
   If you want to go back to your interview, click here ${interview_url()}.
   
+  % if person_answering == "tenant":
   As a reminder, your court date will be ${format_date(original_hearing_date)},
   unless you hear otherwise from the court.
   
@@ -124,18 +197,35 @@ content: |
   to [get notices directly from the court](https://www.mass.gov/forms/ereminder-court-date-notification-system).
   You will likely get a "notice of court event" from the court that tells you:
   
-  - whether to appear in person or virtually
+  - whether to appear in person or virtually, and
   - the time of your hearing
+  % else:
+  As a reminder, the tenant's court date will be ${format_date(original_hearing_date)},
+  unless they hear otherwise from the court.
+  
+  Once the tenant has a case ID number (docket number), they can also sign up
+  to [get notices directly from the court](https://www.mass.gov/forms/ereminder-court-date-notification-system).
+  The tenant will likely get a "notice of court event" from the court that tells them:
+  
+  - whether to appear in person or virtually, and 
+  - the time of their hearing
+  % endif
 
   Get ready for court! [MassLegalHelp](https://www.masslegalhelp.org/housing/lt1-booklet-1-representing-yourself.pdf)
-  has information that can help you be prepared.  
+  has information that can help you be prepared.
+  
   Was MADE helpful? [Tell us here](https://www.surveymonkey.com/r/8T2KZBV).
 ---
 template: interview_complete_text
 content: |
-  Congrats on finishing the interview! Don't forget:
-  File your paperwork and attend court on ${ format_date(original_hearing_date) }.
-
+  Congrats on finishing the interview! 
+  
+  % if person_answering == "tenant":
+  Do not forget to file your paperwork and attend court on ${ format_date(original_hearing_date) }.
+  % else: 
+  The tenant must file their paperwork and attend court on ${ format_date(original_hearing_date) }.
+  % endif
+  
   Get ready here: https://gbls.org/tactics/12
   
    - MADE from GBLS.

@@ -10,7 +10,7 @@ include:
 ---
 metadata:
   title: |
-    Defend against an Eviction
+    Defend Against An Eviction
   short title: |
     Eviction Defense
   title url: |
@@ -21,6 +21,7 @@ metadata:
     - Quinten Steenhuis
     - Toby Fey
     - Ian Eisaman
+    - Mia Bonardi
 ---
 features:
   bootstrap theme: lsem.bootstrap.css    
@@ -841,7 +842,6 @@ validation code: |
   if dont_know_docket_number:
     docket_number = ''      
 ---
-## leaving "you" references for the terms because unsure how to make conditional
 ###################### PETITION REVIEW ######################
 id: Petition_introduction
 mandatory: True
@@ -904,11 +904,21 @@ fields:
     show if: petition_available
 terms:
   Summons: |
-    The Summons is the form that the Court sends you to tell you to attend
-    a court hearing.
+    % if person_answering == "tenant":
+    The Summons is the form that the Court sends you to tell you 
+    to attend a court hearing.
+    % else: 
+    The Summons is the form that the Court sends the tenant to 
+    tell them to attend a court hearing.
+    % endif
   Petition: |
-    The Landlord's Petition is the form that your landlord must file
-    with the court to start an eviction case.
+    % if person_answering == "tenant":
+    The Landlord's Petition is the form that your landlord must 
+    file with the court to start an eviction case.
+    % else: 
+    The Landlord's Petition is the form that the tenant's 
+    landlord must file with the court to start an eviction case.
+    % endif
 ---
 sets: posting_warning
 id: soft exit posting
@@ -948,18 +958,14 @@ subquestion: |
   The tenant may want to talk to a lawyer to decide for sure.
   % endif
 buttons:
-  - I understand, let me keep going:
-      code: |
-        posting_warning = True
-    show if:
-      code: |
-        person_answering == "tenant"
-  - The tenant understands, let them keep going:
-      code: |
-        posting_warning = True
-    show if:
-      code: |
-        person_answering == "attorney" or person_answering == "tenant_helper"
+  - label: |
+      % if person_answering == "tenant":
+      I understand, let me keep going
+      % else:
+      The tenant understands, let them keep going
+      % endif 
+    code: |
+      posting_warning = True
   - Exit: exit
     url: https://motenantassistance.org/
 ---
@@ -1058,18 +1064,14 @@ subquestion: |
   **Currently, we can only help when a landlord is evicting a tenant because they have not paid their rent.**  This type of eviction is called a Rent and Possession case. If a tenant is being evicted for another reason, contact [a Missouri legal aid provider](https://www.lsmo.org/).
   % endif
 buttons:
-  - I understand, let me keep going:
-      code: |
+  - label: |
+      % if person_answering == "tenant":
+      I understand, let me keep going
+      % else:
+      The tenant understands, let them keep going
+      % endif 
+    code: |
         unlawful_detainer_kick_out_option = False
-    show if:
-      code: |
-        person_answering == "tenant"
-  - The tenant understands, let them keep going:
-      code: |
-        unlawful_detainer_kick_out_option = False    
-    show if:
-      code: |
-        person_answering == "attorney" or person_answering == "tenant_helper"
   - Just make a motion to continue:
       code: |
         unlawful_detainer_kick_out_option = True
@@ -1094,36 +1096,33 @@ subquestion: |
   The landlord's petition may look different.
   % endif
 fields:
-  - Does the petition say what amount of rent you owe?: petition_states_rent_amount
+  - label: |
+      % if person_answering == "tenant":
+      Does the petition say what amount of rent you owe?
+      % else:
+      Does the petition say what amount of rent the tenant owes?
+      % endif 
+    field: petition_states_rent_amount
     datatype: yesnoradio
-    show if:
-      code: |
-        person_answering == "tenant"
-  - Does the petition say what amount of rent the tenant owes?: petition_states_rent_amount
-    datatype: yesnoradio
-    show if:
-      code: |
-        person_answering == "attorney" or person_answering == "tenant_helper"
-  - "How much does the Landlord's Petition say that you owe **in rent**?": rent_amount_owed
+  - label: |
+      % if person_answering == "tenant":
+      How much does the Landlord's Petition say that you owe **in rent**?
+      % else:
+      How much does the Landlord's Petition say that the tenant owes **in rent**?
+      % endif 
+    field: rent_amount_owed
     datatype: currency
-    show if: 
-      code: |
-        petition_states_rent_amount and person_answering == "tenant"
-  - "How much does the Landlord's Petition say that the tenant owes **in rent**?": rent_amount_owed
-    datatype: currency
-    show if: 
-      code: |
-        petition_states_rent_amount and person_answering == "attorney" or person_answering == "tenant_helper"
-  - Does the petition say you owe an amount **other** than rent?: other_charges_alleged
+  - label: |
+      % if person_answering == "tenant":
+      Does the petition say you owe an amount **other** than rent?
+      % else:
+      Does the petition say the tenant owes an amount **other** than rent?
+      % endif 
+    field: other_charges_alleged
     datatype: yesnomaybe
     show if: 
       code: |
         person_answering == "tenant"
-  - Does the petition say the tenant owes an amount **other** than rent?: other_charges_alleged
-    datatype: yesnomaybe
-    show if: 
-      code: |
-        person_answering == "attorney" or person_answering == "tenant_helper"
   - note: |
       Other charges may include a pet fee, cleaning fee, fee for repairs, etc.
 ---
@@ -1170,16 +1169,14 @@ subquestion: |
 fields:
   - "Is the lease attached to the Landlord's Petition?": lease_attached
     datatype: yesnoradio
-  - "Does the Landlord's Petition include a summary of your rental agreement?": petition_states_terms_of_lease
+  - label: |
+      % if person_answering == "tenant":
+      Does the Landlord's Petition include a summary of your rental agreement?
+      % else:
+      Does the Landlord's Petition include a summary of the tenant's rental agreement?
+      % endif 
+    field: petition_states_terms_of_lease
     datatype: yesnomaybe
-    show if: 
-      code: |
-        lease_attached and person_answering == "tenant"
-  - "Does the Landlord's Petition include a summary of the tenant's rental agreement?": petition_states_terms_of_lease
-    datatype: yesnomaybe
-    show if: 
-      code: |
-        lease_attached and person_answering == "attorney" or person_answering == "tenant_helper"
   - note: |
       ${ collapse_template(terms_of_lease_explanation) }
     show if: 
@@ -1206,16 +1203,14 @@ subquestion: |
   The Landlord's Petition must say what months the tenant allegedly owes rent for.
   % endif
 fields:
-  - Does the petition say a specific amount for each month your landlord says you owe rent?: petition_states_rent_periods
+  - label: |
+      % if person_answering == "tenant":
+      Does the petition say a specific amount for each month your landlord says you owe rent?
+      % else:
+      Does the petition say a specific amount for each month the tenant's landlord says they owe rent?
+      % endif 
+    field: petition_states_rent_periods
     datatype: yesnomaybe
-    show if: 
-      code: |
-        person_answering == "tenant"
-  - Does the petition say a specific amount for each month the tenant's landlord says they owe rent?: petition_states_rent_periods
-    datatype: yesnomaybe
-    show if: 
-      code: |
-        person_answering == "attorney" or person_answering == "tenant_helper"
 ---
 id: petition requirements - demand
 question: |
@@ -1274,16 +1269,17 @@ subquestion: |
   the questions on this page.
   % endif
 fields:
-  - Did you offer to give your landlord the money they say you owe?: offer_attempts.there_are_any
+  - label: |
+      % if person_answering == "tenant":
+      Did you offer to give your landlord the money they say you owe?
+      % else:
+      Did the tenant offer to give the landlord the money they say the tenant owes?
+      % endif 
+    field: offer_attempts.there_are_any
     datatype: yesnoradio
     show if: 
       code: |
         person_answering == "tenant"
-  - Did the tenant offer to give the landlord the money they say the tenant owes?: offer_attempts.there_are_any
-    datatype: yesnoradio
-    show if: 
-      code: |
-        person_answering == "attorney" or person_answering == "tenant_helper"
 ---
 id: payment attempt loop
 question: |
@@ -1308,66 +1304,47 @@ subquestion: |
 fields:
   - When?: offer_attempts[i].attempt_date
     datatype: date
-  - How did you try to give your landlord the money?: offer_attempts[i].attempt_method
+  - label: |
+      % if person_answering == "tenant":
+      How did you try to give your landlord the money?
+      % else:
+      How did the tenant try to give the landlord the money?
+      % endif 
+    field: offer_attempts[i].attempt_method
     input type: radio
     choices:
-      - I wrote a letter: "by letter"
-      - I sent an email: "by email"
-      - I told my landlord in person: "in person"
-      - I told my landlord in a phone call: "in a phone_call"
+      - ${"I wrote a letter" if person_answering == "tenant" else "Wrote a letter"}: "by letter"
+      - ${"I sent an email" if person_answering == "tenant" else "Sent an email"}: "by email"
+      - ${"I told my landlord in person" if person_answering == "tenant" else "Told the landlord in person"}: "in person"
+      - ${"I told my landlord in a phone call" if person_answering == "tenant" else "Told the landlord in a phone call"}: "in a phone_call"
       - Other: "other"
-    show if: 
-      code: |
-        person_answering == "tenant"
-  - How did the tenant try to give the landlord the money?: offer_attempts[i].attempt_method
-    input type: radio
-    choices:
-      - Wrote a letter: "by letter"
-      - Sent an email: "by email"
-      - Told the landlord in person: "in person"
-      - Told the landlord in a phone call: "in a phone_call"
-      - Other: "other"
-    show if: 
-      code: |
-        person_answering == "attorney" or person_answering == "tenant_helper"
-  - How much did you offer to pay?: offer_attempts[i].was_attempt_full
+  - label: |
+      % if person_answering == "tenant":
+      How much did you offer to pay?
+      % else:
+      How much did the tenant offer to pay?
+      % endif 
+    field: offer_attempts[i].was_attempt_full
     datatype: radio
     choices:
       - All of the money: True
       - Part of the money: False
-    show if: 
-      code: |
-        person_answering == "tenant"
-  - How much did the tenant offer to pay?: offer_attempts[i].was_attempt_full
-    datatype: radio
-    choices:
-      - All of the money: True
-      - Part of the money: False
-    show if: 
-      code: |
-        person_answering == "attorney" or person_answering == "tenant_helper"
-  - Did your landlord say no to your offer to pay?: offer_attempts[i].has_refused_payment
-    datatype: yesno
-    input type: yesnoradio
-    show if: 
-      code: |
-        person_answering == "tenant"
-  - Did the landlord say no to the tenant's offer to pay?: offer_attempts[i].has_refused_payment
-    datatype: yesno
-    input type: yesnoradio
-    show if: 
-      code: |
-        person_answering == "attorney" or person_answering == "tenant_helper"
-  - Did your landlord say no in a writing that you can bring to court, or did someone else see your landlord say "no"?: offer_attempts[i].has_attempt_evidence
+  - label: |
+      % if person_answering == "tenant":
+      Did your landlord say no to your offer to pay?
+      % else:
+      Did the landlord say no to the tenant's offer to pay?
+      % endif 
+    field: offer_attempts[i].has_refused_payment
     datatype: yesnoradio
-    show if: 
-      code: |
-        offer_attempts[i].has_refused_payment and person_answering == "tenant"
-  - Did the landlord say no in a writing that the tenant can bring to court, or did someone else see the tenant's landlord say "no"?: offer_attempts[i].has_attempt_evidence
+  - label: |
+      % if person_answering == "tenant":
+      Did your landlord say no in a writing that you can bring to court, or did someone else see your landlord say "no"?
+      % else:
+      Did the landlord say no in a writing that the tenant can bring to court, or did someone else see the tenant's landlord say "no"?
+      % endif 
+    field: offer_attempts[i].has_attempt_evidence
     datatype: yesnoradio
-    show if: 
-      code: |
-        offer_attempts[i].has_refused_payment and person_answering == "attorney" or person_answering == "tenant_helper"
 #  - note: |
 #      ${ collapse_template(example_of_refused_payment_evidence) }
 #    show if: offer_attempts[i].has_refused_payment
@@ -1398,16 +1375,14 @@ subquestion: |
   % endfor
   % endif
 fields:
-  - Did you make any other attempts to pay the rent?: offer_attempts.there_is_another
+  - label: |
+      % if person_answering == "tenant":
+      Did you make any other attempts to pay the rent?
+      % else:
+      Did the tenant make any other attempts to pay the rent?
+      % endif 
+    field: offer_attempts.there_is_another
     datatype: yesnoradio
-    show if: 
-      code: |
-        person_answering == "tenant"
-  - Did the tenant make any other attempts to pay the rent?: offer_attempts.there_is_another
-    datatype: yesnoradio
-    show if: 
-      code: |
-        person_answering == "attorney" or person_answering == "tenant_helper"
 ---
 id: pay and stop eviction
 decoration: circle-info
@@ -1444,18 +1419,14 @@ subquestion: |
   The tenant can stop the eviction and stay in their home.
   % endif
 fields:
-  - Will you pay the full amount your landlord says you owe, plus court costs, to stop the eviction?: will_offer_payment
-    datatype: yesno
-    input type: yesnoradio
-    show if: 
-      code: |
-        person_answering == "tenant"
-  - Will the tenant pay the full amount their landlord says you them, plus court costs, to stop their eviction?: will_offer_payment
-    datatype: yesno
-    input type: yesnoradio
-    show if: 
-      code: |
-        person_answering == "attorney" or person_answering == "tenant_helper"
+  - label: |
+      % if person_answering == "tenant":
+      Will you pay the full amount your landlord says you owe, plus court costs, to stop the eviction?
+      % else:
+      Will the tenant pay the full amount their landlord says you them, plus court costs, to stop their eviction?
+      % endif 
+    field: will_offer_payment
+    datatype: yesnoradio
 ---
 id: warranty of habitability
 question: |
@@ -1469,7 +1440,13 @@ subquestion: |
 
   List problems that have been fixed if they happened with the last 2 years. 
 fields: 
-  - Have you had any of these problems **in the last 2 years**?: warranty_breaches
+  - label: |
+      % if person_answering == "tenant":
+      Have you had any of these problems **in the last 2 years**?
+      % else:
+      Has the tenant had any of these problems **in the last 2 years**?
+      % endif 
+    field: warranty_breaches
     datatype: checkboxes
     choices: 
       - ${ conditions_text["no_heat"] }: no_heat
@@ -1489,40 +1466,14 @@ fields:
       - ${ conditions_text["ceiling_not_weathertight"] }: ceiling_not_weathertight
       - ${ conditions_text["floor_holes"] }: floor_holes
       - Other: other
-    show if: 
-      code: |
-        person_answering == "tenant"
-  - Has the tenant had any of these problems **in the last 2 years**?: warranty_breaches
-    datatype: checkboxes
-    choices: 
-      - ${ conditions_text["no_heat"] }: no_heat
-      - ${ conditions_text["no_cooling"] }: no_cooling
-      - ${ conditions_text["insufficient_water"] }: insufficient_water
-      - ${ conditions_text["insecure_locks"] }: insecure_locks
-      - ${ conditions_text["mice_or_rats"] }: mice_or_rats
-      - ${ conditions_text["roaches"] }: roaches
-      - ${ conditions_text["bedbugs"] }: bedbugs
-      - ${ conditions_text["chronic_dampness"] }: chronic_dampness
-      - ${ conditions_text["standing_water"] }: standing_water
-      - ${ conditions_text["electric_problem"] }: electric_problem
-      - ${ conditions_text["lead_paint"] }: lead_paint
-      - ${ conditions_text["leaky_windows"] }: leaky_windows
-      - ${ conditions_text["has_plumbing_problems"] }: has_plumbing_problems
-      - ${ conditions_text["has_structural_issues"] }: has_structural_issues
-      - ${ conditions_text["ceiling_not_weathertight"] }: ceiling_not_weathertight
-      - ${ conditions_text["floor_holes"] }: floor_holes
-      - Other: other
-    show if: 
-      code: |
-        person_answering == "attorney" or person_answering == "tenant_helper"
-  - What other problems do you have?: warranty_breach_other
-    show if: 
-      code: |
-        person_answering == "tenant" and warranty_breaches['other']
-  - What other problems do you have?: warranty_breach_other
-    show if: 
-      code: |
-        person_answering == "attorney" or person_answering == "tenant_helper" and warranty_breaches['other']
+  - label: |
+      % if person_answering == "tenant":
+      What other problems do you have??
+      % else:
+      What other problems does the tenant have?
+      % endif 
+    field: warranty_breach_other
+    show if: warranty_breaches['other']
 ---
 id: estoppel breaches
 question: |
@@ -1533,7 +1484,6 @@ question: |
   % endif
 subquestion: |
   ${ collapse_template(estoppel_explanation_template) }
-  
 fields:
   - Check any statement that is true: estoppel_breaches
     datatype: checkboxes
@@ -1542,14 +1492,14 @@ fields:
       - "The landlord violated local or state laws about the condition of the home.": violated_law
       - "The landlord doesn't have an occupancy permit for the home.": occupancy_permit
       - Other: other
-  - What other problems do you have?: other_estoppel_breaches
-    show if: 
-      code: |
-        person_answering == "tenant" and estoppel_breaches['other']
-  - What other problems do you have?: other_estoppel_breaches
-    show if: 
-      code: |
-        person_answering == "attorney" or person_answering == "tenant_helper" and estoppel_breaches['other']
+  - label: |
+      % if person_answering == "tenant":
+      What other problems do you have??
+      % else:
+      What other problems does the tenant have?
+      % endif 
+    field: other_estoppel_breaches
+    show if: estoppel_breaches['other']
 ---
 template: estoppel_explanation_template
 subject: |
@@ -1668,7 +1618,13 @@ question: |
 subquestion: |
   ${ collapse_template(bqe_explanation_template) }
 fields: 
-  - "Did your landlord:": cqe_breaches
+  - label: |
+      % if person_answering == "tenant":
+      Did your landlord:
+      % else:
+      Did the landlord:
+      % endif 
+    field: cqe_breaches
     datatype: checkboxes
     choices:
       - ${ cqe_breaches_text["harassment"] }: harassment
@@ -1678,22 +1634,6 @@ fields:
       - ${ cqe_breaches_text["animal"] }: animal
       - ${ cqe_breaches_text["vermin"] }: vermin
       - Otherwise violate your right to live peacefully in your home: other
-    show if: 
-      code: |
-        person_answering == "tenant"
-  - "Did the landlord:": cqe_breaches
-    datatype: checkboxes
-    choices:
-      - ${ cqe_breaches_text["harassment"] }: harassment
-      - ${ cqe_breaches_text["visits"] }: visits
-      - ${ cqe_breaches_text["remodeling"] }: remodeling
-      - ${ cqe_breaches_text["access"] }: access
-      - ${ cqe_breaches_text["animal"] }: animal
-      - ${ cqe_breaches_text["vermin"] }: vermin
-      - Otherwise violate the tenant's right to live peacefully in their home: other
-    show if: 
-      code: |
-        person_answering == "attorney" or person_answering == "tenant_helper"
   - Other (explain): other_cqe_breach
     datatype: area
     show if: cqe_breaches["other"]
@@ -1797,7 +1737,11 @@ review:
       - recompute:
         - defense_logic
     button: |
+      % if person_answering == "tenant":
       You may be able to pay and stop the eviction:
+      % else:
+      The tenant may be able to pay and stop the eviction:
+      % endif 
       **${ will_offer_payment }**
   - note: | 
       ##Information about the other party##
@@ -1828,7 +1772,11 @@ review:
       **None**
       % endif
   - note: | 
+      % if person_answering == "tenant":
       ##Information about your rental agreement##
+      % else:
+      ##Information about the tenant's rental agreement##
+      % endif 
   - Edit:
       - lease_attached
       - recompute:
@@ -1848,7 +1796,11 @@ review:
       - recompute:
         - defense_logic
     button: |
+      % if person_answering == "tenant":
       Do you get a rent subsidy or do you live in public housing?:
+      % else:
+      Does the tenant get a rent subsidy or do they live in public housing?:
+      % endif 
       **${ is_rent_subsidized }**
   - Edit:
       - subsidized_housing_type
@@ -1862,7 +1814,11 @@ review:
       - recompute:
         - defense_logic
     button: |
+      % if person_answering == "tenant":
       Did the landlord unfairly pressure you to sign the lease?:
+      % else:
+      Did the landlord unfairly pressure the tenant to sign the lease?:
+      % endif 
       **${ unfair_duress }**
   - Edit:
       - false_promises.revisit
@@ -1883,14 +1839,22 @@ review:
       - recompute:
         - defense_logic
     button: |
+      % if person_answering == "tenant":
       Did the landlord's promise get you to sign the lease?:
+      % else:
+      Did the landlord's promise get the tenant to sign the lease?:
+      % endif 
       **${ relied_on_false_promises }**
   - Edit:
       - landlord_foreclosed
       - recompute:
         - defense_logic
     button: |
+      % if person_answering == "tenant":
       Did the bank foreclose on this property while you lived there?:
+      % else:
+      Did the bank foreclose on this property while the tenant lived there?:
+      % endif 
       **${ landlord_foreclosed }**
   - Edit:
       - notice_of_foreclosure
@@ -1904,14 +1868,22 @@ review:
       - recompute:
         - defense_logic
     button: |
+      % if person_answering == "tenant":
       Did your previous landlord sell the property to the new landlord?:
+      % else:
+      Did the tenant's previous landlord sell the property to the new landlord?:
+      % endif 
       **${ previous_landlord_sold_property }**
   - Edit:
       - notice_of_sale_provided_new_landlord
       - recompute:
         - defense_logic
     button: |
+      % if person_answering == "tenant":
       Did the new landlord provide you notice of the sale?:
+      % else:
+      Did the new landlord provide the tenant notice of the sale?:
+      % endif 
       **${ notice_of_sale_provided_new_landlord }**
   - note: | 
       ##Information about the eviction##
@@ -1920,7 +1892,11 @@ review:
       - recompute:
         - defense_logic
     button: |
+      % if person_answering == "tenant":
       Did you receive a copy of the Summons and Landlord's Petition?:
+      % else:
+      Did the tenant receive a copy of the Summons and Landlord's Petition?:
+      % endif 
       **${ received_summons }**
   - Edit:
       - method_of_summons_service
@@ -2124,7 +2100,6 @@ edit:
   - name.first
   - address
 confirm: True
-
 ---
 continue button field: other_parties.revisit
 question: |
@@ -2150,7 +2125,6 @@ edit:
   - address.address
   - attorney.revisit
 confirm: True
----
 ---
 continue button field: false_promises.revisit
 question: |
@@ -2218,9 +2192,15 @@ event: eviction_defender_download
 question: |
   All done
 subquestion: |
+  % if person_answering == "tenant":
   Thank you ${users}. Your form is ready to download and deliver.
   
-  View, download and send your form below. Click the "Edit answers" button to fix any mistakes.
+  View, download, and send your form below. Click the "Edit answers" button to fix any mistakes.
+  % else:
+  Thank you ${users}. The tenant's form is ready to download and deliver.
+  
+  View, download, and send the tenant's form below. Click the "Edit answers" button to fix any mistakes.
+  % endif 
 
   ${ action_button_html(url_action('review_eviction_answer'), label='Edit answers', color='info') }
   
@@ -2272,14 +2252,18 @@ only sets: docket_header
 question: |
   Case header
 subquestion: |
+  % if person_answering == "tenant":
   The first tab you see when you open your case is the "Case Header" tab, which will look something like this -
+  % else: 
+  The first tab the tenant will see when they open their case is the "Case Header" tab, which will look something like this -
+  % endif
   
   [FILE CaseHeader.png, 100%]
 fields:
   - Docket Number: docket_number
     required: False
   - note: |
-      The Docket Number is at the top of the page, with white type on a blue blackground.  It usually starts with the last two digits of the year (22 for 2022).  
+      The Docket Number is at the top of the page, with white type on a blue blackground. It usually starts with the last two digits of the year (22 for 2022).  
   - Date Filed: filing_date
     required: False
     datatype: date
@@ -2296,24 +2280,41 @@ continue button field: docket_header
 if: tenant_got_summons and petition_available and len(users)==1
 question: Is any other tenant listed on this eviction case?
 subquestion: |
-  In eviction cases, tenants are called Defendants.  Defendants are listed underneath the Plaintiffs, and your name and address should be included as a Defendant.
-  
+  % if person_answering == "tenant":
+  In an eviction case, tenants are called Defendants. Defendants are listed underneath the Plaintiffs, and your name and address should be included as a Defendant.
+  % else:
+  In an eviction case, tenants are called Defendants. Defendants are listed underneath the Plaintiffs, and the tenant's name and address should be included as a Defendant.
+  % endif
   [FILE ComplaintCaptionDefendant.png, 100%]
   
 fields:
-  - Are there any other Defendants listed besides you?: users.there_is_another
+  - label: |
+      % if person_answering == "tenant":
+      Are there any other Defendants listed besides you?
+      % else:
+      Are there any other Defendants listed besides the tenant?
+      % endif
+    field: users.there_is_another
     datatype: yesnoradio
 ---
 if: defined('docket_available') and docket_available and len(users)==1
 question: |
   Is any other tenant listed on this eviction case?
 subquestion: |
-  Look in the box labeled "Defendants"
-  In an eviction case, tenants are called Defendants.  Defendants are listed underneath the Plaintiffs, and your name and address should be included as a Defendant.
-  
+  % if person_answering == "tenant":
+  In an eviction case, tenants are called Defendants. Defendants are listed underneath the Plaintiffs, and your name and address should be included as a Defendant.
+  % else:
+    In an eviction case, tenants are called Defendants. Defendants are listed underneath the Plaintiffs, and the tenant's name and address should be included as a Defendant.
+  % endif
 fields:
-  - Are there any other Defendants listed besides you?: users.there_is_another
-    datatype: yesnomaybe
+  - label: |
+      % if person_answering == "tenant":
+      Are there any other Defendants listed besides you?
+      % else:
+      Are there any other Defendants listed besides the tenant?
+      % endif
+    field: users.there_is_another
+    datatype: yesnoradio
 ---
 id: Landlord representation
 question: |
@@ -2337,17 +2338,35 @@ fields:
 ---  
 id: Rent paid
 question: |
+  % if person_answering == "tenant":
   Have you paid at least part of the rent your landlord says you owe?
+  % else: 
+  Has the tenant paid at least part of the rent the landlord says the tenant owes?
+  % endif
 subquestion: |
-  % if petition_states_rent_amount:
+  % if person_answering == "tenant" and petition_states_rent_amount:
   You said your landlord said you owe ${ currency(rent_amount_owed) }.
+  % else:
+  The tenant's landlord said the tenant owes ${ currency(rent_amount_owed) }.
   % endif
 fields:
-  - I paid at least part of the rent: was_rent_paid
+  - label: |
+      % if person_answering == "tenant":
+      I paid at least part of the rent
+      % else:
+      The tenant paid at least part of the rent
+      % endif
+    field: was_rent_paid
     datatype: yesnoradio
-  - How much did you pay?: rent_amount_paid
-    input type: radio
-    show if: was_rent_paid
+  - label: |
+      % if person_answering == "tenant":
+      How much did you pay?
+      % else:
+      How much did the tenant pay?
+      % endif
+    field: rent_amount_paid
+    datatype: radio
     choices: 
-      - "I paid all of the rent": "all"
-      - "I paid part of the rent": "a portion"
+      - "I paid all of the rent": all
+      - "I paid part of the rent": a_portion
+    show if: was_rent_paid

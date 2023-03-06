@@ -5,10 +5,18 @@ code: |
 ---
 id: wants reminders
 question: |
+  % if person_answering == "tenant":
   Would you like to get a reminder about important follow-up steps?
+  % else:
+  Would the tenant like to get a reminder about important follow-up steps?
+  % endif
 subquestion: |
-  % if len(al_reminders) == 1:
+  % if person_answering == "tenant":
   We can send you a reminder, by text or email,
+  % else:
+  We can send the tenant a reminder, by text or email,
+  % endif
+  % if len(al_reminders) == 1:
   about ${ next(iter(al_reminders.values()))["description"][:1].lower() }${ fix_punctuation(next(iter(al_reminders.values()))["description"][1:]) }
   % else:
   about:
@@ -18,9 +26,21 @@ subquestion: |
   % endfor
   % endif
 fields:
-  - I want to get reminders: al_user_wants_reminders
+  - label: |
+      % if person_answering == "tenant":
+        I want to get reminders
+      % else:
+        The tenant wants to get reminders
+      % endif
+    field: al_user_wants_reminders
     datatype: yesnoradio
-  - I want to get reminders by: al_user_preferred_reminder_formats
+  - label: |
+      % if person_answering == "tenant":
+        I want to get reminders by
+      % else:
+        The tenant wants to get reminders by
+      % endif
+    field: al_user_preferred_reminder_formats
     datatype: checkboxes
     choices:
       - SMS (text message): sms
@@ -28,9 +48,19 @@ fields:
     minlength: 1
     validation messages:
       minlength: |
+        % if person_answering == "tenant":
         You need to choose to get reminders by either email or SMS, or both.
-    show if: al_user_wants_reminders    
-  - The email I want to use is: al_user_reminder_email
+        % else: 
+        The tenant needs to choose to get reminders by either email or SMS, or both.
+        % endif
+    show if: al_user_wants_reminders   
+  - label: |
+      % if person_answering == "tenant":
+        The email I want to use is
+      % else:
+        The email the tenant wants to use is
+      % endif
+    field: al_user_reminder_email
     datatype: email
     default: |
       % if defined("users[0].email"):
@@ -39,7 +69,13 @@ fields:
       ${ user_info().email }
       % endif
     show if: al_user_preferred_reminder_formats["email"]
-  - The phone number I want to use is: al_user_reminder_phone
+  - label: |
+      % if person_answering == "tenant":
+        The phone number I want to use is
+      % else:
+        The phone number the tenant wants to use is
+      % endif
+    field: al_user_reminder_phone
     default: |
       % if defined("users[0].mobile_number"):
       ${ users[0].mobile_number }
@@ -64,21 +100,43 @@ code: |
 ---
 template: al_reminder_initial_sms_template
 content: |
+  % if person_answering == "tenant":
   You asked to get a reminder of important dates when you used "${ all_variables(special='titles').get('title', AL_ORGANIZATION_TITLE) }".
   You will get the reminders at this phone number.
+  % else:
+  The tenant asked to get a reminder of important dates when they used "${ all_variables(special='titles').get('title', AL_ORGANIZATION_TITLE) }".
+  The tenant will get the reminders at this phone number.
+  % endif
 ---
 template: al_reminder_initial_email_template
 subject: |
+  % if person_answering == "tenant":
   You are now signed up for reminders
+  % else:
+  The tenant is now signed up for reminders
+  % endif
 content: |
+  % if person_answering == "tenant":
+  The tenant asked to get a reminder of important dates when they used "${ all_variables(special='titles').get('title', AL_ORGANIZATION_TITLE) }".
+  The tenant will get the reminders using this email address.
+  % else:
   You asked to get a reminder of important dates when you used "${ all_variables(special='titles').get('title', AL_ORGANIZATION_TITLE) }".
-  You'll get the reminders using this email address.
+  You will get the reminders using this email address.
+  % endif
 ---
 template: al_reminder_filing_template
 subject: |
+  % if person_answering == "tenant":
   Did you file your ${ all_variables(special='titles').get('title', AL_ORGANIZATION_TITLE) } documents yet?
+  % else:
+  Did the tenant file their ${ all_variables(special='titles').get('title', AL_ORGANIZATION_TITLE) } documents yet?
+  % endif
 content: |
-  If you haven't filed yet, make a plan or do it today!
+  % if person_answering == "tenant":
+  If you have not filed yet, make a plan to or file today!
+  % else:
+  If the tenant has not filed yet, they should make a plan to or file today!
+  % endif
 ---
 event: cron_daily
 code: |
