@@ -177,7 +177,7 @@ fields:
       % if person_answering == "tenant":
       Did your landlord make any false promises to you before you signed the lease?
       % else: 
-      Did the landlord make any false promises to the tenant before they signed the lease?
+      Did the landlord make any false promises to the tenant before the tenant signed the lease?
       % endif
     field: false_promises.there_are_any
     datatype: yesnoradio
@@ -353,7 +353,7 @@ fields:
       % if person_answering == "tenant":
       Did your landlord say that you owe fees for paying rent late?
       % else: 
-      Did the landlord say that the tenant owe fees for paying rent late?
+      Did the landlord say that the tenant owes fees for paying rent late?
       % endif
     field: late_fees_assessed
     datatype: yesnoradio
@@ -531,7 +531,12 @@ fields:
       - Section 8 voucher: voucher
       - Public housing: public
         help: |
+          % if person_answering == "tenant":
           In public housing, your landlord is usually the city or county.
+          % else:
+          In public housing, the tenant's landlord is usually the city or 
+          county.
+          % endif
       - Tax credit: taxcredit
       - ${ "Housing project run by a private landlord (and I pay 30% of my income for rent)" if person_answering == "tenant" else "Housing project run by a private landlord (and the tenant pays 30% of their income for rent)"}: project   
     show if:

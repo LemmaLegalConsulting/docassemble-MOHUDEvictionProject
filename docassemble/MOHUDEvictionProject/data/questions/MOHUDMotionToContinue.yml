@@ -655,9 +655,12 @@ fields:
     datatype: checkboxes
     choices:
       - "By mail": mail
-      - ${ "It was taped, stapled, or posted to your door or home" if person_answering == "tenant" else "It was taped, stapled, or posted to the tenant's door or home" } 
-      - ${ "It was handed to you by the sheriff" if person_answering == "tenant" else "It was handed to the tenant by the sheriff" } 
-      - ${ "It was handed to you by your landlord or somebody other than the sheriff" if person_answering == "tenant" else "It was handed to the tenant by the landlord or somebody other than the sheriff" } 
+      - ${ "It was taped, stapled, or posted to your door or home" if person_answering == "tenant" else "It was taped, stapled, or posted to the tenant's door or home" }: posting
+      - It was stuffed in the door or left somewhere without being taped, stapled or posted": left
+      - ${ "It was handed to you by the sheriff" if person_answering == "tenant" else "It was handed to the tenant by the sheriff" }: sheriff
+      - ${ "It was handed to you by your landlord or somebody other than the sheriff" if person_answering == "tenant" else "It was handed to the tenant by the landlord or somebody other than the sheriff" }: other_delivery
+      - "Some other method of getting the petition": other
+    show if: tenant_got_summons
   - label: |
       % if person_answering == "tenant":
       Do you have the Summons next to you now?
@@ -666,6 +669,7 @@ fields:
       % endif
     field: petition_available
     datatype: yesnoradio
+    show if: tenant_got_summons
   - note: |
       % if person_answering == "tenant":
       **You may want to stop and get the petition now.** It can help you answer
@@ -676,7 +680,9 @@ fields:
       the questions on this website more accurately. If they cannot easily get it,
       it is OK to keep going.
       % endif
-    show if: petition_available
+    show if: 
+      variable: petition_available
+      is: False
 terms:
   Summons: |
     % if person_answering == "tenant":
@@ -747,14 +753,7 @@ question: |
 subquestion: |
   % if person_answering == "tenant":
   % if tenant_got_summons:
-  You said that you got the Summons and Petition by 
-  % if method_of_summons_service['personal'] or method_of_summons_service['sheriff']:
-  personal delivery
-  % else:
-  mail
-  % endif
-  .
-  
+  You said that you got the Summons and Petition by personal delivery.
   % else:
   You said you do not know if you got the Summons and Petition.
   % endif
@@ -773,16 +772,9 @@ subquestion: |
   
   % else:
   % if tenant_got_summons:
-  The tenant got the Summons and Petition by 
-  % if method_of_summons_service['personal'] or method_of_summons_service['sheriff']:
-  personal delivery
+  You said that the tenant got the Summons and Petition by personal delivery.
   % else:
-  mail
-  % endif
-  .
-  
-  % else:
-  The tenant does not know if they got the Summons and Petition.
+  You said the tenant does not know if they got the Summons and Petition.
   % endif
   In this situation,
   most tenants file an answer.

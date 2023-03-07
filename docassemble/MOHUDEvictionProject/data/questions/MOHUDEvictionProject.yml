@@ -145,7 +145,7 @@ code: |
   users[0].name.first
   greet_user
   nav.set_section("section_eviction_answer_can_i")
-  if not tenant_got_summons or not (method_of_summons_service['personal'] or method_of_summons_service['sheriff']):
+  if not tenant_got_summons or not method_of_summons_service['sheriff']:
     posting_warning
   else:
     recommend_filing_answer
@@ -319,7 +319,7 @@ code: |
     excessive_rent
   if late_fees_assessed:
     late_fees_penalty
-    if trial_court_circuit == 21:
+    if trial_court.circuit == 21:
       petition_separates_nonrent
   petition_states_demand_made
   rent_defenses_section = True
@@ -613,7 +613,7 @@ question: |
   % if person_answering == "tenant":
   When is your court hearing?
   % else:
-  When is your the tenant's hearing?
+  When is the tenant's court hearing?
   % endif
 subquestion: |
   % if person_answering == "tenant":
@@ -880,9 +880,12 @@ fields:
     datatype: checkboxes
     choices:
       - "By mail": mail
-      - ${ "It was taped, stapled, or posted to your door or home" if person_answering == "tenant" else "It was taped, stapled, or posted to the tenant's door or home" } 
-      - ${ "It was handed to you by the sheriff" if person_answering == "tenant" else "It was handed to the tenant by the sheriff" } 
-      - ${ "It was handed to you by your landlord or somebody other than the sheriff" if person_answering == "tenant" else "It was handed to the tenant by the landlord or somebody other than the sheriff" } 
+      - ${ "It was taped, stapled, or posted to your door or home" if person_answering == "tenant" else "It was taped, stapled, or posted to the tenant's door or home" }: posting
+      - It was stuffed in the door or left somewhere without being taped, stapled or posted": left
+      - ${ "It was handed to you by the sheriff" if person_answering == "tenant" else "It was handed to the tenant by the sheriff" }: sheriff
+      - ${ "It was handed to you by your landlord or somebody other than the sheriff" if person_answering == "tenant" else "It was handed to the tenant by the landlord or somebody other than the sheriff" }: other_delivery
+      - "Some other method of getting the petition": other
+    show if: tenant_got_summons
   - label: |
       % if person_answering == "tenant":
       Do you have the Summons next to you now?
@@ -891,6 +894,7 @@ fields:
       % endif
     field: petition_available
     datatype: yesnoradio
+    show if: tenant_got_summons
   - note: |
       % if person_answering == "tenant":
       **You may want to stop and get the petition now.** It can help you answer
@@ -901,7 +905,9 @@ fields:
       the questions on this website more accurately. If they cannot easily get it,
       it is OK to keep going.
       % endif
-    show if: petition_available
+    show if: 
+      variable: petition_available
+      is: False
 terms:
   Summons: |
     % if person_answering == "tenant":
@@ -944,7 +950,7 @@ subquestion: |
   You do not need to decide now. If you keep going, we will remind you about your choices at the end.
   You may want to talk to a lawyer to decide for sure.
   % else: 
-  The tenant said that they got the Summons and Petition by "posting" (taping, stapling, or pinning to their door) or that they did not receive the Summons and Petition at all.
+  The tenant got the Summons and Petition by "posting" (taping, stapling, or pinning to their door) or that they did not receive the Summons and Petition at all.
 
   Because their landlord did not mail the Summons and Petition, if they file an answer, the court may order 
   them to pay money that they would not need to pay otherwise.
@@ -958,14 +964,9 @@ subquestion: |
   The tenant may want to talk to a lawyer to decide for sure.
   % endif
 buttons:
-  - label: |
-      % if person_answering == "tenant":
-      I understand, let me keep going
-      % else:
-      The tenant understands, let them keep going
-      % endif 
-    code: |
-      posting_warning = True
+  - ${"I understand, let me keep going" if person_answering == "tenant" else "The tenant understands, let them keep going"}:
+      code: |
+        posting_warning = True
   - Exit: exit
     url: https://motenantassistance.org/
 ---
@@ -979,14 +980,7 @@ question: |
 subquestion: |
   % if person_answering == "tenant":
   % if tenant_got_summons:
-  You said that you got the Summons and Petition by 
-  % if method_of_summons_service['personal'] or method_of_summons_service['sheriff']:
-  personal delivery
-  % else:
-  mail
-  % endif
-  .
-  
+  You said that you got the Summons and Petition by personal delivery.
   % else:
   You said you do not know if you got the Summons and Petition.
   % endif
@@ -1005,16 +999,9 @@ subquestion: |
   
   % else:
   % if tenant_got_summons:
-  The tenant got the Summons and Petition by 
-  % if method_of_summons_service['personal'] or method_of_summons_service['sheriff']:
-  personal delivery
+  You said that the tenant got the Summons and Petition by personal delivery.
   % else:
-  mail
-  % endif
-  .
-  
-  % else:
-  The tenant does not know if they got the Summons and Petition.
+  You said the tenant does not know if they got the Summons and Petition.
   % endif
   In this situation,
   most tenants file an answer.
@@ -1112,6 +1099,7 @@ fields:
       % endif 
     field: rent_amount_owed
     datatype: currency
+    show if: petition_states_rent_amount
   - label: |
       % if person_answering == "tenant":
       Does the petition say you owe an amount **other** than rent?
@@ -1177,6 +1165,7 @@ fields:
       % endif 
     field: petition_states_terms_of_lease
     datatype: yesnomaybe
+    show if: lease_attached
   - note: |
       ${ collapse_template(terms_of_lease_explanation) }
     show if: 
@@ -1207,7 +1196,7 @@ fields:
       % if person_answering == "tenant":
       Does the petition say a specific amount for each month your landlord says you owe rent?
       % else:
-      Does the petition say a specific amount for each month the tenant's landlord says they owe rent?
+      Does the petition say a specific amount for each month the landlord says the tenant owes rent?
       % endif 
     field: petition_states_rent_periods
     datatype: yesnomaybe
@@ -1277,9 +1266,6 @@ fields:
       % endif 
     field: offer_attempts.there_are_any
     datatype: yesnoradio
-    show if: 
-      code: |
-        person_answering == "tenant"
 ---
 id: payment attempt loop
 question: |
@@ -1423,7 +1409,7 @@ fields:
       % if person_answering == "tenant":
       Will you pay the full amount your landlord says you owe, plus court costs, to stop the eviction?
       % else:
-      Will the tenant pay the full amount their landlord says you them, plus court costs, to stop their eviction?
+      Will the tenant pay the full amount their landlord says the tenant owes them, plus court costs, to stop their eviction?
       % endif 
     field: will_offer_payment
     datatype: yesnoradio
@@ -1468,7 +1454,7 @@ fields:
       - Other: other
   - label: |
       % if person_answering == "tenant":
-      What other problems do you have??
+      What other problems do you have?
       % else:
       What other problems does the tenant have?
       % endif 
@@ -1494,7 +1480,7 @@ fields:
       - Other: other
   - label: |
       % if person_answering == "tenant":
-      What other problems do you have??
+      What other problems do you have?
       % else:
       What other problems does the tenant have?
       % endif 
@@ -1903,44 +1889,72 @@ review:
       - recompute:
         - defense_logic
     button: |
+      % if person_answering == "tenant":
       How did you receive the Summons and Landlord's Petition?:
+      % else: 
+      How did the tenant receive the Summons and Landlord's Petition?:
+      % endif
       **${ method_of_summons_service.true_values() }**
   - Edit:
       - petition_available
       - recompute:
         - defense_logic
     button: |
+      % if person_answering == "tenant":
       Do you have a copy of the Landlord's Petition available?:
+      % else: 
+      Does the tenant have a copy of the Landlord's Petition available?:
+      % endif
       **${ petition_available }**
   - note: | 
+      % if person_answering == "tenant":
       ##Your claims and defenses##
+      % else: 
+      ##The tenant's claims and defenses##
+      % endif
   - Edit:
       - petition_states_rent_amount
       - recompute:
         - defense_logic
     button: |
+      % if person_answering == "tenant":
       Does the petition say what amount of rent you owe?:
+      % else:
+      Does the petition say what amount of rent the tenant owes?:
+      % endif
       **${ petition_states_rent_amount }**
   - Edit:
       - petition_states_rent_periods
       - recompute:
         - defense_logic
     button: |
+      % if person_answering == "tenant":
       Does the petition list each month that the landlord claims you owe rent?:
+      % else: 
+      Does the petition list each month that the landlord claims you owe rent?:
+      % endif
       **${ petition_states_rent_periods }**
   - Edit:
       - was_rent_paid
       - recompute:
         - defense_logic
     button: |
+      % if person_answering == "tenant":
       Did you pay at least part of the rent?:
+      % else: 
+      Did the tenant pay at least part of the rent?:
+      % endif
       **${ was_rent_paid }**
   - Edit:
       - rent_amount_paid
       - recompute:
         - defense_logic
     button: |
+      % if person_answering == "tenant":
       How much did you pay?:
+      % else: 
+      How much did the tenant pay?:
+      % endif
       **${ rent_amount_paid }**
   - Edit:
       - offer_attempts.revisit
@@ -1961,14 +1975,22 @@ review:
       - recompute:
         - defense_logic
     button: |
+      % if person_answering == "tenant":
       Is your landlord asking you to pay an amount that is more than your tenant rent share?:
+      % else: 
+      Is the landlord asking the tenant to pay an amount that is more than the tenant's rent share?:
+      % endif
       **${ excessive_rent }**
   - Edit:
       - late_fees_assessed
       - recompute:
         - defense_logic
     button: |
+      % if person_answering == "tenant":
       Is the landlord claiming that you owe late fees?:
+      % else: 
+      Is the landlord claiming that the tenant owes late fees?:
+      % endif
       **${ late_fees_assessed }**
   - Edit:
       - late_fees_penalty
@@ -1989,7 +2011,11 @@ review:
       - recompute:
         - defense_logic
     button: |
+      % if person_answering == "tenant":
       Does the petition separate the amount you owe in rent from other charges?:
+      % else: 
+      Does the petition separate the amount the tenant owes in rent from other charges?:
+      % endif
       **${ petition_separates_nonrent }**
   - Edit:
       - petition_states_demand_made
@@ -2005,14 +2031,22 @@ review:
       - recompute:
         - defense_logic
     button: |
+      % if person_answering == "tenant":
       Did you make a settlement agreement with the landlord to avoid the eviction?:
+      % else: 
+      Did the tenant make a settlement agreement with the landlord to avoid the eviction?:
+      % endif
       **${ landlord_agreement }**
   - Edit:
       - landlord_agreement_type
       - recompute:
         - defense_logic
     button: |
+      % if person_answering == "tenant":
       What type of agreement did you make?:
+      % else: 
+      What type of agreement did the tenant make?:
+      % endif
       **${ landlord_agreement_type }**
   - Edit:
       - landlord_agreement_terms
@@ -2026,14 +2060,22 @@ review:
       - recompute:
         - defense_logic
     button: |
+      % if person_answering == "tenant":
       Did you comply with the settlement agreement with the landlord?:
+      % else: 
+      Did the tenant comply with the settlement agreement with the landlord?:
+      % endif
       **${ tenant_compliance_with_agreement }**
   - Edit:
       - tenant_compliance_with_agreement_proof
       - recompute:
         - defense_logic
     button: |
+      % if person_answering == "tenant":
       Do you have proof that you complied with the agreement?:
+      % else: 
+      Does the tenant have proof that they complied with the agreement?:
+      % endif
       **${ tenant_compliance_with_agreement_proof }**
   - note: | 
       ##Landlord Problems##
