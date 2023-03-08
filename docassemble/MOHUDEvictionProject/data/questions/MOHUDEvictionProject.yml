@@ -157,6 +157,9 @@ code: |
     if unlawful_detainer_kick_out_option:
       motion_to_continue_order
       interview_order_eviction_defender = True
+  if not tenant_got_summons or not petition_available:
+    if docket_available:
+      docket_review
   nav.set_section("section_eviction_answer_other")
   other_parties.gather()
   for party in other_parties:
