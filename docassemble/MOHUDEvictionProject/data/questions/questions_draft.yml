@@ -6,20 +6,49 @@ comment: |
   
   If does_landlord_match == False, then include Person suing is not the landlord defense
     "There is no landlord-tenant relationship between Plaintiff and Defendant in this case."
-question: Does the name of the Plaintiff match the name of your landlord?
+question: |
+  % if person_answering == "tenant":
+  Does the name of the Plaintiff match the name of your landlord?
+  % else:
+  Does the name of the Plaintiff match the name of the tenant's landlord?
+  % endif 
 subquestion: |
+  % if person_answering == "tenant":
   Only your landlord may file a case to evict you. Your landlord is the person you made your lease agreement with.
   
   If the person filing to evict you is not your landlord, the court may dismiss the case.
+  % else:
+  Only the tenant's landlord may file a case to evict them. The tenant's landlord is the person the tenant made their lease agreement with.
+  
+  If the person filing to evict the tenant is not their landlord, the court may dismiss the case.
+  % endif 
 fields:
-  - Did you make your lease agreement with ${ other_parties }?: does_landlord_match
+  - label: |
+      % if person_answering == "tenant":
+      Did you make your lease agreement with ${ other_parties }?
+      % else:
+      Did the tenant make their lease agreement with ${ other_parties }?
+      % endif 
+    field: does_landlord_match
     datatype: yesnoradio
-  - Who did you make your lease agreement with?: real_landlord
-    dataype: text
+  - label: |
+      % if person_answering == "tenant":
+      Who did you make your lease agreement with?
+      % else:
+      Who did the tenant make their lease agreement with?
+      % endif 
+    field: real_landlord
+    datatype: text
     show if:
       variable: real_landlord
       is: False
-  - Does the Petition claim that ${ other_parties } is your landlord?: is_landlord_status_alleged
+  - label: |
+      % if person_answering == "tenant":
+      Does the Petition claim that ${ other_parties } is your landlord?
+      % else:
+      Does the Petition claim that ${ other_parties } is the tenant's landlord?
+      % endif 
+    field: is_landlord_status_alleged
     datatype: yesnoradio
     help: |
       This would be in the "facts" section of the Petition.
@@ -40,15 +69,38 @@ comment: |
       "The only information Defendant has received as to who owns the property is (ownership_reliable_explanation)
   
   OR MAYBE more simply "There is no attornment between Plaintiff and Defendant in this case."
-question: Has ${ other_parties } shown you proof that they own the property?
-subquestion:
+question: |
+  % if person_answering == "tenant":
+  Has ${ other_parties } shown you proof that they own the property?
+  % else:
+  Has ${ other_parties } shown the tenant proof that they own the property?
+  % endif
+subquestion: |
+  % if person_answering == "tenant":
   If the person suing you claims to be your landlord, but has not shown you the deed to the property, 
   and you have not received any reliable information concerning ownership of the property, 
   the court may dismiss the case for lack of “attornment.”
+  % else: 
+  If the person suing the tenant claims to be the tenant's landlord, but has not shown the tenant the deed to the property, 
+  and the tenant has not received any reliable information concerning ownership of the property, 
+  the court may dismiss the case for lack of “attornment.”
+  % endif
 fields: 
-  - Has the Plaintiff shown you the deed to the property?: was_deed_shown
+  - label: |
+      % if person_answering == "tenant":
+      Has the Plaintiff shown you the deed to the property?
+      % else:
+      Has the Plaintiff shown the tenant the deed to the property?
+      % endif 
+    field: was_deed_shown
     datatype: yesnoradio
-  - Have you received any reliable information conerning who owns the property?: is_ownership_reliable
+  - label: |
+      % if person_answering == "tenant":
+      Have you received any reliable information conerning who owns the property?
+      % else:
+      Has the tenant received any reliable information conerning who owns the property?
+      % endif 
+    field: is_ownership_reliable
     datatype: yesnoradio
     show if:
       variable: was_deed_shown

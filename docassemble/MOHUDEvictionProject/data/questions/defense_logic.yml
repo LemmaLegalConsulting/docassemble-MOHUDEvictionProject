@@ -87,13 +87,29 @@ depends on:
 ---
 id: made settlement
 question: |
-  Did you already make an agreement with the landlord to stop the eviction?
+  % if person_answering == "tenant":
+  Did you already make an agreement with your landlord to stop the eviction?
+  % else: 
+  Did the tenant already make an agreement with their landlord to stop the eviction?
+  % endif
 subquestion: |
   A landlord and tenant can agree to "settle" an eviction case, which means an agreement to stop the eviction.
 fields:
-  - Did you make a settlement agreement with the landlord?: landlord_agreement
+  - label: |
+      % if person_answering == "tenant":
+      Did you make a settlement agreement with your landlord?
+      % else: 
+      Did the tenant make a settlement agreement with their landlord?
+      % endif
+    field: landlord_agreement
     datatype: yesnoradio
-  - Did you follow the terms of the agreement?: tenant_compliance_with_agreement
+  - label: |
+      % if person_answering == "tenant":
+      Did you follow the terms of the agreement?
+      % else: 
+      Did the tenant follow the terms of the agreement?:
+      % endif
+    field: tenant_compliance_with_agreement
     datatype: yesnoradio
     show if: landlord_agreement
 ---
@@ -104,11 +120,21 @@ depends on:
 ---
 id: duress
 question: |
+  % if person_answering == "tenant":
   Did the landlord unfairly make or pressure you to sign the lease?
+  % else: 
+  Did the landlord unfairly make or pressure the tenant to sign the lease?
+  % endif
 subquestion: |
   ${ collapse_template(unfair_duress_explanation_template) }
 fields:
-  - Did the landlord unfairly pressure you to sign the lease?: unfair_duress
+  - label: |
+      % if person_answering == "tenant":
+      Did the landlord unfairly make or pressure you to sign the lease?
+      % else: 
+      Did the landlord unfairly make or pressure the tenant to sign the lease?
+      % endif
+    field: unfair_duress
     datatype: yesnoradio
 ---
 template: unfair_duress_explanation_template
@@ -116,8 +142,12 @@ subject: |
   What counts as "unfair pressure"?
 content: |
   Only a judge can decide. But unfair pressure may include:
-
+  
+  % if person_answering == "tenant":
   * A threat to hurt you or someone else,
+  % else:
+  * A threat to hurt the tenant or someone else,
+  % endif
   * An **implied** threat to hurt you or someone else, or
   * Extreme psychological pressure.
 ---
@@ -135,19 +165,36 @@ objects:
 ---
 id: landlord lied
 question: |
-  Did your landlord tell you something that wasn't true to get you to sign the lease?
+  % if person_answering == "tenant":
+  Did your landlord tell you something that was not true to get you to sign the lease?
+  % else:
+  Did the landlord tell the tenant something that was not true to get the tenant to sign the lease?
+  % endif
 subquestion: |
   ${ collapse_template(false_promise_example_template) }
 fields:
-  - Did your landlord make any false promises to you before you signed the lease?: false_promises.there_are_any
+  - label: |
+      % if person_answering == "tenant":
+      Did your landlord make any false promises to you before you signed the lease?
+      % else: 
+      Did the landlord make any false promises to the tenant before the tenant signed the lease?
+      % endif
+    field: false_promises.there_are_any
     datatype: yesnoradio
-  - What was the **first** false promise your landlord made to you?: false_promises[0]
+  - label: |
+      % if person_answering == "tenant":
+      What was the **first** false promise your landlord made to you?
+      % else: 
+      What was the **first** false promise the landlord made to the tenant?
+      % endif
+    field: false_promises[0]
     show if: false_promises.there_are_any
 ---
 template: false_promise_example_template
 subject: |
   What counts as a false promise?
 content: |
+  % if person_answering == "tenant":
   If your landlord told you something that got you to sign the lease and
   that turned out not to be true, it may be a false promise.
 
@@ -158,14 +205,37 @@ content: |
   * Promising that an old appliance would get replaced before you moved in.
 
   Those may count as false promises. What matters is that you would not
-  have signed the lease if your landlord hadn't told you something that
+  have signed the lease if your landlord had not told you something that
   turned out not to be true.
+  % else: 
+  If the landlord told the tenant something that got the tenant to sign the 
+  lease and that turned out not to be true, it may be a false promise.
+
+  For example:
+
+  * Promising to paint a room,
+  * Promising to replace a carpet, or
+  * Promising that an old appliance would get replaced before the tenant moved 
+  in.
+
+  Those may count as false promises. What matters is that the tenant would not
+  have signed the lease if the landlord had not told the tenant something that
+  turned out not to be true.
+  % endif
 ---
 id: promises i
 question: |
+  % if person_answering == "tenant":
   What was the **${ ordinal(i) }** false promise your landlord made?
+  % else: 
+  What was the **${ ordinal(i) }** false promise the landlord made?
+  % endif
 subquestion: |
+  % if person_answering == "tenant":
   You already told us about:
+  % else:
+  The tenant already told us about:
+  % endif
 
   % for promise in false_promises:
   * ${ promise }
@@ -175,25 +245,52 @@ fields:
 ---
 id: false promises there is another
 question: |
+  % if person_answering == "tenant":
   Did your landlord promise anything else that was not true?
+  % else:  
+  Did the landlord promise anything else that was not true?
+  % endif
 subquestion: |
+  % if person_answering == "tenant":
   You already told us about:
+  % else:
+  The tenant already told us about:
+  % endif
 
   % for promise in false_promises:
   * ${ promise }
   % endfor
 fields:
-  - Did the landlord promise anything else that was not true?: false_promises.there_is_another
+  - label: |
+      % if person_answering == "tenant":
+      Did your landlord promise anything else that was not true? 
+      % else: 
+      Did the landlord promise anything else that was not true? 
+      % endif
+    field: false_promises.there_is_another
     datatype: yesnoradio
 ---
 id: relied on promise
 question: |
+  % if person_answering == "tenant":
   Did your landlord's promise get you to sign the lease?
+  % else: 
+  Did the landlord's promise get the tenant to sign the lease?
+  % endif
 subquestion: |
+  % if person_answering == "tenant":
   % if false_promises.number() == 1:
   You told us the landlord made 1 false promise:
   % else:
-  You told use the landlord made ${ false_promises.number() } false promises:
+  You told us the landlord made ${ false_promises.number() } false promises:
+  % endif
+  % else: 
+  % if false_promises.number() == 1:
+  The tenant told us the landlord made 1 false promise:
+  % else:
+  The tenant told us the landlord made ${ false_promises.number() } false 
+  promises:
+  % endif
   % endif
 
   % for promise in false_promises:
@@ -201,16 +298,39 @@ subquestion: |
   % endfor  
 fields:
   - label: |
+      % if person_answering == "tenant":
       % if false_promises.number() == 1:
       Did your landlord's promise get you to sign the lease?
       % else:
       Did your landlord's promises get you to sign the lease?
       % endif
+      % else: 
+      % if false_promises.number() == 1:
+      Did the landlord's promise get the tenant to sign the lease?
+      % else:
+      Did the landlord's promises get the tenant to sign the lease?
+      % endif
+      % endif
     field: relied_on_false_promises
     datatype: yesnoradio
   - note: |
+      % if person_answering == "tenant":
+      % if false_promises.number() == 1:
       If you were more likely to sign the lease **because** of 
-      your landlord's promise(s), answer yes.
+      your landlord's promise, answer yes.
+      % else:
+      If you were more likely to sign the lease **because** of 
+      your landlord's promises, answer yes.
+      % endif
+      % else: 
+      % if false_promises.number() == 1:
+      If the tenant was more likely to sign the lease **because** of 
+      the landlord's promise, answer yes.
+      % else:
+      If the tenant was more likely to sign the lease **because** of 
+      the landlord's promises, answer yes.
+      % endif
+      % endif
 ---
 code: |
   if late_fees_assessed and late_fees_penalty:
@@ -223,11 +343,27 @@ depends on:
 ---
 id: late fees
 question: |
+  % if person_answering == "tenant":
   Did your landlord say that you owe a late fee?
+  % else: 
+  Did the landlord say that the tenant owes a late fee?
+  % endif
 fields:
-  - Did your landlord say that you owe fees for paying rent late?: late_fees_assessed
+  - label: |
+      % if person_answering == "tenant":
+      Did your landlord say that you owe fees for paying rent late?
+      % else: 
+      Did the landlord say that the tenant owes fees for paying rent late?
+      % endif
+    field: late_fees_assessed
     datatype: yesnoradio
-  - Is your rent more than a fair amount to cover the landlord's cost?: late_fees_penalty
+  - label: |
+      % if person_answering == "tenant":
+      Is your rent more than a fair amount to cover the landlord's cost?
+      % else: 
+      Is the tenant's rent more than a fair amount to cover the landlord's cost?
+      % endif
+    field: late_fees_penalty
     datatype: yesnomaybe
     show if: late_fees_assessed
   - note: |
@@ -279,9 +415,21 @@ id: had foreclosure
 question: |
   Did the bank ever foreclose on this home?
 fields:
-  - Did the bank foreclose on this property while you lived there?: landlord_foreclosed
+  - label: |
+      % if person_answering == "tenant":
+      Did the bank foreclose on this property while you lived there?
+      % else: 
+      Did the bank foreclose on this property while the tenant lived there?
+      % endif
+    field: landlord_foreclosed
     datatype: yesnomaybe
-  - Did you get a letter that told you about the foreclosure?: notice_of_foreclosure
+  - label: |
+      % if person_answering == "tenant":
+      Did you get a letter that told you about the foreclosure?
+      % else: 
+      Did the tenant get a letter that told them about the foreclosure?
+      % endif
+    field: notice_of_foreclosure
     datatype: yesnomaybe
     show if: landlord_foreclosed
 ---
@@ -297,11 +445,27 @@ depends on:
 ---
 id: sale of property
 question: |
-  Did your landlord ever sell the house while you were a tenant at this address?
+  % if person_answering == "tenant":
+  Did your landlord ever sell the house while you were living at this address?
+  % else:
+  Did the landlord ever sell the house while the tenant was living at this address?
+  % endif
 fields:
-  - Was your house sold to a new landlord while you lived in it?: previous_landlord_sold_property
+  - label: |
+      % if person_answering == "tenant":
+      Was your house sold to a new landlord while you lived in it?
+      % else: 
+      Was the house sold to a new landlord while the tenant lived in it?
+      % endif
+    field: previous_landlord_sold_property
     datatype: yesnomaybe
-  - Did your new landlord give you a letter that told you about the sale?: notice_of_sale_provided_new_landlord
+  - label: |
+      % if person_answering == "tenant":
+      Did your new landlord give you a letter that told you about the sale?
+      % else: 
+      Did the new landlord give the tenant a letter that told them about the sale?
+      % endif
+    field: notice_of_sale_provided_new_landlord
     datatype: yesnomaybe
     show if: previous_landlord_sold_property
   - Did that letter have a copy of the deed, or a notarized document signed both by the original landlord and the new landlord?: notice_contains_sale_document
@@ -341,36 +505,69 @@ depends on:
 ---
 id: subsidized housing identification
 question: |
+  % if person_answering == "tenant":
   What kind of housing do you have?
+  % else: 
+  What kind of housing does the tenant have?
+  % endif
 fields:
-  - Do you get a rent subsidy or do you live in public housing?: is_rent_subsidized
+  - label: |
+      % if person_answering == "tenant":
+      Do you get a rent subsidy or do you live in public housing?
+      % else: 
+      Does the tenant get a rent subsidy or do they live in public housing?
+      % endif
+    field: is_rent_subsidized
     datatype: yesnoradio
-  - What type of housing do you have?: subsidized_housing_type
+  - label: |
+      % if person_answering == "tenant":
+      What type of housing do you have?
+      % else: 
+      What type of housing does the tenant have?
+      % endif
+    field: subsidized_housing_type
     datatype: radio
     choices:
       - Section 8 voucher: voucher
       - Public housing: public
         help: |
+          % if person_answering == "tenant":
           In public housing, your landlord is usually the city or county.
+          % else:
+          In public housing, the tenant's landlord is usually the city or 
+          county.
+          % endif
       - Tax credit: taxcredit
-      - Housing project run by a private landlord (and I pay 30% of my income for rent): project        
+      - ${ "Housing project run by a private landlord (and I pay 30% of my income for rent)" if person_answering == "tenant" else "Housing project run by a private landlord (and the tenant pays 30% of their income for rent)"}: project   
     show if:
       variable: is_rent_subsidized
       is: True
-      
 ---
 id: rent not owed by tenant
 question: |
+  % if person_answering == "tenant":
   Because you get a rent subsidy
+  % else:
+  Because the tenant gets a rent subsidy
+  % endif
 subquestion: |
   Some landlords ask their tenant to pay:
 
   * Extra rent that is more than the rent the housing authority said the landlord can charge, or
   * Part of the rent the housing authority would normally pay but the housing authority has stopped payment.
 
-  Your landlord can only charge you the amount that your Section 8 contract says. You never
-  owe more than your rent share.
+  % if person_answering == "tenant":
+  Your landlord can only charge you the amount that your Section 8 contract says. You never owe more than your tenant rent share.
+  % else:
+  The tenant's landlord can only charge them the amount that their Section 8 contract says. The tenant never owes more than their tenant rent share.
+  % endif
 fields:
-  - Is your landlord asking you to pay an amount that is more than your tenant rent share?: excessive_rent
+  - label: |
+      % if person_answering == "tenant":
+      Is your landlord asking you to pay an amount that is more than your tenant rent share?
+      % else: 
+      Is the tenant's landlord asking them to pay an amount that is more than their tenant rent share?
+      % endif
+    field: excessive_rent
     datatype: yesnoradio
 ---

@@ -20,6 +20,7 @@ metadata:
     - Quinten Steenhuis
     - Toby Fey
     - Ian Eisaman
+    - Mia Bonardi
 ---
 mandatory: True
 comment: |
@@ -179,18 +180,8 @@ fields:
     show if:
       variable: representation_type
       is: ghostwriting
-  - note: |
-      Throughout the interview, "You" often means the Tenant, not you as the tenant's attorney.
-    show if:
-      variable: person_answering
-      is: attorney
-  - note: |
-      Throughout the interview, "You" often means the Tenant, not you as the tenant's helper.
-    show if:
-      variable: person_answering
-      is: tenant_helper
 ---
-id: your name
+id: name
 question:  |
   % if person_answering == "tenant":
   Your name
@@ -223,10 +214,17 @@ id: any other opposing parties
 question: |
   Is there another **Plaintiff** in this eviction case?
 subquestion:  |
+  % if person_answering == "tenant":
   You have already told us about ${ other_parties.complete_elements() }.
 
   If you have the Summons and Petition, the name of each Plaintiff is listed
-  in the box labeled "Plaintiff". 
+  in the box labeled "Plaintiff".
+  % else:
+  The tenant has already told us about ${ other_parties.complete_elements() }.
+
+  If the tenant has the Summons and Petition, the name of each Plaintiff is
+  listed in the box labeled "Plaintiff".
+  % endif 
 fields:
   - Is there another Plaintiff?: other_parties.there_is_another
     datatype: yesnomaybe
@@ -307,13 +305,13 @@ subquestion: |
       - The eviction notice
       - Your lease
   
-  **Currently, we can only help when your landlord is evicting you because you have not paid your rent.**  This type of eviction is called a Rent and Possession case.  If you are being evicted for another reason, contact [a Missouri legal aid provider](https://www.lsmo.org/).
+  **Currently, we can only help when your landlord is evicting you because you have not paid your rent.** This type of eviction is called a Rent and Possession case. If you are being evicted for another reason, contact [a Missouri legal aid provider](https://www.lsmo.org/).
 ---
 id: you can do it affirmation
 question: |
   ${ users[0].familiar() }, you can do this!
 subquestion: |
-  It takes most tenants about **30 minutes** to use this website. But you can 
+  It takes most people about **30 minutes** to use this website. But you can 
   save your work and come back at any time.
 
   Just answer the questions on each screen as well as you can. Make sure
@@ -352,8 +350,13 @@ validation code: |
 ###################### DOCKET REVIEW ######################
 id: Docket_introduction
 question: |
+  % if person_answering == "tenant":
   Use Case.net to lookup your case
+  % else:
+  Use Case.net to lookup the tenant's case
+  % endif
 subquestion: |
+  % if person_answering == "tenant":
   You can use [Case.net](https://www.courts.mo.gov/cnet)
   to help answer some questions on this website.
 
@@ -365,8 +368,26 @@ subquestion: |
 
   You will need both this website and the Case.net website open at the same time. You will
   need to switch back and forth between the two websites.
+  % else:
+  The tenant may use [Case.net](https://www.courts.mo.gov/cnet)
+  to help answer some questions on this website.
+
+  Case.net is a free website run by the Missouri Court. No
+  account is needed to access Case.net.
+
+  Using Case.net is optional, but it can help the tenant answer the questions more
+  accurately.    
+
+  This website and the Case.net website will need to be open at the same time. Switch back and forth between the two websites.
+  % endif
 fields:
-  - Do you want to use Case.net to help answer some questions?: docket_available
+  - label: |
+      % if person_answering == "tenant":
+      Do you want to use Case.net to help answer some questions?
+      % else:
+      Does the tenant want to use Case.net to help answer some questions?
+      % endif
+    field: docket_available
     datatype: yesnoradio
 ---
 depends on:
@@ -438,9 +459,17 @@ comment: |
 ---
 id: Information about the original hearing
 question: |
+  % if person_answering == "tenant":
   When is your court hearing?
+  % else:
+  When is the tenant's hearing?
+  % endif
 subquestion: |
+  % if person_answering == "tenant":
   The Summons will say the time and date of your original court hearing.
+  % else:
+  The Summons will say the time and date of the tenant's original court hearing.
+  % endif
   
   [FILE MOSummonsCourtDate.png]
   
@@ -468,7 +497,6 @@ fields:
       - Hand delivery: hand_delivery
   - "Date of Service": service_date
     datatype: date
-  
 ---
 sets:
   - other_parties[i].name.first
@@ -500,7 +528,7 @@ id: names of opposing parties
 question: |
   Name of ${ ordinal(i) } Plaintiff
 subquestion: |
-    You can click on "Parties & Attorneys", the next tab to the right.  This tab should look like this:
+    Click on "Parties & Attorneys", the next tab to the right.  This tab should look like this:
   
     [FILE Parties.png, 100%]
     
@@ -518,10 +546,14 @@ sets:
   - other_parties[i].name.suffix
   - other_parties[i].person_type
 question: |
-  % if i >= 1:
+  % if i >= 1 and person_answering == "tenant":
   What is your ${ ordinal(i) } landlord's name?
-  % else:
+  % elif i == 1 and person_answering == "tenant":
   What is your landlord's name?
+  % elif i >= 1 and person_answering == "attorney" or person_answering == "tenant_helper":
+  What is the tenant's ${ ordinal(i) } landlord's name?
+  % elif i == 1 and person_answering == "attorney" or person_answering == "tenant_helper":
+  What is the tenant's landlord's name?
   % endif
 subquestion: |
   Look at the Summons and Petition, and write the name of the ${ ordinal(i) } "Plaintiff"
@@ -535,12 +567,23 @@ fields:
 --- 
 if: docket_available
 question: |
+  % if person_answering == "tenant":
   When is your eviction hearing?
+  % else:
+  When is the tenant's eviction hearing?
+  % endif
 subquestion: |
+  % if person_answering == "tenant":
   Click the "Scheduled Hearings and Trials" tab and find the
   date scheduled for your case.
   
   Your results may look like this:
+  % else:
+  Click the "Scheduled Hearings and Trials" tab and find the
+  date scheduled for the tenant's case.
+  
+  The results may look like this:
+  % endif
 
   [FILE ScheduledEvents.png, 100%]
 fields:
@@ -552,9 +595,19 @@ fields:
 sets: docket_number
 id: docket number
 question: |
+  % if person_answering == "tenant":
   What is the case number for your case?
+  % else: 
+  What is the case number for the tenant's case?
+  % endif
 fields:
-  - I don't know the case number: dont_know_docket_number
+  - label: |
+      % if person_answering == "tenant":
+      I do not know the case number
+      % else:
+      The tenant does not know the case number
+      % endif
+    field: dont_know_docket_number
     datatype: yesnowide
   - no label: docket_number
     hide if: dont_know_docket_number
@@ -583,35 +636,69 @@ subquestion: |
   [CENTER]
   [FILE ComplaintForm.png]
 fields:
-  - "You got a copy of the {Summons} and {Petition}": tenant_got_summons
+  - label: |
+      % if person_answering == "tenant":
+      I got a copy of the {Summons} and {Petition}
+      % else:
+      Did the tenant get a copy of the {Summons} and {Petition}?
+      % endif
+    field: tenant_got_summons
     datatype: yesnomaybe
-  - "How did you get the Summons and Landlord's Petition?": method_of_summons_service
+  - label: |
+      % if person_answering == "tenant":
+      How did you get the Summons and Landlord's Petition?
+      % else:
+      How did the tenant get the Summons and Landlord's Petition?
+      % endif
+    field: method_of_summons_service
     datatype: checkboxes
     choices:
       - "By mail": mail
-      - "It was taped, stapled, or posted to my door or home": posting
-      - "It was handed to me by the sheriff": sheriff
-      - "It was handed to me by my landlord or somebody other than the sheriff": personal
-    show if:
-      variable: tenant_got_summons
-      is: True
-  - "Do you have it next to you now?": petition_available
+      - ${ "It was taped, stapled, or posted to your door or home" if person_answering == "tenant" else "It was taped, stapled, or posted to the tenant's door or home" }: posting
+      - It was stuffed in the door or left somewhere without being taped, stapled or posted": left
+      - ${ "It was handed to you by the sheriff" if person_answering == "tenant" else "It was handed to the tenant by the sheriff" }: sheriff
+      - ${ "It was handed to you by your landlord or somebody other than the sheriff" if person_answering == "tenant" else "It was handed to the tenant by the landlord or somebody other than the sheriff" }: other_delivery
+      - "Some other method of getting the petition": other
+    show if: tenant_got_summons
+  - label: |
+      % if person_answering == "tenant":
+      Do you have the Summons next to you now?
+      % else:
+      Does the tenant have the Summons next to them now?
+      % endif
+    field: petition_available
     datatype: yesnoradio
     show if: tenant_got_summons
   - note: |
+      % if person_answering == "tenant":
       **You may want to stop and get the petition now.** It can help you answer
       the questions on this website more accurately. If you cannot easily get it,
       it is OK to keep going.
-    show if:
+      % else: 
+      **The tenant may want to stop and get the petition now.** It can help them answer
+      the questions on this website more accurately. If they cannot easily get it,
+      it is OK to keep going.
+      % endif
+    show if: 
       variable: petition_available
       is: False
 terms:
   Summons: |
-    The Summons is the form that the Court sends you to tell you to attend
-    a court hearing.
+    % if person_answering == "tenant":
+    The Summons is the form that the Court sends you to tell you 
+    to attend a court hearing.
+    % else: 
+    The Summons is the form that the Court sends the tenant to 
+    tell them to attend a court hearing.
+    % endif
   Petition: |
-    The Landlord's Petition is the form that your landlord must file
-    with the court to start an eviction case."
+    % if person_answering == "tenant":
+    The Landlord's Petition is the form that your landlord must 
+    file with the court to start an eviction case.
+    % else: 
+    The Landlord's Petition is the form that the tenant's 
+    landlord must file with the court to start an eviction case.
+    % endif
 ---
 sets: posting_warning
 id: soft exit posting
@@ -633,54 +720,88 @@ subquestion: |
   You do not need to decide now. If you keep going, we will remind you about your choices at the end.
   You may want to talk to a lawyer to decide for sure.
   % else:
-  You said that the tenant got the Summons and Petition by "posting" (taping, stapling or pinning to your door) or that the tenant did not receive the Summons and Petition at all.
-  Because the landlord did not personally serve the Summons and Petition, if the tenant files anything in court, the court may order the tenant to pay money that the tenant would not need to pay otherwise.
-  You may still want to keep going if:
-  * You want to find out if the tenant has a defense that can stop the eviction
-  * You think the landlord will owe the tenant more money than the landlord owes them
+  The tenant got the Summons and Petition by "posting" (taping, stapling or pinning to your door) or the tenant did not receive the Summons and Petition at all.
+  Because the tenant's landlord did not personally serve the Summons and Petition, if the tenant files anything in court, the court may order the tenant to pay money that the tenant would not need to pay otherwise.
+  The tenant may still want to keep going if they:
+
+  * Want to find out if they have a defense that can stop their eviction, or
+  * Think their landlord will owe them more money then they owe the landlord.
   The tenant does not need to decide now. If you keep going, we will remind you about the tenant's choices at the end.
   The tenant may want to talk to a lawyer to decide for sure.
   % endif
 
 buttons:
-  - I understand, let me keep going:
-      code: |
-        posting_warning = True
+  - label: |
+      % if person_answering == "tenant":
+      I understand, let me keep going
+      % else:
+      The tenant understands, let them keep going
+      % endif 
+    code: |
+      posting_warning = True
   - Exit: exit
     url: https://motenantassistance.org/
 ---
 id: yep file an answer
 question: |
-  Tenants in your situation may be able to file a motion for continuance
-subquestion: |
-  % if tenant_got_summons:
-  You said that you got the Summons and Petition by 
-  % if method_of_summons_service['personal'] or method_of_summons_service['sheriff']:
-  personal delivery
-  % else:
-  mail
+  % if person_answering == "tenant":
+  Tenants in your situation usually file an answer
+  % else: 
+  Tenants in this situation usually file an answer
   % endif
-  .
-  
+subquestion: |
+  % if person_answering == "tenant":
+  % if tenant_got_summons:
+  You said that you got the Summons and Petition by personal delivery.
   % else:
   You said you do not know if you got the Summons and Petition.
   % endif
   In your situation,
-  most tenants file a motion for continuance.
-  Filing an answer may get your eviction hearing moved to another date.
+  most tenants file an answer.
+
+  Filing an answer may:
+
+  * Stop your eviction, or
+  * Lower the amount that you need to pay your landlord,
+
+  or both.
+
   The rest of the questions on this website will complete your
-  motion for continuance.
+  answer.
+  
+  % else:
+  % if tenant_got_summons:
+  You said that the tenant got the Summons and Petition by personal delivery.
+  % else:
+  You said the tenant does not know if they got the Summons and Petition.
+  % endif
+  In this situation,
+  most tenants file an answer.
+
+  Filing an answer may:
+
+  * Stop the tenant's eviction, or
+  * Lower the amount that the tenant needs to pay their landlord,
+
+  or both.
+
+  The rest of the questions on this website will complete the tenant's
+  answer.
+  % endif
 continue button field: recommend_filing_answer
----
 ---
 id: caption - docket number and file date
 question: |
   What court is the case in?
 subquestion: |
   % if tenant_got_summons and petition_available:
+  % if person_answering == "tenant":
   You can find the:
-
-  - Name of the court
+  % else: 
+  The tenant can find the:
+  % endif
+  
+  - Name of the court,
   - Case number, and
   - Date File Stamp
 
@@ -724,9 +845,17 @@ fields:
 ---
 id: preview eviction_defender
 question: |
+  % if person_answering == "tenant":
   Preview your form before you sign it
+  % else:
+  Preview the tenant's form before they sign it
+  % endif
 subquestion: |
-  Here is a preview of the form you will sign on the next page.   
+  % if person_answering == "tenant":
+  Here is a preview of the form you will sign on the next page.  
+  % else:
+  Here is a preview of the form the tenant will sign on the next page.  
+  % endif
   
   ${ al_court_bundle.as_pdf(key='preview') }
 
@@ -734,8 +863,13 @@ subquestion: |
   to edit your answers.
 
   ${ action_button_html(url_action('review_eviction_answer'), label='Edit answers', color='info') }
-  
+
+  % if person_answering == "tenant":
   Remember to come back to this window to continue and sign your form.
+  % else:
+  Remember to come back to this window to continue and have the tenant sign their form.
+  % endif
+  
 continue button field: eviction_defender_preview_question    
 ---
 code: |
@@ -817,9 +951,15 @@ event: eviction_defender_download
 question: |
   All done
 subquestion: |
+  % if person_answering == "tenant":
   Thank you ${users}. Your form is ready to download and deliver.
   
-  View, download and send your form below. Click the "Edit answers" button to fix any mistakes.
+  View, download, and send your form below. Click the "Edit answers" button to fix any mistakes.
+  % else:
+  Thank you ${users}. The tenant's form is ready to download and deliver.
+  
+  View, download, and send the tenant's form below. Click the "Edit answers" button to fix any mistakes.
+  % endif 
 
   ${ action_button_html(url_action('review_eviction_answer'), label='Edit answers', color='info') }
   
@@ -844,7 +984,6 @@ code: |
 ---
 code: |
   eviction_motion_to_continue_attachment.enabled = True
-
 ---
 attachments:
   - name: eviction motion to continue post interview instructions
@@ -862,7 +1001,11 @@ only sets: docket_header
 question: |
   Case header
 subquestion: |
-  The first tab you see when you open the case is the "Case Header" tab, which will look something like this -
+  % if person_answering == "tenant":
+  The first tab you see when you open your case is the "Case Header" tab, which will look something like this -
+  % else: 
+  The first tab the tenant will see when they open their case is the "Case Header" tab, which will look something like this -
+  % endif
   
   [FILE CaseHeader.png, 100%]
 fields:
@@ -886,24 +1029,42 @@ continue button field: docket_header
 if: tenant_got_summons and petition_available and len(users)==1
 question: Is any other tenant listed on this eviction case?
 subquestion: |
-  In eviction cases, tenants are called Defendants.  Defendants are listed underneath the Plaintiffs, and your name and address should be included as a Defendant.
+  % if person_answering == "tenant":
+  In an eviction case, tenants are called Defendants. Defendants are listed underneath the Plaintiffs, and your name and address should be included as a Defendant.
+  % else:
+  In an eviction case, tenants are called Defendants. Defendants are listed underneath the Plaintiffs, and the tenant's name and address should be included as a Defendant.
+  % endif
   
   [FILE ComplaintCaptionDefendant.png, 100%]
   
 fields:
-  - Are there any other Defendants listed?: users.there_is_another
+  - label: |
+      % if person_answering == "tenant":
+      Are there any other Defendants listed besides you?
+      % else:
+      Are there any other Defendants listed besides the tenant?
+      % endif
+    field: users.there_is_another
     datatype: yesnoradio
 ---
 if: defined('docket_available') and docket_available and len(users)==1
 question: |
   Is any other tenant listed on this eviction case?
 subquestion: |
-  Look in the box labeled "Defendants"
-  In an eviction case, tenants are called Defendants.  Defendants are listed underneath the Plaintiffs, and your name and address should be included as a Defendant.
-  
+  % if person_answering == "tenant":
+  In an eviction case, tenants are called Defendants. Defendants are listed underneath the Plaintiffs, and your name and address should be included as a Defendant.
+  % else:
+  In an eviction case, tenants are called Defendants. Defendants are listed underneath the Plaintiffs, and the tenant's name and address should be included as a Defendant.
+  % endif
 fields:
-  - Are there any other Defendants listed?: users.there_is_another
-    datatype: yesnomaybe
+  - label: |
+      % if person_answering == "tenant":
+      Are there any other Defendants listed besides you?
+      % else:
+      Are there any other Defendants listed besides the tenant?
+      % endif
+    field: users.there_is_another
+    datatype: yesnoradio
 ---
 id: Landlord representation
 question: |
@@ -931,7 +1092,11 @@ question: |
   Review your answers
 review:
   - note: | 
+      % if person_answering == "tenant":
       ##Information about you##
+      % else: 
+      ##Information about the tenant##
+      % endif
   - Edit:
       - users.revisit
     button: |
@@ -948,7 +1113,11 @@ review:
   - Edit:
       - will_offer_payment
     button: |
+      % if person_answering == "tenant":
       You may be able to pay and stop the eviction:
+      % else:
+      The tenant may be able to pay and stop the eviction:
+      % endif 
       **${ will_offer_payment }**
   - note: | 
       ##Information about the other party##
@@ -1005,12 +1174,20 @@ review:
   - Edit:
       - tenant_got_summons
     button: |
+      % if person_answering == "tenant":
       Did you receive the summons?:
+      % else:
+      Did the tenant receive the summons?:
+      % endif 
       **${ tenant_got_summons }**
   - Edit:
       - method_of_summons_service
     button: |
+      % if person_answering == "tenant":
       How did you receive the Summons and Landlord's Petition?:
+      % else:
+      How did the tenant receive the Summons and Landlord's Petition?:
+      % endif 
       % if method_of_summons_service.any_true():
       % for item in method_of_summons_service.true_values():
         **${ item }**
@@ -1021,6 +1198,10 @@ review:
   - Edit:
       - petition_available
     button: |
+      % if person_answering == "tenant":
       Do you have a copy of the Landlord's Petition available?:
+      % else:
+      Does the tenant have a copy of the Landlord's Petition available?:
+      % endif 
       **${ petition_available }**
 ---

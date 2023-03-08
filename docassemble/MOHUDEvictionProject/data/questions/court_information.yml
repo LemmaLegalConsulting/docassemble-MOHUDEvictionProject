@@ -717,12 +717,20 @@ data:
 ---
 id: caption - docket number and file date
 question: |
+  % if person_answering == "tenant":
   What court is your case in?
+  % else: 
+  What court is the tenant's case in?
+  % endif
 subquestion: |
   % if tenant_got_summons and petition_available:
+  % if person_answering == "tenant":
   You can find the:
-
-  - Name of the court
+  % else:
+  The tenant can find the: 
+  % endif
+  
+  - Name of the court,
   - Case number, and
   - Nature of Action
 
