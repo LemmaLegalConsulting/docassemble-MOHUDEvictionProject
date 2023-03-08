@@ -153,6 +153,7 @@ code: |
   users[0].address.address
   users[0].address.geocode()
   trial_court.county
+  trial_court.circuit
   if case_type == "AC Unlawful Detainer":
     if unlawful_detainer_kick_out_option:
       motion_to_continue_order
@@ -200,14 +201,13 @@ code: |
   users[0].name.first
   greet_user
   nav.set_section("section_eviction_answer_can_i")
-  if not tenant_got_summons or not (method_of_summons_service["sheriff"] or method_of_summons_service["personal"]):
+  if not tenant_got_summons or not method_of_summons_service["sheriff"]:
     posting_warning
   else:
     recommend_filing_answer
   nav.set_section("section_eviction_answer_you")
   users[0].address.address
   users[0].address.geocode()
-  trial_court_name_default
   nav.set_section("section_eviction_answer_other")
   other_parties.gather()
   for party in other_parties:
@@ -548,7 +548,7 @@ code: |
   url = 'https://www.courts.mo.gov/cnet/nameSearchResult.do?'
   params = {
     "courtType": "SW",
-    "countyCode": county_casenet_code.get(users[0].address.normalized_address().county, ""),
+    "countyCode": county_dictionary[users[0].address.normalized_address().county]['casenet'],
     "newSearch": "Y",
     "essn": "",
     "courtCode": "SW",
@@ -885,6 +885,7 @@ fields:
       - ${ "It was handed to you by the sheriff" if person_answering == "tenant" else "It was handed to the tenant by the sheriff" }: sheriff
       - ${ "It was handed to you by your landlord or somebody other than the sheriff" if person_answering == "tenant" else "It was handed to the tenant by the landlord or somebody other than the sheriff" }: other_delivery
       - "Some other method of getting the petition": other
+    none of the above: False
     show if: tenant_got_summons
   - label: |
       % if person_answering == "tenant":
@@ -939,7 +940,7 @@ subquestion: |
   % if person_answering == "tenant":
   You said that you got the Summons and Petition by "posting" (taping, stapling, or pinning to your door) or that you did not receive the Summons and Petition at all.
 
-  Because your landlord did not mail the Summons and Petition, if you file an answer, the court may order 
+  Because your landlord did not serve you personally, the landlord cannot sue you for money damages.  If you file an answer, the court may order 
   you to pay money that you would not need to pay otherwise.
 
   You may still want to keep going if you:
