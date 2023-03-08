@@ -620,16 +620,13 @@ sets:
   - other_parties[i].name.middle
   - other_parties[i].name.suffix
   - other_parties[i].person_type
-id: names of opposing parties
+id: names of opposing parties - no petition or docket
 question: |
   % if i >= 1:
   What is your ${ ordinal(i) } landlord's name?
   % else:
   What is your landlord's name?
-  % endif
-subquestion: |
-  Look at the Summons and Petition, and write the name of the ${ ordinal(i) } "Plaintiff" exactly as it is written on the Summons and Petition.
-  
+  % endif 
 fields:
   - code: |
       other_parties[i].name_fields(person_or_business='unsure')   
@@ -641,15 +638,22 @@ sets:
   - other_parties[i].name.middle
   - other_parties[i].name.suffix
   - other_parties[i].person_type
-id: names of opposing parties
+id: names of opposing parties - docket only
 question: |
-  Name of ${ ordinal(i) } Plaintiff
+  Name of Plaintiff
 subquestion: |
+  % if i == 0:
     You can click on "Parties & Attorneys", the next tab to the right.  This tab should look like this:
   
     [FILE Parties.png, 100%]
     
     Who is listed as the Plaintiff?
+  % else:
+    
+    [FILE Parties.png, 100%]
+  
+    Another Plaintiff may be listed underneath the first Plaintiff.  Who is the  ${ ordinal(i) } Plaintiff?
+  % endif
 fields:
   - code: |
       other_parties[i].name_fields(person_or_business='unsure')    
