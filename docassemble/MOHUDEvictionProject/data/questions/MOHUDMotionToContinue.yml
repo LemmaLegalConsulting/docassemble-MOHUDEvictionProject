@@ -137,9 +137,13 @@ code: |
     posting_warning
   else:
     recommend_filing_answer
+  original_hearing_date
   nav.set_section("section_eviction_answer_you")
   users[0].address.address
   users[0].address.geocode()
+  trial_court.county
+  trial_court.circuit
+  trial_court.name
   nav.set_section("section_eviction_answer_other")
   other_parties.gather()
   for party in other_parties:
@@ -149,12 +153,13 @@ code: |
   if docket_available:
     docket_review
   nav.set_section("section_eviction_answer_case")
-  original_hearing_date
   docket_number
   users.gather()
   set_progress(50)
   interview_order_eviction_defender = True
-
+---
+code: |
+  trial_court.name = trial_court_name
 ---
 id: who is using this interview
 question: |
@@ -672,33 +677,6 @@ subquestion: |
   motion for continuance.
 continue button field: recommend_filing_answer
 ---
----
-id: caption - docket number and file date
-question: |
-  What court is the case in?
-subquestion: |
-  % if tenant_got_summons and petition_available:
-  You can find the:
-
-  - Name of the court
-  - Case number, and
-  - Date File Stamp
-
-  At the top of the Summons and Petition.
-  
-  [FILE ComplaintCaptionCourt.png, 100%] 
-  % endif
-fields:
-  - Court: trial_court_name
-    default: |
-      ${ ordinal_number(trial_court.circuit, use_word=False).capitalize() + " Judicial Circuit - " + trial_court.county }
-  - Case Number: docket_number
-    required: False
-  - note: |
-      The Filing Date will usually be on a stamp or a sticker.
-  - Date File Stamp: filing_date
-    datatype: date
-    required: False
 ---
 id: names of opposing parties - petition
 if: tenant_got_summons and petition_available

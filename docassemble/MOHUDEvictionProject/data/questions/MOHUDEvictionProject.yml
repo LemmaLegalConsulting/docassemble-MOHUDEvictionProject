@@ -1314,6 +1314,11 @@ code: |
   else:
     wants_to_file['continuance'] = True
 ---
+code: |
+  users[0].address.reset_geocoding()
+  users[0].address.geocode()
+  address_geocoding_reset = True
+---
 id: eviction motion to continue review screen
 continue button field: review_eviction_answer
 question: |
@@ -1324,6 +1329,9 @@ review:
   - Edit:
       - users.revisit
       - recompute:
+          - address_geocoding_reset
+          - trial_court.county
+          - trial_court_name
           - defense_logic
     button: |
       Defendants:
