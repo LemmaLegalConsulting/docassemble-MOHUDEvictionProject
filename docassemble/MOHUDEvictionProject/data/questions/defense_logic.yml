@@ -88,18 +88,18 @@ depends on:
 id: made settlement
 question: |
   % if person_answering == "tenant":
-  Did you already make an agreement with the landlord to stop the eviction?
+  Did you already make an agreement with your landlord to stop the eviction?
   % else: 
-  Did the tenant already make an agreement with the landlord to stop the eviction?
+  Did the tenant already make an agreement with their landlord to stop the eviction?
   % endif
 subquestion: |
   A landlord and tenant can agree to "settle" an eviction case, which means an agreement to stop the eviction.
 fields:
   - label: |
       % if person_answering == "tenant":
-      Did you make a settlement agreement with the landlord?
+      Did you make a settlement agreement with your landlord?
       % else: 
-      Did the tenant make a settlement agreement with the landlord?
+      Did the tenant make a settlement agreement with their landlord?
       % endif
     field: landlord_agreement
     datatype: yesnoradio

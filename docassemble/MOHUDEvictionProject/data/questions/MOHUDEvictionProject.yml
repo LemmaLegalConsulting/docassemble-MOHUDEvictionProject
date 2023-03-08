@@ -1165,7 +1165,9 @@ fields:
       % endif 
     field: petition_states_terms_of_lease
     datatype: yesnomaybe
-    show if: lease_attached
+    show if: 
+      variable: lease_attached
+      is: False
   - note: |
       ${ collapse_template(terms_of_lease_explanation) }
     show if: 
@@ -1466,7 +1468,7 @@ question: |
   % if person_answering == "tenant":
   Did your landlord violate other laws?
   % else: 
-  Did the tenant violate other laws?
+  Did the landlord violate other laws?
   % endif
 subquestion: |
   ${ collapse_template(estoppel_explanation_template) }
@@ -1476,7 +1478,7 @@ fields:
     choices:
       - "The home is not up to code.": not_up_to_code
       - "The landlord violated local or state laws about the condition of the home.": violated_law
-      - "The landlord doesn't have an occupancy permit for the home.": occupancy_permit
+      - "The landlord does not have an occupancy permit for the home.": occupancy_permit
       - Other: other
   - label: |
       % if person_answering == "tenant":
@@ -1554,22 +1556,52 @@ variable name: cqe_breaches_text
 use objects: True
 data:
   harassment:
-    question: Harass you in person or on the phone
+    question: |
+      % if person_answering == "tenant":
+      Harass you in person or on the phone
+      % else:
+      Harassed Tenant in person or on the phone
+      % endif
     document: Harassed Tenant in person or on the phone
   visits:
-    question: Make frequent or unnecessary visits or inspections of the property
+    question: |
+      % if person_answering == "tenant":
+      Make frequent or unnecessary visits or inspections of the property
+      % else:
+      Made frequent or unnecessary visits or inspections of the property
+      % endif
     document: Made frequent or unnecessary visits or inspections of the property
   remodeling:
-    question: Do unnecessary remodeling work, or maintenance work that takes longer than they promised
+    question: |
+      % if person_answering == "tenant":
+      Do unnecessary remodeling work, or maintenance work that takes longer than they promised
+      % else:
+      Performed unnecessary remodeling work, or maintenance work that took longer than they promised
+      % endif
     document: Performed unnecessary remodeling work, or maintenance work that took longer than they promised
   access:
-    question: Allow construction that stops you from easily getting into your home or makes you take a long detour
-    document: Allowed construction that stops you from easily getting into your home or makes you take a long detour
+    question: |
+      % if person_answering == "tenant":
+      Allow construction that stops you from easily getting into your home or makes you take a long detour
+      % else:
+      Allows construction that stops the tenant from easily getting into their home or makes them take a long detour
+      % endif
+    document: Allows construction that stops the tenant from easily getting into their home or makes them take a long detour
   animal:
-    question: Allow their own dog or pet to bark constantly and disturb you
+    question: |
+      % if person_answering == "tenant":
+      Allow their own dog or pet to bark constantly and disturb you
+      % else:
+      Allowed their dog or pet to bark constantly and disturb Tenant
+      % endif 
     document: Allowed their dog or pet to bark constantly and disturb Tenant
   vermin:
-    question: Not exterminate or take care of vermin or pests in the walls making disruptive noises
+    question: |
+      % if person_answering == "tenant":
+      Not exterminate or take care of vermin or pests in the walls making disruptive noises
+      % else:
+      Failed to exterminate or take care of vermin or pests in the walls making disruptive noises
+      % endif
     document: Failed to exterminate or take care of vermin or pests in the walls making disruptive noises
 ---
 template: bad_conditions_explanation_template
@@ -1608,7 +1640,7 @@ fields:
       % if person_answering == "tenant":
       Did your landlord:
       % else:
-      Did the landlord:
+      The landlord:
       % endif 
     field: cqe_breaches
     datatype: checkboxes
@@ -1619,7 +1651,7 @@ fields:
       - ${ cqe_breaches_text["access"] }: access
       - ${ cqe_breaches_text["animal"] }: animal
       - ${ cqe_breaches_text["vermin"] }: vermin
-      - Otherwise violate your right to live peacefully in your home: other
+      - ${ "Otherwise violate your right to live peacefully in your home" if person_answering == "tenant" else "Otherwise violateed the tenant's right to live peacefully in their home"}: other
   - Other (explain): other_cqe_breach
     datatype: area
     show if: cqe_breaches["other"]
@@ -1793,7 +1825,7 @@ review:
       - recompute:
         - defense_logic
     button: |
-      Type of Subsidized Housing::
+      Type of Subsidized Housing:
       **${ subsidized_housing_type }**
   - Edit:
       - unfair_duress
@@ -1931,7 +1963,7 @@ review:
       % if person_answering == "tenant":
       Does the petition list each month that the landlord claims you owe rent?:
       % else: 
-      Does the petition list each month that the landlord claims you owe rent?:
+      Does the petition list each month that the landlord claims the tenant owes rent?:
       % endif
       **${ petition_states_rent_periods }**
   - Edit:
@@ -2409,6 +2441,140 @@ fields:
     field: rent_amount_paid
     datatype: radio
     choices: 
-      - "I paid all of the rent": all
-      - "I paid part of the rent": a_portion
+      - ${ "I paid all of the rent" if person_answering == "tenant" else "The tenant paid all of the rent" }: all
+      - ${ "I paid part of the rent" if person_answering == "tenant" else "The tenant paid part of the rent" }: a_portion
     show if: was_rent_paid
+---
+generic object: ALIndividual
+id: service method
+question: |
+  % if person_answering == "tenant":
+  How will you get a copy of the documents to ${ x }?
+  % else:
+  How will the tenant get a copy of the documents to ${ x }?
+  % endif
+fields:
+  - label: |
+      % if person_answering == "tenant":
+      I will serve ${ x } by
+      % else:
+      The tenant will serve ${ x } by
+      % endif
+    field: x.service_method
+    input type: radio
+    code: al_service_methods
+---
+id: choose a court
+question: |
+
+  % if person_answering == "tenant":
+  % if al_form_type == 'starts_case':
+  What court do you want to file in?
+  % elif al_form_type == 'appeal':
+  What is the name of the trial court your case was originally filed in?
+  % else:
+  What court is your case in?
+  % endif
+  % else:
+  % if al_form_type == 'starts_case':
+  What court does the tenant want to file in?
+  % elif al_form_type == 'appeal':
+  What is the name of the trial court the tenant's case was originally filed in?
+  % else:
+  What court is the tenant's case in?
+  % endif
+  % endif
+subquestion: |
+  % if not al_form_type == 'starts_case':
+  Look at the tenant's court paperwork. Match the name listed there.
+  % endif
+
+  ${ collapse_template(how_to_pick_court_help_template) }
+fields:
+  - Name: trial_court_name
+  - Address: trial_court_address.address
+    address autocomplete: True
+    required: False
+  - Suite: trial_court_address.unit
+    required: False
+  - City: trial_court_address.city
+    required: False
+  - State: trial_court_address.state
+    required: False
+  - Postal code: trial_court_address.zip    
+    required: False
+---
+template: how_to_pick_court_help_template
+subject: |
+  % if person_answering == "tenant":
+  How do I pick a court?
+  % else: 
+  How should the tenant pick a court?
+  % endif
+content: |
+  % if person_answering == "tenant":
+  For some cases, you can choose your court.
+  % if al_form_type == 'starts_case':  
+  How do you know which court to choose?
+  
+  Think about:
+  
+  1. A court that has the resources and specialization to hear your case.
+  1. Choosing a court you can get to. You may need to appear in court several times.
+  
+  % else:
+  If you are responding to a case someone else filed, you may not
+  get to choose your court. Select the court that is already
+  listed on your court paperwork.
+  % endif
+  % else:
+  For some cases, the tenant can choose your court.
+  % if al_form_type == 'starts_case':  
+  How does the tenant know which court to choose?
+  
+  Think about:
+  
+  1. A court that has the resources and specialization to hear the tenant's case.
+  1. Choosing a court the tenant can get to. The tenant may need to appear in court several times.
+  
+  % else:
+  If the tenant is responding to a case someone else filed, the tenant may not
+  get to choose their court. Select the court that is already
+  listed on the tenant's court paperwork.
+  % endif
+  % endif
+---
+generic object: ALIndividual
+id: any service address
+question: |
+  % if person_answering == "tenant":
+  At what address will you serve ${ x }?
+  % else:
+  At what address will the tenant serve ${ x }?
+  % endif
+fields:
+  - ${ x }'s service address is: x.service_address
+    datatype: object_radio
+    choices:
+      - x.address if defined(x.address.attr_name("address")) else None
+      - x.mailing_address if defined(x.mailing_address.attr_name("address")) else None
+    object labeler: |
+      lambda y: y.on_one_line()      
+    none of the above: |
+      Somewhere else
+    disable others: True      
+  - ${ x.service_address.address_label }: x.service_address.address
+    address autocomplete: True
+  - ${ x.service_address.unit_label }: x.service_address.unit
+    required: False
+  - ${ x.service_address.city_label }: x.service_address.city
+  - ${ x.service_address.state_label }: x.service_address.state
+    code: |
+      states_list(country_code=AL_DEFAULT_COUNTRY)
+    default: ${ AL_DEFAULT_STATE }
+  - ${ x.service_address.zip_label }: x.service_address.zip
+    required: False      
+  - ${ x.service_address.country_label }: x.service_address.country
+    code: countries_list()
+    default: ${ AL_DEFAULT_COUNTRY }
+---

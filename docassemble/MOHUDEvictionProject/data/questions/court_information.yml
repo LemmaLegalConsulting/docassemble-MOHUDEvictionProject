@@ -267,7 +267,7 @@ subquestion: |
   The tenant can find the: 
   % endif
   
-  - Name of the court
+  - Name of the court,
   - Case number, and
   - Nature of Action
 
