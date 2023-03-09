@@ -606,7 +606,6 @@ comment: |
   filing_date
   original_hearing_date
   other_parties[0].address.address
-  service_methods
   trial_court.address.address
   users.gather()
   set_parts(subtitle=str(users))
@@ -640,21 +639,6 @@ depends on: original_hearing_date
 id: Calculating if hearing date is past
 code: |
   original_hearing_date_past = original_hearing_date < today()
----
-id: Service to other parties
-question: |
-  Service to ${ other_parties }
-fields:
-  - "Service methods": service_methods
-    datatype: checkboxes
-    choices:
-      - E-filing: e_file
-      - Mail: us_mail
-      - Email: e_mail
-      - Fax: delivery_fax
-      - Hand delivery: hand_delivery
-  - "Date of Service": service_date
-    datatype: date
 ---
 sets:
   - other_parties[i].name.first
@@ -1756,7 +1740,7 @@ review:
       - recompute:
           - address_geocoding_reset
           - trial_court.county
-          - trial_court_name
+          - trial_court.name
           - defense_logic
     button: |
       Defendants:
@@ -2439,8 +2423,10 @@ question: |
 subquestion: |
   % if person_answering == "tenant" and petition_states_rent_amount:
   You said your landlord said you owe ${ currency(rent_amount_owed) }.
-  % else:
+  % elif petition_states_rent_amount:
   The tenant's landlord said the tenant owes ${ currency(rent_amount_owed) }.
+  % else:
+  The petition does not say the amount that is allegedly owed.
   % endif
 fields:
   - label: |
@@ -2483,6 +2469,22 @@ fields:
     input type: radio
     code: al_service_methods
 ---
+comment: |
+  You can customize this block, and also add a translation for it with a language modifier,
+  demonstrated below
+variable name: al_service_methods
+use objects: True
+data:
+  mail:
+    question: Mail
+    document: mail
+  hand:
+    question: Hand delivery
+    document: hand delivery
+  email:
+    question: Email
+    document: email
+---
 id: choose a court
 question: |
 
@@ -2510,7 +2512,7 @@ subquestion: |
 
   ${ collapse_template(how_to_pick_court_help_template) }
 fields:
-  - Name: trial_court_name
+  - Name: trial_court.name
   - Address: trial_court_address.address
     address autocomplete: True
     required: False

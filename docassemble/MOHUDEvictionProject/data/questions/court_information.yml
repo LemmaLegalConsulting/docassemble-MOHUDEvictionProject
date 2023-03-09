@@ -744,7 +744,7 @@ subquestion: |
     
   % endif
 fields:
-  - Court: trial_court_name
+  - Court: trial_court.name
     default: |
       % if trial_court.circuit:
       ${ ordinal_number(trial_court.circuit, use_word=False).capitalize() + " Judicial Circuit - " + trial_court.county }
