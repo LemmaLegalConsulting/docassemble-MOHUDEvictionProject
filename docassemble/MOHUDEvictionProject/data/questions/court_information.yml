@@ -4,7 +4,7 @@ code: |
   users[0].address.address
   trial_court = ALCourt("trial_court")
   if not hasattr(users[0].normalized_address(), "county") and users[0].normalized_address().city.lower() in ["st. louis", "saint louis"]:
-    trial_court.county = "City of St Louis"
+    trial_court.county = "City of St. Louis"
     trial_court.circuit = 22
   else:
     if hasattr(users[0].normalized_address(), "county"):
