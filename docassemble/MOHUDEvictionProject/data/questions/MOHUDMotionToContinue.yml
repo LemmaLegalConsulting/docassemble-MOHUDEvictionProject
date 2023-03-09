@@ -134,7 +134,7 @@ code: |
   users[0].name.first
   greet_user
   nav.set_section("section_eviction_answer_can_i")
-  if not tenant_got_summons or not (method_of_summons_service["sheriff"] or method_of_summons_service["personal"]):
+  if not tenant_got_summons or not method_of_summons_service["sheriff"]:
     posting_warning
   else:
     recommend_filing_answer
@@ -158,9 +158,6 @@ code: |
   users.gather()
   set_progress(50)
   interview_order_eviction_defender = True
----
-code: |
-  trial_court.name = trial_court_name
 ---
 id: who is using this interview
 question: |
@@ -287,30 +284,24 @@ terms:
 id: eviction_defender_introduction
 continue button field: eviction_defender_intro
 question: |
-  Defend against an Eviction
+  File a Motion to Continue in Your Eviction Case
 subquestion: |
   <h2 class="h4">How this works</h2>
   One the next screens you will:
 
-  1. Tell us about your eviction case.
-  1. Tell us why you should not be evicted.
-  1. Tell us about problems in your home and in your landlord's case that may
-     stop your eviction.
-
-  At the end of the questions, you will have completed documents that you
-  need to deliver to your landlord and to the court. The documents make up
-  your "Answer" and motions for your eviction case.
+  1. Tell us about basic information about your eviction case.
+  
+  At the end of the questions, you will have completed a motion to continue your eviction case.  You will need to deliver this motion to the landlord and file it in court.
 
   <h2 class="h4">Before you start</h2>
   1. Get ready to print and deliver these documents. We can help you
      fill in the documents, but you need to deliver them on your own.
-  1. Do your best to find any documents from the court and your landlord about the eviction, including:
+  1. You can answer most of these questions from either:
       - The Summons from the court
-      - The Landlord's petition
-      - The eviction notice
-      - Your lease
+      - Case.net, the online docket for Missouri courts
+
   
-  **Currently, we can only help when your landlord is evicting you because you have not paid your rent.** This type of eviction is called a Rent and Possession case. If you are being evicted for another reason, contact [a Missouri legal aid provider](https://www.lsmo.org/).
+  **This tool is to create a Motion to Continue to delay your eviction hearing.** If you want help writing an Answer to help defend against your eviction you can use [this interview](https://www.lsmo.org/).
 ---
 id: you can do it affirmation
 question: |
@@ -403,7 +394,6 @@ code: |
   url = 'https://www.courts.mo.gov/cnet/nameSearchResult.do?'
   params = {
     "courtType": "SW",
-    "countyCode": county_casenet_code.get(users[0].address.normalized_address().county, ""),
     "newSearch": "Y",
     "essn": "",
     "courtCode": "SW",
@@ -414,6 +404,10 @@ code: |
     "caseType": "All",
     "yearFiled": "",
   }
+  if users[0].normalized_address().city == "St. Louis":
+    params["countyCode"] = 22
+  else:
+    params["countyCode"] = county_dictionary[users[0].address.normalized_address().county]['casenet']
   formatted_casenet_url = f"{url}{urllib.parse.urlencode(params)}"
 ---
 id: how to login to Case net
@@ -736,14 +730,9 @@ subquestion: |
   % endif
 
 buttons:
-  - label: |
-      % if person_answering == "tenant":
-      I understand, let me keep going
-      % else:
-      The tenant understands, let them keep going
-      % endif 
-    code: |
-      posting_warning = True
+  - ${"I understand, let me keep going" if person_answering == "tenant" else "The tenant understands, let them keep going"}:
+      code: |
+        posting_warning = True
   - Exit: exit
     url: https://motenantassistance.org/
 ---
@@ -1121,10 +1110,10 @@ review:
   - note: | 
       ##Information about the eviction##
   - Edit:
-      - trial_court_name
+      - trial_court.name
     button: |
       Trial Court Name:
-      **${ trial_court_name }**
+      **${ trial_court.name }**
   - Edit:
       - original_hearing_date
     button: |
