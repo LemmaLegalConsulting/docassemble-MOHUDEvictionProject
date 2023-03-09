@@ -158,6 +158,9 @@ code: |
     if unlawful_detainer_kick_out_option:
       motion_to_continue_order
       interview_order_eviction_defender = True
+  if not tenant_got_summons or not petition_available:
+    if docket_available:
+      docket_review
   nav.set_section("section_eviction_answer_other")
   other_parties.gather()
   for party in other_parties:
@@ -548,7 +551,6 @@ code: |
   url = 'https://www.courts.mo.gov/cnet/nameSearchResult.do?'
   params = {
     "courtType": "SW",
-    "countyCode": county_dictionary[users[0].address.normalized_address().county]['casenet'],
     "newSearch": "Y",
     "essn": "",
     "courtCode": "SW",
@@ -559,6 +561,10 @@ code: |
     "caseType": "All",
     "yearFiled": "",
   }
+  if users[0].normalized_address().city == "St. Louis":
+    params["countyCode"] = 22
+  else:
+    params["countyCode"] = county_dictionary[users[0].address.normalized_address().county]['casenet']
   formatted_casenet_url = f"{url}{urllib.parse.urlencode(params)}"
 ---
 id: how to login to Case net
@@ -656,16 +662,13 @@ sets:
   - other_parties[i].name.middle
   - other_parties[i].name.suffix
   - other_parties[i].person_type
-id: names of opposing parties
+id: names of opposing parties - no petition or docket
 question: |
   % if i >= 1:
   What is your ${ ordinal(i) } landlord's name?
   % else:
   What is your landlord's name?
-  % endif
-subquestion: |
-  Look at the Summons and Petition, and write the name of the ${ ordinal(i) } "Plaintiff" exactly as it is written on the Summons and Petition.
-  
+  % endif 
 fields:
   - code: |
       other_parties[i].name_fields(person_or_business='unsure')   
@@ -677,15 +680,22 @@ sets:
   - other_parties[i].name.middle
   - other_parties[i].name.suffix
   - other_parties[i].person_type
-id: names of opposing parties
+id: names of opposing parties - docket only
 question: |
-  Name of ${ ordinal(i) } Plaintiff
+  Name of Plaintiff
 subquestion: |
-    Click on "Parties & Attorneys", the next tab to the right.  This tab should look like this:
+  % if i == 0:
+    You can click on "Parties & Attorneys", the next tab to the right.  This tab should look like this:
   
     [FILE Parties.png, 100%]
     
     Who is listed as the Plaintiff?
+  % else:
+    
+    [FILE Parties.png, 100%]
+  
+    Another Plaintiff may be listed underneath the first Plaintiff.  Who is the  ${ ordinal(i) } Plaintiff?
+  % endif
 fields:
   - code: |
       other_parties[i].name_fields(person_or_business='unsure')    
@@ -881,7 +891,7 @@ fields:
     choices:
       - "By mail": mail
       - ${ "It was taped, stapled, or posted to your door or home" if person_answering == "tenant" else "It was taped, stapled, or posted to the tenant's door or home" }: posting
-      - It was stuffed in the door or left somewhere without being taped, stapled or posted": left
+      - ${ "It was stuffed in the door or left somewhere without being taped, stapled or posted"}: left
       - ${ "It was handed to you by the sheriff" if person_answering == "tenant" else "It was handed to the tenant by the sheriff" }: sheriff
       - ${ "It was handed to you by your landlord or somebody other than the sheriff" if person_answering == "tenant" else "It was handed to the tenant by the landlord or somebody other than the sheriff" }: other_delivery
       - "Some other method of getting the petition": other
@@ -1721,6 +1731,11 @@ code: |
   else:
     wants_to_file['continuance'] = True
 ---
+code: |
+  users[0].address.reset_geocoding()
+  users[0].address.geocode()
+  address_geocoding_reset = True
+---
 id: eviction motion to continue review screen
 continue button field: review_eviction_answer
 question: |
@@ -1739,6 +1754,9 @@ review:
   - Edit:
       - users.revisit
       - recompute:
+          - address_geocoding_reset
+          - trial_court.county
+          - trial_court_name
           - defense_logic
     button: |
       Defendants:

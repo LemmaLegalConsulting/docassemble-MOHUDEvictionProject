@@ -3,7 +3,7 @@ depends on: users[0].address.address
 code: |
   users[0].address.address
   trial_court = ALCourt("trial_court")
-  if users[0].normalized_address().city.lower() in ["st. louis", "saint louis"]:
+  if not hasattr(users[0].normalized_address(), "county") and users[0].normalized_address().city.lower() in ["st. louis", "saint louis"]:
     trial_court.county = "City of St Louis"
     trial_court.circuit = 22
   else:
@@ -15,6 +15,10 @@ code: |
       trial_court.circuit = None
   trial_court.division = "Housing Division"
   trial_court.address.county = trial_court.county
+---
+depends on: trial_court.county
+code: |
+  trial_court.classification = county_dictionary[trial_court.county]['classification']
 ---
 variable name: county_dictionary
 data:  
