@@ -1,0 +1,46 @@
+include:
+  - docassemble.AssemblyLine:assembly_line.yml
+  - docassemble.ALAnyState:any_state.yml
+  - defense_logic.yml
+  - information_collected.yml
+  - al_reminders.yml
+  - docassemble.ALToolbox:display_template.yml
+  - court_information.yml
+---
+metadata:
+  title: |
+    Legal Aid Locator
+  short title: |
+    LAL
+  title url: |
+    https://motenantassistance.org/
+  tags:
+    - HO-02-00-00-00
+  authors:
+    - Quinten Steenhuis
+    - Toby Fey
+    - Ian Eisaman
+    - Mia Bonardi
+---
+mandatory: True
+question: |
+  ${ county_dictionary[trial_court.county]["legal_aid_program"] }
+subquestion: |
+  Your county, ${ trial_court.county } is served by ${ county_dictionary[trial_court.county]["legal_aid_program"] }
+  
+  You can visit their website at ${ county_dictionary[trial_court.county]["legal_aid_program_website"] }
+  
+  You can apply online at ${ county_dictionary[trial_court.county]["legal_aid_program_online_app"] }
+  
+  You can apply on the phone at ${ county_dictionary[trial_court.county]["legal_aid_program_phone_app"] }
+  
+  You can apply at their offices:
+  
+  ${ county_dictionary[trial_court.county]["legal_aid_program_office_app_addresses"] }
+---
+code: |
+  users[0].name = "Not Important"
+---
+code: |
+  AL_DEFAULT_STATE = "Missouri"
+---
