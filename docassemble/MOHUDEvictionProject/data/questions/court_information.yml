@@ -752,10 +752,11 @@ fields:
   - Case Number: docket_number
     required: False
   - Nature of Action: case_type
-    datatype: radio
+    datatype: checkboxes
     required: False
     choices:
       - AC Rent and Possession
       - AC Unlawful Detainer
       - AC Landlord Action (Bulk)
+      - AC Expedited Eviction
       - Other
