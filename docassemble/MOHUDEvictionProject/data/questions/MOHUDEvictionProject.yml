@@ -89,6 +89,7 @@ objects:
 objects:
   - other_parties: ALPeopleList.using(there_are_any=True,complete_attribute="complete")
   - other_parties[i].attorney: ALPeopleList.using(complete_attribute="complete")
+  - users[i].attorney: ALPeopleList.using(ask_number=True)
   - users: ALPeopleList.using(there_are_any=True)
   - offer_attempts: DAList.using(object_type=DAObject, complete_attribute="attempt_date")
 ---
@@ -143,7 +144,15 @@ code: |
   landlord_doc_name
   tenant_doc_name
   users[0].name.first
-  greet_user
+  if person_answering == "tenant":
+    greet_user
+    users[0].attorney.target_number = 0
+  elif person_answering == "attorney" and representation_type == "entering_appearance":
+    users[0].attorney.target_number = 1
+    users[0].attorney[0].name.first
+    users[0].attorney[0].address.address
+  else:
+    users[0].attorney.target_number = 0
   nav.set_section("section_eviction_answer_can_i")
   if not tenant_got_summons or not method_of_summons_service['sheriff']:
     posting_warning
@@ -154,13 +163,13 @@ code: |
   users[0].address.geocode()
   trial_court.county
   trial_court.circuit
+  if not tenant_got_summons or not petition_available:
+    if docket_available:
+      docket_review
   if case_type["AC Unlawful Detainer"] or case_type["AC Expedited Eviction"]:
     if unlawful_detainer_kick_out_option:
       motion_to_continue_order
       interview_order_eviction_defender = True
-  if not tenant_got_summons or not petition_available:
-    if docket_available:
-      docket_review
   nav.set_section("section_eviction_answer_other")
   other_parties.gather()
   for party in other_parties:
@@ -266,6 +275,33 @@ fields:
     code: |
       name_suffix()
     required: False
+---
+id: name of the first person
+sets:
+  - users[0].attorney[0].name.first
+  - users[0].attorney[0].name.last
+  - users[0].attorney[0].name.middle
+  - users[0].attorney[0].name.suffix
+question: |
+  Your name (as the attorney signing the pleading)
+fields:
+  - code: |
+      users[0].attorney[0].name_fields()
+---
+sets:
+  - users[0].attorney[0].address.address
+  - users[0].attorney[0].address.city
+  - users[0].attorney[0].address.zip
+  - users[0].attorney[0].address.unit
+  - users[0].attorney[0].address.state
+  - users[0].attorney[0].address.country
+id: persons address
+generic object: ALIndividual
+question: |
+  What is your address for the pleading?
+fields:
+  - code: |
+      users[0].attorney[0].address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)
 ---
 code: |
   other_parties[i].name.first
@@ -593,7 +629,10 @@ continue button field: casenet_login_instructions
 id: docket review order
 code: |
   casenet_login_instructions
-  docket_header
+  if case_type["AC Unlawful Detainer"] or case_type["AC Expedited Eviction"]:
+    if unlawful_detainer_kick_out_option:
+      motion_to_continue_order
+      docket_review = True
   for party in other_parties:
     party.address.address
     party.attorney.gather()
@@ -2324,35 +2363,6 @@ attachments:
     variable name: eviction_answer_attachment[i]        
     skip undefined: True
     docx template file: answer_defenses.docx
----
-question: |
-  Case header
-subquestion: |
-  % if person_answering == "tenant":
-  The first tab you see when you open your case is the "Case Header" tab, which will look something like this -
-  % else: 
-  The first tab the tenant will see when they open their case is the "Case Header" tab, which will look something like this -
-  % endif
-  
-  [FILE CaseHeader.png, 100%]
-fields:
-  - Docket Number: docket_number
-    required: False
-  - note: |
-      The Docket Number is at the top of the page, with white type on a blue blackground. It usually starts with the last two digits of the year (22 for 2022).  
-  - Date Filed: filing_date
-    required: False
-    datatype: date
-  - Case Type: case_type
-    datatype: checkboxes
-    required: False
-    choices:
-      - AC Rent and Possession
-      - AC Unlawful Detainer
-      - AC Landlord Action (Bulk)
-      - AC Expedited Eviction
-      - Other
-continue button field: docket_header
 ---
 if: tenant_got_summons and petition_available and len(users)==1
 question: Is any other tenant listed on this eviction case?
