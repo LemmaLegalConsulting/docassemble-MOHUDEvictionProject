@@ -1289,7 +1289,7 @@ subquestion: |
   % if person_answering == "tenant" and petition_states_rent_amount:
   Your landlord said you owe ${ currency(rent_amount_owed) }. Think about this amount when you answer
   the questions on this page.
-  % elif person_answering == "attorney" or person_answering == "tenant_helper" and petition_states_rent_amount:
+  % elif person_answering in ["attorney","tenant_helper"] and petition_states_rent_amount:
     The landlord said the tenant owes ${ currency(rent_amount_owed) }. The tenant should think about this amount when they answer
   the questions on this page.
   % endif
