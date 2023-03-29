@@ -25,7 +25,9 @@ metadata:
 ---
 features:
   bootstrap theme: lsem.bootstrap.css    
-  debug: False
+---
+default screen parts:
+  pre: |
 ---
 mandatory: True
 comment: |
