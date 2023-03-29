@@ -18,706 +18,7 @@ code: |
 ---
 depends on: trial_court.county
 code: |
-  trial_court.classification = county_dictionary[trial_court.county]['classification']
----
-variable name: county_dictionary
-data:  
-  Adair County:
-    circuit: 2
-    classification: 3
-    casenet: ADR
-  Andrew County:
-    circuit: 5
-    classification: 3
-    casenet: ADW
-  Atchison County:
-    circuit: 4
-    classification: 3
-    casenet: ATN
-  Audrain County:
-    circuit: 12
-    classification: 3
-    casenet: AUD
-  Barry County:
-    circuit: 39
-    classification: 3
-    casenet: BRY
-  Barton County:
-    circuit: 28
-    classification: 3
-    casenet: BAR
-  Bates County:
-    circuit: 27
-    classification: 3
-    casenet: BAT
-  Benton County:
-    circuit: 30
-    classification: 3
-    casenet: BEN
-  Bollinger County:
-    circuit: 32
-    classification: 3
-    casenet: BOL
-  Boone County:
-    circuit: 13
-    classification: 1
-    casenet: BNE
-  Buchanan County:
-    circuit: 5
-    classification: 1
-    casenet: BUC
-  Butler County:
-    circuit: 36
-    classification: 3
-    casenet: BTR
-  Caldwell County:
-    circuit: 43
-    classification: 3
-    casenet: CDL
-  Callaway County:
-    circuit: 13
-    classification: 2
-    casenet: CWY
-  Camden County:
-    circuit: 26
-    classification: 1
-    casenet: CAM
-  Cape Girardeau County:
-    circuit: 32
-    classification: 1
-    casenet: CPG
-  Carroll County:
-    circuit: 8
-    classification: 3
-    casenet: CRL
-  Carter County:
-    circuit: 37
-    classification: 3
-    casenet: CTR
-  Cass County:
-    circuit: 17
-    classification: 1
-    casenet: CAS
-  Cedar County:
-    circuit: 28
-    classification: 3
-    casenet: CDR
-  Chariton County:
-    circuit: 9
-    classification: 3
-    casenet: CHN
-  Christian County:
-    circuit: 38
-    classification: 1
-    casenet: CTN
-  City of St. Louis:
-    circuit: 22
-    classification: 1
-    casenet: STL
-  Clark County:
-    circuit: 1
-    classification: 3
-    casenet: CLK
-  Clay County:
-    circuit: 7
-    classification: 1
-    casenet: CLY
-  Clinton County:
-    circuit: 43
-    classification: 3
-    casenet: CLN
-  Cole County:
-    circuit: 19
-    classification: 1
-    casenet: COL
-  Cooper County:
-    circuit: 18
-    classification: 3
-    casenet: CPR
-  Crawford County:
-    circuit: 42
-    classification: 3
-    casenet: CFD
-  Dade County:
-    circuit: 28
-    classification: 3
-    casenet: DAD
-  Dallas County:
-    circuit: 30
-    classification: 3
-    casenet: DAL
-  Daviess County:
-    circuit: 43
-    classification: 3
-    casenet: DAV
-  DeKalb County:
-    circuit: 43
-    classification: 3
-    casenet: DEK
-  Dent County:
-    circuit: 42
-    classification: 3
-    casenet: DEN
-  Douglas County:
-    circuit: 44
-    classification: 3
-    casenet: DGS
-  Dunklin County:
-    circuit: 35
-    classification: 3
-    casenet: DUN
-  Franklin County:
-    circuit: 20
-    classification: 1
-    casenet: FKN
-  Gasconade County:
-    circuit: 20
-    classification: 3
-    casenet: GAS
-  Gentry County:
-    circuit: 4
-    classification: 3
-    casenet: GEN
-  Greene County:
-    circuit: 31
-    classification: 1
-    casenet: GRE
-  Grundy County:
-    circuit: 3
-    classification: 3
-    casenet: GRU
-  Harrison County:
-    circuit: 3
-    classification: 3
-    casenet: HAR
-  Henry County:
-    circuit: 27
-    classification: 3
-    casenet: HEN
-  Hickory County:
-    circuit: 30
-    classification: 3
-    casenet: HIK
-  Holt County:
-    circuit: 4
-    classification: 3
-    casenet: HOL
-  Howard County:
-    circuit: 14
-    classification: 3
-    casenet: HWD
-  Howell County:
-    circuit: 37
-    classification: 3
-    casenet: HWL
-  Iron County:
-    circuit: 42
-    classification: 3
-    casenet: IRN
-  Jackson County:
-    circuit: 16
-    classification: 1
-    casenet: JAK
-  Jasper County:
-    circuit: 29
-    classification: 1
-    casenet: JAS
-  Jefferson County:
-    circuit: 23
-    classification: 1
-    casenet: JEF
-  Johnson County:
-    circuit: 17
-    classification: 4
-    casenet: JON
-  Knox County:
-    circuit: 2
-    classification: 3
-    casenet: KNX
-  Laclede County:
-    circuit: 26
-    classification: 3
-    casenet: LAC
-  Lafayette County:
-    circuit: 15
-    classification: 4
-    casenet: LAF
-  Lawrence County:
-    circuit: 39
-    classification: 3
-    casenet: LAW
-  Lewis County:
-    circuit: 2
-    classification: 3
-    casenet: LEW
-  Lincoln County:
-    circuit: 45
-    classification: 2
-    casenet: LCN
-  Linn County:
-    circuit: 9
-    classification: 3
-    casenet: LIN
-  Livingston County:
-    circuit: 43
-    classification: 3
-    casenet: LIV
-  Macon County:
-    circuit: 41
-    classification: 3
-    casenet: MAC
-  Madison County:
-    circuit: 24
-    classification: 3
-    casenet: MAD
-  Maries County:
-    circuit: 25
-    classification: 3
-    casenet: MRS
-  Marion County:
-    circuit: 10
-    classification: 3
-    casenet: MRN
-  McDonald County:
-    circuit: 40
-    classification: 3
-    casenet: MCD
-  Mercer County:
-    circuit: 3
-    classification: 3
-    casenet: MER
-  Miller County:
-    circuit: 26
-    classification: 3
-    casenet: MIL
-  Mississippi County:
-    circuit: 33
-    classification: 3
-    casenet: MIS
-  Moniteau County:
-    circuit: 26
-    classification: 3
-    casenet: MTU
-  Monroe County:
-    circuit: 10
-    classification: 3
-    casenet: MNR
-  Montgomery County:
-    circuit: 12
-    classification: 3
-    casenet: MTY
-  Morgan County:
-    circuit: 26
-    classification: 3
-    casenet: MOR
-  New Madrid County:
-    circuit: 34
-    classification: 3
-    casenet: NMD
-  Newton County:
-    circuit: 40
-    classification: 2
-    casenet: NWT
-  Nodaway County:
-    circuit: 4
-    classification: 3
-    casenet: NDY
-  Oregon County:
-    circuit: 37
-    classification: 3
-    casenet: ORE
-  Osage County:
-    circuit: 20
-    classification: 3
-    casenet: OSG
-  Ozark County:
-    circuit: 44
-    classification: 3
-    casenet: OZK
-  Pemiscot County:
-    circuit: 34
-    classification: 3
-    casenet: PEM
-  Perry County:
-    circuit: 32
-    classification: 3
-    casenet: PER
-  Pettis County:
-    circuit: 18
-    classification: 4
-    casenet: PET
-  Phelps County:
-    circuit: 25
-    classification: 3
-    casenet: PHE
-  Pike County:
-    circuit: 45
-    classification: 3
-    casenet: PIK
-  Platte County:
-    circuit: 6
-    classification: 1
-    casenet: PLA
-  Polk County:
-    circuit: 30
-    classification: 3
-    casenet: POL
-  Pulaski County:
-    circuit: 25
-    classification: 3
-    casenet: PUL
-  Putnam County:
-    circuit: 3
-    classification: 3
-    casenet: PUT
-  Ralls County:
-    circuit: 10
-    classification: 3
-    casenet: RAL
-  Randolph County:
-    circuit: 14
-    classification: 3
-    casenet: RAN
-  Ray County:
-    circuit: 8
-    classification: 3
-    casenet: RAY
-  Reynolds County:
-    circuit: 42
-    classification: 3
-    casenet: REY
-  Ripley County:
-    circuit: 36
-    classification: 3
-    casenet: RIP
-  Saint Francois County:
-    circuit: 24
-    classification: 1
-    casenet: SAL
-  Sainte Genevieve County:
-    circuit: 24
-    classification: 3
-    casenet: SYR
-  Saline County:
-    circuit: 15
-    classification: 4
-    casenet: SLD
-  Schuyler County:
-    circuit: 1
-    classification: 3
-    casenet: SCT
-  Scotland County:
-    circuit: 1
-    classification: 3
-    casenet: SHA
-  Scott County:
-    circuit: 33
-    classification: 3
-    casenet: SBY
-  Shannon County:
-    circuit: 37
-    classification: 3
-    casenet: SCH
-  Shelby County:
-    circuit: 41
-    classification: 3
-    casenet: SCL
-  St. Charles County:
-    circuit: 11
-    classification: 1
-    casenet: SFR
-  St. Clair County:
-    circuit: 27
-    classification: 3
-    casenet: SLC
-  St. Louis County:
-    circuit: 21
-    classification: 1
-    casenet: SGE
-  Stoddard County:
-    circuit: 35
-    classification: 3
-    casenet: SDD
-  Stone County:
-    circuit: 39
-    classification: 3
-    casenet: STN
-  Sullivan County:
-    circuit: 9
-    classification: 3
-    casenet: SUL
-  Taney County:
-    circuit: 46
-    classification: 1
-    casenet: TAN
-  Texas County:
-    circuit: 25
-    classification: 3
-    casenet: TEX
-  Vernon County:
-    circuit: 28
-    classification: 3
-    casenet: VER
-  Warren County:
-    circuit: 12
-    classification: 3
-    casenet: WRN
-  Washington County:
-    circuit: 24
-    classification: 3
-    casenet: WAS
-  Wayne County:
-    circuit: 42
-    classification: 3
-    casenet: WAY
-  Webster County:
-    circuit: 30
-    classification: 3
-    casenet: WEB
-  Worth County:
-    circuit: 4
-    classification: 3
-    casenet: WOR
-  Wright County:
-    circuit: 44
-    classification: 3
-    casenet: WRI
----
-code: |
-  county_to_circuit = {
-    "Adair County":2,
-    "Andrew County":5,
-    "Atchison County":4,
-    "Audrain County":12,
-    "Barry County":39,
-    "Barton County":28,
-    "Bates County":27,
-    "Benton County":30,
-    "Bollinger County":32,
-    "Boone County":13,
-    "Buchanan County":5,
-    "Butler County":36,
-    "Caldwell County":43,
-    "Callaway County":13,
-    "Camden County":26,
-    "Cape Girardeau County":32,
-    "Carroll County":8,
-    "Carter County":37,
-    "Cass County":17,
-    "Cedar County":28,
-    "Chariton County":9,
-    "Christian County":38,
-    "City of St. Louis":22,
-    "Clark County":1,
-    "Clay County":7,
-    "Clinton County":43,
-    "Cole County":19,
-    "Cooper County":18,
-    "Crawford County":42,
-    "Dade County":28,
-    "Dallas County":30,
-    "Daviess County":43,
-    "DeKalb County":43,
-    "Dent County":42,
-    "Douglas County":44,
-    "Dunklin County":35,
-    "Franklin County":20,
-    "Gasconade County":20,
-    "Gentry County":4,
-    "Greene County":31,
-    "Grundy County":3,
-    "Harrison County":3,
-    "Henry County":27,
-    "Hickory County":30,
-    "Holt County":4,
-    "Howard County":14,
-    "Howell County":37,
-    "Iron County":42,
-    "Jackson County":16,
-    "Jasper County":29,
-    "Jefferson County":23,
-    "Johnson County":17,
-    "Knox County":2,
-    "Laclede County":26,
-    "Lafayette County":15,
-    "Lawrence County":39,
-    "Lewis County":2,
-    "Lincoln County":45,
-    "Linn County":9,
-    "Livingston County":43,
-    "Macon County":41,
-    "Madison County":24,
-    "Maries County":25,
-    "Marion County":10,
-    "McDonald County":40,
-    "Mercer County":3,
-    "Miller County":26,
-    "Mississippi County":33,
-    "Moniteau County":26,
-    "Monroe County":10,
-    "Montgomery County":12,
-    "Morgan County":26,
-    "New Madrid County":34,
-    "Newton County":40,
-    "Nodaway County":4,
-    "Oregon County":37,
-    "Osage County":20,
-    "Ozark County":44,
-    "Pemiscot County":34,
-    "Perry County":32,
-    "Pettis County":18,
-    "Phelps County":25,
-    "Pike County":45,
-    "Platte County":6,
-    "Polk County":30,
-    "Pulaski County":25,
-    "Putnam County":3,
-    "Ralls County":10,
-    "Randolph County":14,
-    "Ray County":8,
-    "Reynolds County":42,
-    "Ripley County":36,
-    "Saint Francois County":24,
-    "Sainte Genevieve County":24,
-    "Saline County":15,
-    "Schuyler County":1,
-    "Scotland County":1,
-    "Scott County":33,
-    "Shannon County":37,
-    "Shelby County":41,
-    "St. Charles County":11,
-    "St. Clair County":27,
-    "St. Louis County":21,
-    "Stoddard County":35,
-    "Stone County":39,
-    "Sullivan County":9,
-    "Taney County":46,
-    "Texas County":25,
-    "Vernon County":28,
-    "Warren County":12,
-    "Washington County":24,
-    "Wayne County":42,
-    "Webster County":30,
-    "Worth County":4,
-    "Wright County":44,}
----
-variable name: county_casenet_code
-data:
-  Adair County: ADR
-  Andrew County: ADW
-  Atchison County: ATN
-  Audrain County: AUD
-  Barry County: BRY
-  Barton County: BAR
-  Bates County: BAT
-  Benton County: BEN
-  Bollinger County: BOL
-  Boone County: BNE
-  Buchanan County: BUC
-  Butler County: BTR
-  Caldwell County: CDL
-  Callaway County: CWY
-  Camden County: CAM
-  Cape Girardeau: CPG
-  Carroll County: CRL
-  Carter County: CTR
-  Cass County: CAS
-  Cedar County: CDR
-  Chariton County: CHN
-  Christian County: CTN
-  City of St Louis: STL
-  Clark County: CLK
-  Clay County: CLY
-  Clinton County: CLN
-  Cole County: COL
-  Cooper County: CPR
-  Crawford County: CFD
-  Dade County: DAD
-  Dallas County: DAL
-  Daviess County: DAV
-  DeKalb County: DEK
-  Dent County: DEN
-  Douglas County: DGS
-  Dunklin County: DUN
-  Franklin County: FKN
-  Gasconade County: GAS
-  Gentry County: GEN
-  Greene County: GRE
-  Grundy County: GRU
-  Harrison County: HAR
-  Henry County: HEN
-  Hickory County: HIK
-  Holt County: HOL
-  Howard County: HWD
-  Howell County: HWL
-  Iron County: IRN
-  Jackson County: JAK
-  Jasper County: JAS
-  Jefferson County: JEF
-  Johnson County: JON
-  Knox County: KNX
-  Laclede County: LAC
-  Lafayette County: LAF
-  Lawrence County: LAW
-  Lewis County: LEW
-  Lincoln County: LCN
-  Linn County: LIN
-  Livingston County: LIV
-  Macon County: MAC
-  Madison County: MAD
-  Maries County: MRS
-  Marion County: MRN
-  McDonald County: MCD
-  Mercer County: MER
-  Miller County: MIL
-  Mississippi County: MIS
-  Moniteau County: MTU
-  Monroe County: MNR
-  Montgomery County: MTY
-  Morgan County: MOR
-  New Madrid: ountycode="NMD
-  Newton County: NWT
-  Nodaway County: NDY
-  Oregon County: ORE
-  Osage County: OSG
-  Ozark County: OZK
-  Pemiscot County: PEM
-  Perry County: PER
-  Pettis County: PET
-  Phelps County: PHE
-  Pike County: PIK
-  Platte County: PLA
-  Polk County: POL
-  Pulaski County: PUL
-  Putnam County: PUT
-  Ralls County: RAL
-  Randolph County: RAN
-  Ray County: RAY
-  Reynolds County: REY
-  Ripley County: RIP
-  Saline County: SAL
-  Schuyler County: SYR
-  Scotland County: SLD
-  Scott County: SCT
-  Shannon County: SHA
-  Shelby County: SBY
-  St. Charles County: SCH
-  St. Clair County: SCL
-  St. Francois County: SFR
-  St. Louis County: SLC
-  Ste. Genevieve County: SGE
-  Stoddard County: SDD
-  Stone County: STN
-  Sullivan County: SUL
-  Taney County: TAN
-  Texas County: TEX
-  Vernon County: VER
-  Warren County: WRN
-  Washington County: WAS
-  Wayne County: WAY
-  Webster County: WEB
-  Worth County: WOR
-  Wright County: WRI
+  trial_court.classification = county_dictionary[trial_court.county]['class']
 ---
 id: caption - docket number and file date
 question: |
@@ -731,17 +32,26 @@ subquestion: |
   % if person_answering == "tenant":
   You can find the:
   % else:
-  The tenant can find the: 
+  The tenant can find the:
   % endif
   
   - Name of the court,
   - Case number, and
-  - Nature of Action
-
-  At the top of the Summons and Petition.
+  - Nature of Action  
   
-    [FILE MOSummonsCourtDate.png]
-    
+  at the top of the Summons.
+  
+  [FILE MOSummonsCourtDate.png]
+      
+  % elif docket_available:
+  % if person_answering == "tenant":
+  The first tab you see when you open your case is the "Case Header" tab, which will look something like this -
+  % else: 
+  The first tab the tenant will see when they open their case is the "Case Header" tab, which will look something like this -
+  % endif
+  
+  [FILE CaseHeader.png, 100%]
+
   % endif
 fields:
   - Court: trial_court.name
@@ -751,11 +61,2518 @@ fields:
       % endif
   - Case Number: docket_number
     required: False
-  - Nature of Action: case_type
-    datatype: radio
+  - Nature of Suit or Case Type: case_type
+    datatype: checkboxes
     required: False
     choices:
       - AC Rent and Possession
       - AC Unlawful Detainer
       - AC Landlord Action (Bulk)
+      - AC Expedited Eviction
       - Other
+---
+variable name: county_dictionary
+data:  
+  Adair County:
+    circuit: 2
+    class: |
+      Class 3
+    casenet_code: |
+       ADR
+    legal_aid_program_website: |
+      http://www.lsem.org/
+    legal_aid_program: |
+      Legal Services of Eastern Missouri
+    legal_aid_program_online_app: |
+      https://lsem.org/get-help-now/
+    legal_aid_program_phone_app: |
+      1-800-444-0514
+    legal_aid_program_office_app_addresses: |
+      LSEM - St. Louis - Main Office
+      Peabody Plaza Building
+      701 Market St., Suite 1100
+      St. Louis, MO  63101
+      (314) 534-4200
+  Andrew County:
+    circuit: 5
+    class: |
+      Class 3
+    casenet_code: |
+       ADW
+    legal_aid_program_website: |
+      https://www.lawmo.org/
+    legal_aid_program: |
+      Legal Aid of Western Missouri
+    legal_aid_program_online_app: |
+      https://lawmo.org/get-legal-help
+    legal_aid_program_phone_app: |
+      1-800-892-2101
+    legal_aid_program_office_app_addresses: |
+      LAWMO - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300
+      Kansas City, MO  64130
+      (816) 474-6750
+      LAWMO - St. Joseph Office
+      706 Felix Street
+      St. Joseph, MO 64501
+      (816) 364-2325
+      LAWMO - Kansas City - Westside Office
+      920 Southwest Blvd.
+      Kansas City, MO 64108
+      (816) 474-9868
+  Atchison County:
+    circuit: 4
+    class: |
+      Class 3
+    casenet_code: |
+       ATN
+    legal_aid_program_website: |
+      https://www.lawmo.org/
+    legal_aid_program: |
+      Legal Aid of Western Missouri
+    legal_aid_program_online_app: |
+      https://lawmo.org/get-legal-help
+    legal_aid_program_phone_app: |
+      1-800-892-2101
+    legal_aid_program_office_app_addresses: |
+      LAWMO - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300
+      Kansas City, MO  64130
+      (816) 474-6750
+      LAWMO - St. Joseph Office
+      706 Felix Street
+      St. Joseph, MO 64501
+      (816) 364-2325
+      LAWMO - Kansas City - Westside Office
+      920 Southwest Blvd.
+      Kansas City, MO 64108
+      (816) 474-9868
+  Audrain County:
+    circuit: 12
+    class: |
+      Class 3
+    casenet_code: |
+       AUD
+    legal_aid_program_website: |
+      http://www.mmls.org/
+    legal_aid_program: |
+      Mid-Missouri Legal Services
+    legal_aid_program_online_app: |
+      None
+    legal_aid_program_phone_app: |
+      1-800-568-4931
+    legal_aid_program_office_app_addresses: |
+      MMLS - Columbia - Main Office
+      117 North Garth 
+      Columbia, MO  65203
+      (573) 442-0116
+  Barry County:
+    circuit: 39
+    class: |
+      Class 3
+    casenet_code: |
+       BRY
+    legal_aid_program_website: |
+      http://www.lsosm.org/
+    legal_aid_program: |
+      Legal Services of Southern Missouri
+    legal_aid_program_online_app: |
+      https://application.lsosm.org/
+    legal_aid_program_phone_app: |
+      1-800-444-4863
+    legal_aid_program_office_app_addresses: |
+      LSSM - Springfield Office
+      809 N. Campbell Avenue
+      Springfield, MO  65802
+      (417) 881-0533
+  Barton County:
+    circuit: 28
+    class: |
+      Class 3
+    casenet_code: |
+       BAR
+    legal_aid_program_website: |
+      https://www.lawmo.org/
+    legal_aid_program: |
+      Legal Aid of Western Missouri
+    legal_aid_program_online_app: |
+      https://lawmo.org/get-legal-help
+    legal_aid_program_phone_app: |
+      1-800-492-7095
+    legal_aid_program_office_app_addresses: |
+      LAWMO - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300
+      Kansas City, MO  64130
+      (816) 474-6750
+      LAWMO - Joplin Office
+      1027 South Main, Suite LL7
+      Joplin, MO 64801
+      (417) 782-1650
+      LAWMO - Kansas City - Westside Office
+      920 Southwest Blvd.
+      Kansas City, MO 64108
+      (816) 474-9868
+  Bates County:
+    circuit: 27
+    class: |
+      Class 3
+    casenet_code: |
+       BAT
+    legal_aid_program_website: |
+      https://www.lawmo.org/
+    legal_aid_program: |
+      Legal Aid of Western Missouri
+    legal_aid_program_online_app: |
+      https://lawmo.org/get-legal-help
+    legal_aid_program_phone_app: |
+      1-800-492-7095
+    legal_aid_program_office_app_addresses: |
+      LAWMO - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300
+      Kansas City, MO  64130
+      (816) 474-6750
+      LAWMO - Joplin Office
+      1027 South Main, Suite LL7
+      Joplin, MO 64801
+      (417) 782-1650
+      LAWMO - Kansas City - Westside Office
+      920 Southwest Blvd.
+      Kansas City, MO 64108
+      (816) 474-9868
+  Benton County:
+    circuit: 30
+    class: |
+      Class 3
+    casenet_code: |
+       BEN
+    legal_aid_program_website: |
+      https://www.lawmo.org/
+    legal_aid_program: |
+      Legal Aid of Western Missouri
+    legal_aid_program_online_app: |
+      https://lawmo.org/get-legal-help
+    legal_aid_program_phone_app: |
+      1-800-892-2943
+    legal_aid_program_office_app_addresses: |
+      LAWMO - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300
+      Kansas City, MO  64130
+      (816) 474-6750
+      LAWMO - Warrensburg Office
+      305 North Holden  
+      Warrensburg, MO 64093
+      (660) 747-7101
+      LAWMO - Kansas City - Westside Office
+      920 Southwest Blvd.
+      Kansas City, MO 64108
+      (816) 474-9868
+  Bollinger County:
+    circuit: 32
+    class: |
+      Class 3
+    casenet_code: |
+       BOL
+    legal_aid_program_website: |
+      http://www.lsosm.org/
+    legal_aid_program: |
+      Legal Services of Southern Missouri
+    legal_aid_program_online_app: |
+      https://application.lsosm.org/
+    legal_aid_program_phone_app: |
+      1-800-444-4863
+    legal_aid_program_office_app_addresses: |
+      LSSM - Sikeston Office
+      2201 E. Malone Avenue 
+      Sikeston, MO  63801
+      (573) 683-3783
+  Boone County:
+    circuit: 13
+    class: |
+      Class 1
+    casenet_code: |
+       BNE
+    legal_aid_program_website: |
+      http://www.mmls.org/
+    legal_aid_program: |
+      Mid-Missouri Legal Services
+    legal_aid_program_online_app: |
+      None
+    legal_aid_program_phone_app: |
+      1-800-568-4931
+    legal_aid_program_office_app_addresses: |
+      MMLS - Columbia - Main Office
+      117 North Garth 
+      Columbia, MO  65203
+      (573) 442-0116
+  Buchanan County:
+    circuit: 5
+    class: |
+      Class 1
+    casenet_code: |
+       BUC
+    legal_aid_program_website: |
+      https://www.lawmo.org/
+    legal_aid_program: |
+      Legal Aid of Western Missouri
+    legal_aid_program_online_app: |
+      https://lawmo.org/get-legal-help
+    legal_aid_program_phone_app: |
+      1-800-892-2101
+    legal_aid_program_office_app_addresses: |
+      LAWMO - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300
+      Kansas City, MO  64130
+      (816) 474-6750
+      LAWMO - St. Joseph Office
+      706 Felix Street
+      St. Joseph, MO 64501
+      (816) 364-2325
+      LAWMO - Kansas City - Westside Office
+      920 Southwest Blvd.
+      Kansas City, MO 64108
+      (816) 474-9868
+  Butler County:
+    circuit: 36
+    class: |
+      Class 3
+    casenet_code: |
+       BTR
+    legal_aid_program_website: |
+      http://www.lsosm.org/
+    legal_aid_program: |
+      Legal Services of Southern Missouri
+    legal_aid_program_online_app: |
+      https://application.lsosm.org/
+    legal_aid_program_phone_app: |
+      1-800-444-4863
+    legal_aid_program_office_app_addresses: |
+      LSSM - Sikeston Office
+      2201 E. Malone Avenue 
+      Sikeston, MO  63801
+      (573) 683-3783
+  Caldwell County:
+    circuit: 43
+    class: |
+      Class 3
+    casenet_code: |
+       CDL
+    legal_aid_program_website: |
+      https://www.lawmo.org/
+    legal_aid_program: |
+      Legal Aid of Western Missouri
+    legal_aid_program_online_app: |
+      https://lawmo.org/get-legal-help
+    legal_aid_program_phone_app: |
+      1-800-892-2101
+    legal_aid_program_office_app_addresses: |
+      LAWMO - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300
+      Kansas City, MO  64130
+      (816) 474-6750
+      LAWMO - St. Joseph Office
+      706 Felix Street
+      St. Joseph, MO 64501
+      (816) 364-2325
+      LAWMO - Kansas City - Westside Office
+      920 Southwest Blvd.
+      Kansas City, MO 64108
+      (816) 474-9868
+  Callaway County:
+    circuit: 13
+    class: |
+      Class 2
+    casenet_code: |
+       CWY
+    legal_aid_program_website: |
+      http://www.mmls.org/
+    legal_aid_program: |
+      Mid-Missouri Legal Services
+    legal_aid_program_online_app: |
+      None
+    legal_aid_program_phone_app: |
+      1-800-568-4931
+    legal_aid_program_office_app_addresses: |
+      MMLS - Columbia - Main Office
+      117 North Garth 
+      Columbia, MO  65203
+      (573) 442-0116
+  Camden County:
+    circuit: 26
+    class: |
+      Class 1
+    casenet_code: |
+       CAM
+    legal_aid_program_website: |
+      https://www.lawmo.org/
+    legal_aid_program: |
+      Legal Aid of Western Missouri
+    legal_aid_program_online_app: |
+      https://lawmo.org/get-legal-help
+    legal_aid_program_phone_app: |
+      1-800-892-2943
+    legal_aid_program_office_app_addresses: |
+      LAWMO - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300
+      Kansas City, MO  64130
+      (816) 474-6750
+      LAWMO - Warrensburg Office
+      305 North Holden  
+      Warrensburg, MO 64093
+      (660) 747-7101
+      LAWMO - Kansas City - Westside Office
+      920 Southwest Blvd.
+      Kansas City, MO 64108
+      (816) 474-9868
+  Cape Girardeau County:
+    circuit: 32
+    class: |
+      Class 1
+    casenet_code: |
+       CPG
+    legal_aid_program_website: |
+      http://www.lsosm.org/
+    legal_aid_program: |
+      Legal Services of Southern Missouri
+    legal_aid_program_online_app: |
+      https://application.lsosm.org/
+    legal_aid_program_phone_app: |
+      1-800-444-4863
+    legal_aid_program_office_app_addresses: |
+      LSSM - Sikeston Office
+      2201 E. Malone Avenue 
+      Sikeston, MO  63801
+      (573) 683-3783
+  Carroll County:
+    circuit: 8
+    class: |
+      Class 3
+    casenet_code: |
+       CRL
+    legal_aid_program_website: |
+      https://www.lawmo.org/
+    legal_aid_program: |
+      Legal Aid of Western Missouri
+    legal_aid_program_online_app: |
+      https://lawmo.org/get-legal-help
+    legal_aid_program_phone_app: |
+      1-800-892-2943
+    legal_aid_program_office_app_addresses: |
+      LAWMO - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300
+      Kansas City, MO  64130
+      (816) 474-6750
+      LAWMO - Warrensburg Office
+      305 North Holden  
+      Warrensburg, MO 64093
+      (660) 747-7101
+      LAWMO - Kansas City - Westside Office
+      920 Southwest Blvd.
+      Kansas City, MO 64108
+      (816) 474-9868
+  Carter County:
+    circuit: 37
+    class: |
+      Class 3
+    casenet_code: |
+       CTR
+    legal_aid_program_website: |
+      http://www.lsosm.org/
+    legal_aid_program: |
+      Legal Services of Southern Missouri
+    legal_aid_program_online_app: |
+      https://application.lsosm.org/
+    legal_aid_program_phone_app: |
+      1-800-444-4863
+    legal_aid_program_office_app_addresses: |
+      LSSM - Springfield Office
+      809 N. Campbell Avenue
+      Springfield, MO  65802
+      (417) 881-0533
+  Cass County:
+    circuit: 17
+    class: |
+      Class 1
+    casenet_code: |
+       CAS
+    legal_aid_program_website: |
+      https://www.lawmo.org/
+    legal_aid_program: |
+      Legal Aid of Western Missouri
+    legal_aid_program_online_app: |
+      https://lawmo.org/get-legal-help
+    legal_aid_program_phone_app: |
+      1-800-892-2943
+    legal_aid_program_office_app_addresses: |
+      LAWMO - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300
+      Kansas City, MO  64130
+      (816) 474-6750
+      LAWMO - Warrensburg Office
+      305 North Holden  
+      Warrensburg, MO 64093
+      (660) 747-7101
+      LAWMO - Kansas City - Westside Office
+      920 Southwest Blvd.
+      Kansas City, MO 64108
+      (816) 474-9868
+  Cedar County:
+    circuit: 28
+    class: |
+      Class 3
+    casenet_code: |
+       CDR
+    legal_aid_program_website: |
+      http://www.lsosm.org/
+    legal_aid_program: |
+      Legal Services of Southern Missouri
+    legal_aid_program_online_app: |
+      https://application.lsosm.org/
+    legal_aid_program_phone_app: |
+      1-800-444-4863
+    legal_aid_program_office_app_addresses: |
+      LSSM - Springfield Office
+      809 N. Campbell Avenue
+      Springfield, MO  65802
+      (417) 881-0533
+  Chariton County:
+    circuit: 9
+    class: |
+      Class 3
+    casenet_code: |
+       CHN
+    legal_aid_program_website: |
+      http://www.mmls.org/
+    legal_aid_program: |
+      Mid-Missouri Legal Services
+    legal_aid_program_online_app: |
+      None
+    legal_aid_program_phone_app: |
+      1-800-568-4931
+    legal_aid_program_office_app_addresses: |
+      MMLS - Columbia - Main Office
+      117 North Garth 
+      Columbia, MO  65203
+      (573) 442-0116
+  Christian County:
+    circuit: 38
+    class: |
+      Class 1
+    casenet_code: |
+       CTN
+    legal_aid_program_website: |
+      http://www.lsosm.org/
+    legal_aid_program: |
+      Legal Services of Southern Missouri
+    legal_aid_program_online_app: |
+      https://application.lsosm.org/
+    legal_aid_program_phone_app: |
+      1-800-444-4863
+    legal_aid_program_office_app_addresses: |
+      LSSM - Springfield Office
+      809 N. Campbell Avenue
+      Springfield, MO  65802
+      (417) 881-0533
+  City of St. Louis:
+    circuit: 22
+    class: |
+      Class 1
+    casenet_code: |
+       STL
+    legal_aid_program_website: |
+      http://www.lsem.org/
+    legal_aid_program: |
+      Legal Services of Eastern Missouri
+    legal_aid_program_online_app: |
+      https://lsem.org/get-help-now/
+    legal_aid_program_phone_app: |
+      1-800-444-0514
+    legal_aid_program_office_app_addresses: |
+      LSEM - St. Louis - Main Office
+      Peabody Plaza Building
+      701 Market St., Suite 1100
+      St. Louis, MO  63101
+      (314) 534-4200
+  Clark County:
+    circuit: 1
+    class: |
+      Class 3
+    casenet_code: |
+       CLK
+    legal_aid_program_website: |
+      http://www.lsem.org/
+    legal_aid_program: |
+      Legal Services of Eastern Missouri
+    legal_aid_program_online_app: |
+      https://lsem.org/get-help-now/
+    legal_aid_program_phone_app: |
+      1-800-444-0514
+    legal_aid_program_office_app_addresses: |
+      LSEM - St. Louis - Main Office
+      Peabody Plaza Building
+      701 Market St., Suite 1100
+      St. Louis, MO  63101
+      (314) 534-4200
+  Clay County:
+    circuit: 7
+    class: |
+      Class 1
+    casenet_code: |
+       CLY
+    legal_aid_program_website: |
+      https://www.lawmo.org/
+    legal_aid_program: |
+      Legal Aid of Western Missouri
+    legal_aid_program_online_app: |
+      https://lawmo.org/get-legal-help
+    legal_aid_program_phone_app: |
+      None
+    legal_aid_program_office_app_addresses: |
+      LAWMO - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300
+      Kansas City, MO  64130
+      (816) 474-6750
+      LAWMO - Kansas City - Westside Office
+      920 Southwest Blvd.
+      Kansas City, MO 64108
+      (816) 474-9868
+  Clinton County:
+    circuit: 43
+    class: |
+      Class 3
+    casenet_code: |
+       CLN
+    legal_aid_program_website: |
+      https://www.lawmo.org/
+    legal_aid_program: |
+      Legal Aid of Western Missouri
+    legal_aid_program_online_app: |
+      https://lawmo.org/get-legal-help
+    legal_aid_program_phone_app: |
+      1-800-892-2101
+    legal_aid_program_office_app_addresses: |
+      LAWMO - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300
+      Kansas City, MO  64130
+      (816) 474-6750
+      LAWMO - St. Joseph Office
+      706 Felix Street
+      St. Joseph, MO 64501
+      (816) 364-2325
+      LAWMO - Kansas City - Westside Office
+      920 Southwest Blvd.
+      Kansas City, MO 64108
+      (816) 474-9868
+  Cole County:
+    circuit: 19
+    class: |
+      Class 1
+    casenet_code: |
+       COL
+    legal_aid_program_website: |
+      http://www.mmls.org/
+    legal_aid_program: |
+      Mid-Missouri Legal Services
+    legal_aid_program_online_app: |
+      None
+    legal_aid_program_phone_app: |
+      1-800-568-4931
+    legal_aid_program_office_app_addresses: |
+      MMLS - Columbia - Main Office
+      117 North Garth 
+      Columbia, MO  65203
+      (573) 442-0116
+  Cooper County:
+    circuit: 18
+    class: |
+      Class 3
+    casenet_code: |
+       CPR
+    legal_aid_program_website: |
+      http://www.mmls.org/
+    legal_aid_program: |
+      Mid-Missouri Legal Services
+    legal_aid_program_online_app: |
+      None
+    legal_aid_program_phone_app: |
+      1-800-568-4931
+    legal_aid_program_office_app_addresses: |
+      MMLS - Columbia - Main Office
+      117 North Garth 
+      Columbia, MO  65203
+      (573) 442-0116
+  Crawford County:
+    circuit: 42
+    class: |
+      Class 3
+    casenet_code: |
+       CFD
+    legal_aid_program_website: |
+      http://www.lsosm.org/
+    legal_aid_program: |
+      Legal Services of Southern Missouri
+    legal_aid_program_online_app: |
+      https://application.lsosm.org/
+    legal_aid_program_phone_app: |
+      1-800-444-4863
+    legal_aid_program_office_app_addresses: |
+      LSSM - Rolla Office
+      1000 N. Pine, Suite B
+      Rolla, MO  65401
+      (573) 341-3655
+  Dade County:
+    circuit: 28
+    class: |
+      Class 3
+    casenet_code: |
+       DAD
+    legal_aid_program_website: |
+      http://www.lsosm.org/
+    legal_aid_program: |
+      Legal Services of Southern Missouri
+    legal_aid_program_online_app: |
+      https://application.lsosm.org/
+    legal_aid_program_phone_app: |
+      1-800-444-4863
+    legal_aid_program_office_app_addresses: |
+      LSSM - Springfield Office
+      809 N. Campbell Avenue
+      Springfield, MO  65802
+      (417) 881-0533
+  Dallas County:
+    circuit: 30
+    class: |
+      Class 3
+    casenet_code: |
+       DAL
+    legal_aid_program_website: |
+      http://www.lsosm.org/
+    legal_aid_program: |
+      Legal Services of Southern Missouri
+    legal_aid_program_online_app: |
+      https://application.lsosm.org/
+    legal_aid_program_phone_app: |
+      1-800-444-4863
+    legal_aid_program_office_app_addresses: |
+      LSSM - Springfield Office
+      809 N. Campbell Avenue
+      Springfield, MO  65802
+      (417) 881-0533
+  Daviess County:
+    circuit: 43
+    class: |
+      Class 3
+    casenet_code: |
+       DAV
+    legal_aid_program_website: |
+      https://www.lawmo.org/
+    legal_aid_program: |
+      Legal Aid of Western Missouri
+    legal_aid_program_online_app: |
+      https://lawmo.org/get-legal-help
+    legal_aid_program_phone_app: |
+      1-800-892-2101
+    legal_aid_program_office_app_addresses: |
+      LAWMO - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300
+      Kansas City, MO  64130
+      (816) 474-6750
+      LAWMO - St. Joseph Office
+      706 Felix Street
+      St. Joseph, MO 64501
+      (816) 364-2325
+      LAWMO - Kansas City - Westside Office
+      920 Southwest Blvd.
+      Kansas City, MO 64108
+      (816) 474-9868
+  DeKalb County:
+    circuit: 43
+    class: |
+      Class 3
+    casenet_code: |
+       DEK
+    legal_aid_program_website: |
+      https://www.lawmo.org/
+    legal_aid_program: |
+      Legal Aid of Western Missouri
+    legal_aid_program_online_app: |
+      https://lawmo.org/get-legal-help
+    legal_aid_program_phone_app: |
+      1-800-892-2101
+    legal_aid_program_office_app_addresses: |
+      LAWMO - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300
+      Kansas City, MO  64130
+      (816) 474-6750
+      LAWMO - St. Joseph Office
+      706 Felix Street
+      St. Joseph, MO 64501
+      (816) 364-2325
+      LAWMO - Kansas City - Westside Office
+      920 Southwest Blvd.
+      Kansas City, MO 64108
+      (816) 474-9868
+  Dent County:
+    circuit: 42
+    class: |
+      Class 3
+    casenet_code: |
+       DEN
+    legal_aid_program_website: |
+      http://www.lsosm.org/
+    legal_aid_program: |
+      Legal Services of Southern Missouri
+    legal_aid_program_online_app: |
+      https://application.lsosm.org/
+    legal_aid_program_phone_app: |
+      1-800-444-4863
+    legal_aid_program_office_app_addresses: |
+      LSSM - Rolla Office
+      1000 N. Pine, Suite B
+      Rolla, MO  65401
+      (573) 341-3655
+  Douglas County:
+    circuit: 44
+    class: |
+      Class 3
+    casenet_code: |
+       DGS
+    legal_aid_program_website: |
+      http://www.lsosm.org/
+    legal_aid_program: |
+      Legal Services of Southern Missouri
+    legal_aid_program_online_app: |
+      https://application.lsosm.org/
+    legal_aid_program_phone_app: |
+      1-800-444-4863
+    legal_aid_program_office_app_addresses: |
+      LSSM - Springfield Office
+      809 N. Campbell Avenue
+      Springfield, MO  65802
+      (417) 881-0533
+  Dunklin County:
+    circuit: 35
+    class: |
+      Class 3
+    casenet_code: |
+       DUN
+    legal_aid_program_website: |
+      http://www.lsosm.org/
+    legal_aid_program: |
+      Legal Services of Southern Missouri
+    legal_aid_program_online_app: |
+      https://application.lsosm.org/
+    legal_aid_program_phone_app: |
+      1-800-444-4863
+    legal_aid_program_office_app_addresses: |
+      LSSM - Sikeston Office
+      2201 E. Malone Avenue 
+      Sikeston, MO  63801
+      (573) 683-3783
+  Franklin County:
+    circuit: 20
+    class: |
+      Class 1
+    casenet_code: |
+       FKN
+    legal_aid_program_website: |
+      http://www.lsem.org/
+    legal_aid_program: |
+      Legal Services of Eastern Missouri
+    legal_aid_program_online_app: |
+      https://lsem.org/get-help-now/
+    legal_aid_program_phone_app: |
+      1-800-444-0514
+    legal_aid_program_office_app_addresses: |
+      LSEM - St. Louis - Main Office
+      Peabody Plaza Building
+      701 Market St., Suite 1100
+      St. Louis, MO  63101
+      (314) 534-4200
+  Gasconade County:
+    circuit: 20
+    class: |
+      Class 3
+    casenet_code: |
+       GAS
+    legal_aid_program_website: |
+      http://www.lsosm.org/
+    legal_aid_program: |
+      Legal Services of Southern Missouri
+    legal_aid_program_online_app: |
+      https://application.lsosm.org/
+    legal_aid_program_phone_app: |
+      1-800-444-4863
+    legal_aid_program_office_app_addresses: |
+      LSSM - Rolla Office
+      1000 N. Pine, Suite B
+      Rolla, MO  65401
+      (573) 341-3655
+  Gentry County:
+    circuit: 4
+    class: |
+      Class 3
+    casenet_code: |
+       GEN
+    legal_aid_program_website: |
+      https://www.lawmo.org/
+    legal_aid_program: |
+      Legal Aid of Western Missouri
+    legal_aid_program_online_app: |
+      https://lawmo.org/get-legal-help
+    legal_aid_program_phone_app: |
+      1-800-892-2101
+    legal_aid_program_office_app_addresses: |
+      LAWMO - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300
+      Kansas City, MO  64130
+      (816) 474-6750
+      LAWMO - St. Joseph Office
+      706 Felix Street
+      St. Joseph, MO 64501
+      (816) 364-2325
+      LAWMO - Kansas City - Westside Office
+      920 Southwest Blvd.
+      Kansas City, MO 64108
+      (816) 474-9868
+  Greene County:
+    circuit: 31
+    class: |
+      Class 1
+    casenet_code: |
+       GRE
+    legal_aid_program_website: |
+      http://www.lsosm.org/
+    legal_aid_program: |
+      Legal Services of Southern Missouri
+    legal_aid_program_online_app: |
+      https://application.lsosm.org/
+    legal_aid_program_phone_app: |
+      1-800-444-4863
+    legal_aid_program_office_app_addresses: |
+      LSSM - Springfield Office
+      809 N. Campbell Avenue
+      Springfield, MO  65802
+      (417) 881-0533
+  Grundy County:
+    circuit: 3
+    class: |
+      Class 3
+    casenet_code: |
+       GRU
+    legal_aid_program_website: |
+      https://www.lawmo.org/
+    legal_aid_program: |
+      Legal Aid of Western Missouri
+    legal_aid_program_online_app: |
+      https://lawmo.org/get-legal-help
+    legal_aid_program_phone_app: |
+      1-800-892-2101
+    legal_aid_program_office_app_addresses: |
+      LAWMO - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300
+      Kansas City, MO  64130
+      (816) 474-6750
+      LAWMO - St. Joseph Office
+      706 Felix Street
+      St. Joseph, MO 64501
+      (816) 364-2325
+      LAWMO - Kansas City - Westside Office
+      920 Southwest Blvd.
+      Kansas City, MO 64108
+      (816) 474-9868
+  Harrison County:
+    circuit: 3
+    class: |
+      Class 3
+    casenet_code: |
+       HAR
+    legal_aid_program_website: |
+      https://www.lawmo.org/
+    legal_aid_program: |
+      Legal Aid of Western Missouri
+    legal_aid_program_online_app: |
+      https://lawmo.org/get-legal-help
+    legal_aid_program_phone_app: |
+      1-800-892-2101
+    legal_aid_program_office_app_addresses: |
+      LAWMO - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300
+      Kansas City, MO  64130
+      (816) 474-6750
+      LAWMO - St. Joseph Office
+      706 Felix Street
+      St. Joseph, MO 64501
+      (816) 364-2325
+      LAWMO - Kansas City - Westside Office
+      920 Southwest Blvd.
+      Kansas City, MO 64108
+      (816) 474-9868
+  Henry County:
+    circuit: 27
+    class: |
+      Class 3
+    casenet_code: |
+       HEN
+    legal_aid_program_website: |
+      https://www.lawmo.org/
+    legal_aid_program: |
+      Legal Aid of Western Missouri
+    legal_aid_program_online_app: |
+      https://lawmo.org/get-legal-help
+    legal_aid_program_phone_app: |
+      1-800-892-2943
+    legal_aid_program_office_app_addresses: |
+      LAWMO - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300
+      Kansas City, MO  64130
+      (816) 474-6750
+      LAWMO - Warrensburg Office
+      305 North Holden  
+      Warrensburg, MO 64093
+      (660) 747-7101
+      LAWMO - Kansas City - Westside Office
+      920 Southwest Blvd.
+      Kansas City, MO 64108
+      (816) 474-9868
+  Hickory County:
+    circuit: 30
+    class: |
+      Class 3
+    casenet_code: |
+       HIK
+    legal_aid_program_website: |
+      https://www.lawmo.org/
+    legal_aid_program: |
+      Legal Aid of Western Missouri
+    legal_aid_program_online_app: |
+      https://lawmo.org/get-legal-help
+    legal_aid_program_phone_app: |
+      1-800-892-2943
+    legal_aid_program_office_app_addresses: |
+      LAWMO - Warrensburg Office
+      305 North Holden  
+      Warrensburg, MO 64093
+      (660) 747-7101
+  Holt County:
+    circuit: 4
+    class: |
+      Class 3
+    casenet_code: |
+       HOL
+    legal_aid_program_website: |
+      https://www.lawmo.org/
+    legal_aid_program: |
+      Legal Aid of Western Missouri
+    legal_aid_program_online_app: |
+      https://lawmo.org/get-legal-help
+    legal_aid_program_phone_app: |
+      1-800-892-2101
+    legal_aid_program_office_app_addresses: |
+      LAWMO - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300
+      Kansas City, MO  64130
+      (816) 474-6750
+      LAWMO - St. Joseph Office
+      706 Felix Street
+      St. Joseph, MO 64501
+      (816) 364-2325
+      LAWMO - Kansas City - Westside Office
+      920 Southwest Blvd.
+      Kansas City, MO 64108
+      (816) 474-9868
+  Howard County:
+    circuit: 14
+    class: |
+      Class 3
+    casenet_code: |
+       HWD
+    legal_aid_program_website: |
+      http://www.mmls.org/
+    legal_aid_program: |
+      Mid-Missouri Legal Services
+    legal_aid_program_online_app: |
+      None
+    legal_aid_program_phone_app: |
+      1-800-568-4931
+    legal_aid_program_office_app_addresses: |
+      MMLS - Columbia - Main Office
+      117 North Garth 
+      Columbia, MO  65203
+      (573) 442-0116
+  Howell County:
+    circuit: 37
+    class: |
+      Class 3
+    casenet_code: |
+       HWL
+    legal_aid_program_website: |
+      http://www.lsosm.org/
+    legal_aid_program: |
+      Legal Services of Southern Missouri
+    legal_aid_program_online_app: |
+      https://application.lsosm.org/
+    legal_aid_program_phone_app: |
+      1-800-444-4863
+    legal_aid_program_office_app_addresses: |
+      LSSM - Springfield Office
+      809 N. Campbell Avenue
+      Springfield, MO  65802
+      (417) 881-0533
+  Iron County:
+    circuit: 42
+    class: |
+      Class 3
+    casenet_code: |
+       IRN
+    legal_aid_program_website: |
+      http://www.lsosm.org/
+    legal_aid_program: |
+      Legal Services of Southern Missouri
+    legal_aid_program_online_app: |
+      https://application.lsosm.org/
+    legal_aid_program_phone_app: |
+      1-800-444-4863
+    legal_aid_program_office_app_addresses: |
+      LSSM - Rolla Office
+      1000 N. Pine, Suite B
+      Rolla, MO  65401
+      (573) 341-3655
+  Jackson County:
+    circuit: 16
+    class: |
+      Class 1
+    casenet_code: |
+       JAK
+    legal_aid_program_website: |
+      https://www.lawmo.org/
+    legal_aid_program: |
+      Legal Aid of Western Missouri
+    legal_aid_program_online_app: |
+      https://lawmo.org/get-legal-help
+    legal_aid_program_phone_app: |
+      None
+    legal_aid_program_office_app_addresses: |
+      LAWMO - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300
+      Kansas City, MO  64130
+      (816) 474-6750
+      LAWMO - Kansas City - Westside Office
+      920 Southwest Blvd.
+      Kansas City, MO 64108
+      (816) 474-9868
+  Jasper County:
+    circuit: 29
+    class: |
+      Class 1
+    casenet_code: |
+       JAS
+    legal_aid_program_website: |
+      https://www.lawmo.org/
+    legal_aid_program: |
+      Legal Aid of Western Missouri
+    legal_aid_program_online_app: |
+      https://lawmo.org/get-legal-help
+    legal_aid_program_phone_app: |
+      1-800-492-7095
+    legal_aid_program_office_app_addresses: |
+      LAWMO - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300
+      Kansas City, MO  64130
+      (816) 474-6750
+      LAWMO - Joplin Office
+      1027 South Main, Suite LL7
+      Joplin, MO 64801
+      (417) 782-1650
+      LAWMO - Kansas City - Westside Office
+      920 Southwest Blvd.
+      Kansas City, MO 64108
+      (816) 474-9868
+  Jefferson County:
+    circuit: 23
+    class: |
+      Class 1
+    casenet_code: |
+       JEF
+    legal_aid_program_website: |
+      http://www.lsem.org/
+    legal_aid_program: |
+      Legal Services of Eastern Missouri
+    legal_aid_program_online_app: |
+      https://lsem.org/get-help-now/
+    legal_aid_program_phone_app: |
+      1-800-444-0514
+    legal_aid_program_office_app_addresses: |
+      LSEM - St. Louis - Main Office
+      Peabody Plaza Building
+      701 Market St., Suite 1100
+      St. Louis, MO  63101
+      (314) 534-4200
+  Johnson County:
+    circuit: 17
+    class: |
+      Class 4
+    casenet_code: |
+       JON
+    legal_aid_program_website: |
+      https://www.lawmo.org/
+    legal_aid_program: |
+      Legal Aid of Western Missouri
+    legal_aid_program_online_app: |
+      https://lawmo.org/get-legal-help
+    legal_aid_program_phone_app: |
+      1-800-892-2943
+    legal_aid_program_office_app_addresses: |
+      LAWMO - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300
+      Kansas City, MO  64130
+      (816) 474-6750
+      LAWMO - Warrensburg Office
+      305 North Holden  
+      Warrensburg, MO 64093
+      (660) 747-7101
+      LAWMO - Kansas City - Westside Office
+      920 Southwest Blvd.
+      Kansas City, MO 64108
+      (816) 474-9868
+  Knox County:
+    circuit: 2
+    class: |
+      Class 3
+    casenet_code: |
+       KNX
+    legal_aid_program_website: |
+      http://www.lsem.org/
+    legal_aid_program: |
+      Legal Services of Eastern Missouri
+    legal_aid_program_online_app: |
+      https://lsem.org/get-help-now/
+    legal_aid_program_phone_app: |
+      1-800-444-0514
+    legal_aid_program_office_app_addresses: |
+      LSEM - St. Louis - Main Office
+      Peabody Plaza Building
+      701 Market St., Suite 1100
+      St. Louis, MO  63101
+      (314) 534-4200
+  Laclede County:
+    circuit: 26
+    class: |
+      Class 3
+    casenet_code: |
+       LAC
+    legal_aid_program_website: |
+      http://www.lsosm.org/
+    legal_aid_program: |
+      Legal Services of Southern Missouri
+    legal_aid_program_online_app: |
+      https://application.lsosm.org/
+    legal_aid_program_phone_app: |
+      1-800-444-4863
+    legal_aid_program_office_app_addresses: |
+      LSSM - Springfield Office
+      809 N. Campbell Avenue
+      Springfield, MO  65802
+      (417) 881-0533
+  Lafayette County:
+    circuit: 15
+    class: |
+      Class 4
+    casenet_code: |
+       LAF
+    legal_aid_program_website: |
+      https://www.lawmo.org/
+    legal_aid_program: |
+      Legal Aid of Western Missouri
+    legal_aid_program_online_app: |
+      https://lawmo.org/get-legal-help
+    legal_aid_program_phone_app: |
+      1-800-892-2943
+    legal_aid_program_office_app_addresses: |
+      LAWMO - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300
+      Kansas City, MO  64130
+      (816) 474-6750
+      LAWMO - Warrensburg Office
+      305 North Holden  
+      Warrensburg, MO 64093
+      (660) 747-7101
+      LAWMO - Kansas City - Westside Office
+      920 Southwest Blvd.
+      Kansas City, MO 64108
+      (816) 474-9868
+  Lawrence County:
+    circuit: 39
+    class: |
+      Class 3
+    casenet_code: |
+       LAW
+    legal_aid_program_website: |
+      http://www.lsosm.org/
+    legal_aid_program: |
+      Legal Services of Southern Missouri
+    legal_aid_program_online_app: |
+      https://application.lsosm.org/
+    legal_aid_program_phone_app: |
+      1-800-444-4863
+    legal_aid_program_office_app_addresses: |
+      LSSM - Springfield Office
+      809 N. Campbell Avenue
+      Springfield, MO  65802
+      (417) 881-0533
+  Lewis County:
+    circuit: 2
+    class: |
+      Class 3
+    casenet_code: |
+       LEW
+    legal_aid_program_website: |
+      http://www.lsem.org/
+    legal_aid_program: |
+      Legal Services of Eastern Missouri
+    legal_aid_program_online_app: |
+      https://lsem.org/get-help-now/
+    legal_aid_program_phone_app: |
+      1-800-444-0514
+    legal_aid_program_office_app_addresses: |
+      LSEM - St. Louis - Main Office
+      Peabody Plaza Building
+      701 Market St., Suite 1100
+      St. Louis, MO  63101
+      (314) 534-4200
+  Lincoln County:
+    circuit: 45
+    class: |
+      Class 2
+    casenet_code: |
+       LCN
+    legal_aid_program_website: |
+      http://www.lsem.org/
+    legal_aid_program: |
+      Legal Services of Eastern Missouri
+    legal_aid_program_online_app: |
+      https://lsem.org/get-help-now/
+    legal_aid_program_phone_app: |
+      1-800-444-0514
+    legal_aid_program_office_app_addresses: |
+      LSEM - St. Louis - Main Office
+      Peabody Plaza Building
+      701 Market St., Suite 1100
+      St. Louis, MO  63101
+      (314) 534-4200
+  Linn County:
+    circuit: 9
+    class: |
+      Class 3
+    casenet_code: |
+       LIN
+    legal_aid_program_website: |
+      https://www.lawmo.org/
+    legal_aid_program: |
+      Legal Aid of Western Missouri
+    legal_aid_program_online_app: |
+      https://lawmo.org/get-legal-help
+    legal_aid_program_phone_app: |
+      1-800-892-2101
+    legal_aid_program_office_app_addresses: |
+      LAWMO - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300
+      Kansas City, MO  64130
+      (816) 474-6750
+      LAWMO - St. Joseph Office
+      706 Felix Street
+      St. Joseph, MO 64501
+      (816) 364-2325
+      LAWMO - Kansas City - Westside Office
+      920 Southwest Blvd.
+      Kansas City, MO 64108
+      (816) 474-9868
+  Livingston County:
+    circuit: 43
+    class: |
+      Class 3
+    casenet_code: |
+       LIV
+    legal_aid_program_website: |
+      https://www.lawmo.org/
+    legal_aid_program: |
+      Legal Aid of Western Missouri
+    legal_aid_program_online_app: |
+      https://lawmo.org/get-legal-help
+    legal_aid_program_phone_app: |
+      1-800-892-2101
+    legal_aid_program_office_app_addresses: |
+      LAWMO - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300
+      Kansas City, MO  64130
+      (816) 474-6750
+      LAWMO - St. Joseph Office
+      706 Felix Street
+      St. Joseph, MO 64501
+      (816) 364-2325
+      LAWMO - Kansas City - Westside Office
+      920 Southwest Blvd.
+      Kansas City, MO 64108
+      (816) 474-9868
+  Macon County:
+    circuit: 41
+    class: |
+      Class 3
+    casenet_code: |
+       MAC
+    legal_aid_program_website: |
+      http://www.lsem.org/
+    legal_aid_program: |
+      Legal Services of Eastern Missouri
+    legal_aid_program_online_app: |
+      https://lsem.org/get-help-now/
+    legal_aid_program_phone_app: |
+      1-800-444-0514
+    legal_aid_program_office_app_addresses: |
+      LSEM - St. Louis - Main Office
+      Peabody Plaza Building
+      701 Market St., Suite 1100
+      St. Louis, MO  63101
+      (314) 534-4200
+  Madison County:
+    circuit: 24
+    class: |
+      Class 3
+    casenet_code: |
+       MAD
+    legal_aid_program_website: |
+      http://www.lsosm.org/
+    legal_aid_program: |
+      Legal Services of Southern Missouri
+    legal_aid_program_online_app: |
+      https://application.lsosm.org/
+    legal_aid_program_phone_app: |
+      1-800-444-4863
+    legal_aid_program_office_app_addresses: |
+      LSSM - Rolla Office
+      1000 N. Pine, Suite B
+      Rolla, MO  65401
+      (573) 341-3655
+  Maries County:
+    circuit: 25
+    class: |
+      Class 3
+    casenet_code: |
+       MRS
+    legal_aid_program_website: |
+      http://www.lsosm.org/
+    legal_aid_program: |
+      Legal Services of Southern Missouri
+    legal_aid_program_online_app: |
+      https://application.lsosm.org/
+    legal_aid_program_phone_app: |
+      1-800-444-4863
+    legal_aid_program_office_app_addresses: |
+      LSSM - Rolla Office
+      1000 N. Pine, Suite B
+      Rolla, MO  65401
+      (573) 341-3655
+  Marion County:
+    circuit: 10
+    class: |
+      Class 3
+    casenet_code: |
+       MRN
+    legal_aid_program_website: |
+      http://www.lsem.org/
+    legal_aid_program: |
+      Legal Services of Eastern Missouri
+    legal_aid_program_online_app: |
+      https://lsem.org/get-help-now/
+    legal_aid_program_phone_app: |
+      1-800-444-0514
+    legal_aid_program_office_app_addresses: |
+      LSEM - St. Louis - Main Office
+      Peabody Plaza Building
+      701 Market St., Suite 1100
+      St. Louis, MO  63101
+      (314) 534-4200
+  McDonald County:
+    circuit: 40
+    class: |
+      Class 3
+    casenet_code: |
+       MCD
+    legal_aid_program_website: |
+      https://www.lawmo.org/
+    legal_aid_program: |
+      Legal Aid of Western Missouri
+    legal_aid_program_online_app: |
+      https://lawmo.org/get-legal-help
+    legal_aid_program_phone_app: |
+      1-800-492-7095
+    legal_aid_program_office_app_addresses: |
+      LAWMO - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300
+      Kansas City, MO  64130
+      (816) 474-6750
+      LAWMO - Joplin Office
+      1027 South Main, Suite LL7
+      Joplin, MO 64801
+      (417) 782-1650
+      LAWMO - Kansas City - Westside Office
+      920 Southwest Blvd.
+      Kansas City, MO 64108
+      (816) 474-9868
+  Mercer County:
+    circuit: 3
+    class: |
+      Class 3
+    casenet_code: |
+       MER
+    legal_aid_program_website: |
+      https://www.lawmo.org/
+    legal_aid_program: |
+      Legal Aid of Western Missouri
+    legal_aid_program_online_app: |
+      https://lawmo.org/get-legal-help
+    legal_aid_program_phone_app: |
+      1-800-892-2101
+    legal_aid_program_office_app_addresses: |
+      LAWMO - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300
+      Kansas City, MO  64130
+      (816) 474-6750
+      LAWMO - St. Joseph Office
+      706 Felix Street
+      St. Joseph, MO 64501
+      (816) 364-2325
+      LAWMO - Kansas City - Westside Office
+      920 Southwest Blvd.
+      Kansas City, MO 64108
+      (816) 474-9868
+  Miller County:
+    circuit: 26
+    class: |
+      Class 3
+    casenet_code: |
+       MIL
+    legal_aid_program_website: |
+      http://www.mmls.org/
+    legal_aid_program: |
+      Mid-Missouri Legal Services
+    legal_aid_program_online_app: |
+      None
+    legal_aid_program_phone_app: |
+      1-800-568-4931
+    legal_aid_program_office_app_addresses: |
+      MMLS - Columbia - Main Office
+      117 North Garth 
+      Columbia, MO  65203
+      (573) 442-0116
+  Mississippi County:
+    circuit: 33
+    class: |
+      Class 3
+    casenet_code: |
+       MIS
+    legal_aid_program_website: |
+      http://www.lsosm.org/
+    legal_aid_program: |
+      Legal Services of Southern Missouri
+    legal_aid_program_online_app: |
+      https://application.lsosm.org/
+    legal_aid_program_phone_app: |
+      1-800-444-4863
+    legal_aid_program_office_app_addresses: |
+      LSSM - Sikeston Office
+      2201 E. Malone Avenue 
+      Sikeston, MO  63801
+      (573) 683-3783
+  Moniteau County:
+    circuit: 26
+    class: |
+      Class 3
+    casenet_code: |
+       MTU
+    legal_aid_program_website: |
+      http://www.mmls.org/
+    legal_aid_program: |
+      Mid-Missouri Legal Services
+    legal_aid_program_online_app: |
+      None
+    legal_aid_program_phone_app: |
+      1-800-568-4931
+    legal_aid_program_office_app_addresses: |
+      MMLS - Columbia - Main Office
+      117 North Garth 
+      Columbia, MO  65203
+      (573) 442-0116
+  Monroe County:
+    circuit: 10
+    class: |
+      Class 3
+    casenet_code: |
+       MNR
+    legal_aid_program_website: |
+      http://www.lsem.org/
+    legal_aid_program: |
+      Legal Services of Eastern Missouri
+    legal_aid_program_online_app: |
+      https://lsem.org/get-help-now/
+    legal_aid_program_phone_app: |
+      1-800-444-0514
+    legal_aid_program_office_app_addresses: |
+      LSEM - St. Louis - Main Office
+      Peabody Plaza Building
+      701 Market St., Suite 1100
+      St. Louis, MO  63101
+      (314) 534-4200
+  Montgomery County:
+    circuit: 12
+    class: |
+      Class 3
+    casenet_code: |
+       MTY
+    legal_aid_program_website: |
+      http://www.lsem.org/
+    legal_aid_program: |
+      Legal Services of Eastern Missouri
+    legal_aid_program_online_app: |
+      https://lsem.org/get-help-now/
+    legal_aid_program_phone_app: |
+      1-800-444-0514
+    legal_aid_program_office_app_addresses: |
+      LSEM - St. Louis - Main Office
+      Peabody Plaza Building
+      701 Market St., Suite 1100
+      St. Louis, MO  63101
+      (314) 534-4200
+  Morgan County:
+    circuit: 26
+    class: |
+      Class 3
+    casenet_code: |
+       MOR
+    legal_aid_program_website: |
+      https://www.lawmo.org/
+    legal_aid_program: |
+      Legal Aid of Western Missouri
+    legal_aid_program_online_app: |
+      https://lawmo.org/get-legal-help
+    legal_aid_program_phone_app: |
+      1-800-892-2943
+    legal_aid_program_office_app_addresses: |
+      LAWMO - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300
+      Kansas City, MO  64130
+      (816) 474-6750
+      LAWMO - Warrensburg Office
+      305 North Holden  
+      Warrensburg, MO 64093
+      (660) 747-7101
+      LAWMO - Kansas City - Westside Office
+      920 Southwest Blvd.
+      Kansas City, MO 64108
+      (816) 474-9868
+  New Madrid County:
+    circuit: 34
+    class: |
+      Class 3
+    casenet_code: |
+       NMD
+    legal_aid_program_website: |
+      http://www.lsosm.org/
+    legal_aid_program: |
+      Legal Services of Southern Missouri
+    legal_aid_program_online_app: |
+      https://application.lsosm.org/
+    legal_aid_program_phone_app: |
+      1-800-444-4863
+    legal_aid_program_office_app_addresses: |
+      LSSM - Sikeston Office
+      2201 E. Malone Avenue 
+      Sikeston, MO  63801
+      (573) 683-3783
+  Newton County:
+    circuit: 40
+    class: |
+      Class 2
+    casenet_code: |
+       NWT
+    legal_aid_program_website: |
+      https://www.lawmo.org/
+    legal_aid_program: |
+      Legal Aid of Western Missouri
+    legal_aid_program_online_app: |
+      https://lawmo.org/get-legal-help
+    legal_aid_program_phone_app: |
+      1-800-492-7095
+    legal_aid_program_office_app_addresses: |
+      LAWMO - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300
+      Kansas City, MO  64130
+      (816) 474-6750
+      LAWMO - Joplin Office
+      1027 South Main, Suite LL7
+      Joplin, MO 64801
+      (417) 782-1650
+      LAWMO - Kansas City - Westside Office
+      920 Southwest Blvd.
+      Kansas City, MO 64108
+      (816) 474-9868
+  Nodaway County:
+    circuit: 4
+    class: |
+      Class 3
+    casenet_code: |
+       NDY
+    legal_aid_program_website: |
+      https://www.lawmo.org/
+    legal_aid_program: |
+      Legal Aid of Western Missouri
+    legal_aid_program_online_app: |
+      https://lawmo.org/get-legal-help
+    legal_aid_program_phone_app: |
+      1-800-892-2101
+    legal_aid_program_office_app_addresses: |
+      LAWMO - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300
+      Kansas City, MO  64130
+      (816) 474-6750
+      LAWMO - St. Joseph Office
+      706 Felix Street
+      St. Joseph, MO 64501
+      (816) 364-2325
+      LAWMO - Kansas City - Westside Office
+      920 Southwest Blvd.
+      Kansas City, MO 64108
+      (816) 474-9868
+  Oregon County:
+    circuit: 37
+    class: |
+      Class 3
+    casenet_code: |
+       ORE
+    legal_aid_program_website: |
+      http://www.lsosm.org/
+    legal_aid_program: |
+      Legal Services of Southern Missouri
+    legal_aid_program_online_app: |
+      https://application.lsosm.org/
+    legal_aid_program_phone_app: |
+      1-800-444-4863
+    legal_aid_program_office_app_addresses: |
+      LSSM - Springfield Office
+      809 N. Campbell Avenue
+      Springfield, MO  65802
+      (417) 881-0533
+  Osage County:
+    circuit: 20
+    class: |
+      Class 3
+    casenet_code: |
+       OSG
+    legal_aid_program_website: |
+      http://www.mmls.org/
+    legal_aid_program: |
+      Mid-Missouri Legal Services
+    legal_aid_program_online_app: |
+      None
+    legal_aid_program_phone_app: |
+      1-800-568-4931
+    legal_aid_program_office_app_addresses: |
+      MMLS - Columbia - Main Office
+      117 North Garth 
+      Columbia, MO  65203
+      (573) 442-0116
+  Ozark County:
+    circuit: 44
+    class: |
+      Class 3
+    casenet_code: |
+       OZK
+    legal_aid_program_website: |
+      http://www.lsosm.org/
+    legal_aid_program: |
+      Legal Services of Southern Missouri
+    legal_aid_program_online_app: |
+      https://application.lsosm.org/
+    legal_aid_program_phone_app: |
+      1-800-444-4863
+    legal_aid_program_office_app_addresses: |
+      LSSM - Springfield Office
+      809 N. Campbell Avenue
+      Springfield, MO  65802
+      (417) 881-0533
+  Pemiscot County:
+    circuit: 34
+    class: |
+      Class 3
+    casenet_code: |
+       PEM
+    legal_aid_program_website: |
+      http://www.lsosm.org/
+    legal_aid_program: |
+      Legal Services of Southern Missouri
+    legal_aid_program_online_app: |
+      https://application.lsosm.org/
+    legal_aid_program_phone_app: |
+      1-800-444-4863
+    legal_aid_program_office_app_addresses: |
+      LSSM - Sikeston Office
+      2201 E. Malone Avenue 
+      Sikeston, MO  63801
+      (573) 683-3783
+  Perry County:
+    circuit: 32
+    class: |
+      Class 3
+    casenet_code: |
+       PER
+    legal_aid_program_website: |
+      http://www.lsosm.org/
+    legal_aid_program: |
+      Legal Services of Southern Missouri
+    legal_aid_program_online_app: |
+      https://application.lsosm.org/
+    legal_aid_program_phone_app: |
+      1-800-444-4863
+    legal_aid_program_office_app_addresses: |
+      LSSM - Sikeston Office
+      2201 E. Malone Avenue 
+      Sikeston, MO  63801
+      (573) 683-3783
+  Pettis County:
+    circuit: 18
+    class: |
+      Class 4
+    casenet_code: |
+       PET
+    legal_aid_program_website: |
+      https://www.lawmo.org/
+    legal_aid_program: |
+      Legal Aid of Western Missouri
+    legal_aid_program_online_app: |
+      https://lawmo.org/get-legal-help
+    legal_aid_program_phone_app: |
+      1-800-892-2943
+    legal_aid_program_office_app_addresses: |
+      LAWMO - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300
+      Kansas City, MO  64130
+      (816) 474-6750
+      LAWMO - Warrensburg Office
+      305 North Holden  
+      Warrensburg, MO 64093
+      (660) 747-7101
+      LAWMO - Kansas City - Westside Office
+      920 Southwest Blvd.
+      Kansas City, MO 64108
+      (816) 474-9868
+  Phelps County:
+    circuit: 25
+    class: |
+      Class 3
+    casenet_code: |
+       PHE
+    legal_aid_program_website: |
+      http://www.lsosm.org/
+    legal_aid_program: |
+      Legal Services of Southern Missouri
+    legal_aid_program_online_app: |
+      https://application.lsosm.org/
+    legal_aid_program_phone_app: |
+      1-800-444-4863
+    legal_aid_program_office_app_addresses: |
+      LSSM - Rolla Office
+      1000 N. Pine, Suite B
+      Rolla, MO  65401
+      (573) 341-3655
+  Pike County:
+    circuit: 45
+    class: |
+      Class 3
+    casenet_code: |
+       PIK
+    legal_aid_program_website: |
+      http://www.lsem.org/
+    legal_aid_program: |
+      Legal Services of Eastern Missouri
+    legal_aid_program_online_app: |
+      https://lsem.org/get-help-now/
+    legal_aid_program_phone_app: |
+      1-800-444-0514
+    legal_aid_program_office_app_addresses: |
+      LSEM - St. Louis - Main Office
+      Peabody Plaza Building
+      701 Market St., Suite 1100
+      St. Louis, MO  63101
+      (314) 534-4200
+  Platte County:
+    circuit: 6
+    class: |
+      Class 1
+    casenet_code: |
+       PLA
+    legal_aid_program_website: |
+      https://www.lawmo.org/
+    legal_aid_program: |
+      Legal Aid of Western Missouri
+    legal_aid_program_online_app: |
+      https://lawmo.org/get-legal-help
+    legal_aid_program_phone_app: |
+      None
+    legal_aid_program_office_app_addresses: |
+      LAWMO - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300
+      Kansas City, MO  64130
+      (816) 474-6750
+      LAWMO - Kansas City - Westside Office
+      920 Southwest Blvd.
+      Kansas City, MO 64108
+      (816) 474-9868
+  Polk County:
+    circuit: 30
+    class: |
+      Class 3
+    casenet_code: |
+       POL
+    legal_aid_program_website: |
+      http://www.lsosm.org/
+    legal_aid_program: |
+      Legal Services of Southern Missouri
+    legal_aid_program_online_app: |
+      https://application.lsosm.org/
+    legal_aid_program_phone_app: |
+      1-800-444-4863
+    legal_aid_program_office_app_addresses: |
+      LSSM - Springfield Office
+      809 N. Campbell Avenue
+      Springfield, MO  65802
+      (417) 881-0533
+  Pulaski County:
+    circuit: 25
+    class: |
+      Class 3
+    casenet_code: |
+       PUL
+    legal_aid_program_website: |
+      http://www.lsosm.org/
+    legal_aid_program: |
+      Legal Services of Southern Missouri
+    legal_aid_program_online_app: |
+      https://application.lsosm.org/
+    legal_aid_program_phone_app: |
+      1-800-444-4863
+    legal_aid_program_office_app_addresses: |
+      LSSM - Rolla Office
+      1000 N. Pine, Suite B
+      Rolla, MO  65401
+      (573) 341-3655
+  Putnam County:
+    circuit: 3
+    class: |
+      Class 3
+    casenet_code: |
+       PUT
+    legal_aid_program_website: |
+      https://www.lawmo.org/
+    legal_aid_program: |
+      Legal Aid of Western Missouri
+    legal_aid_program_online_app: |
+      https://lawmo.org/get-legal-help
+    legal_aid_program_phone_app: |
+      1-800-892-2101
+    legal_aid_program_office_app_addresses: |
+      LAWMO - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300
+      Kansas City, MO  64130
+      (816) 474-6750
+      LAWMO - St. Joseph Office
+      706 Felix Street
+      St. Joseph, MO 64501
+      (816) 364-2325
+      LAWMO - Kansas City - Westside Office
+      920 Southwest Blvd.
+      Kansas City, MO 64108
+      (816) 474-9868
+  Ralls County:
+    circuit: 10
+    class: |
+      Class 3
+    casenet_code: |
+       RAL
+    legal_aid_program_website: |
+      http://www.lsem.org/
+    legal_aid_program: |
+      Legal Services of Eastern Missouri
+    legal_aid_program_online_app: |
+      https://lsem.org/get-help-now/
+    legal_aid_program_phone_app: |
+      1-800-444-0514
+    legal_aid_program_office_app_addresses: |
+      LSEM - St. Louis - Main Office
+      Peabody Plaza Building
+      701 Market St., Suite 1100
+      St. Louis, MO  63101
+      (314) 534-4200
+  Randolph County:
+    circuit: 14
+    class: |
+      Class 3
+    casenet_code: |
+       RAN
+    legal_aid_program_website: |
+      http://www.mmls.org/
+    legal_aid_program: |
+      Mid-Missouri Legal Services
+    legal_aid_program_online_app: |
+      None
+    legal_aid_program_phone_app: |
+      1-800-568-4931
+    legal_aid_program_office_app_addresses: |
+      MMLS - Columbia - Main Office
+      117 North Garth 
+      Columbia, MO  65203
+      (573) 442-0116
+  Ray County:
+    circuit: 8
+    class: |
+      Class 3
+    casenet_code: |
+       RAY
+    legal_aid_program_website: |
+      https://www.lawmo.org/
+    legal_aid_program: |
+      Legal Aid of Western Missouri
+    legal_aid_program_online_app: |
+      https://lawmo.org/get-legal-help
+    legal_aid_program_phone_app: |
+      1-800-892-2943
+    legal_aid_program_office_app_addresses: |
+      LAWMO - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300
+      Kansas City, MO  64130
+      (816) 474-6750
+      LAWMO - Warrensburg Office
+      305 North Holden  
+      Warrensburg, MO 64093
+      (660) 747-7101
+      LAWMO - Kansas City - Westside Office
+      920 Southwest Blvd.
+      Kansas City, MO 64108
+      (816) 474-9868
+  Reynolds County:
+    circuit: 42
+    class: |
+      Class 3
+    casenet_code: |
+       REY
+    legal_aid_program_website: |
+      http://www.lsosm.org/
+    legal_aid_program: |
+      Legal Services of Southern Missouri
+    legal_aid_program_online_app: |
+      https://application.lsosm.org/
+    legal_aid_program_phone_app: |
+      1-800-444-4863
+    legal_aid_program_office_app_addresses: |
+      LSSM - Rolla Office
+      1000 N. Pine, Suite B
+      Rolla, MO  65401
+      (573) 341-3655
+  Ripley County:
+    circuit: 36
+    class: |
+      Class 3
+    casenet_code: |
+       RIP
+    legal_aid_program_website: |
+      http://www.lsosm.org/
+    legal_aid_program: |
+      Legal Services of Southern Missouri
+    legal_aid_program_online_app: |
+      https://application.lsosm.org/
+    legal_aid_program_phone_app: |
+      1-800-444-4863
+    legal_aid_program_office_app_addresses: |
+      LSSM - Sikeston Office
+      2201 E. Malone Avenue 
+      Sikeston, MO  63801
+      (573) 683-3783
+  Saint Francois County:
+    circuit: 24
+    class: |
+      Class 1
+    casenet_code: |
+       SAL
+    legal_aid_program_website: |
+      http://www.lsosm.org/https://www.lawmo.org/
+    legal_aid_program: |
+      Legal Services of Southern MissouriLegal Aid of Western Missouri
+    legal_aid_program_online_app: |
+      https://application.lsosm.org/https://lawmo.org/get-legal-help
+    legal_aid_program_phone_app: |
+      1-800-444-4863
+    legal_aid_program_office_app_addresses: |
+      LSSM - Rolla Office
+      1000 N. Pine, Suite B
+      Rolla, MO  65401
+      (573) 341-3655
+      LAWMO - Kansas City - Westside Office
+      920 Southwest Blvd.
+      Kansas City, MO 64108
+      (816) 474-9868
+  Sainte Genevieve County:
+    circuit: 24
+    class: |
+      Class 3
+    casenet_code: |
+       SYR
+    legal_aid_program_website: |
+      http://www.lsosm.org/https://www.lawmo.org/
+    legal_aid_program: |
+      Legal Services of Southern MissouriLegal Aid of Western Missouri
+    legal_aid_program_online_app: |
+      https://application.lsosm.org/https://lawmo.org/get-legal-help
+    legal_aid_program_phone_app: |
+      1-800-444-4863
+    legal_aid_program_office_app_addresses: |
+      LSSM - Rolla Office
+      1000 N. Pine, Suite B
+      Rolla, MO  65401
+      (573) 341-3655
+      LAWMO - Kansas City - Westside Office
+      920 Southwest Blvd.
+      Kansas City, MO 64108
+      (816) 474-9868
+  Saline County:
+    circuit: 15
+    class: |
+      Class 4
+    casenet_code: |
+       SLD
+    legal_aid_program_website: |
+      https://www.lawmo.org/
+    legal_aid_program: |
+      Legal Aid of Western Missouri
+    legal_aid_program_online_app: |
+      https://lawmo.org/get-legal-help
+    legal_aid_program_phone_app: |
+      1-800-892-2943
+    legal_aid_program_office_app_addresses: |
+      LAWMO - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300
+      Kansas City, MO  64130
+      (816) 474-6750
+      LAWMO - Warrensburg Office
+      305 North Holden  
+      Warrensburg, MO 64093
+      (660) 747-7101
+      LAWMO - Kansas City - Westside Office
+      920 Southwest Blvd.
+      Kansas City, MO 64108
+      (816) 474-9868
+  Schuyler County:
+    circuit: 1
+    class: |
+      Class 3
+    casenet_code: |
+       SCT
+    legal_aid_program_website: |
+      http://www.lsem.org/
+    legal_aid_program: |
+      Legal Services of Eastern Missouri
+    legal_aid_program_online_app: |
+      https://lsem.org/get-help-now/
+    legal_aid_program_phone_app: |
+      1-800-444-0514
+    legal_aid_program_office_app_addresses: |
+      LSEM - St. Louis - Main Office
+      Peabody Plaza Building
+      701 Market St., Suite 1100
+      St. Louis, MO  63101
+      (314) 534-4200
+  Scotland County:
+    circuit: 1
+    class: |
+      Class 3
+    casenet_code: |
+       SHA
+    legal_aid_program_website: |
+      http://www.lsem.org/
+    legal_aid_program: |
+      Legal Services of Eastern Missouri
+    legal_aid_program_online_app: |
+      https://lsem.org/get-help-now/
+    legal_aid_program_phone_app: |
+      1-800-444-0514
+    legal_aid_program_office_app_addresses: |
+      LSEM - St. Louis - Main Office
+      Peabody Plaza Building
+      701 Market St., Suite 1100
+      St. Louis, MO  63101
+      (314) 534-4200
+  Scott County:
+    circuit: 33
+    class: |
+      Class 3
+    casenet_code: |
+       SBY
+    legal_aid_program_website: |
+      http://www.lsosm.org/
+    legal_aid_program: |
+      Legal Services of Southern Missouri
+    legal_aid_program_online_app: |
+      https://application.lsosm.org/
+    legal_aid_program_phone_app: |
+      1-800-444-4863
+    legal_aid_program_office_app_addresses: |
+      LSSM - Sikeston Office
+      2201 E. Malone Avenue 
+      Sikeston, MO  63801
+      (573) 683-3783
+  Shannon County:
+    circuit: 37
+    class: |
+      Class 3
+    casenet_code: |
+       SCH
+    legal_aid_program_website: |
+      http://www.lsosm.org/
+    legal_aid_program: |
+      Legal Services of Southern Missouri
+    legal_aid_program_online_app: |
+      https://application.lsosm.org/
+    legal_aid_program_phone_app: |
+      1-800-444-4863
+    legal_aid_program_office_app_addresses: |
+      LSSM - Springfield Office
+      809 N. Campbell Avenue
+      Springfield, MO  65802
+      (417) 881-0533
+  Shelby County:
+    circuit: 41
+    class: |
+      Class 3
+    casenet_code: |
+       SCL
+    legal_aid_program_website: |
+      http://www.lsem.org/
+    legal_aid_program: |
+      Legal Services of Eastern Missouri
+    legal_aid_program_online_app: |
+      https://lsem.org/get-help-now/
+    legal_aid_program_phone_app: |
+      1-800-444-0514
+    legal_aid_program_office_app_addresses: |
+      LSEM - St. Louis - Main Office
+      Peabody Plaza Building
+      701 Market St., Suite 1100
+      St. Louis, MO  63101
+      (314) 534-4200
+  St. Charles County:
+    circuit: 11
+    class: |
+      Class 1
+    casenet_code: |
+       SFR
+    legal_aid_program_website: |
+      http://www.lsem.org/
+    legal_aid_program: |
+      Legal Services of Eastern Missouri
+    legal_aid_program_online_app: |
+      https://lsem.org/get-help-now/
+    legal_aid_program_phone_app: |
+      1-800-444-0514
+    legal_aid_program_office_app_addresses: |
+      LSEM - St. Louis - Main Office
+      Peabody Plaza Building
+      701 Market St., Suite 1100
+      St. Louis, MO  63101
+      (314) 534-4200
+  St. Clair County:
+    circuit: 27
+    class: |
+      Class 3
+    casenet_code: |
+       SLC
+    legal_aid_program_website: |
+      https://www.lawmo.org/
+    legal_aid_program: |
+      Legal Aid of Western Missouri
+    legal_aid_program_online_app: |
+      https://lawmo.org/get-legal-help
+    legal_aid_program_phone_app: |
+      1-800-892-2943
+    legal_aid_program_office_app_addresses: |
+      LAWMO - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300
+      Kansas City, MO  64130
+      (816) 474-6750
+      LAWMO - Warrensburg Office
+      305 North Holden  
+      Warrensburg, MO 64093
+      (660) 747-7101
+      LAWMO - Kansas City - Westside Office
+      920 Southwest Blvd.
+      Kansas City, MO 64108
+      (816) 474-9868
+  St. Louis County:
+    circuit: 21
+    class: |
+      Class 1
+    casenet_code: |
+       SGE
+    legal_aid_program_website: |
+      http://www.lsem.org/
+    legal_aid_program: |
+      Legal Services of Eastern Missouri
+    legal_aid_program_online_app: |
+      https://lsem.org/get-help-now/
+    legal_aid_program_phone_app: |
+      1-800-444-0514
+    legal_aid_program_office_app_addresses: |
+      LSEM - St. Louis - Main Office
+      Peabody Plaza Building
+      701 Market St., Suite 1100
+      St. Louis, MO  63101
+      (314) 534-4200
+  Stoddard County:
+    circuit: 35
+    class: |
+      Class 3
+    casenet_code: |
+       SDD
+    legal_aid_program_website: |
+      http://www.lsosm.org/
+    legal_aid_program: |
+      Legal Services of Southern Missouri
+    legal_aid_program_online_app: |
+      https://application.lsosm.org/
+    legal_aid_program_phone_app: |
+      1-800-444-4863
+    legal_aid_program_office_app_addresses: |
+      LSSM - Sikeston Office
+      2201 E. Malone Avenue 
+      Sikeston, MO  63801
+      (573) 683-3783
+  Stone County:
+    circuit: 39
+    class: |
+      Class 3
+    casenet_code: |
+       STN
+    legal_aid_program_website: |
+      http://www.lsosm.org/
+    legal_aid_program: |
+      Legal Services of Southern Missouri
+    legal_aid_program_online_app: |
+      https://application.lsosm.org/
+    legal_aid_program_phone_app: |
+      1-800-444-4863
+    legal_aid_program_office_app_addresses: |
+      LSSM - Springfield Office
+      809 N. Campbell Avenue
+      Springfield, MO  65802
+      (417) 881-0533
+  Sullivan County:
+    circuit: 9
+    class: |
+      Class 3
+    casenet_code: |
+       SUL
+    legal_aid_program_website: |
+      https://www.lawmo.org/
+    legal_aid_program: |
+      Legal Aid of Western Missouri
+    legal_aid_program_online_app: |
+      https://lawmo.org/get-legal-help
+    legal_aid_program_phone_app: |
+      1-800-892-2101
+    legal_aid_program_office_app_addresses: |
+      LAWMO - St. Joseph Office
+      706 Felix Street
+      St. Joseph, MO 64501
+      (816) 364-2325
+  Taney County:
+    circuit: 46
+    class: |
+      Class 1
+    casenet_code: |
+       TAN
+    legal_aid_program_website: |
+      http://www.lsosm.org/
+    legal_aid_program: |
+      Legal Services of Southern Missouri
+    legal_aid_program_online_app: |
+      https://application.lsosm.org/
+    legal_aid_program_phone_app: |
+      1-800-444-4863
+    legal_aid_program_office_app_addresses: |
+      LSSM - Springfield Office
+      809 N. Campbell Avenue
+      Springfield, MO  65802
+      (417) 881-0533
+  Texas County:
+    circuit: 25
+    class: |
+      Class 3
+    casenet_code: |
+       TEX
+    legal_aid_program_website: |
+      http://www.lsosm.org/
+    legal_aid_program: |
+      Legal Services of Southern Missouri
+    legal_aid_program_online_app: |
+      https://application.lsosm.org/
+    legal_aid_program_phone_app: |
+      1-800-444-4863
+    legal_aid_program_office_app_addresses: |
+      LSSM - Rolla Office
+      1000 N. Pine, Suite B
+      Rolla, MO  65401
+      (573) 341-3655
+  Vernon County:
+    circuit: 28
+    class: |
+      Class 3
+    casenet_code: |
+       VER
+    legal_aid_program_website: |
+      https://www.lawmo.org/
+    legal_aid_program: |
+      Legal Aid of Western Missouri
+    legal_aid_program_online_app: |
+      https://lawmo.org/get-legal-help
+    legal_aid_program_phone_app: |
+      1-800-492-7095
+    legal_aid_program_office_app_addresses: |
+      LAWMO - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300
+      Kansas City, MO  64130
+      (816) 474-6750
+      LAWMO - Joplin Office
+      1027 South Main, Suite LL7
+      Joplin, MO 64801
+      (417) 782-1650
+      LAWMO - Kansas City - Westside Office
+      920 Southwest Blvd.
+      Kansas City, MO 64108
+      (816) 474-9868
+  Warren County:
+    circuit: 12
+    class: |
+      Class 3
+    casenet_code: |
+       WRN
+    legal_aid_program_website: |
+      http://www.lsem.org/
+    legal_aid_program: |
+      Legal Services of Eastern Missouri
+    legal_aid_program_online_app: |
+      https://lsem.org/get-help-now/
+    legal_aid_program_phone_app: |
+      1-800-444-0514
+    legal_aid_program_office_app_addresses: |
+      LSEM - St. Louis - Main Office
+      Peabody Plaza Building
+      701 Market St., Suite 1100
+      St. Louis, MO  63101
+      (314) 534-4200
+  Washington County:
+    circuit: 24
+    class: |
+      Class 3
+    casenet_code: |
+       WAS
+    legal_aid_program_website: |
+      http://www.lsem.org/
+    legal_aid_program: |
+      Legal Services of Eastern Missouri
+    legal_aid_program_online_app: |
+      https://lsem.org/get-help-now/
+    legal_aid_program_phone_app: |
+      1-800-444-0514
+    legal_aid_program_office_app_addresses: |
+      LSEM - St. Louis - Main Office
+      Peabody Plaza Building
+      701 Market St., Suite 1100
+      St. Louis, MO  63101
+      (314) 534-4200
+  Wayne County:
+    circuit: 42
+    class: |
+      Class 3
+    casenet_code: |
+       WAY
+    legal_aid_program_website: |
+      http://www.lsosm.org/
+    legal_aid_program: |
+      Legal Services of Southern Missouri
+    legal_aid_program_online_app: |
+      https://application.lsosm.org/
+    legal_aid_program_phone_app: |
+      1-800-444-4863
+    legal_aid_program_office_app_addresses: |
+      LSSM - Rolla Office
+      1000 N. Pine, Suite B
+      Rolla, MO  65401
+      (573) 341-3655
+  Webster County:
+    circuit: 30
+    class: |
+      Class 3
+    casenet_code: |
+       WEB
+    legal_aid_program_website: |
+      http://www.lsosm.org/
+    legal_aid_program: |
+      Legal Services of Southern Missouri
+    legal_aid_program_online_app: |
+      https://application.lsosm.org/
+    legal_aid_program_phone_app: |
+      1-800-444-4863
+    legal_aid_program_office_app_addresses: |
+      LSSM - Springfield Office
+      809 N. Campbell Avenue
+      Springfield, MO  65802
+      (417) 881-0533
+  Worth County:
+    circuit: 4
+    class: |
+      Class 3
+    casenet_code: |
+       WOR
+    legal_aid_program_website: |
+      https://www.lawmo.org/
+    legal_aid_program: |
+      Legal Aid of Western Missouri
+    legal_aid_program_online_app: |
+      https://lawmo.org/get-legal-help
+    legal_aid_program_phone_app: |
+      None
+    legal_aid_program_office_app_addresses: |
+      LAWMO - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300
+      Kansas City, MO  64130
+      (816) 474-6750
+      LAWMO - Kansas City - Westside Office
+      920 Southwest Blvd.
+      Kansas City, MO 64108
+      (816) 474-9868
+  Wright County:
+    circuit: 44
+    class: |
+      Class 3
+    casenet_code: |
+       WRI
+    legal_aid_program_website: |
+      http://www.lsosm.org/
+    legal_aid_program: |
+      Legal Services of Southern Missouri
+    legal_aid_program_online_app: |
+      https://application.lsosm.org/
+    legal_aid_program_phone_app: |
+      1-800-444-4863
+    legal_aid_program_office_app_addresses: |
+      LSSM - Springfield Office
+      809 N. Campbell Avenue
+      Springfield, MO  65802
+      (417) 881-0533
+---

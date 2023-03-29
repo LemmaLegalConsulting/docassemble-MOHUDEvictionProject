@@ -980,12 +980,13 @@ fields:
     required: False
     datatype: date
   - Case Type: case_type
-    datatype: radio
+    datatype: checkboxes
     required: False
     choices:
       - AC Rent and Possession
       - AC Unlawful Detainer
       - AC Landlord Action (Bulk)
+      - AC Expedited Eviction
       - Other
 continue button field: docket_header
 ---
@@ -1128,7 +1129,7 @@ review:
       - case_type
     button: |
       Case Type:
-      **${ case_type }**
+      **${ case_type.true_values() }**
   - Edit:
       - filing_date
     button: |
