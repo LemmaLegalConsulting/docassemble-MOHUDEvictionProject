@@ -27,15 +27,15 @@ jobs:
           DOCASSEMBLE_DEVELOPER_API_KEY: "${{ secrets.DOCASSEMBLE_DEVELOPER_API_KEY }}"
       - run: echo "Finished running ALKiln tests"
       
-      ## To make a new issue in your repository when a test fails,
-      ## simply delete the first "#" symbol in each line below
-      #- name: If any tests failed create an issue
-      #  if: ${{ failure() }}
-      #  uses: actions-ecosystem/action-create-issue@v1
-      #  with:
-      #    github_token: "${{ secrets.github_token }}"
-      #    title: ALKiln tests failed
-      #    body: |
-      #      An ALKiln test failed. See the action at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}.
-      #    labels: |
-      #      bug
+      # To make a new issue in your repository when a test fails,
+      # simply delete the first "#" symbol in each line below
+      - name: If any tests failed create an issue
+        if: ${{ failure() }}
+        uses: actions-ecosystem/action-create-issue@v1
+        with:
+          github_token: "${{ secrets.github_token }}"
+          title: ALKiln tests failed
+          body: |
+            An ALKiln test failed. See the action at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}.
+          labels: |
+            bug
