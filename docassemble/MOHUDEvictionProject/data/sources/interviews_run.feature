@@ -43,6 +43,11 @@ Scenario: MOHUDEvictionProject.yml attorney (entering appearance) runs
     | representation_type | entering_appearance | representation_type |
     | users[0].name.first | Uli | users[0].name.first |
     | users[0].name.last | User1 | users[0].name.first |
+    | users[0].attorney[0].name.first | Attny Uli | users[0].attorney[0].name.first |
+    | users[0].attorney[0].name.last | Attny 1 | users[0].attorney[0].name.first |
+    | users[0].attorney[0].address.address | 123 Address St | users[0].attorney[0].address.address |
+    | users[0].attorney[0].address.city | Kansas City | users[0].attorney[0].address.address |
+    | users[0].attorney[0].address.state | Missouri | users[0].attorney[0].address.address |
     | method_of_summons_service['left'] | False | |
     | method_of_summons_service['mail'] | False | |
     | method_of_summons_service['other'] | False | |
