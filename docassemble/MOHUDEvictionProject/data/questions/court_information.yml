@@ -13,6 +13,7 @@ code: |
     else:
       trial_court.county = None
       trial_court.circuit = None
+      trial_court.classification = None
   trial_court.division = "Housing Division"
   trial_court.address.county = trial_court.county
 ---
