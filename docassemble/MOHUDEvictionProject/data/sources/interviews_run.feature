@@ -15,6 +15,9 @@ Scenario: MOHUDEvictionProject.yml tenant runs
   And the maximum seconds for each Step in this Scenario is 50
   And I get to the question id "Petition_introduction" with this data:
     | var | value | trigger |
+    | acknowledged_information_use['I accept the terms of use.'] | True | |
+    | acknowledged_information_use['minimum_number'] | None | |
+    | eviction_defender_intro | True | |
     | person_answering | tenant | person_answering |
     | users[0].name.first | Uli | users[0].name.first |
     | users[0].name.last | User1 | users[0].name.first |
@@ -33,6 +36,9 @@ Scenario: MOHUDEvictionProject.yml attorney (entering appearance) runs
   And the maximum seconds for each Step in this Scenario is 50
   And I get to the question id "Petition_introduction" with this data:
     | var | value | trigger |
+    | acknowledged_information_use['I accept the terms of use.'] | True | |
+    | acknowledged_information_use['minimum_number'] | None | |
+    | eviction_defender_intro | True | |
     | person_answering | attorney | person_answering |
     | representation_type | entering_appearance | representation_type |
     | users[0].name.first | Uli | users[0].name.first |
@@ -52,6 +58,9 @@ Scenario: MOHUDEvictionProject.yml attorney (ghostwriting) runs
   And the maximum seconds for each Step in this Scenario is 50
   And I get to the question id "Petition_introduction" with this data:
     | var | value | trigger |
+    | acknowledged_information_use['I accept the terms of use.'] | True | |
+    | acknowledged_information_use['minimum_number'] | None | |
+    | eviction_defender_intro | True | |
     | person_answering | attorney | person_answering |
     | representation_type | ghostwriting | representation_type |
     | users[0].name.first | Uli | users[0].name.first |
@@ -71,6 +80,9 @@ Scenario: MOHUDEvictionProject.yml someone else runs
   And the maximum seconds for each Step in this Scenario is 50
   And I get to the question id "Petition_introduction" with this data:
     | var | value | trigger |
+    | acknowledged_information_use['I accept the terms of use.'] | True | |
+    | acknowledged_information_use['minimum_number'] | None | |
+    | eviction_defender_intro | True | |
     | person_answering | tenant_helper | person_answering |
     | users[0].name.first | Uli | users[0].name.first |
     | users[0].name.last | User1 | users[0].name.first |
