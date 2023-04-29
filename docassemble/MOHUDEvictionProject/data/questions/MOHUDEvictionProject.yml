@@ -169,6 +169,8 @@ code: |
   if not tenant_got_summons or not petition_available:
     if docket_available:
       docket_review
+  trial_court.name
+  eviction_reason
   if case_type["AC Unlawful Detainer"] or case_type["AC Expedited Eviction"]:
     if unlawful_detainer_kick_out_option:
       motion_to_continue_order
