@@ -167,7 +167,7 @@ code: |
   trial_court.county
   trial_court.circuit
   if not tenant_got_summons or not petition_available:
-    if docket_available:
+    if not trial_court.county == None and docket_available:
       docket_review
   if case_type["AC Unlawful Detainer"] or case_type["AC Expedited Eviction"]:
     if unlawful_detainer_kick_out_option:
@@ -186,7 +186,7 @@ code: |
   if landlord_foreclosed:
     notice_of_foreclosure
   nav.set_section("section_eviction_answer_casenet")
-  if docket_available:
+  if not trial_court.county == None and docket_available:
     docket_review
   nav.set_section("section_eviction_answer_case")
   original_hearing_date
@@ -229,7 +229,7 @@ code: |
     party.address.address
     party.attorney.gather()
   nav.set_section("section_eviction_answer_casenet")
-  if docket_available:
+  if not trial_court.county == None and docket_available:
     docket_review
   nav.set_section("section_eviction_answer_case")
   original_hearing_date
@@ -581,6 +581,10 @@ fields:
       % endif
     field: docket_available
     datatype: yesnoradio
+---
+if: trial_court.county == None
+code: |
+  docket_available = False
 ---
 depends on:
   - users[0].address.county
