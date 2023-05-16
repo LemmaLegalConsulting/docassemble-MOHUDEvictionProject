@@ -11,15 +11,26 @@ code: |
       trial_court.county = users[0].normalized_address().county
       trial_court.circuit = county_dictionary[trial_court.county]['circuit']
     else:
-      trial_court.county = None
-      trial_court.circuit = None
-      trial_court.classification = None
+      trial_court.county = trial_court_county_selected
+      trial_court.circuit = county_dictionary[trial_court.county]['circuit']
   trial_court.division = "Housing Division"
   trial_court.address.county = trial_court.county
+---
+question: Pick the county
+subquestion: |
+  The county of the trial court couldn't be determined by your address.  Please pick the county (or the City of St. Louis) from the list.
+fields:
+  - Trial Court County: trial_court_county_selected
+    datatype: dropdown
+    code: |
+      county_list
 ---
 depends on: trial_court.county
 code: |
   trial_court.classification = county_dictionary[trial_court.county]['class']
+---
+code:
+  county_list = sorted(county_dictionary.keys())
 ---
 id: caption - docket number and file date
 question: |
