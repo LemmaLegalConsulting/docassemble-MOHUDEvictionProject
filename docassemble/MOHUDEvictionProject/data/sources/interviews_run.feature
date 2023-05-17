@@ -21,6 +21,7 @@ Scenario: MOHUDEvictionProject.yml tenant runs
     | person_answering | tenant | person_answering |
     | users[0].name.first | Uli | users[0].name.first |
     | users[0].name.last | User1 | users[0].name.first |
+    | tenant_got_summons | True | |
     | method_of_summons_service['left'] | False | |
     | method_of_summons_service['mail'] | False | |
     | method_of_summons_service['other'] | False | |
