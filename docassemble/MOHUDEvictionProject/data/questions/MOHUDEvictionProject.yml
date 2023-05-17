@@ -26,9 +26,6 @@ metadata:
 features:
   bootstrap theme: lsem.bootstrap.css    
 ---
-default screen parts:
-  pre: |
----
 mandatory: True
 comment: |
   Global interview metadata
