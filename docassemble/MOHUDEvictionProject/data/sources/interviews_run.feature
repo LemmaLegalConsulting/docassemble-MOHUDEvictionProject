@@ -39,10 +39,10 @@ Scenario: MOHUDEvictionProject.yml tenant runs
     | users[0].address.country | United States | users[0].address.country |
     | trial_court.name | Court Name | trial_court.name |
     | case_type['AC Rent and Possession'] | True | |
-    | other_parties[i].name.first | Land | other_parties[i].name.first |
-    | other_parties[i].name.last | Lord | other_parties[i].name.last |
-    | other_parties[i].person_type | individual | other_parties[i].person_type |
-    | other_parties[i].attorney.there_are_any | False | other_parties[i].attorney.there_are_any |
+    | other_parties[i].name.first | Land | other_parties[0].name.first |
+    | other_parties[i].name.last | Lord | other_parties[0].name.first |
+    | other_parties[i].person_type | individual | other_parties[0].name.first |
+    | other_parties[i].attorney.there_are_any | False | other_parties[0].attorney.there_are_any |
     
 @MOHUDEvictionProject
 Scenario: MOHUDEvictionProject.yml attorney (entering appearance) runs
