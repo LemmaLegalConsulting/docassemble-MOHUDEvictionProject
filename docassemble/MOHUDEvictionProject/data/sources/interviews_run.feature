@@ -39,14 +39,14 @@ Scenario: MOHUDEvictionProject.yml tenant runs
     | other_parties[0].name.first | Land | other_parties[0].name.first |
     | other_parties[0].name.last | Lord | other_parties[0].name.first |
     | other_parties[0].person_type | ALIndividual | other_parties[0].name.first |
-    | other_parties[0].attorney.target_number | 1 | |
-    | other_parties.target_number | 1 | |
+    | other_parties[0].attorney.target_number | 1 | other_parties[0].attorney.there_is_another |
+    | other_parties.target_number | 1 | other_parties[0].there_is_another |
     | other_parties[0].address.address | 123 Street | other_parties[0].address.address |
     | other_parties[0].address.city | Kansas City | other_parties[0].address.address |
     | other_parties[0].address.state | Missouri | other_parties[0].address.address |
     | is_rent_subsidized | False | |
     | lease_attached | True | |
-    | false_promises.target_number | 0 | |
+    | false_promises.target_number | 0 | false_promises.there_is_another |
     | unfair_duress | False | |
     | previous_landlord_sold_property | False | |
     | landlord_foreclosed | False | |
