@@ -13,7 +13,7 @@ Want to disable the tests? Want to learn more? See ALKiln's docs: https://suffol
 Scenario: MOHUDEvictionProject.yml tenant runs
   Given I start the interview at "MOHUDEvictionProject.yml"
   And the maximum seconds for each Step in this Scenario is 50
-  And I get to the question id "Petition_introduction" with this data:
+  And I get to the question id "Landlord representation" with this data:
     | var | value | trigger |
     | acknowledged_information_use['I accept the terms of use.'] | True | |
     | acknowledged_information_use['minimum_number'] | None | |
@@ -29,7 +29,20 @@ Scenario: MOHUDEvictionProject.yml tenant runs
     | method_of_summons_service['sheriff'] | True | |
     | method_of_summons_service['minimum_number'] | None | |
     | petition_available | True | |
-  
+    | recommend_filing_answer | True | |
+    | users[0].address.address | 123 Street | users[0].address.address |
+    | users[0].address.city | Kansas City  | users[0].address.city |
+    | users[0].address.zip | 00000 | users[0].address.zip |
+    | users[0].address.unit | 1 | users[0].address.unit |
+    | users[0].address.state | Missouri | users[0].address.state |
+    | users[0].address.country | United States | users[0].address.country |
+    | trial_court.name | Court Name | trial_court.name |
+    | case_type['AC Rent and Possession'] | True | |
+    | other_parties[i].name.first | Land | other_parties[i].name.first |
+    | other_parties[i].name.last | Lord | other_parties[i].name.last |
+    | other_parties[i].person_type | individual | other_parties[i].person_type |
+    | other_parties[i].attorney.there_are_any | False | other_parties[i].attorney.there_are_any |
+    
 @MOHUDEvictionProject
 Scenario: MOHUDEvictionProject.yml attorney (entering appearance) runs
   Given I start the interview at "MOHUDEvictionProject.yml"
