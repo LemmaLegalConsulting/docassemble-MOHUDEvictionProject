@@ -13,7 +13,7 @@ Want to disable the tests? Want to learn more? See ALKiln's docs: https://suffol
 Scenario: MOHUDEvictionProject.yml tenant runs
   Given I start the interview at "MOHUDEvictionProject.yml"
   And the maximum seconds for each Step in this Scenario is 50
-  And I get to the question id "Landlord representation" with this data:
+  And I get to the question id "Docket_introduction" with this data:
     | var | value | trigger |
     | acknowledged_information_use['I accept the terms of use.'] | True | |
     | acknowledged_information_use['minimum_number'] | None | |
@@ -32,17 +32,25 @@ Scenario: MOHUDEvictionProject.yml tenant runs
     | petition_available | True | |
     | recommend_filing_answer | True | |
     | users[0].address.address | 123 Street | users[0].address.address |
-    | users[0].address.city | Kansas City  | users[0].address.city |
-    | users[0].address.zip | 00000 | users[0].address.zip |
-    | users[0].address.unit | 1 | users[0].address.unit |
-    | users[0].address.state | Missouri | users[0].address.state |
-    | users[0].address.country | United States | users[0].address.country |
-    | trial_court.name | Court Name | trial_court.name |
+    | users[0].address.city | Kansas City  | users[0].address.address |
+    | users[0].address.state | Missouri | users[0].address.address |
+    | trial_court.name | Court Name | |
     | case_type['AC Rent and Possession'] | True | |
     | other_parties[0].name.first | Land | other_parties[0].name.first |
     | other_parties[0].name.last | Lord | other_parties[0].name.first |
     | other_parties[0].person_type | ALIndividual | other_parties[0].name.first |
     | other_parties[0].attorney.there_are_any | False | other_parties[0].attorney.there_are_any |
+    | other_parties.target_number | 1 | |
+    | other_parties[0].address.address | 123 Street | other_parties[0].address.address |
+    | other_parties[0].address.city | Kansas City | other_parties[0].address.address |
+    | other_parties[0].address.state | Missouri | other_parties[0].address.address |
+    | is_rent_subsidized | False | |
+    | lease_attached | True | |
+    | false_promises.target_number | 0 | |
+    | unfair_duress | False | |
+    | previous_landlord_sold_property | False | |
+    | landlord_foreclosed | False | |
+    | docket_available | False | |
     
 @MOHUDEvictionProject
 Scenario: MOHUDEvictionProject.yml attorney (entering appearance) runs
