@@ -605,9 +605,9 @@ code: |
     "yearFiled": "",
   }
   if users[0].normalized_address().city == "St. Louis":
-    params["countyCode"] = 22
+    params["countyCode"] = "STL"
   else:
-    params["countyCode"] = county_dictionary[users[0].address.normalized_address().county]['casenet']
+    params["countyCode"] = county_dictionary[trial_court.county]['casenet_code']
   formatted_casenet_url = f"{url}{urllib.parse.urlencode(params)}"
 ---
 id: how to login to Case net
@@ -967,6 +967,50 @@ terms:
     landlord must file with the court to start an eviction case.
     % endif
 ---
+variable name: method_of_summons_service_text
+use objects: True
+data:
+  mail:
+    question: By mail
+    document: By mail
+  posting:
+    question: |
+      % if person_answering == "tenant":
+      It was taped, stapled, or posted to your door or home
+      % else:
+      It was taped, stapled, or posted to the tenant's door or home
+      % endif   
+    document: |
+      It was taped, stapled, or posted to the tenant's door or home   
+  left:
+    question: |
+      It was stuffed in the door or left somewhere without being taped, stapled or posted  
+    document: |
+      It was stuffed in the door or left somewhere without being taped, stapled or posted
+  sheriff:
+    question: |
+      % if person_answering == "tenant":
+      It was handed to you by the sheriff
+      % else:
+      It was handed to the tenant by the sheriff
+      % endif   
+    document: |
+      It was handed to the tenant by the sheriff
+  other_delivery:
+    question: |
+      % if person_answering == "tenant":
+      It was handed to you by your landlord or somebody other than the sheriff
+      % else:
+      It was handed to the tenant by the landlord or somebody other than the sheriff
+      % endif   
+    document: |
+      It was handed to the tenant by the landlord or somebody other than the sheriff
+  other:
+    question: |
+      Some other method of getting the petition
+    document: |
+      Some other method of getting the petition
+---
 sets: posting_warning
 id: soft exit posting
 decoration: hand
@@ -1092,14 +1136,9 @@ subquestion: |
   **Currently, we can only help when a landlord is evicting a tenant because they have not paid their rent.**  This type of eviction is called a Rent and Possession case. If a tenant is being evicted for another reason, contact [a Missouri legal aid provider](https://www.lsmo.org/).
   % endif
 buttons:
-  - code: |
+  - I understand, let me keep going:
+      code: |
         unlawful_detainer_kick_out_option = False
-    label: |
-      % if person_answering == "tenant":
-      I understand, let me keep going
-      % else:
-      The tenant understands, let them keep going
-      % endif 
   - Just make a motion to continue:
       code: |
         unlawful_detainer_kick_out_option = True
@@ -1517,9 +1556,9 @@ fields:
   - Check any statement that is true: estoppel_breaches
     datatype: checkboxes
     choices:
-      - "The home is not up to code.": not_up_to_code
-      - "The landlord violated local or state laws about the condition of the home.": violated_law
-      - "The landlord does not have an occupancy permit for the home.": occupancy_permit
+      - ${ estoppel_breaches_text['not_up_to_code'] }: not_up_to_code
+      - ${ estoppel_breaches_text['violated_law'] }: violated_law
+      - ${ estoppel_breaches_text['occupancy_permit'] }: occupancy_permit
       - Other: other
   - label: |
       % if person_answering == "tenant":
@@ -1529,6 +1568,19 @@ fields:
       % endif 
     field: other_estoppel_breaches
     show if: estoppel_breaches['other']
+---
+variable name: estoppel_breaches_text
+use objects: True
+data:
+  not_up_to_code:
+    question: The home is not up to code.
+    document: The home is not up to code.
+  violated_law:
+    question: The landlord violated local or state laws about the condition of the home.
+    document: The landlord violated local or state laws about the condition of the home.
+  occupancy_permit:
+    document: The landlord does not have an occupancy permit for the home.
+    question: The landlord does not have an occupancy permit for the home.
 ---
 template: estoppel_explanation_template
 subject: |
@@ -1692,7 +1744,7 @@ fields:
       - ${ cqe_breaches_text["access"] }: access
       - ${ cqe_breaches_text["animal"] }: animal
       - ${ cqe_breaches_text["vermin"] }: vermin
-      - ${ "Otherwise violate your right to live peacefully in your home" if person_answering == "tenant" else "Otherwise violateed the tenant's right to live peacefully in their home"}: other
+      - ${ "Otherwise violate your right to live peacefully in your home" if person_answering == "tenant" else "Otherwise violated the tenant's right to live peacefully in their home"}: other
   - Other (explain): other_cqe_breach
     datatype: area
     show if: cqe_breaches["other"]
@@ -1778,23 +1830,20 @@ review:
   - note: | 
       % if person_answering == "tenant":
       ##Information about you##
-      % else: 
+      % else:
       ##Information about the tenant##
       % endif
   - Edit:
       - users.revisit
       - recompute:
-          - address_geocoding_reset
-          - trial_court.county
-          - trial_court.name
-          - defense_logic
+        - defense_logic
     button: |
       Defendants:
       % if users.there_are_any:
       % for item in users:
-        **${ item }**
-        **${ showifdef('item.address.one_line') }**
-        
+
+         - **${ item }**
+
       % endfor
       % else:
       **None**
@@ -1805,11 +1854,11 @@ review:
         - defense_logic
     button: |
       % if person_answering == "tenant":
-      You may be able to pay and stop the eviction:
+      You may be able to pay and stop the eviction
       % else:
-      The tenant may be able to pay and stop the eviction:
-      % endif 
-      **${ will_offer_payment }**
+      The tenant may be able to pay and stop the eviction.
+      % endif
+      **${ "Maybe" if will_offer_payment is None else yesno(will_offer_payment) }**
   - note: | 
       ##Information about the other party##
   - Edit:
@@ -1842,61 +1891,68 @@ review:
       % if person_answering == "tenant":
       ##Information about your rental agreement##
       % else:
-      ##Information about the tenant's rental agreement##
-      % endif 
+      ##Information about the rental agreement##
+      % endif
   - Edit:
       - lease_attached
       - recompute:
         - defense_logic
+        - defense_lease_not_attached
+        - lease_or_terms
     button: |
-      Does the summons and petition packet have the lease attached as an exhibit?:
-      **${ lease_attached }**
+      Does the summons and petition packet have the lease attached as an exhibit? :
+      **${ "Maybe" if lease_attached is None else yesno(lease_attached) }**
   - Edit:
       - petition_states_terms_of_lease
       - recompute:
         - defense_logic
+        - lease_or_terms
     button: |
       Is the lease attached to the petition?:
-      **${ petition_states_terms_of_lease }**
+      **${ "Maybe" if petition_states_terms_of_lease is None else yesno(petition_states_terms_of_lease) }**
   - Edit:
       - is_rent_subsidized
       - recompute:
         - defense_logic
+        - defense_excessive_rent_for_subsidized_housing
     button: |
       % if person_answering == "tenant":
-      Do you get a rent subsidy or do you live in public housing?:
+      Do you get a rent subsidy or do you live in public housing?
       % else:
       Does the tenant get a rent subsidy or do they live in public housing?:
-      % endif 
-      **${ is_rent_subsidized }**
+      % endif
+      **${ "Maybe" if is_rent_subsidized is None else yesno(is_rent_subsidized) }**
   - Edit:
       - subsidized_housing_type
       - recompute:
         - defense_logic
     button: |
-      Type of Subsidized Housing:
-      **${ subsidized_housing_type }**
+      Type of Subsidized Housing::
+      **${ subsidized_housing_text["subsidized_housing_type"] }**
   - Edit:
       - unfair_duress
       - recompute:
         - defense_logic
+        - defense_lease_signed_under_duress
     button: |
       % if person_answering == "tenant":
-      Did the landlord unfairly pressure you to sign the lease?:
+      Did the landlord unfairly pressure you to sign the lease?
       % else:
-      Did the landlord unfairly pressure the tenant to sign the lease?:
-      % endif 
-      **${ unfair_duress }**
+      Did the landlord unfairly pressure the tenant to sign the lease?
+      % endif
+      **${ "Maybe" if unfair_duress is None else yesno(unfair_duress) }**
   - Edit:
       - false_promises.revisit
       - recompute:
-          - defense_logic
-          - defense_fraud_lease
+        - defense_logic
+        - defense_fraud_lease
     button: |
       False Promises Made By The Landlord:
       % if false_promises.there_are_any:
       % for item in false_promises:
-        **${ item }**
+
+         - **${ item }**
+
       % endfor
       % else:
       **None**
@@ -1905,149 +1961,215 @@ review:
       - relied_on_false_promises
       - recompute:
         - defense_logic
+        - defense_fraud_lease
     button: |
       % if person_answering == "tenant":
-      Did the landlord's promise get you to sign the lease?:
+      Did the landlord's promise get you to sign the lease?
       % else:
-      Did the landlord's promise get the tenant to sign the lease?:
-      % endif 
-      **${ relied_on_false_promises }**
+       Did the landlord's promise get the tenant to sign the lease?:
+      % endif
+      **${ "Maybe" if relied_on_false_promises is None else yesno(relied_on_false_promises) }**
   - Edit:
       - landlord_foreclosed
       - recompute:
         - defense_logic
+        - defense_foreclosure
     button: |
       % if person_answering == "tenant":
-      Did the bank foreclose on this property while you lived there?:
+      Did the bank foreclose on this property while you lived there?
       % else:
-      Did the bank foreclose on this property while the tenant lived there?:
-      % endif 
-      **${ landlord_foreclosed }**
+      Did the bank foreclose on this property while the tenant lived there?
+      % endif
+      **${ "Maybe" if landlord_foreclosed is None else yesno(landlord_foreclosed) }**
   - Edit:
       - notice_of_foreclosure
       - recompute:
         - defense_logic
+        - defense_foreclosure
     button: |
-      Did the bank ever foreclose on this home?:
-      **${ notice_of_foreclosure }**
+      % if person_answering == "tenant":
+      Did you get a letter that told you about the foreclosure?
+      % else:
+      Did the tenanat get a letter that told the tenant about the foreclosure?
+      % endif
+      **${ "Maybe" if notice_of_foreclosure is None else yesno(notice_of_foreclosure) }**
   - Edit:
       - previous_landlord_sold_property
       - recompute:
         - defense_logic
+        - defense_new_owner_failed_to_provide_notice_of_sale
     button: |
       % if person_answering == "tenant":
-      Did your previous landlord sell the property to the new landlord?:
+      Did your previous landlord sell the property to the new landlord?
       % else:
-      Did the tenant's previous landlord sell the property to the new landlord?:
-      % endif 
-      **${ previous_landlord_sold_property }**
+      Did the tenant's previous landlord sell the property to the new landlord?
+      % endif
+      **${ "Maybe" if previous_landlord_sold_property is None else yesno(previous_landlord_sold_property) }**
   - Edit:
-      - notice_of_sale_provided_new_landlord
+      - notice_of_sale_provided
       - recompute:
         - defense_logic
     button: |
       % if person_answering == "tenant":
-      Did the new landlord provide you notice of the sale?:
+      Did the landlord provide you notice of the sale?
       % else:
-      Did the new landlord provide the tenant notice of the sale?:
-      % endif 
-      **${ notice_of_sale_provided_new_landlord }**
+      Did the new landlord provide the tenant notice of the sale?
+      % endif
+      **${ "Maybe" if notice_of_sale_provided is None else yesno(notice_of_sale_provided) }**
   - note: | 
       ##Information about the eviction##
   - Edit:
-      - received_summons
+      - trial_court_name
       - recompute:
         - defense_logic
     button: |
-      % if person_answering == "tenant":
-      Did you receive a copy of the Summons and Landlord's Petition?:
+      Trial Court Name:
+      **${ trial_court_name }**
+  - Edit:
+      - docket_number
+      - recompute:
+        - defense_logic
+    button: |
+      Docket number:
+      **${ docket_number }**
+  - Edit:
+      - original_hearing_date
+      - recompute:
+        - defense_logic
+    button: |
+      Date of hearing:
+      **${ original_hearing_date }**
+  - Edit:
+      - original_hearing_time
+      - recompute:
+        - defense_logic
+    button: |
+      Time of hearing:
+      **${ original_hearing_time }**
+  - Edit:
+      - case_type
+      - recompute:
+        - defense_logic
+    button: |
+      Case Type:
+      % if case_type.any_true():
+      % for item in case_type.true_values():
+        **${ item }**
+      % endfor
       % else:
-      Did the tenant receive a copy of the Summons and Landlord's Petition?:
-      % endif 
-      **${ received_summons }**
+      **None**
+      % endif
+  - Edit:
+      - filing_date
+      - recompute:
+        - defense_logic
+    button: |
+      Filing Date:
+      **${ filing_date }**
+  - Edit:
+      - tenant_got_summons
+      - recompute:
+        - defense_logic
+        - defense_rent_pleading_requirement
+        - defense_lease_not_attached
+    button: |
+      % if person_answering == "tenant":
+      Did you receive the summons?
+      % else:
+      Did the tenant receive a copy of the Summons and Landlord's Petition?
+      % endif
+      **${ "Maybe" if tenant_got_summons is None else yesno(tenant_got_summons) }**
   - Edit:
       - method_of_summons_service
       - recompute:
         - defense_logic
     button: |
       % if person_answering == "tenant":
-      How did you receive the Summons and Landlord's Petition?:
-      % else: 
-      How did the tenant receive the Summons and Landlord's Petition?:
+      How did you receive the Summons and Landlord's Petition?
+      % else:
+      How did the tenant receive the Summons and Landlord's Petition?
       % endif
-      **${ method_of_summons_service.true_values() }**
+      % if method_of_summons_service.any_true():
+      % for item in method_of_summons_service.true_values():
+        **${ method_of_summons_service_text["item"] }**
+      % endfor
+      % else:
+      **None**
+      % endif
   - Edit:
       - petition_available
       - recompute:
         - defense_logic
+        - defense_rent_pleading_requirement
+        - defense_lease_not_attached
     button: |
-      % if person_answering == "tenant":
       Do you have a copy of the Landlord's Petition available?:
-      % else: 
-      Does the tenant have a copy of the Landlord's Petition available?:
-      % endif
-      **${ petition_available }**
+      **${ yesno(petition_available) }**
   - note: | 
-      % if person_answering == "tenant":
       ##Your claims and defenses##
-      % else: 
-      ##The tenant's claims and defenses##
-      % endif
   - Edit:
       - petition_states_rent_amount
       - recompute:
         - defense_logic
+        - defense_rent_pleading_requirement
     button: |
       % if person_answering == "tenant":
-      Does the petition say what amount of rent you owe?:
+      Does the petition say what amount of rent you owe?
       % else:
-      Does the petition say what amount of rent the tenant owes?:
+      Does the petition say what amount of rent the tenant owes?
       % endif
-      **${ petition_states_rent_amount }**
+      **${ "Maybe" if petition_states_rent_amount is None else yesno(petition_states_rent_amount) }**
+  - Edit:
+      - petition_alleges_nonrent
+      - recompute:
+        - defense_logic
+        - defense_rent_pleading_requirement
+    button: |
+      Does the petition allege nonrent?:
+      **${ "Maybe" if petition_alleges_nonrent is None else yesno(petition_alleges_nonrent) }**
   - Edit:
       - petition_states_rent_periods
       - recompute:
         - defense_logic
+        - defense_rent_pleading_requirement
     button: |
-      % if person_answering == "tenant":
       Does the petition list each month that the landlord claims you owe rent?:
-      % else: 
-      Does the petition list each month that the landlord claims the tenant owes rent?:
-      % endif
-      **${ petition_states_rent_periods }**
+      **${ "Maybe" if petition_states_rent_periods is None else yesno(petition_states_rent_periods) }**
   - Edit:
       - was_rent_paid
       - recompute:
         - defense_logic
+        - defense_rent_payment
     button: |
       % if person_answering == "tenant":
-      Did you pay at least part of the rent?:
-      % else: 
-      Did the tenant pay at least part of the rent?:
+      Did you pay at least part of the rent?
+      % else:
+      Did the tenant pay the rent that was allegedly owed?
       % endif
-      **${ was_rent_paid }**
+      **${ "Maybe" if was_rent_paid is None else yesno(was_rent_paid) }**
   - Edit:
       - rent_amount_paid
       - recompute:
         - defense_logic
+        - defense_rent_payment
     button: |
       % if person_answering == "tenant":
-      How much did you pay?:
-      % else: 
-      How much did the tenant pay?:
+      How much did you pay?
+      % else:
+      How much did the tenant pay?
       % endif
-      **${ rent_amount_paid }**
+      **${ rent_amount_paid_text["rent_amount_paid"] }**
   - Edit:
       - offer_attempts.revisit
       - recompute:
-          - defense_logic
-          - defense_tender_refused
+        - defense_logic
+        - defense_tender_refused
     button: |
       Attempts to Pay Rent:
-      % if offer_attempts.there_are_any:
-      % for item in offer_attempts:
-        **${ item }**
-      % endfor
+      % if len(offer_attempts) == 1:
+      **1 Attempt**
+      % elif len(offer_attempts) > 1:
+      **${ len(offer_attempts) } Attempts**
       % else:
       **None**
       % endif
@@ -2055,79 +2177,83 @@ review:
       - excessive_rent
       - recompute:
         - defense_logic
+        - defense_excessive_rent_for_subsidized_housing
     button: |
       % if person_answering == "tenant":
-      Is your landlord asking you to pay an amount that is more than your tenant rent share?:
-      % else: 
-      Is the landlord asking the tenant to pay an amount that is more than the tenant's rent share?:
+      Is your landlord asking you to pay an amount that is more than your tenant rent share?
+      % else:
+      Is your landlord asking the tenant to pay an amount that is more than the tenant rent share?
       % endif
-      **${ excessive_rent }**
+      **${ "Maybe" if excessive_rent is None else yesno(excessive_rent) }**
   - Edit:
       - late_fees_assessed
       - recompute:
         - defense_logic
+        - defense_liquidated_damages_late_fees
+        - defense_illegal_late_fees
     button: |
       % if person_answering == "tenant":
-      Is the landlord claiming that you owe late fees?:
-      % else: 
-      Is the landlord claiming that the tenant owes late fees?:
+      Is the landlord claiming that you owe late fees?
+      % else:
+      Is the landlord claiming that the tenant owes late fees?
       % endif
-      **${ late_fees_assessed }**
+      **${ "Maybe" if late_fees_assessed is None else yesno(late_fees_assessed) }**
   - Edit:
       - late_fees_penalty
       - recompute:
         - defense_logic
+        - defense_liquidated_damages_late_fees
     button: |
       Are the late fees more than any actual costs the landlord would have to pay because of late rent?:
-      **${ late_fees_penalty }**
+      **${ "Maybe" if late_fees_penalty is None else yesno(late_fees_penalty) }**
   - Edit:
       - late_fees_provision_in_lease
       - recompute:
         - defense_logic
+        - defense_liquidated_damages_late_fees
+      - defense_illegal_late_fees
     button: |
       Does the lease say that they landlord can charge late fees?:
-      **${ late_fees_provision_in_lease }**
+      **${ "Maybe" if late_fees_provision_in_lease is None else yesno(late_fees_provision_in_lease) }**
   - Edit:
       - petition_separates_nonrent
       - recompute:
         - defense_logic
     button: |
       % if person_answering == "tenant":
-      Does the petition separate the amount you owe in rent from other charges?:
-      % else: 
-      Does the petition separate the amount the tenant owes in rent from other charges?:
+      Does the petition separate the amount you owe in rent from other charges?
+      % else:
+      Does the petition separate the amount the tenant owes in rent from other charges?
       % endif
-      **${ petition_separates_nonrent }**
+      **${ "Maybe" if petition_separates_nonrent is None else yesno(petition_separates_nonrent) }**
   - Edit:
       - petition_states_demand_made
       - recompute:
         - defense_logic
+        - defense_rent_pleading_requirement
     button: |
       Does the Petition say that the landlord demanded rent?:
-      **${ petition_states_demand_made }**
+      **${ "Maybe" if petition_states_demand_made is None else yesno(petition_states_demand_made) }**
   - note: | 
       ##Landlord Agreement##
   - Edit:
       - landlord_agreement
       - recompute:
         - defense_logic
+        - defense_settlement
     button: |
       % if person_answering == "tenant":
-      Did you make a settlement agreement with the landlord to avoid the eviction?:
-      % else: 
-      Did the tenant make a settlement agreement with the landlord to avoid the eviction?:
+      Did you make a settlement agreement with the landlord to avoid the eviction?
+      % else:
+      Did the tenant make a settlement agreement with the landlord to avoid the eviction?
       % endif
-      **${ landlord_agreement }**
+      **${ "Maybe" if landlord_agreement is None else yesno(landlord_agreement) }**
   - Edit:
       - landlord_agreement_type
       - recompute:
         - defense_logic
     button: |
-      % if person_answering == "tenant":
       What type of agreement did you make?:
-      % else: 
-      What type of agreement did the tenant make?:
-      % endif
       **${ landlord_agreement_type }**
   - Edit:
       - landlord_agreement_terms
@@ -2140,40 +2266,62 @@ review:
       - tenant_compliance_with_agreement
       - recompute:
         - defense_logic
+        - defense_settlement
     button: |
       % if person_answering == "tenant":
-      Did you comply with the settlement agreement with the landlord?:
-      % else: 
-      Did the tenant comply with the settlement agreement with the landlord?:
+      Did you comply with the settlement agreement with the landlord?
+      % else:
+      Did the tenant comply with the settlement agreement with the landlord?
       % endif
-      **${ tenant_compliance_with_agreement }**
+      **${ "Maybe" if tenant_compliance_with_agreement is None else yesno(tenant_compliance_with_agreement) }**
   - Edit:
       - tenant_compliance_with_agreement_proof
       - recompute:
         - defense_logic
+        - defense_settlement
     button: |
       % if person_answering == "tenant":
-      Do you have proof that you complied with the agreement?:
-      % else: 
-      Does the tenant have proof that they complied with the agreement?:
+      Do you have proof that you complied with the agreement?
+      % else:
+      Does the tenant have proof that the tenant complied with the agreement?
       % endif
-      **${ tenant_compliance_with_agreement_proof }**
+      **${ "Maybe" if tenant_compliance_with_agreement_proof is None else yesno(tenant_compliance_with_agreement_proof) }**
   - note: | 
       ##Landlord Problems##
   - Edit:
       - warranty_breaches
       - recompute:
-        - defense_logic
         - defense_breach_of_habitability
+        - defense_logic
     button: |
       Problems Landlord Failed to Repair:
       % if warranty_breaches.any_true():
       % for item in warranty_breaches.true_values():
-        **${ item }**
+      % if item == "other":
+      
+       - **${ warranty_breach_other }**
+      
+      % else:
+      
+       - **${ conditions_text[item] }**
+      
+      % endif
       % endfor
       % else:
       **None**
       % endif
+  - Edit:
+      - notice_of_breach_to_landlord
+      - recompute:
+        - defense_logic
+        - defense_breach_of_habitability
+    button: |
+      % if person_answering == "tenant":
+      Did you tell the landlord about these problems?
+      % else:
+      Did the tenant tell the landlord about these problems?
+      % endif
+      **${ "Maybe" if notice_of_breach_to_landlord is None else yesno(notice_of_breach_to_landlord) }**
   - Edit:
       - cqe_breaches
       - recompute:
@@ -2184,7 +2332,15 @@ review:
       Harassment and other breaches of quiet enjoyment:
       % if cqe_breaches.any_true():
       % for item in cqe_breaches.true_values():
-        **${ item }**
+      % if item == "other":
+      
+       - **${ other_cqe_breach }**
+      
+      % else:
+      
+       - **${ cqe_breaches_text[item] }**
+      
+      % endif
       % endfor
       % else:
       **None**
@@ -2198,7 +2354,15 @@ review:
       Other Landlord Violations:
       % if estoppel_breaches.any_true():
       % for item in estoppel_breaches.true_values():
-        **${ item }**
+      % if item == "other":
+      
+       - **${ other_estoppel_breaches }**
+      
+      % else:
+      
+       - **${ estoppel_breaches_text[item] }**
+      
+      % endif
       % endfor
       % else:
       **None**
@@ -2463,9 +2627,31 @@ fields:
     field: rent_amount_paid
     datatype: radio
     choices: 
-      - ${ "I paid all of the rent" if person_answering == "tenant" else "The tenant paid all of the rent" }: all
-      - ${ "I paid part of the rent" if person_answering == "tenant" else "The tenant paid part of the rent" }: a_portion
+      - ${ rent_amount_paid_text["all"] }: all
+      - ${ rent_amount_paid_text["a_portion"] }: a_portion
     show if: was_rent_paid
+---
+variable name: rent_amount_paid_text
+use objects: True
+data:
+  all:
+    question: |
+      % if person_answering == "tenant":
+      I paid all of the rent
+      % else:
+      The tenant paid all of the rent
+      % endif    
+    document: |
+      The tenant paid all of the rent
+  a_portion:
+    question: |
+      % if person_answering == "tenant":
+      I paid part of the rent
+      % else:
+      The tenant paid part of the rent
+      % endif    
+    document: |
+      The tenant paid part of the rent
 ---
 generic object: ALIndividual
 id: service method
