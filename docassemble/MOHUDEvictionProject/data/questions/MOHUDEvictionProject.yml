@@ -2697,26 +2697,45 @@ question: |
 fields:
   - ${ x }'s service address is: x.service_address
     datatype: object_radio
+    default: 
+      - x.address if defined(x.address.attr_name("address")) else None
     choices:
       - x.address if defined(x.address.attr_name("address")) else None
       - x.mailing_address if defined(x.mailing_address.attr_name("address")) else None
     object labeler: |
       lambda y: y.on_one_line()      
     none of the above: |
-      Somewhere else
-    disable others: True      
+      Somewhere else   
   - ${ x.service_address.address_label }: x.service_address.address
     address autocomplete: True
+    show if:
+      variable: x.service_address
+      is: None
   - ${ x.service_address.unit_label }: x.service_address.unit
     required: False
+    show if:
+      variable: x.service_address
+      is: None
   - ${ x.service_address.city_label }: x.service_address.city
+    show if:
+      variable: x.service_address
+      is: None
   - ${ x.service_address.state_label }: x.service_address.state
     code: |
       states_list(country_code=AL_DEFAULT_COUNTRY)
     default: ${ AL_DEFAULT_STATE }
+    show if:
+      variable: x.service_address
+      is: None
   - ${ x.service_address.zip_label }: x.service_address.zip
     required: False      
+    show if:
+      variable: x.service_address
+      is: None
   - ${ x.service_address.country_label }: x.service_address.country
     code: countries_list()
     default: ${ AL_DEFAULT_COUNTRY }
+    show if:
+      variable: x.service_address
+      is: None
 ---
