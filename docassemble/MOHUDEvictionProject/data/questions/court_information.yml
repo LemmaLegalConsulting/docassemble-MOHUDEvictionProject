@@ -75,7 +75,8 @@ fields:
     required: False
   - Nature of Suit or Case Type: case_type
     datatype: checkboxes
-    required: False
+    required: True
+    none of the above: False
     choices:
       - AC Rent and Possession
       - AC Unlawful Detainer

@@ -679,7 +679,6 @@ fields:
   - "Date of original hearing": original_hearing_date
     datatype: date
   - "Original hearing time": original_hearing_time
-    datatype: time
 ---
 depends on: original_hearing_date
 id: Calculating if hearing date is past
@@ -821,7 +820,6 @@ fields:
   - "Date of hearing": original_hearing_date
     datatype: date
   - "Original hearing time": original_hearing_time
-    datatype: time
 ---
 id: explain other case net uses
 question: |
