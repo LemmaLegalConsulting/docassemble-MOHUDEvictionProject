@@ -548,8 +548,8 @@ fields:
     field: subsidized_housing_type
     datatype: radio
     choices:
-      - Section 8 voucher: voucher
-      - Public housing: public
+      - ${ subsidized_housing_text["voucher"] }: voucher
+      - ${ subsidized_housing_text["public"] }: public
         help: |
           % if person_answering == "tenant":
           In public housing, your landlord is usually the city or county.
@@ -557,11 +557,30 @@ fields:
           In public housing, the tenant's landlord is usually the city or 
           county.
           % endif
-      - Tax credit: taxcredit
-      - ${ "Housing project run by a private landlord (and I pay 30% of my income for rent)" if person_answering == "tenant" else "Housing project run by a private landlord (and the tenant pays 30% of their income for rent)"}: project   
+      - ${ subsidized_housing_text["taxcredit"] }: taxcredit
+      - ${ subsidized_housing_text["project"] }: project   
     show if:
       variable: is_rent_subsidized
       is: True
+---
+variable name: subsidized_housing_text
+use objects: True
+data:
+  voucher:
+    question: Section 8 voucher
+    document: Section 8 voucher
+  public:
+    question: Public housing
+    document: Public housing
+  taxcredit:
+    question: Tax Credit
+    document: Tax Credit
+  project:
+    question: |
+      ${ "Housing project run by a private landlord (and I pay 30% of my income for rent)" if person_answering == "tenant" else "Housing project run by a private landlord (and the tenant pays 30% of their income for rent)"}  
+    document: |
+      ${ "Housing project run by a private landlord (and I pay 30% of my income for rent)" if person_answering == "tenant" else "Housing project run by a private landlord (and the tenant pays 30% of their income for rent)"}  
+  
 ---
 id: rent not owed by tenant
 question: |
