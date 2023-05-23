@@ -43,9 +43,9 @@ Scenario: MOHUDEvictionProject.yml tenant runs
     | other_parties[0].attorney.target_number | 0 | other_parties[0].attorney.there_is_another |
     | other_parties.there_are_any | True | other_parties.there_are_any |
     | other_parties.target_number | 1 | other_parties.there_is_another |
-    | other_parties[0].address.address | 123 Street | other_parties[0].address.address |
-    | other_parties[0].address.city | Kansas City | other_parties[0].address.address |
-    | other_parties[0].address.state | Missouri | other_parties[0].address.address |
+    | other_parties[0].address.address | 123 Street | |
+    | other_parties[0].address.city | Kansas City | |
+    | other_parties[0].address.state | Missouri | |
     | is_rent_subsidized | False | |
     | lease_attached | True | |
     | false_promises.there_are_any | False | false_promises.there_are_any |
