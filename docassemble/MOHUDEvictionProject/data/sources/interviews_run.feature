@@ -38,7 +38,7 @@ Scenario: MOHUDEvictionProject.yml tenant runs
     | case_type['AC Rent and Possession'] | True | |
     | other_parties[0].name.first | Land | other_parties[0].name.first |
     | other_parties[0].name.last | Lord | other_parties[0].name.first |
-    | other_parties[0].person_type | ALIndividual | other_parties[0].name.first |
+    | other_parties[0].person_type | individual | other_parties[0].name.first |
     | other_parties[0].attorney.there_are_any | False | other_parties[0].attorney.there_are_any |
     | other_parties[0].attorney.target_number | 1 | other_parties[0].attorney.there_is_another |
     | other_parties.there_are_any | False | other_parties.there_are_any |
