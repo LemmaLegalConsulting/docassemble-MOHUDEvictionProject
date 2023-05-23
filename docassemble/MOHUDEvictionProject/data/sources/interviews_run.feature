@@ -40,8 +40,8 @@ Scenario: MOHUDEvictionProject.yml tenant runs
     | other_parties[0].name.last | Lord | other_parties[0].name.first |
     | other_parties[0].person_type | ALIndividual | other_parties[0].name.first |
     | other_parties[0].attorney.there_are_any | False | other_parties[0].attorney.there_are_any |
-    | other_parties[0].attorney.target_number | 1 | other_parties[0].attorney.there_is_another |
-    | other_parties.there_are_any | False | other_parties.there_are_any |
+    | other_parties[0].attorney.target_number | 0 | other_parties[0].attorney.there_is_another |
+    | other_parties.there_are_any | True | other_parties.there_are_any |
     | other_parties.target_number | 1 | other_parties[0].there_is_another |
     | other_parties[0].address.address | 123 Street | other_parties[0].address.address |
     | other_parties[0].address.city | Kansas City | other_parties[0].address.address |
