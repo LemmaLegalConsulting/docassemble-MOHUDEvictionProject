@@ -13,7 +13,7 @@ Want to disable the tests? Want to learn more? See ALKiln's docs: https://suffol
 Scenario: MOHUDEvictionProject.yml tenant runs
   Given I start the interview at "MOHUDEvictionProject.yml"
   And the maximum seconds for each Step in this Scenario is 50
-  And I get to the question id "Docket_introduction" with this data:
+  And I get to the question id "late fees" with this data:
     | var | value | trigger |
     | acknowledged_information_use['I accept the terms of use.'] | True | |
     | acknowledged_information_use['minimum_number'] | None | |
@@ -54,6 +54,19 @@ Scenario: MOHUDEvictionProject.yml tenant runs
     | previous_landlord_sold_property | False | |
     | landlord_foreclosed | False | |
     | docket_available | False | |
+    | original_hearing_date | 01/01/2023 | |
+    | original_hearing_time | 01:00 PM | |
+    | users.there_are_any | True | users.there_are_any |
+    | users.target_number | 1 | users.there_is_another |
+    | petition_states_rent_amount | False | |
+    | other_charges_alleged | False | |
+    | landlord_agreement | False | |
+    | petition_states_rent_periods | False | |
+    | was_rent_paid | False | |
+    | will_offer_payment | False | |
+    | offer_attempts.there_are_any | False | false_promises.there_are_any |
+    | offer_attempts.target_number | 0 | offer_attempts.there_is_another |
+    | late_fees_assessed | False | |
     
 @MOHUDEvictionProject
 Scenario: MOHUDEvictionProject.yml attorney (entering appearance) runs
