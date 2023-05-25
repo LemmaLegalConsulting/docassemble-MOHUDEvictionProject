@@ -116,6 +116,13 @@ code: |
   eviction_defender_intro
   interview_order_eviction_defender
   signature_date
+  nav.set_section("section_serve_other_side")
+  if other_parties[0].service_method == "email":
+    other_parties[0].service_email
+  elif other_parties[0].service_method in ["mail", "hand"]:
+    if other_parties[0].attorney.there_are_any:
+      other_parties[0].attorney[0].address.address
+    other_parties[0].service_address
   # Store anonymous data for analytics / statistics
   nav.set_section("review_eviction_answer")
   review_eviction_answer
@@ -127,11 +134,6 @@ code: |
           "reached_interview_end": True,
       },
   )
-  nav.set_section("section_serve_other_side")
-  if other_parties[0].service_method == "email":
-    other_parties[0].email
-  elif other_parties[0].service_method in ["mail", "hand"]:
-    other_parties[0].service_address
   nav.set_section("section_eviction_answer_download")
   eviction_defender_download
 ---
@@ -169,7 +171,7 @@ code: |
   if not tenant_got_summons or not petition_available:
     if not trial_court.county == None and docket_available:
       docket_review
-  if case_type["AC Unlawful Detainer"] or case_type["AC Expedited Eviction"]:
+  if not case_type["AC Rent and Possession"] and not case_type["AC Landlord Action (Bulk)"]:
     if unlawful_detainer_kick_out_option:
       motion_to_continue_order
       interview_order_eviction_defender = True
@@ -313,7 +315,7 @@ code: |
   other_parties[i].complete = True
 ---
 code: |
-  other_parties[i].attorney[j].address.address
+  other_parties[i].attorney[j].name.first
   other_parties[i].attorney[j].complete = True
 ---
 code: |
@@ -636,7 +638,7 @@ continue button field: casenet_login_instructions
 id: docket review order
 code: |
   casenet_login_instructions
-  if case_type["AC Unlawful Detainer"] or case_type["AC Expedited Eviction"]:
+  if not case_type["AC Rent and Possession"] and not case_type["AC Landlord Action (Bulk)"]:
     if unlawful_detainer_kick_out_option:
       motion_to_continue_order
       docket_review = True
@@ -2511,7 +2513,7 @@ code: |
   eviction_motion_to_continue_attachment.enabled = not original_hearing_date_past
 ---
 code: |
-  if (case_type["AC Unlawful Detainer"] or case_type["AC Expedited Eviction"]) and unlawful_detainer_kick_out_option:
+  if (not case_type["AC Rent and Possession"] and not case_type["AC Landlord Action (Bulk)"]) and unlawful_detainer_kick_out_option:
     eviction_answer_attachment.enabled = False
   else:
     eviction_answer_attachment.enabled = True
@@ -2582,6 +2584,29 @@ fields:
   - Is ${ other_parties[i] } represented by an attorney?: other_parties[i].attorney.there_are_any
     datatype: yesnoradio
 ---
+if: docket_available
+id: Landlord representation from Docket
+question: |
+  Does ${ other_parties[i] } have an attorney?
+subquestion: |
+  If the landlord is represented by an attorney, then it will say "represented by" next to the 
+  landlord's name, and the attorney's name and address will be to the right.
+fields:
+  - Is ${ other_parties[i] } represented by an attorney?: other_parties[i].attorney.there_are_any
+    datatype: yesnoradio
+---
+if: tenant_got_summons and petition_available
+id: Landlord representation from Summons
+question: |
+  Does ${ other_parties[i] } have an attorney?
+subquestion: |
+  If the landlord is represented by an attorney, then it will say "represented by" next to the 
+  landlord's name, and the attorney's name and address will be to the right.
+fields:
+  - Is ${ other_parties[i] } represented by an attorney?: other_parties[i].attorney.there_are_any
+    datatype: yesnoradio
+---
+id: Opposing Attorney name
 sets:
   - other_parties[i].attorney[j].name.first
   - other_parties[i].attorney[j].name.last
@@ -2591,7 +2616,31 @@ question: What is the name of the ${ other_parties[i] }'s attorney?
 fields:
   - code: |
       other_parties[i].attorney[j].name_fields()
----  
+---
+id: Opposing Attorney name from Docket
+if: docket_available
+sets:
+  - other_parties[i].attorney[j].name.first
+  - other_parties[i].attorney[j].name.last
+  - other_parties[i].attorney[j].name.middle
+  - other_parties[i].attorney[j].name.suffix
+question: What is the name of the ${ other_parties[i] }'s attorney?
+fields:
+  - code: |
+      other_parties[i].attorney[j].name_fields()
+---
+id: Opposing Attorney name from Summons
+if: tenant_got_summons and petition_available 
+sets:
+  - other_parties[i].attorney[j].name.first
+  - other_parties[i].attorney[j].name.last
+  - other_parties[i].attorney[j].name.middle
+  - other_parties[i].attorney[j].name.suffix
+question: What is the name of the ${ other_parties[i] }'s attorney?
+fields:
+  - code: |
+      other_parties[i].attorney[j].name_fields()
+--- 
 id: Rent paid
 question: |
   % if person_answering == "tenant":
@@ -2739,3 +2788,65 @@ fields:
       variable: x.service_address
       is: None
 ---
+if: x.attorney.there_are_any
+generic object: ALIndividual
+id: any service address - attorney
+question: |
+  % if person_answering == "tenant":
+  At what address will you serve ${ x.attorney }?
+  % else:
+  At what address will the tenant serve ${ x.attorney }?
+  % endif
+subquestion: |
+  ${ x } is represented by attorney ${ x.attorney }.  When somebody is represented by an attorney, the attorney must be served.
+fields:
+  - ${ x }'s service address is: x.service_address
+    datatype: object_radio
+    default: 
+      - x.attorney[0].address if defined(x.attorney[0].address.attr_name("address")) else None
+    choices:
+      - x.attorney[0].address if defined(x.attorney[0].address.attr_name("address")) else None
+      - x.attorney[0].mailing_address if defined(x.attorney[0].mailing_address.attr_name("address")) else None
+    object labeler: |
+      lambda y: y.on_one_line()      
+    none of the above: |
+      Somewhere else   
+  - ${ x.service_address.address_label }: x.service_address.address
+    address autocomplete: True
+    show if:
+      variable: x.service_address
+      is: None
+  - ${ x.service_address.unit_label }: x.service_address.unit
+    required: False
+    show if:
+      variable: x.service_address
+      is: None
+  - ${ x.service_address.city_label }: x.service_address.city
+    show if:
+      variable: x.service_address
+      is: None
+  - ${ x.service_address.state_label }: x.service_address.state
+    code: |
+      states_list(country_code=AL_DEFAULT_COUNTRY)
+    default: ${ AL_DEFAULT_STATE }
+    show if:
+      variable: x.service_address
+      is: None
+  - ${ x.service_address.zip_label }: x.service_address.zip
+    required: False      
+    show if:
+      variable: x.service_address
+      is: None
+  - ${ x.service_address.country_label }: x.service_address.country
+    code: countries_list()
+    default: ${ AL_DEFAULT_COUNTRY }
+    show if:
+      variable: x.service_address
+      is: None
+---
+generic object: ALIndividual
+code: |
+  if x.attorney.there_are_any:
+    x.service_email = x.attorney[0].email
+  else:
+    x.service_email = x.email

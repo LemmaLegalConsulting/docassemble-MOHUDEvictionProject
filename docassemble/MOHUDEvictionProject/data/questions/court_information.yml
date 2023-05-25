@@ -83,6 +83,8 @@ fields:
       - AC Landlord Action (Bulk)
       - AC Expedited Eviction
       - Other
+  - Other: case_type_other
+    show if: case_type["Other"]
 ---
 variable name: county_dictionary
 data:  
