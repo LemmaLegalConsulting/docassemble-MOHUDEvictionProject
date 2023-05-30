@@ -53,7 +53,7 @@ subquestion: |
   
   at the top of the Summons.
   
-  [FILE MOSummonsCourtDate.png]
+  [FILE MOSummonsCourtDate.png, 100%]
       
   % elif docket_available:
   % if person_answering == "tenant":

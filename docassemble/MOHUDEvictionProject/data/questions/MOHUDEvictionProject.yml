@@ -2589,8 +2589,9 @@ id: Landlord representation from Docket
 question: |
   Does ${ other_parties[i] } have an attorney?
 subquestion: |
-  If the landlord is represented by an attorney, then it will say "represented by" next to the 
-  landlord's name, and the attorney's name and address will be to the right.
+  You can find the name and address of the attorney in the Parties and Attorneys tab in the online docket.
+  
+  [FILE Parties.png, 100%]
 fields:
   - Is ${ other_parties[i] } represented by an attorney?: other_parties[i].attorney.there_are_any
     datatype: yesnoradio
@@ -2600,8 +2601,9 @@ id: Landlord representation from Summons
 question: |
   Does ${ other_parties[i] } have an attorney?
 subquestion: |
-  If the landlord is represented by an attorney, then it will say "represented by" next to the 
-  landlord's name, and the attorney's name and address will be to the right.
+  If the landlord is represented by an attorney, then the attorney's name and address will be in the box next to the Landlord's name.
+  
+  [FILE MOSummonsPlaintiffAttorney.png, 100%]
 fields:
   - Is ${ other_parties[i] } represented by an attorney?: other_parties[i].attorney.there_are_any
     datatype: yesnoradio
@@ -2612,7 +2614,8 @@ sets:
   - other_parties[i].attorney[j].name.last
   - other_parties[i].attorney[j].name.middle
   - other_parties[i].attorney[j].name.suffix
-question: What is the name of the ${ other_parties[i] }'s attorney?
+question: |
+  What is the name of the ${ other_parties[i] }'s attorney?
 fields:
   - code: |
       other_parties[i].attorney[j].name_fields()
@@ -2624,7 +2627,12 @@ sets:
   - other_parties[i].attorney[j].name.last
   - other_parties[i].attorney[j].name.middle
   - other_parties[i].attorney[j].name.suffix
-question: What is the name of the ${ other_parties[i] }'s attorney?
+question: |
+  What is the name of the ${ other_parties[i] }'s attorney?
+subquestion: |
+  You can find the name and address of the attorney in the Parties and Attorneys tab in the online docket.
+  
+  [FILE Parties.png, 100%]
 fields:
   - code: |
       other_parties[i].attorney[j].name_fields()
@@ -2637,6 +2645,10 @@ sets:
   - other_parties[i].attorney[j].name.middle
   - other_parties[i].attorney[j].name.suffix
 question: What is the name of the ${ other_parties[i] }'s attorney?
+subquestion: |
+  If the landlord is represented by an attorney, then the attorney's name and address will be in the box next to the Landlord's name.
+  
+  [FILE MOSummonsPlaintiffAttorney.png, 100%]
 fields:
   - code: |
       other_parties[i].attorney[j].name_fields()
