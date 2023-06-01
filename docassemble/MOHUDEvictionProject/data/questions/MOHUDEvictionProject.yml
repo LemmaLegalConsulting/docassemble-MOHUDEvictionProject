@@ -102,8 +102,8 @@ sections:
   - section_eviction_answer_you: Information about you
   - section_eviction_answer_other: Information about the other party
   - section_eviction_answer_tenancy: Information about your rental agreement
-  - section_eviction_answer_case: Information about the eviction
   - section_eviction_answer_casenet: Using Case.net
+  - section_eviction_answer_case: Information about the eviction
   - section_eviction_answer_defenses: Your claims and defenses
   - review_eviction_answer: Review your answers
   - section_serve_other_side: Getting a copy to your landlord
@@ -169,6 +169,7 @@ code: |
   trial_court.county
   trial_court.circuit
   if not tenant_got_summons or not petition_available:
+    nav.set_section("section_eviction_answer_casenet")
     if not trial_court.county == None and docket_available:
       docket_review
   if not case_type["AC Rent and Possession"] and not case_type["AC Landlord Action (Bulk)"]:
@@ -638,13 +639,16 @@ continue button field: casenet_login_instructions
 id: docket review order
 code: |
   casenet_login_instructions
+  nav.set_section("section_eviction_answer_case")   
   if not case_type["AC Rent and Possession"] and not case_type["AC Landlord Action (Bulk)"]:
     if unlawful_detainer_kick_out_option:
       motion_to_continue_order
       docket_review = True
+  nav.set_section("section_eviction_answer_other") 
   for party in other_parties:
     party.address.address
     party.attorney.gather()
+  nav.set_section("section_eviction_answer_case")   
   users.gather()
   original_hearing_date
   set_parts(subtitle=str(users))
