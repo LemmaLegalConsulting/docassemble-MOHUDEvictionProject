@@ -11,15 +11,26 @@ code: |
       trial_court.county = users[0].normalized_address().county
       trial_court.circuit = county_dictionary[trial_court.county]['circuit']
     else:
-      trial_court.county = None
-      trial_court.circuit = None
-      trial_court.classification = None
+      trial_court.county = trial_court_county_selected
+      trial_court.circuit = county_dictionary[trial_court.county]['circuit']
   trial_court.division = "Housing Division"
   trial_court.address.county = trial_court.county
+---
+question: Pick the county
+subquestion: |
+  The county of the trial court couldn't be determined by your address.  Please pick the county (or the City of St. Louis) from the list.
+fields:
+  - Trial Court County: trial_court_county_selected
+    datatype: dropdown
+    code: |
+      county_list
 ---
 depends on: trial_court.county
 code: |
   trial_court.classification = county_dictionary[trial_court.county]['class']
+---
+code:
+  county_list = sorted(county_dictionary.keys())
 ---
 id: caption - docket number and file date
 question: |
@@ -64,7 +75,8 @@ fields:
     required: False
   - Nature of Suit or Case Type: case_type
     datatype: checkboxes
-    required: False
+    required: True
+    none of the above: False
     choices:
       - AC Rent and Possession
       - AC Unlawful Detainer
@@ -78,7 +90,7 @@ data:
     circuit: 2
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        ADR
     legal_aid_program_website: |
       http://www.lsem.org/
@@ -98,7 +110,7 @@ data:
     circuit: 5
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        ADW
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -125,7 +137,7 @@ data:
     circuit: 4
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        ATN
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -152,7 +164,7 @@ data:
     circuit: 12
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        AUD
     legal_aid_program_website: |
       http://www.mmls.org/
@@ -171,7 +183,7 @@ data:
     circuit: 39
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        BRY
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -190,7 +202,7 @@ data:
     circuit: 28
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        BAR
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -217,7 +229,7 @@ data:
     circuit: 27
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        BAT
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -244,7 +256,7 @@ data:
     circuit: 30
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        BEN
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -271,7 +283,7 @@ data:
     circuit: 32
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        BOL
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -290,7 +302,7 @@ data:
     circuit: 13
     class: |
       Class 1
-    casenet_code: |
+    casenet_code: |-
        BNE
     legal_aid_program_website: |
       http://www.mmls.org/
@@ -309,7 +321,7 @@ data:
     circuit: 5
     class: |
       Class 1
-    casenet_code: |
+    casenet_code: |-
        BUC
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -336,7 +348,7 @@ data:
     circuit: 36
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        BTR
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -355,7 +367,7 @@ data:
     circuit: 43
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        CDL
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -382,7 +394,7 @@ data:
     circuit: 13
     class: |
       Class 2
-    casenet_code: |
+    casenet_code: |-
        CWY
     legal_aid_program_website: |
       http://www.mmls.org/
@@ -401,7 +413,7 @@ data:
     circuit: 26
     class: |
       Class 1
-    casenet_code: |
+    casenet_code: |-
        CAM
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -428,7 +440,7 @@ data:
     circuit: 32
     class: |
       Class 1
-    casenet_code: |
+    casenet_code: |-
        CPG
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -447,7 +459,7 @@ data:
     circuit: 8
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        CRL
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -474,7 +486,7 @@ data:
     circuit: 37
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        CTR
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -493,7 +505,7 @@ data:
     circuit: 17
     class: |
       Class 1
-    casenet_code: |
+    casenet_code: |-
        CAS
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -520,7 +532,7 @@ data:
     circuit: 28
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        CDR
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -539,7 +551,7 @@ data:
     circuit: 9
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        CHN
     legal_aid_program_website: |
       http://www.mmls.org/
@@ -558,7 +570,7 @@ data:
     circuit: 38
     class: |
       Class 1
-    casenet_code: |
+    casenet_code: |-
        CTN
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -577,7 +589,7 @@ data:
     circuit: 22
     class: |
       Class 1
-    casenet_code: |
+    casenet_code: |-
        STL
     legal_aid_program_website: |
       http://www.lsem.org/
@@ -597,7 +609,7 @@ data:
     circuit: 1
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        CLK
     legal_aid_program_website: |
       http://www.lsem.org/
@@ -617,7 +629,7 @@ data:
     circuit: 7
     class: |
       Class 1
-    casenet_code: |
+    casenet_code: |-
        CLY
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -640,7 +652,7 @@ data:
     circuit: 43
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        CLN
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -667,7 +679,7 @@ data:
     circuit: 19
     class: |
       Class 1
-    casenet_code: |
+    casenet_code: |-
        COL
     legal_aid_program_website: |
       http://www.mmls.org/
@@ -686,7 +698,7 @@ data:
     circuit: 18
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        CPR
     legal_aid_program_website: |
       http://www.mmls.org/
@@ -705,7 +717,7 @@ data:
     circuit: 42
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        CFD
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -724,7 +736,7 @@ data:
     circuit: 28
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        DAD
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -743,7 +755,7 @@ data:
     circuit: 30
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        DAL
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -762,7 +774,7 @@ data:
     circuit: 43
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        DAV
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -789,7 +801,7 @@ data:
     circuit: 43
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        DEK
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -816,7 +828,7 @@ data:
     circuit: 42
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        DEN
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -835,7 +847,7 @@ data:
     circuit: 44
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        DGS
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -854,7 +866,7 @@ data:
     circuit: 35
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        DUN
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -873,7 +885,7 @@ data:
     circuit: 20
     class: |
       Class 1
-    casenet_code: |
+    casenet_code: |-
        FKN
     legal_aid_program_website: |
       http://www.lsem.org/
@@ -893,7 +905,7 @@ data:
     circuit: 20
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        GAS
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -912,7 +924,7 @@ data:
     circuit: 4
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        GEN
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -939,7 +951,7 @@ data:
     circuit: 31
     class: |
       Class 1
-    casenet_code: |
+    casenet_code: |-
        GRE
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -958,7 +970,7 @@ data:
     circuit: 3
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        GRU
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -985,7 +997,7 @@ data:
     circuit: 3
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        HAR
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -1012,7 +1024,7 @@ data:
     circuit: 27
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        HEN
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -1039,7 +1051,7 @@ data:
     circuit: 30
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        HIK
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -1058,7 +1070,7 @@ data:
     circuit: 4
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        HOL
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -1085,7 +1097,7 @@ data:
     circuit: 14
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        HWD
     legal_aid_program_website: |
       http://www.mmls.org/
@@ -1104,7 +1116,7 @@ data:
     circuit: 37
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        HWL
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -1123,7 +1135,7 @@ data:
     circuit: 42
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        IRN
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -1142,7 +1154,7 @@ data:
     circuit: 16
     class: |
       Class 1
-    casenet_code: |
+    casenet_code: |-
        JAK
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -1165,7 +1177,7 @@ data:
     circuit: 29
     class: |
       Class 1
-    casenet_code: |
+    casenet_code: |-
        JAS
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -1192,7 +1204,7 @@ data:
     circuit: 23
     class: |
       Class 1
-    casenet_code: |
+    casenet_code: |-
        JEF
     legal_aid_program_website: |
       http://www.lsem.org/
@@ -1212,7 +1224,7 @@ data:
     circuit: 17
     class: |
       Class 4
-    casenet_code: |
+    casenet_code: |-
        JON
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -1239,7 +1251,7 @@ data:
     circuit: 2
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        KNX
     legal_aid_program_website: |
       http://www.lsem.org/
@@ -1259,7 +1271,7 @@ data:
     circuit: 26
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        LAC
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -1278,7 +1290,7 @@ data:
     circuit: 15
     class: |
       Class 4
-    casenet_code: |
+    casenet_code: |-
        LAF
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -1305,7 +1317,7 @@ data:
     circuit: 39
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        LAW
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -1324,7 +1336,7 @@ data:
     circuit: 2
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        LEW
     legal_aid_program_website: |
       http://www.lsem.org/
@@ -1344,7 +1356,7 @@ data:
     circuit: 45
     class: |
       Class 2
-    casenet_code: |
+    casenet_code: |-
        LCN
     legal_aid_program_website: |
       http://www.lsem.org/
@@ -1364,7 +1376,7 @@ data:
     circuit: 9
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        LIN
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -1391,7 +1403,7 @@ data:
     circuit: 43
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        LIV
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -1418,7 +1430,7 @@ data:
     circuit: 41
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        MAC
     legal_aid_program_website: |
       http://www.lsem.org/
@@ -1438,7 +1450,7 @@ data:
     circuit: 24
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        MAD
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -1457,7 +1469,7 @@ data:
     circuit: 25
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        MRS
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -1476,7 +1488,7 @@ data:
     circuit: 10
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        MRN
     legal_aid_program_website: |
       http://www.lsem.org/
@@ -1496,7 +1508,7 @@ data:
     circuit: 40
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        MCD
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -1523,7 +1535,7 @@ data:
     circuit: 3
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        MER
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -1550,7 +1562,7 @@ data:
     circuit: 26
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        MIL
     legal_aid_program_website: |
       http://www.mmls.org/
@@ -1569,7 +1581,7 @@ data:
     circuit: 33
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        MIS
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -1588,7 +1600,7 @@ data:
     circuit: 26
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        MTU
     legal_aid_program_website: |
       http://www.mmls.org/
@@ -1607,7 +1619,7 @@ data:
     circuit: 10
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        MNR
     legal_aid_program_website: |
       http://www.lsem.org/
@@ -1627,7 +1639,7 @@ data:
     circuit: 12
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        MTY
     legal_aid_program_website: |
       http://www.lsem.org/
@@ -1647,7 +1659,7 @@ data:
     circuit: 26
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        MOR
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -1674,7 +1686,7 @@ data:
     circuit: 34
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        NMD
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -1693,7 +1705,7 @@ data:
     circuit: 40
     class: |
       Class 2
-    casenet_code: |
+    casenet_code: |-
        NWT
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -1720,7 +1732,7 @@ data:
     circuit: 4
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        NDY
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -1747,7 +1759,7 @@ data:
     circuit: 37
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        ORE
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -1766,7 +1778,7 @@ data:
     circuit: 20
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        OSG
     legal_aid_program_website: |
       http://www.mmls.org/
@@ -1785,7 +1797,7 @@ data:
     circuit: 44
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        OZK
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -1804,7 +1816,7 @@ data:
     circuit: 34
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        PEM
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -1823,7 +1835,7 @@ data:
     circuit: 32
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        PER
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -1842,7 +1854,7 @@ data:
     circuit: 18
     class: |
       Class 4
-    casenet_code: |
+    casenet_code: |-
        PET
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -1869,7 +1881,7 @@ data:
     circuit: 25
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        PHE
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -1888,7 +1900,7 @@ data:
     circuit: 45
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        PIK
     legal_aid_program_website: |
       http://www.lsem.org/
@@ -1908,7 +1920,7 @@ data:
     circuit: 6
     class: |
       Class 1
-    casenet_code: |
+    casenet_code: |-
        PLA
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -1931,7 +1943,7 @@ data:
     circuit: 30
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        POL
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -1950,7 +1962,7 @@ data:
     circuit: 25
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        PUL
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -1969,7 +1981,7 @@ data:
     circuit: 3
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        PUT
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -1996,7 +2008,7 @@ data:
     circuit: 10
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        RAL
     legal_aid_program_website: |
       http://www.lsem.org/
@@ -2016,7 +2028,7 @@ data:
     circuit: 14
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        RAN
     legal_aid_program_website: |
       http://www.mmls.org/
@@ -2035,7 +2047,7 @@ data:
     circuit: 8
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        RAY
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -2062,7 +2074,7 @@ data:
     circuit: 42
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        REY
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -2081,7 +2093,7 @@ data:
     circuit: 36
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        RIP
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -2100,7 +2112,7 @@ data:
     circuit: 24
     class: |
       Class 1
-    casenet_code: |
+    casenet_code: |-
        SAL
     legal_aid_program_website: |
       http://www.lsosm.org/https://www.lawmo.org/
@@ -2123,7 +2135,7 @@ data:
     circuit: 24
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        SYR
     legal_aid_program_website: |
       http://www.lsosm.org/https://www.lawmo.org/
@@ -2146,7 +2158,7 @@ data:
     circuit: 15
     class: |
       Class 4
-    casenet_code: |
+    casenet_code: |-
        SLD
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -2173,7 +2185,7 @@ data:
     circuit: 1
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        SCT
     legal_aid_program_website: |
       http://www.lsem.org/
@@ -2193,7 +2205,7 @@ data:
     circuit: 1
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        SHA
     legal_aid_program_website: |
       http://www.lsem.org/
@@ -2213,7 +2225,7 @@ data:
     circuit: 33
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        SBY
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -2232,7 +2244,7 @@ data:
     circuit: 37
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        SCH
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -2251,7 +2263,7 @@ data:
     circuit: 41
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        SCL
     legal_aid_program_website: |
       http://www.lsem.org/
@@ -2271,7 +2283,7 @@ data:
     circuit: 11
     class: |
       Class 1
-    casenet_code: |
+    casenet_code: |-
        SFR
     legal_aid_program_website: |
       http://www.lsem.org/
@@ -2291,7 +2303,7 @@ data:
     circuit: 27
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        SLC
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -2318,7 +2330,7 @@ data:
     circuit: 21
     class: |
       Class 1
-    casenet_code: |
+    casenet_code: |-
        SGE
     legal_aid_program_website: |
       http://www.lsem.org/
@@ -2338,7 +2350,7 @@ data:
     circuit: 35
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        SDD
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -2357,7 +2369,7 @@ data:
     circuit: 39
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        STN
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -2376,7 +2388,7 @@ data:
     circuit: 9
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        SUL
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -2395,7 +2407,7 @@ data:
     circuit: 46
     class: |
       Class 1
-    casenet_code: |
+    casenet_code: |-
        TAN
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -2414,7 +2426,7 @@ data:
     circuit: 25
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        TEX
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -2433,7 +2445,7 @@ data:
     circuit: 28
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        VER
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -2460,7 +2472,7 @@ data:
     circuit: 12
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        WRN
     legal_aid_program_website: |
       http://www.lsem.org/
@@ -2480,7 +2492,7 @@ data:
     circuit: 24
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        WAS
     legal_aid_program_website: |
       http://www.lsem.org/
@@ -2500,7 +2512,7 @@ data:
     circuit: 42
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        WAY
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -2519,7 +2531,7 @@ data:
     circuit: 30
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        WEB
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -2538,7 +2550,7 @@ data:
     circuit: 4
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        WOR
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -2561,7 +2573,7 @@ data:
     circuit: 44
     class: |
       Class 3
-    casenet_code: |
+    casenet_code: |-
        WRI
     legal_aid_program_website: |
       http://www.lsosm.org/
