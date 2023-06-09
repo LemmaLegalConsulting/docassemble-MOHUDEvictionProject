@@ -23,14 +23,23 @@ fields:
   - Trial Court County: trial_court_county_selected
     datatype: dropdown
     code: |
-      county_list
+      county_dict_list
 ---
 depends on: trial_court.county
 code: |
   trial_court.classification = county_dictionary[trial_court.county]['class']
 ---
-code:
-  county_list = sorted(county_dictionary.keys())
+code: |
+  county_dict_list = list()
+  county_list = list(county_dictionary.keys())
+  county_list.append("St. Louis City")
+  county_list.sort()
+  for county in county_list:
+    if county == "St. Louis City":
+      county_dict_list.append({"City of St. Louis":"St. Louis City"})
+    else:
+      county_dict_list.append({county:county})
+    
 ---
 id: caption - docket number and file date
 question: |
@@ -53,7 +62,7 @@ subquestion: |
   
   at the top of the Summons.
   
-  [FILE MOSummonsCourtDate.png]
+  [FILE MOSummonsCourtDate.png, 100%]
       
   % elif docket_available:
   % if person_answering == "tenant":
@@ -83,6 +92,8 @@ fields:
       - AC Landlord Action (Bulk)
       - AC Expedited Eviction
       - Other
+  - Other: case_type_other
+    show if: case_type["Other"]
 ---
 variable name: county_dictionary
 data:  

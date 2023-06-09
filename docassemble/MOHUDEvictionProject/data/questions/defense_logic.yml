@@ -152,7 +152,7 @@ content: |
   * Extreme psychological pressure.
 ---
 code: |
-  if len(false_promises) > 0 and not relied_on_false_promises:
+  if len(false_promises) > 0 and relied_on_false_promises:
     defense_fraud_lease = True
   else:
     defense_fraud_lease = False
