@@ -24,9 +24,13 @@ code: |
   if defense_breach_of_habitability:
     warning_ic.append("If you don't file an answer with the affirmative defense, they can't bring this up at all.")
     what_the_judge_can_do_at_the_hearing_ic.append("So long as possession is issue, the judge can make you deposit all the rent is due. Judges generally grant this, unless there is unusual circumstances like the tenant using the move.")
+    templist = list()
     for breach in warranty_breaches.true_values():
-      tempbreach = "Photographs or other evidence of the " + breach
-      evidence_ic.append(tempbreach)
+      if breach == "other":
+        templist.append(warranty_breach_other) 
+      else:
+        templist.append(conditions_text[breach]) 
+    evidence_ic.append("Photographs or other evidence of the " + comma_and_list(templist))
     evidence_ic.append("A copy of the notice that you sent to the landlord about the problem that needs repaired")
   if defense_foreclosure:
     more_information_ic.append("You can find more information about the Protecting Tenants at Foreclosure Act at this link.")
