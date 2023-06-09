@@ -205,6 +205,7 @@ Scenario: MOHUDEvictionProject.yml attorney (ghostwriting) runs
     | will_offer_payment | True |  |
     | x.email | test@example.com |  |
     | x.service_method | email |  |
+  Then I download "eviction_helper"
   
 @4
 Scenario: MOHUDEvictionProject.yml someone else runs
@@ -279,8 +280,81 @@ Scenario: MOHUDEvictionProject.yml someone else runs
     | x.service_method | email | |
     | x.email | test@example.com | |
   Then I download "eviction_helper"
-  
+
 @5
+Scenario: MOHUDEvictionProject.yml tenant runs and uses case.net
+  Given I start the interview at "MOHUDEvictionProject.yml"
+  And the maximum seconds for each Step in this Scenario is 30
+  And I get to the question id "download eviction_defender" with this data:
+    | var | value | trigger |
+    | acknowledged_information_use['I accept the terms of use.'] | True | |
+    | acknowledged_information_use['minimum_number'] | None | |
+    | eviction_defender_intro | True | |
+    | person_answering | tenant_helper | person_answering |
+    | users[0].name.first | Uli | users[0].name.first |
+    | users[0].name.last | User1 | users[0].name.first |
+    | tenant_got_summons | True | |
+    | method_of_summons_service['sheriff'] | True | |
+    | petition_available | True | |
+    | users[0].address.address | x | |
+    | users[0].address.city | y | |
+    | trial_court_county_selected | Adair County | |
+    | case_type['AC Rent and Possession'] | True | |
+    | other_parties[0].person_type | ALIndividual | |
+    | other_parties[0].name.first | a | |
+    | other_parties[0].name.last | b | |
+    | other_parties[i].attorney.there_are_any | True | |
+    | other_parties[0].attorney[0].name.first | Bob | |
+    | other_parties[0].attorney[0].name.last | Carpenter | |
+    | other_parties[0].attorney[0].address.address | address | |
+    | other_parties[0].attorney[0].address.city | city | |
+    | other_parties.there_is_another | False | |
+    | other_parties[0].address.address | address2 | |
+    | other_parties[0].address.city | city2 | |
+    | is_rent_subsidized | True | |
+    | subsidized_housing_type | project | |
+    | lease_attached | True | |
+    | false_promises.there_are_any | False | | 
+    | unfair_duress | True | |
+    | previous_landlord_sold_property | True | |
+    | notice_of_sale_provided_new_landlord | False | previous_landlord_sold_property |
+    | landlord_foreclosed | False | |
+    | docket_available | True | | 
+    | users.there_is_another | True | |
+    | users[i].name.first | NewUser | |
+    | users[i].name.last | LastName | |
+    | users.there_is_another | False | | 
+    | original_hearing_date | 01/01/2000 | |
+    | original_hearing_time | 1 | |
+    | users.there_is_another | False | |
+    | petition_states_rent_amount | True | |
+    | rent_amount_owed | 100 | petition_states_rent_amount |
+    | other_charges_alleged | False | |
+    | landlord_agreement | False | |
+    | petition_states_rent_periods | False | |
+    | was_rent_paid | True | |
+    | rent_amount_paid | all | was_rent_paid |
+    | will_offer_payment | True | |
+    | offer_attempts.there_are_any | True | |
+    | offer_attempts[i].attempt_date | 01/01/2000 | |
+    | offer_attempts[i].attempt_method | by letter | |
+    | offer_attempts[i].was_attempt_full | True | |
+    | offer_attempts[i].has_refused_payment | True | | 
+    | offer_attempts[i].has_attempt_evidence | False | |
+    | offer_attempts.there_is_another | False | |
+    | excessive_rent | False | |
+    | late_fees_assessed | True | |
+    | late_fees_penalty | False | late_fees_assessed |
+    | petition_states_demand_made | True | |
+    | cqe_breaches['harassment'] | True | |
+    | estoppel_breaches['not_up_to_code'] | True | |
+    | warranty_breaches['no_heat'] | True | |
+    | al_user_wants_reminders | False | |
+    | x.service_method | email | |
+    | x.email | test@example.com | |
+  Then I download "eviction_helper"
+  
+@6
 Scenario: MOHUDMotionToContinue.yml runs
   Given I start the interview at "MOHUDMotionToContinue.yml"
   And the maximum seconds for each Step in this Scenario is 30
