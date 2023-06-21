@@ -192,6 +192,161 @@ code: |
 code:
   county_list = sorted(county_dictionary.keys())
 ---
+###################### DOCKET REVIEW ######################
+id: Docket_introduction
+question: |
+  % if person_answering == "tenant":
+  Use Case.net to lookup your case
+  % else:
+  Use Case.net to lookup the tenant's case
+  % endif
+subquestion: |
+  % if person_answering == "tenant":
+  You can use [Case.net](https://www.courts.mo.gov/cnet)
+  to help answer some questions on this website.
+
+  Case.net is a free website run by the Missouri Court. You do not need an
+  account to access Case.net.
+
+  Using Case.net is optional, but it can help you answer the questions more
+  accurately.    
+
+  You will need both this website and the Case.net website open at the same time. You will
+  need to switch back and forth between the two websites.
+  % else:
+  The tenant may use [Case.net](https://www.courts.mo.gov/cnet)
+  to help answer some questions on this website.
+
+  Case.net is a free website run by the Missouri Court. No
+  account is needed to access Case.net.
+
+  Using Case.net is optional, but it can help the tenant answer the questions more
+  accurately.    
+
+  This website and the Case.net website will need to be open at the same time. Switch back and forth between the two websites.
+  % endif
+fields:
+  - label: |
+      % if person_answering == "tenant":
+      Do you want to use Case.net to help answer some questions?
+      % else:
+      Does the tenant want to use Case.net to help answer some questions?
+      % endif
+    field: docket_available
+    datatype: yesnoradio
+---
+if: trial_court.county == None
+code: |
+  docket_available = False
+---
+depends on:
+  - users[0].address.county
+  - users[0].name.first
+code: |
+  import urllib
+  url = 'https://www.courts.mo.gov/cnet/nameSearchResult.do?'
+  params = {
+    "courtType": "SW",
+    "newSearch": "Y",
+    "essn": "",
+    "courtCode": "SW",
+    "lastName": users[0].name.last,
+    "_inclAlias": "on",
+    "firstName": users[0].name.first,
+    "middleName": "",
+    "caseType": "All",
+    "yearFiled": "",
+  }
+  if users[0].normalized_address().city == "St. Louis":
+    params["countyCode"] = "STL"
+  else:
+    params["countyCode"] = county_dictionary[trial_court.county]['casenet_code']
+  formatted_casenet_url = f"{url}{urllib.parse.urlencode(params)}"
+---
+id: how to login to Case net
+question: |
+  Getting started with Case.net
+subquestion: |
+  To answer the questions on the next few screens, you need to:
+
+  1. Open the [Case.net](https://www.courts.mo.gov/cnet) website in a new tab.
+  1. Use the case lookup feature to find your eviction case.
+
+  You will need both this website and the Case.net website open at the same time. You will
+  need to switch back and forth between the two windows.
+
+  <h2 class="h4">Before you start, read these instructions</h2>
+  Use the button below to open Case.net website with your address and court
+  already filled in.
+
+  Look for your eviction case. Click the link with the case number for your case
+  to see the details about your case. If you do not see your case, try a different
+  search.
+
+  ${ action_button_html(formatted_casenet_url, label="Search Case.net in a new window", icon="up-right-from-square") }
+continue button field: casenet_login_instructions  
+---
+id: explain other case net uses
+question: |
+  Other information on Case.net
+subquestion: |
+  % if person_answering == "tenant":
+  Keep a link to [Case.net](https://www.courts.mo.gov/cnet) so you can check it regularly.
+
+  The court will mail you notices about important dates. But you may want to use Case.net
+  to make sure you do not miss anything. You can use it to find:
+
+  * Hearings that are scheduled
+  * If the judge made a decision (judgment) in your case
+  * If your landlord got a garnishment or execution to make you pay back rent
+  * If your landlord got permission to move you from your home
+
+  If you have an email address or cell phone, click the "Track this case" button to get
+  an email or text message when important things happen in your case. You can also
+  get a reminder both 10 days and 2 days before your court date.
+  % else:
+  Keep a link to [Case.net](https://www.courts.mo.gov/cnet) so the tenant can check it regularly.
+
+  The court will mail the tenant notices about important dates. But the tenant may want to use Case.net
+  to make sure they do not miss anything. The tenant can use it to find:
+
+  * Hearings that are scheduled
+  * If the judge made a decision (judgment) in their case
+  * If their landlord got a garnishment or execution to make them pay back rent
+  * If their landlord got permission to move them from their home
+
+  If the tenant has an email address or cell phone, click the "Track this case" button to get
+  an email or text message when important things happen in their case. They can also
+  get a reminder both 10 days and 2 days before their court date.
+  % endif
+continue button field: docket_review_conclusion
+---
+id: docket review order
+code: |
+  casenet_login_instructions
+  nav.set_section("section_eviction_answer_case")  
+  case_type_kickout
+  nav.set_section("section_eviction_answer_other") 
+  for party in other_parties:
+    party.address.address
+    party.attorney.gather()
+  nav.set_section("section_eviction_answer_case")   
+  users.gather()
+  original_hearing_date
+  set_parts(subtitle=str(users))
+  docket_review_conclusion
+  docket_review = True
+comment: |
+  filing_date
+  original_hearing_date
+  other_parties[0].address.address
+  trial_court.address.address
+  users.gather()
+  set_parts(subtitle=str(users))
+  docket_number
+  is_rent_sought
+  docket_review = True
+---
 variable name: county_dictionary
 data:  
   Adair:
