@@ -16,31 +16,6 @@ code: |
   trial_court.division = "Housing Division"
   trial_court.address.county = trial_court.county
 ---
-question: Pick the county
-subquestion: |
-  The county of the trial court couldn't be determined by your address.  Please pick the county (or the City of St. Louis) from the list.
-fields:
-  - Trial Court County: trial_court_county_selected
-    datatype: dropdown
-    code: |
-      county_dict_list
----
-depends on: trial_court.county
-code: |
-  trial_court.classification = county_dictionary[trial_court.county]['class']
----
-code: |
-  county_dict_list = list()
-  county_list = list(county_dictionary.keys())
-  county_list.append("St. Louis City")
-  county_list.sort()
-  for county in county_list:
-    if county == "St. Louis City":
-      county_dict_list.append({"City of St. Louis":"St. Louis City"})
-    else:
-      county_dict_list.append({county:county})
-    
----
 id: caption - docket number and file date
 question: |
   % if person_answering == "tenant":
@@ -62,7 +37,7 @@ subquestion: |
   
   at the top of the Summons.
   
-  [FILE MOSummonsCourtDate.png, 100%]
+  [FILE MOSummonsCourtDate.png]
       
   % elif docket_available:
   % if person_answering == "tenant":
@@ -82,26 +57,148 @@ fields:
       % endif
   - Case Number: docket_number
     required: False
-  - Nature of Suit or Case Type: case_type
+    help: |
+      The case number helps the court clerk put your answer in the right file.
+      Leave this blank if you cannot find it or do not know.
+---
+id: reason for eviction
+question: |
+  Why does your landlord say they are evicting you?
+subquestion: |
+  % if tenant_got_summons and petition_available:
+  Look at the Summons and Landlord Petition when you answer this question.
+  Write down the same reason that your landlord wrote on the Summons.
+  % else:
+  It helps to look at the Summons and Landlord Petition when you answer this question.
+  If you do not have it in front of you, do your best to answer from what you remember.
+  % endif
+
+  ${ collapse_template(what_if_i_disagree_template) }
+fields:
+  - label: |
+      Nature of Suit or Case Type
+    field: case_type
+    show if:
+      code: |
+        tenant_got_summons and petition_available
     datatype: checkboxes
-    required: True
-    none of the above: False
+    required: False
     choices:
-      - AC Rent and Possession
-      - AC Unlawful Detainer
-      - AC Landlord Action (Bulk)
-      - AC Expedited Eviction
-      - Other
-  - Other: case_type_other
-    show if: case_type["Other"]
+      - AC Rent and Possession: AC Rent and Possession
+      - AC Unlawful Detainer: AC Unlawful Detainer
+      - AC Landlord Action (Bulk): AC Landlord Action (Bulk)
+      - AC Expedited Eviction: AC Expedited Eviction
+      - Other: Other
+  - label: |
+      % if person_answering == "tenant":
+      Why does your landlord says they are evicting you?:
+      % else:
+      Why does the landlord says they are evicting the tenant?
+      % endif
+    field: eviction_reason
+    datatype: checkboxes
+    required: False
+    choices:
+      - label: |
+          % if person_answering == "tenant":
+          My landlord says I owe rent
+          % else:
+          Landlord says the tenant owes rent
+          % endif
+        value: nonpayment of rent
+      - label: |
+          % if person_answering == "tenant":
+          My landlord says I broke my lease for a reason other than owing rent.
+          For example: paying rent late too many times or making too much noise.
+          % else:
+          Tenant broke another term of the lease
+          % endif
+        value: lease violation
+      - label: |
+          % if person_answering == "tenant":
+          My landlord says I damaged the property.
+          % else:
+          The landlord says the tenant damaged the property.
+          % endif
+        value: damaging property
+      - label: |
+          % if person_answering == "tenant":
+          My landlord says I did something illegal and they are asking
+          to move me out right away. For example: selling drugs
+          or other criminal activity.
+          % else:
+          The landlord says the tenant did something illegal and they are asking
+          to move the tenant out right away. For example: selling drugs
+          or other criminal activity.
+          % endif
+        value: criminal activity
+      - label: |
+          % if person_answering == "tenant":
+          My landlord says the lease ended or that they do not want to
+          renew my month to month rental agreement.
+          % else:
+          The landlord says the lease ended or that they do not want to
+          renew my month to month rental agreement.
+          % endif
+        value: holdover tenancy
+      - Something else: other
+    none of the above: | 
+      I do not know
+  - Is the landlord asking for an expedited (emergency) eviction?: landlord_seeking_emergency_eviction
+    datatype: yesnomaybe
+    help: |
+      An expedited eviction is faster than a normal
+      eviction. The landlord has to follow special
+      rules to ask for an expedited eviction.
+    show if: 
+      variable: eviction_reason["criminal activity"]
+      is: True
+      code: |
+        not (tenant_got_summons and petition_available)
+---
+code: |
+  if not (tenant_got_summons and petition_available):
+    case_type = DADict("case type", elements={
+      "AC Unlawful Detainer": len(eviction_reasons.true_values()) >1, 
+      "AC Rent and Possession": eviction_reason["nonpayment of rent"],
+      "AC Landlord Action (Bulk)": False,
+      "AC Expedited Eviction": eviction_reasons["criminal activity"] and landlord_seeking_emergency_eviction,
+      "Other": False
+    })
+---
+template: what_if_i_disagree_template
+subject: |
+  What if the reason the landlord says is not true?
+content: |
+  On this screen select the same reason that your landlord
+  says they are evicting you.
+
+  You will be able to explain why the reason is not true
+  later.
+---
+question: Pick the county
+subquestion: |
+  The county of the trial court couldn't be determined by your address.  Please pick the county (or the City of St. Louis) from the list.
+fields:
+  - Trial Court County: trial_court_county_selected
+    datatype: dropdown
+    code: |
+      county_list
+---
+depends on: trial_court.county
+code: |
+  trial_court.classification = county_dictionary[trial_court.county]['class']
+---
+code:
+  county_list = sorted(county_dictionary.keys())
 ---
 variable name: county_dictionary
 data:  
-  Adair County:
+  Adair:
     circuit: 2
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        ADR
     legal_aid_program_website: |
       http://www.lsem.org/
@@ -117,11 +214,16 @@ data:
       701 Market St., Suite 1100
       St. Louis, MO  63101
       (314) 534-4200
-  Andrew County:
+    court_address_and_operating_hours: |
+      Adair County Courthouse
+      106 W. Washington Street
+      Kirksville, MO 63501
+      8 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Andrew:
     circuit: 5
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        ADW
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -144,11 +246,16 @@ data:
       920 Southwest Blvd.
       Kansas City, MO 64108
       (816) 474-9868
-  Atchison County:
+    court_address_and_operating_hours: |
+      Andrew County Courthouse
+      411 Court St.
+      P.O. Box 318
+      Savannah, MO 64485
+  Atchison:
     circuit: 4
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        ATN
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -171,11 +278,17 @@ data:
       920 Southwest Blvd.
       Kansas City, MO 64108
       (816) 474-9868
-  Audrain County:
+    court_address_and_operating_hours: |
+      Atchison County Courthouse
+      400 S. Washington Street
+      P.O. Box 280
+      Rock Port, MO 64482
+      8:30 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) (Closed noon - 1 p.m. for lunch)
+  Audrain:
     circuit: 12
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        AUD
     legal_aid_program_website: |
       http://www.mmls.org/
@@ -190,11 +303,16 @@ data:
       117 North Garth 
       Columbia, MO  65203
       (573) 442-0116
-  Barry County:
+    court_address_and_operating_hours: |
+      Audrain County Courthouse
+      101 N. Jefferson
+      Mexico, MO 65265
+      8 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Barry:
     circuit: 39
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        BRY
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -209,11 +327,15 @@ data:
       809 N. Campbell Avenue
       Springfield, MO  65802
       (417) 881-0533
-  Barton County:
+    court_address_and_operating_hours: |
+      Barry County Judicial Center
+      102 West Street
+      Cassville, MO 65625
+  Barton:
     circuit: 28
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        BAR
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -236,11 +358,16 @@ data:
       920 Southwest Blvd.
       Kansas City, MO 64108
       (816) 474-9868
-  Bates County:
+    court_address_and_operating_hours: |
+      Barton County Courthouse
+      1004 Gulf
+      Lamar, MO 64759
+      8 a.m. to&nbsp;4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) (Closed noon to 1 p.m. for lunch)
+  Bates:
     circuit: 27
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        BAT
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -263,11 +390,16 @@ data:
       920 Southwest Blvd.
       Kansas City, MO 64108
       (816) 474-9868
-  Benton County:
+    court_address_and_operating_hours: |
+      Bates County Courthouse
+      One North Delaware
+      Butler, MO 64730
+      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Benton:
     circuit: 30
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        BEN
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -290,11 +422,16 @@ data:
       920 Southwest Blvd.
       Kansas City, MO 64108
       (816) 474-9868
-  Bollinger County:
+    court_address_and_operating_hours: |
+      Benton County Courthouse
+      316 Van Buren Road
+      P.O. Box 37
+      Warsaw, MO 65355
+  Bollinger:
     circuit: 32
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        BOL
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -309,11 +446,16 @@ data:
       2201 E. Malone Avenue 
       Sikeston, MO  63801
       (573) 683-3783
-  Boone County:
+    court_address_and_operating_hours: |
+      Bollinger County Courthouse
+      204 High Street
+      Marble Hill, MO 63764
+      8 a.m. to 4 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Boone:
     circuit: 13
     class: |
       Class 1
-    casenet_code: |-
+    casenet_code: |
        BNE
     legal_aid_program_website: |
       http://www.mmls.org/
@@ -328,11 +470,16 @@ data:
       117 North Garth 
       Columbia, MO  65203
       (573) 442-0116
-  Buchanan County:
+    court_address_and_operating_hours: |
+      Boone County Courthouse
+      705 E. Walnut Street
+      Columbia, MO 65201
+      8 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Buchanan:
     circuit: 5
     class: |
       Class 1
-    casenet_code: |-
+    casenet_code: |
        BUC
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -355,11 +502,16 @@ data:
       920 Southwest Blvd.
       Kansas City, MO 64108
       (816) 474-9868
-  Butler County:
+    court_address_and_operating_hours: |
+      Buchanan County Courthouse
+      411 Jules Street
+      St. Joseph, MO 64501
+      8 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Butler:
     circuit: 36
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        BTR
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -374,11 +526,16 @@ data:
       2201 E. Malone Avenue 
       Sikeston, MO  63801
       (573) 683-3783
-  Caldwell County:
+    court_address_and_operating_hours: |
+      Butler County Courthouse
+      100 North Main
+      Poplar Bluff, MO 63901
+      8 a.m. to 4 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Caldwell:
     circuit: 43
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        CDL
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -401,11 +558,17 @@ data:
       920 Southwest Blvd.
       Kansas City, MO 64108
       (816) 474-9868
-  Callaway County:
+    court_address_and_operating_hours: |
+      Caldwell County Courthouse
+      49 East Main Street
+      P.O. Box 68
+      Kingston, MO 64650
+      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Callaway:
     circuit: 13
     class: |
       Class 2
-    casenet_code: |-
+    casenet_code: |
        CWY
     legal_aid_program_website: |
       http://www.mmls.org/
@@ -420,11 +583,16 @@ data:
       117 North Garth 
       Columbia, MO  65203
       (573) 442-0116
-  Camden County:
+    court_address_and_operating_hours: |
+      Callaway County Courthouse
+      10 E. 5th Street
+      Fulton, MO 65251
+      8 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Camden:
     circuit: 26
     class: |
       Class 1
-    casenet_code: |-
+    casenet_code: |
        CAM
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -447,11 +615,16 @@ data:
       920 Southwest Blvd.
       Kansas City, MO 64108
       (816) 474-9868
-  Cape Girardeau County:
+    court_address_and_operating_hours: |
+      Camden County Courthouse
+      1 Court Circle, Suite 8
+      Camdenton, MO 65020
+      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Cape Girardeau:
     circuit: 32
     class: |
       Class 1
-    casenet_code: |-
+    casenet_code: |
        CPG
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -466,11 +639,16 @@ data:
       2201 E. Malone Avenue 
       Sikeston, MO  63801
       (573) 683-3783
-  Carroll County:
+    court_address_and_operating_hours: |
+      Cape Girardeau County Courthouse
+      203 North High Street
+      Jackson, MO 63755
+      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Carroll:
     circuit: 8
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        CRL
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -493,11 +671,15 @@ data:
       920 Southwest Blvd.
       Kansas City, MO 64108
       (816) 474-9868
-  Carter County:
+    court_address_and_operating_hours: |
+      Carroll County Courthouse
+      8 South Main
+      Carrollton, MO 64633
+  Carter:
     circuit: 37
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        CTR
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -512,11 +694,16 @@ data:
       809 N. Campbell Avenue
       Springfield, MO  65802
       (417) 881-0533
-  Cass County:
+    court_address_and_operating_hours: |
+      Carter County Courthouse
+      1122 Main Street
+      Van Buren, MO 63965
+      8 a.m. to&nbsp;4 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Cass:
     circuit: 17
     class: |
       Class 1
-    casenet_code: |-
+    casenet_code: |
        CAS
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -539,11 +726,16 @@ data:
       920 Southwest Blvd.
       Kansas City, MO 64108
       (816) 474-9868
-  Cedar County:
+    court_address_and_operating_hours: |
+      Cass County Justice Center
+      2501 West Mechanic
+      Harrisonville, MO 64701
+      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Cedar:
     circuit: 28
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        CDR
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -558,11 +750,17 @@ data:
       809 N. Campbell Avenue
       Springfield, MO  65802
       (417) 881-0533
-  Chariton County:
+    court_address_and_operating_hours: |
+      Cedar County Courthouse
+      113 South Street
+      P.O. Box 665
+      Stockton, MO 65785
+      7:30&nbsp;a.m. to&nbsp;4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Chariton:
     circuit: 9
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        CHN
     legal_aid_program_website: |
       http://www.mmls.org/
@@ -577,11 +775,16 @@ data:
       117 North Garth 
       Columbia, MO  65203
       (573) 442-0116
-  Christian County:
+    court_address_and_operating_hours: |
+      Chariton County Courthouse
+      306 South Cherry Street
+      Keytesville, MO 65261
+      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) (Closed noon - 1 p.m. for lunch)
+  Christian:
     circuit: 38
     class: |
       Class 1
-    casenet_code: |-
+    casenet_code: |
        CTN
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -596,11 +799,20 @@ data:
       809 N. Campbell Avenue
       Springfield, MO  65802
       (417) 881-0533
+    court_address_and_operating_hours: |
+      Christian County Circuit Court Building
+      Circuit Court Building
+      102 W. Walnut Street
+      Ozark, MO 65721
+      Christian County Justice Center
+      110 W. Elm Street
+      Ozark, MO 65721
+      8 a.m. to&nbsp;4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
   City of St. Louis:
     circuit: 22
     class: |
       Class 1
-    casenet_code: |-
+    casenet_code: |
        STL
     legal_aid_program_website: |
       http://www.lsem.org/
@@ -616,11 +828,16 @@ data:
       701 Market St., Suite 1100
       St. Louis, MO  63101
       (314) 534-4200
-  Clark County:
+    court_address_and_operating_hours: |
+      St. Louis Circuit Court
+      10 N. Tucker Boulevard
+      St. Louis, MO 63101
+      <strong>Civil Court Building</strong><br />For jurors and attorneys: 7:30 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) For the general public: 8:30 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Clark:
     circuit: 1
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        CLK
     legal_aid_program_website: |
       http://www.lsem.org/
@@ -636,11 +853,16 @@ data:
       701 Market St., Suite 1100
       St. Louis, MO  63101
       (314) 534-4200
-  Clay County:
+    court_address_and_operating_hours: |
+      Clark County Courthouse
+      111 East Court Street, Suite 210
+      Kahoka, MO 63445
+      8 a.m. to&nbsp;4 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Clay:
     circuit: 7
     class: |
       Class 1
-    casenet_code: |-
+    casenet_code: |
        CLY
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -659,11 +881,16 @@ data:
       920 Southwest Blvd.
       Kansas City, MO 64108
       (816) 474-9868
-  Clinton County:
+    court_address_and_operating_hours: |
+      Clay County Courthouse
+      11 South Water
+      Liberty, MO 64068
+      8 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Clinton:
     circuit: 43
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        CLN
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -686,11 +913,16 @@ data:
       920 Southwest Blvd.
       Kansas City, MO 64108
       (816) 474-9868
-  Cole County:
+    court_address_and_operating_hours: |
+      Clinton County Courthouse
+      207 North Main Street
+      Plattsburg, MO 64477
+      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Cole:
     circuit: 19
     class: |
       Class 1
-    casenet_code: |-
+    casenet_code: |
        COL
     legal_aid_program_website: |
       http://www.mmls.org/
@@ -705,11 +937,15 @@ data:
       117 North Garth 
       Columbia, MO  65203
       (573) 442-0116
-  Cooper County:
+    court_address_and_operating_hours: |
+      Cole County Courthouse
+      301 East High Street
+      Jefferson City, MO 65101
+  Cooper:
     circuit: 18
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        CPR
     legal_aid_program_website: |
       http://www.mmls.org/
@@ -724,11 +960,16 @@ data:
       117 North Garth 
       Columbia, MO  65203
       (573) 442-0116
-  Crawford County:
+    court_address_and_operating_hours: |
+      Cooper County Courthouse
+      200 Main Street
+      Boonville, MO 65233
+      8 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Crawford:
     circuit: 42
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        CFD
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -743,11 +984,17 @@ data:
       1000 N. Pine, Suite B
       Rolla, MO  65401
       (573) 341-3655
-  Dade County:
+    court_address_and_operating_hours: |
+      Crawford County Courthouse
+      302 W. Main Street
+      PO Box 1550
+      Steelville, MO 65565
+      8 a.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="../../page.jsp?id=7100">state holidays<br /></a>(Closed noon - 1 p.m. for lunch)
+  Dade:
     circuit: 28
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        DAD
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -762,11 +1009,16 @@ data:
       809 N. Campbell Avenue
       Springfield, MO  65802
       (417) 881-0533
-  Dallas County:
+    court_address_and_operating_hours: |
+      Dade County Courthouse
+      300 W. Water
+      Greenfield, MO 65661
+      7 a.m. to&nbsp;4 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Dallas:
     circuit: 30
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        DAL
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -781,11 +1033,17 @@ data:
       809 N. Campbell Avenue
       Springfield, MO  65802
       (417) 881-0533
-  Daviess County:
+    court_address_and_operating_hours: |
+      Dallas County Courthouse
+      108 S. Maple Street
+      P.O. Box 1910
+      Buffalo, MO 65622
+      7:30&nbsp;a.m. to 4 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Daviess:
     circuit: 43
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        DAV
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -808,11 +1066,17 @@ data:
       920 Southwest Blvd.
       Kansas City, MO 64108
       (816) 474-9868
-  DeKalb County:
+    court_address_and_operating_hours: |
+      Daviess County Courthouse
+      102 North Main
+      PO Box 337
+      Gallatin, MO 64640
+      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) For after hours assistance from the court, please contact the sheriff's department.
+  DeKalb:
     circuit: 43
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        DEK
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -835,11 +1099,16 @@ data:
       920 Southwest Blvd.
       Kansas City, MO 64108
       (816) 474-9868
-  Dent County:
+    court_address_and_operating_hours: |
+      DeKalb County Courthouse
+      109 W. Main
+      P.O. Box 248
+      Maysville, MO 64469
+  Dent:
     circuit: 42
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        DEN
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -854,11 +1123,16 @@ data:
       1000 N. Pine, Suite B
       Rolla, MO  65401
       (573) 341-3655
-  Douglas County:
+    court_address_and_operating_hours: |
+      Dent County Judicial Building
+      112 E. 5th Street
+      Salem, MO 65560
+      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Douglas:
     circuit: 44
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        DGS
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -873,11 +1147,16 @@ data:
       809 N. Campbell Avenue
       Springfield, MO  65802
       (417) 881-0533
-  Dunklin County:
+    court_address_and_operating_hours: |
+      Douglas County Courthouse
+      203 E. Lincoln Avenue
+      Ava, MO 65608
+      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Dunklin:
     circuit: 35
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        DUN
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -892,11 +1171,17 @@ data:
       2201 E. Malone Avenue 
       Sikeston, MO  63801
       (573) 683-3783
-  Franklin County:
+    court_address_and_operating_hours: |
+      Dunklin County Justice Center
+      1175 Floyd Street
+      P.O. Box 567
+      Kennett, MO 63857
+      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Franklin:
     circuit: 20
     class: |
       Class 1
-    casenet_code: |-
+    casenet_code: |
        FKN
     legal_aid_program_website: |
       http://www.lsem.org/
@@ -912,11 +1197,16 @@ data:
       701 Market St., Suite 1100
       St. Louis, MO  63101
       (314) 534-4200
-  Gasconade County:
+    court_address_and_operating_hours: |
+      Franklin County Judicial Center
+      401 East Main Street
+      Union, MO 63084
+      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Gasconade:
     circuit: 20
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        GAS
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -931,11 +1221,16 @@ data:
       1000 N. Pine, Suite B
       Rolla, MO  65401
       (573) 341-3655
-  Gentry County:
+    court_address_and_operating_hours: |
+      Gasconade County Courthouse
+      119 E. 1st Street, Room 6
+      Hermann, MO 65041
+      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Gentry:
     circuit: 4
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        GEN
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -958,11 +1253,16 @@ data:
       920 Southwest Blvd.
       Kansas City, MO 64108
       (816) 474-9868
-  Greene County:
+    court_address_and_operating_hours: |
+      Gentry County Courthouse
+      200 West Clay Street, Suite 101
+      Albany, MO 64402
+      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Greene:
     circuit: 31
     class: |
       Class 1
-    casenet_code: |-
+    casenet_code: |
        GRE
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -977,11 +1277,15 @@ data:
       809 N. Campbell Avenue
       Springfield, MO  65802
       (417) 881-0533
-  Grundy County:
+    court_address_and_operating_hours: |
+      Greene County Judicial Courts Facility
+      1010 North Boonville
+      Springfield, MO 65802
+  Grundy:
     circuit: 3
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        GRU
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -1004,11 +1308,16 @@ data:
       920 Southwest Blvd.
       Kansas City, MO 64108
       (816) 474-9868
-  Harrison County:
+    court_address_and_operating_hours: |
+      Grundy County Courthouse
+      700 Main Street
+      Trenton, MO 64683
+      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Harrison:
     circuit: 3
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        HAR
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -1031,11 +1340,17 @@ data:
       920 Southwest Blvd.
       Kansas City, MO 64108
       (816) 474-9868
-  Henry County:
+    court_address_and_operating_hours: |
+      Harrison County Courthouse
+      1500 Central Street
+      P.O. Box 189
+      Bethany, MO 64424
+      8 a.m. to&nbsp;4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) (Closed noon -&nbsp;12:30 p.m. for lunch)
+  Henry:
     circuit: 27
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        HEN
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -1058,11 +1373,16 @@ data:
       920 Southwest Blvd.
       Kansas City, MO 64108
       (816) 474-9868
-  Hickory County:
+    court_address_and_operating_hours: |
+      Henry County Courthouse
+      100 W. Franklin
+      Clinton, MO 64735
+      8 a.m. to&nbsp;4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Hickory:
     circuit: 30
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        HIK
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -1077,11 +1397,15 @@ data:
       305 North Holden  
       Warrensburg, MO 64093
       (660) 747-7101
-  Holt County:
+    court_address_and_operating_hours: |
+      Hickory County Courthouse
+      100 W. Polk Street
+      Hermitage, MO 65668
+  Holt:
     circuit: 4
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        HOL
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -1104,11 +1428,16 @@ data:
       920 Southwest Blvd.
       Kansas City, MO 64108
       (816) 474-9868
-  Howard County:
+    court_address_and_operating_hours: |
+      Holt County Courthouse
+      102 West Nodaway
+      P.O. Box 318
+      Oregon, MO 64473
+  Howard:
     circuit: 14
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        HWD
     legal_aid_program_website: |
       http://www.mmls.org/
@@ -1123,11 +1452,16 @@ data:
       117 North Garth 
       Columbia, MO  65203
       (573) 442-0116
-  Howell County:
+    court_address_and_operating_hours: |
+      Howard County Courthouse
+      #1 Courthouse Square
+      Fayette, MO 65248
+      8:30 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Howell:
     circuit: 37
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        HWL
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -1142,11 +1476,16 @@ data:
       809 N. Campbell Avenue
       Springfield, MO  65802
       (417) 881-0533
-  Iron County:
+    court_address_and_operating_hours: |
+      Howell County Courthouse
+      106 Courthouse
+      West Plains, MO 65775
+      8 a.m. to&nbsp;4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Iron:
     circuit: 42
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        IRN
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -1161,11 +1500,17 @@ data:
       1000 N. Pine, Suite B
       Rolla, MO  65401
       (573) 341-3655
-  Jackson County:
+    court_address_and_operating_hours: |
+      Iron County Courthouse
+      250 S. Main Street
+      Suite 220
+      Ironton, MO 63650
+      8:30 a.m. to&nbsp;4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Jackson:
     circuit: 16
     class: |
       Class 1
-    casenet_code: |-
+    casenet_code: |
        JAK
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -1184,11 +1529,19 @@ data:
       920 Southwest Blvd.
       Kansas City, MO 64108
       (816) 474-9868
-  Jasper County:
+    court_address_and_operating_hours: |
+      Kansas City Courthouse
+      415 E. 12th Street
+      Kansas City, MO 64106
+      8 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      Independence Courthouse
+      308 West Kansas
+      Independence, MO 64050
+  Jasper:
     circuit: 29
     class: |
       Class 1
-    casenet_code: |-
+    casenet_code: |
        JAS
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -1211,11 +1564,20 @@ data:
       920 Southwest Blvd.
       Kansas City, MO 64108
       (816) 474-9868
-  Jefferson County:
+    court_address_and_operating_hours: |
+      Jasper County Courthouse (Carthage)
+      302 S. Main
+      Carthage, MO 64836
+      8 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      Jasper County Courthouse (Joplin)
+      633 South Pearl Avenue
+      Joplin, MO 64804
+      8 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Jefferson:
     circuit: 23
     class: |
       Class 1
-    casenet_code: |-
+    casenet_code: |
        JEF
     legal_aid_program_website: |
       http://www.lsem.org/
@@ -1231,11 +1593,17 @@ data:
       701 Market St., Suite 1100
       St. Louis, MO  63101
       (314) 534-4200
-  Johnson County:
+    court_address_and_operating_hours: |
+      Jefferson County Courthouse
+      300 Main Street
+      P.O. Box 100
+      Hillsboro, MO 63050
+      8 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Johnson:
     circuit: 17
     class: |
       Class 4
-    casenet_code: |-
+    casenet_code: |
        JON
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -1258,11 +1626,16 @@ data:
       920 Southwest Blvd.
       Kansas City, MO 64108
       (816) 474-9868
-  Knox County:
+    court_address_and_operating_hours: |
+      Johnson County Justice Center
+      101 West Market
+      Warrensburg, MO 64093
+      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) (Closed&nbsp;noon - 1 p.m. for lunch)
+  Knox:
     circuit: 2
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        KNX
     legal_aid_program_website: |
       http://www.lsem.org/
@@ -1278,11 +1651,16 @@ data:
       701 Market St., Suite 1100
       St. Louis, MO  63101
       (314) 534-4200
-  Laclede County:
+    court_address_and_operating_hours: |
+      Knox County Courthouse
+      107 North 4th Street, Suite I
+      Edina, MO 63537
+      8:30 a.m. to noon and 1 -&nbsp;4 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Laclede:
     circuit: 26
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        LAC
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -1297,11 +1675,17 @@ data:
       809 N. Campbell Avenue
       Springfield, MO  65802
       (417) 881-0533
-  Lafayette County:
+    court_address_and_operating_hours: |
+      Laclede County Courthouse
+      Government Center
+      200 N. Adams
+      Lebanon, MO 65536
+      8 a.m. to 4 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Lafayette:
     circuit: 15
     class: |
       Class 4
-    casenet_code: |-
+    casenet_code: |
        LAF
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -1324,11 +1708,20 @@ data:
       920 Southwest Blvd.
       Kansas City, MO 64108
       (816) 474-9868
-  Lawrence County:
+    court_address_and_operating_hours: |
+      Lafayette County Courthouse
+      1001 Main St.
+      Lexington, MO 64067
+      Lafayette Hall
+      116 S. 10th Street
+      P.O. Box 10
+      Lexington, MO 64067
+      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Lawrence:
     circuit: 39
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        LAW
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -1343,11 +1736,16 @@ data:
       809 N. Campbell Avenue
       Springfield, MO  65802
       (417) 881-0533
-  Lewis County:
+    court_address_and_operating_hours: |
+      Lawrence County Justice Center
+      240 North Main, Suite 110
+      Mount Vernon, MO 65712
+      7:30 a.m. to&nbsp;4 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Lewis:
     circuit: 2
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        LEW
     legal_aid_program_website: |
       http://www.lsem.org/
@@ -1363,11 +1761,17 @@ data:
       701 Market St., Suite 1100
       St. Louis, MO  63101
       (314) 534-4200
-  Lincoln County:
+    court_address_and_operating_hours: |
+      Lewis County Courthouse
+      100 East Lafayette
+      P.O. Box 8
+      Monticello, MO 63457
+      7:30 a.m. to&nbsp;4 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) (Closed 12:30 to 1 p.m. for lunch)
+  Lincoln:
     circuit: 45
     class: |
       Class 2
-    casenet_code: |-
+    casenet_code: |
        LCN
     legal_aid_program_website: |
       http://www.lsem.org/
@@ -1383,11 +1787,16 @@ data:
       701 Market St., Suite 1100
       St. Louis, MO  63101
       (314) 534-4200
-  Linn County:
+    court_address_and_operating_hours: |
+      Lincoln County Justice Center
+      45 Business Park Drive
+      Troy, MO 63379
+      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Linn:
     circuit: 9
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        LIN
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -1410,11 +1819,16 @@ data:
       920 Southwest Blvd.
       Kansas City, MO 64108
       (816) 474-9868
-  Livingston County:
+    court_address_and_operating_hours: |
+      Linn County Courthouse
+      108 North High
+      P.O. Box 84
+      Linneus, MO 64653
+  Livingston:
     circuit: 43
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        LIV
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -1437,11 +1851,16 @@ data:
       920 Southwest Blvd.
       Kansas City, MO 64108
       (816) 474-9868
-  Macon County:
+    court_address_and_operating_hours: |
+      Livingston County Courthouse
+      700 Webster
+      Chillicothe, MO 64601
+      8:30 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Macon:
     circuit: 41
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        MAC
     legal_aid_program_website: |
       http://www.lsem.org/
@@ -1457,11 +1876,16 @@ data:
       701 Market St., Suite 1100
       St. Louis, MO  63101
       (314) 534-4200
-  Madison County:
+    court_address_and_operating_hours: |
+      Macon County Courthouse
+      101 E. Washington Street
+      Macon, MO 63552
+      8 a.m. (phones answered)/8:30 a.m. (office open to public)&nbsp;to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Madison:
     circuit: 24
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        MAD
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -1476,11 +1900,16 @@ data:
       1000 N. Pine, Suite B
       Rolla, MO  65401
       (573) 341-3655
-  Maries County:
+    court_address_and_operating_hours: |
+      Madison County Courthouse
+      3 Court Square, Suite 1
+      P.O. Box 470
+      Fredericktown, MO 63645
+  Maries:
     circuit: 25
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        MRS
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -1495,11 +1924,16 @@ data:
       1000 N. Pine, Suite B
       Rolla, MO  65401
       (573) 341-3655
-  Marion County:
+    court_address_and_operating_hours: |
+      Maries County Courthouse
+      211 Fourth Street
+      Vienna, MO 65582
+      8 a.m. to 4 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Marion:
     circuit: 10
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        MRN
     legal_aid_program_website: |
       http://www.lsem.org/
@@ -1515,11 +1949,20 @@ data:
       701 Market St., Suite 1100
       St. Louis, MO  63101
       (314) 534-4200
-  McDonald County:
+    court_address_and_operating_hours: |
+      Marion County Courthouse (District 1)
+      100 S. Main
+      Palmyra, MO 63461
+      8 a.m. to noon and 1 - 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      Marion County Courthouse (District 2)
+      906 Broadway
+      Hannibal, MO 63401
+      8 a.m. to noon and 1 - 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  McDonald:
     circuit: 40
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        MCD
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -1542,11 +1985,17 @@ data:
       920 Southwest Blvd.
       Kansas City, MO 64108
       (816) 474-9868
-  Mercer County:
+    court_address_and_operating_hours: |
+      McDonald County Courthouse
+      Highway W. & Main Street
+      P.O. Box 157
+      Pineville, MO 64856
+      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Mercer:
     circuit: 3
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        MER
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -1569,11 +2018,16 @@ data:
       920 Southwest Blvd.
       Kansas City, MO 64108
       (816) 474-9868
-  Miller County:
+    court_address_and_operating_hours: |
+      Mercer County Courthouse
+      802 East Main Street
+      Princeton, MO 64673
+      8:30 a.m. to&nbsp;4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) (Closed noon - 1 p.m. for lunch)
+  Miller:
     circuit: 26
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        MIL
     legal_aid_program_website: |
       http://www.mmls.org/
@@ -1588,11 +2042,17 @@ data:
       117 North Garth 
       Columbia, MO  65203
       (573) 442-0116
-  Mississippi County:
+    court_address_and_operating_hours: |
+      Miller County Courthouse
+      2001 Highway 52
+      P.O. Box 11
+      Tuscumbia, MO 65082
+      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Mississippi:
     circuit: 33
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        MIS
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -1607,11 +2067,17 @@ data:
       2201 E. Malone Avenue 
       Sikeston, MO  63801
       (573) 683-3783
-  Moniteau County:
+    court_address_and_operating_hours: |
+      Mississippi County Courthouse
+      200 North Main Street
+      P.O. Box 369
+      Charleston, MO 63834
+      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Moniteau:
     circuit: 26
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        MTU
     legal_aid_program_website: |
       http://www.mmls.org/
@@ -1626,11 +2092,16 @@ data:
       117 North Garth 
       Columbia, MO  65203
       (573) 442-0116
-  Monroe County:
+    court_address_and_operating_hours: |
+      Moniteau County Courthouse
+      200 E. Main
+      California, MO 65018
+      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) <br />(Closed noon - 12:30 p.m. for lunch)
+  Monroe:
     circuit: 10
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        MNR
     legal_aid_program_website: |
       http://www.lsem.org/
@@ -1646,11 +2117,16 @@ data:
       701 Market St., Suite 1100
       St. Louis, MO  63101
       (314) 534-4200
-  Montgomery County:
+    court_address_and_operating_hours: |
+      Monroe County Courthouse
+      300 North Main Street
+      Paris, MO 65275
+      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Montgomery:
     circuit: 12
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        MTY
     legal_aid_program_website: |
       http://www.lsem.org/
@@ -1666,11 +2142,16 @@ data:
       701 Market St., Suite 1100
       St. Louis, MO  63101
       (314) 534-4200
-  Morgan County:
+    court_address_and_operating_hours: |
+      Montgomery County Courthouse
+      Temporary location: 723 N. Sturgeon
+      Montgomery City, MO 63361
+      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Morgan:
     circuit: 26
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        MOR
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -1693,12 +2174,18 @@ data:
       920 Southwest Blvd.
       Kansas City, MO 64108
       (816) 474-9868
-  New Madrid County:
+    court_address_and_operating_hours: |
+      Morgan County Justice Center
+      211 East Newton Street
+      Suite 4
+      Versailles, MO 65084
+      8 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  New Madrid:
     circuit: 34
     class: |
       Class 3
-    casenet_code: |-
-       NMD
+    casenet_code: |
+      NMD
     legal_aid_program_website: |
       http://www.lsosm.org/
     legal_aid_program: |
@@ -1712,11 +2199,15 @@ data:
       2201 E. Malone Avenue 
       Sikeston, MO  63801
       (573) 683-3783
-  Newton County:
+    court_address_and_operating_hours: |
+      New Madrid County Courthouse
+      450 Main Street
+      New Madrid, MO 63869
+  Newton:
     circuit: 40
     class: |
       Class 2
-    casenet_code: |-
+    casenet_code: |
        NWT
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -1739,11 +2230,16 @@ data:
       920 Southwest Blvd.
       Kansas City, MO 64108
       (816) 474-9868
-  Nodaway County:
+    court_address_and_operating_hours: |
+      Newton County Judicial Center
+      123 East Main St.
+      P.O. Box 170
+      Neosho, MO 64850
+  Nodaway:
     circuit: 4
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        NDY
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -1766,11 +2262,16 @@ data:
       920 Southwest Blvd.
       Kansas City, MO 64108
       (816) 474-9868
-  Oregon County:
+    court_address_and_operating_hours: |
+      Nodaway County Courthouse
+      305 N. Main
+      Maryville, MO 64468
+      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Oregon:
     circuit: 37
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        ORE
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -1785,11 +2286,17 @@ data:
       809 N. Campbell Avenue
       Springfield, MO  65802
       (417) 881-0533
-  Osage County:
+    court_address_and_operating_hours: |
+      Oregon County Courthouse
+      Courthouse Square
+      P.O. Box 406
+      Alton, MO 65606
+      The Oregon County courthouse is open from&nbsp;8 a.m. to 4 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) . Therefore, the Oregon County Circuit Court is open from 8 a.m. to 4 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) .
+  Osage:
     circuit: 20
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        OSG
     legal_aid_program_website: |
       http://www.mmls.org/
@@ -1804,11 +2311,17 @@ data:
       117 North Garth 
       Columbia, MO  65203
       (573) 442-0116
-  Ozark County:
+    court_address_and_operating_hours: |
+      Osage County Courthouse
+      106 E. Main Street
+      P.O. Box 825
+      Linn, MO 65051
+      8 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Ozark:
     circuit: 44
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        OZK
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -1823,11 +2336,16 @@ data:
       809 N. Campbell Avenue
       Springfield, MO  65802
       (417) 881-0533
-  Pemiscot County:
+    court_address_and_operating_hours: |
+      Ozark County Courthouse
+      2 Court Square
+      Gainesville, MO 65655
+      8 a.m. - noon and 12:30&nbsp;- 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Pemiscot:
     circuit: 34
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        PEM
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -1842,11 +2360,17 @@ data:
       2201 E. Malone Avenue 
       Sikeston, MO  63801
       (573) 683-3783
-  Perry County:
+    court_address_and_operating_hours: |
+      Pemiscot County Courthouse (Division I and III)
+      610 Ward Avenue
+      P.O. Box 34
+      Caruthersville, MO 63830
+      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Perry:
     circuit: 32
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        PER
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -1861,11 +2385,16 @@ data:
       2201 E. Malone Avenue 
       Sikeston, MO  63801
       (573) 683-3783
-  Pettis County:
+    court_address_and_operating_hours: |
+      Perry County Courthouse
+      15 West Ste. Marie Street
+      Perryville, MO 63775
+      8 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Pettis:
     circuit: 18
     class: |
       Class 4
-    casenet_code: |-
+    casenet_code: |
        PET
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -1888,11 +2417,16 @@ data:
       920 Southwest Blvd.
       Kansas City, MO 64108
       (816) 474-9868
-  Phelps County:
+    court_address_and_operating_hours: |
+      Pettis County Courthouse
+      415 South Ohio
+      Sedalia, MO 65301
+      8 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Phelps:
     circuit: 25
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        PHE
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -1907,11 +2441,16 @@ data:
       1000 N. Pine, Suite B
       Rolla, MO  65401
       (573) 341-3655
-  Pike County:
+    court_address_and_operating_hours: |
+      Phelps County Courthouse
+      200 N. Main Street
+      Rolla, MO 65401
+      8 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Pike:
     circuit: 45
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        PIK
     legal_aid_program_website: |
       http://www.lsem.org/
@@ -1927,11 +2466,16 @@ data:
       701 Market St., Suite 1100
       St. Louis, MO  63101
       (314) 534-4200
-  Platte County:
+    court_address_and_operating_hours: |
+      Pike County Courthouse
+      115 W. Main
+      Bowling Green, MO 63334
+      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Platte:
     circuit: 6
     class: |
       Class 1
-    casenet_code: |-
+    casenet_code: |
        PLA
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -1950,11 +2494,16 @@ data:
       920 Southwest Blvd.
       Kansas City, MO 64108
       (816) 474-9868
-  Polk County:
+    court_address_and_operating_hours: |
+      Platte County Courthouse
+      415 Third Street
+      Platte City, MO 64079
+      8 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Polk:
     circuit: 30
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        POL
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -1969,11 +2518,16 @@ data:
       809 N. Campbell Avenue
       Springfield, MO  65802
       (417) 881-0533
-  Pulaski County:
+    court_address_and_operating_hours: |
+      Polk County Courthouse
+      102 E. Broadway Street, Room 14
+      Bolivar, MO 65613
+      8 a.m. to 4:45 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Pulaski:
     circuit: 25
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        PUL
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -1988,11 +2542,16 @@ data:
       1000 N. Pine, Suite B
       Rolla, MO  65401
       (573) 341-3655
-  Putnam County:
+    court_address_and_operating_hours: |
+      Pulaski County Courthouse
+      301 Historic Route 66 E, Suite 318
+      Waynesville, MO 65583
+      7:30&nbsp;a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Putnam:
     circuit: 3
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        PUT
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -2015,11 +2574,16 @@ data:
       920 Southwest Blvd.
       Kansas City, MO 64108
       (816) 474-9868
-  Ralls County:
+    court_address_and_operating_hours: |
+      Putnam County Courthouse
+      1601 West Main Street
+      Unionville, MO 63565
+      8:30 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) (Closed noon - 1 p.m. for lunch)
+  Ralls:
     circuit: 10
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        RAL
     legal_aid_program_website: |
       http://www.lsem.org/
@@ -2035,11 +2599,17 @@ data:
       701 Market St., Suite 1100
       St. Louis, MO  63101
       (314) 534-4200
-  Randolph County:
+    court_address_and_operating_hours: |
+      Ralls County Courthouse
+      311 South Main Street
+      P.O. Box 466
+      New London, MO 63459
+      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) (Closed noon - 1 p.m. for lunch)
+  Randolph:
     circuit: 14
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        RAN
     legal_aid_program_website: |
       http://www.mmls.org/
@@ -2054,11 +2624,16 @@ data:
       117 North Garth 
       Columbia, MO  65203
       (573) 442-0116
-  Ray County:
+    court_address_and_operating_hours: |
+      Randolph County Justice Center
+      372 Highway JJ, Suite 1A
+      Huntsville, MO 65259
+      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Ray:
     circuit: 8
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        RAY
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -2081,11 +2656,16 @@ data:
       920 Southwest Blvd.
       Kansas City, MO 64108
       (816) 474-9868
-  Reynolds County:
+    court_address_and_operating_hours: |
+      Ray County Courthouse
+      100 West Main Street, 2nd Floor
+      Richmond, MO 64085
+      8 a.m. to&nbsp;4 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Reynolds:
     circuit: 42
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        REY
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -2100,11 +2680,15 @@ data:
       1000 N. Pine, Suite B
       Rolla, MO  65401
       (573) 341-3655
-  Ripley County:
+    court_address_and_operating_hours: |
+      Reynolds County Courthouse
+      2319 Greene Street
+      Centerville, MO 63633
+  Ripley:
     circuit: 36
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        RIP
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -2119,11 +2703,16 @@ data:
       2201 E. Malone Avenue 
       Sikeston, MO  63801
       (573) 683-3783
-  Saint Francois County:
+    court_address_and_operating_hours: |
+      Ripley County Courthouse
+      100 Courthouse Square, Suite #4
+      Doniphan, MO 63935
+      7 a.m. to 4 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Saint Francois:
     circuit: 24
     class: |
       Class 1
-    casenet_code: |-
+    casenet_code: |
        SAL
     legal_aid_program_website: |
       http://www.lsosm.org/https://www.lawmo.org/
@@ -2142,11 +2731,16 @@ data:
       920 Southwest Blvd.
       Kansas City, MO 64108
       (816) 474-9868
-  Sainte Genevieve County:
+    court_address_and_operating_hours: |
+      St. Francois County Courthouse
+      1 North Washington Street
+      Farmington, MO 63640
+      8 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) Passport hours are 8 a.m. to 4 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Sainte Genevieve:
     circuit: 24
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        SYR
     legal_aid_program_website: |
       http://www.lsosm.org/https://www.lawmo.org/
@@ -2165,11 +2759,16 @@ data:
       920 Southwest Blvd.
       Kansas City, MO 64108
       (816) 474-9868
-  Saline County:
+    court_address_and_operating_hours: |
+      Ste. Genevieve County Courthouse
+      55 South 3rd Street
+      Ste. Genevieve, MO 63670
+      8 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Saline:
     circuit: 15
     class: |
       Class 4
-    casenet_code: |-
+    casenet_code: |
        SLD
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -2192,11 +2791,17 @@ data:
       920 Southwest Blvd.
       Kansas City, MO 64108
       (816) 474-9868
-  Schuyler County:
+    court_address_and_operating_hours: |
+      Saline County Courthouse
+      19 E. Arrow Street
+      P.O. Box 670
+      Marshall, MO 65340
+      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Schuyler:
     circuit: 1
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        SCT
     legal_aid_program_website: |
       http://www.lsem.org/
@@ -2212,11 +2817,16 @@ data:
       701 Market St., Suite 1100
       St. Louis, MO  63101
       (314) 534-4200
-  Scotland County:
+    court_address_and_operating_hours: |
+      Schuyler County Courthouse
+      110 W. Washington
+      Lancaster, MO 63548
+      8 a.m. to 4 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Scotland:
     circuit: 1
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        SHA
     legal_aid_program_website: |
       http://www.lsem.org/
@@ -2232,11 +2842,16 @@ data:
       701 Market St., Suite 1100
       St. Louis, MO  63101
       (314) 534-4200
-  Scott County:
+    court_address_and_operating_hours: |
+      Scotland County Courthouse
+      117 South Market Street
+      Memphis, MO 63555
+      8 a.m. to 4 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Scott:
     circuit: 33
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        SBY
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -2251,11 +2866,17 @@ data:
       2201 E. Malone Avenue 
       Sikeston, MO  63801
       (573) 683-3783
-  Shannon County:
+    court_address_and_operating_hours: |
+      Scott County Courthouse
+      131 S. Winchester Street
+      P.O. Box 587
+      Benton, MO 63736
+      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) Special closings will be posted on <a href="http://www.scottcountymo.com/circuit.php">Scott County's website</a>
+  Shannon:
     circuit: 37
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        SCH
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -2270,11 +2891,17 @@ data:
       809 N. Campbell Avenue
       Springfield, MO  65802
       (417) 881-0533
-  Shelby County:
+    court_address_and_operating_hours: |
+      Shannon County Circuit Court
+      18529 Main Street
+      P.O. Box 148
+      Eminence, MO 65466
+      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) (Closed noon to 12:30 p.m. for lunch)
+  Shelby:
     circuit: 41
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        SCL
     legal_aid_program_website: |
       http://www.lsem.org/
@@ -2290,11 +2917,17 @@ data:
       701 Market St., Suite 1100
       St. Louis, MO  63101
       (314) 534-4200
-  St. Charles County:
+    court_address_and_operating_hours: |
+      Shelby County Courthouse
+      100 E. Main Street
+      P.O. Box 176
+      Shelbyville, MO 63469
+      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  St. Charles:
     circuit: 11
     class: |
       Class 1
-    casenet_code: |-
+    casenet_code: |
        SFR
     legal_aid_program_website: |
       http://www.lsem.org/
@@ -2310,11 +2943,16 @@ data:
       701 Market St., Suite 1100
       St. Louis, MO  63101
       (314) 534-4200
-  St. Clair County:
+    court_address_and_operating_hours: |
+      St. Charles County Courthouse
+      300 N. 2nd Street
+      St. Charles, MO 63301
+      8 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  St. Clair:
     circuit: 27
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        SLC
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -2337,11 +2975,16 @@ data:
       920 Southwest Blvd.
       Kansas City, MO 64108
       (816) 474-9868
-  St. Louis County:
+    court_address_and_operating_hours: |
+      St. Clair County Courthouse
+      655 Second Street
+      Osceola, MO 64776
+      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  St. Louis:
     circuit: 21
     class: |
       Class 1
-    casenet_code: |-
+    casenet_code: |
        SGE
     legal_aid_program_website: |
       http://www.lsem.org/
@@ -2357,11 +3000,15 @@ data:
       701 Market St., Suite 1100
       St. Louis, MO  63101
       (314) 534-4200
-  Stoddard County:
+    court_address_and_operating_hours: |
+      St. Louis County Court Building
+      105 South Central Avenue
+      Clayton, MO 63105
+  Stoddard:
     circuit: 35
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        SDD
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -2376,11 +3023,16 @@ data:
       2201 E. Malone Avenue 
       Sikeston, MO  63801
       (573) 683-3783
-  Stone County:
+    court_address_and_operating_hours: |
+      Stoddard County Justice Center
+      403 South Prairie
+      Bloomfield, MO 63825
+      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Stone:
     circuit: 39
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        STN
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -2395,11 +3047,17 @@ data:
       809 N. Campbell Avenue
       Springfield, MO  65802
       (417) 881-0533
-  Sullivan County:
+    court_address_and_operating_hours: |
+      Stone County Courthouse
+      110-F S. Maple Street
+      P.O. Box 18
+      Galena, MO 65656
+      7:30 a.m. to 4 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) (Closed&nbsp;noon to 12:30 p.m. for lunch)
+  Sullivan:
     circuit: 9
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        SUL
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -2414,11 +3072,15 @@ data:
       706 Felix Street
       St. Joseph, MO 64501
       (816) 364-2325
-  Taney County:
+    court_address_and_operating_hours: |
+      Sullivan County Courthouse
+      109 N. Main St.
+      Milan, MO 63556
+  Taney:
     circuit: 46
     class: |
       Class 1
-    casenet_code: |-
+    casenet_code: |
        TAN
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -2433,11 +3095,17 @@ data:
       809 N. Campbell Avenue
       Springfield, MO  65802
       (417) 881-0533
-  Texas County:
+    court_address_and_operating_hours: |
+      Taney County Courthouse
+      266 Main Street
+      P.O. Box 129
+      Forsyth, MO 65653
+      8 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Texas:
     circuit: 25
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        TEX
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -2452,11 +3120,16 @@ data:
       1000 N. Pine, Suite B
       Rolla, MO  65401
       (573) 341-3655
-  Vernon County:
+    court_address_and_operating_hours: |
+      Texas County Justice Center
+      519 N. Grand
+      Houston, MO 65483
+      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Vernon:
     circuit: 28
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        VER
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -2479,11 +3152,16 @@ data:
       920 Southwest Blvd.
       Kansas City, MO 64108
       (816) 474-9868
-  Warren County:
+    court_address_and_operating_hours: |
+      Vernon County Courthouse
+      100 West Cherry Street
+      Nevada, MO 64772
+      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) (Closed noon - 12:30 p.m. for lunch)
+  Warren:
     circuit: 12
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        WRN
     legal_aid_program_website: |
       http://www.lsem.org/
@@ -2499,11 +3177,16 @@ data:
       701 Market St., Suite 1100
       St. Louis, MO  63101
       (314) 534-4200
-  Washington County:
+    court_address_and_operating_hours: |
+      Warren County Courthouse
+      104 West Main Street
+      Warrenton, MO 63383
+      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Washington:
     circuit: 24
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        WAS
     legal_aid_program_website: |
       http://www.lsem.org/
@@ -2519,11 +3202,15 @@ data:
       701 Market St., Suite 1100
       St. Louis, MO  63101
       (314) 534-4200
-  Wayne County:
+    court_address_and_operating_hours: |
+      Washington County Courthouse
+      102 North Missouri Street
+      Potosi, MO 63664
+  Wayne:
     circuit: 42
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        WAY
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -2538,11 +3225,16 @@ data:
       1000 N. Pine, Suite B
       Rolla, MO  65401
       (573) 341-3655
-  Webster County:
+    court_address_and_operating_hours: |
+      Wayne County Courthouse
+      109 Walnut Street
+      P.O Box 78
+      Greenville, MO 63944
+  Webster:
     circuit: 30
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        WEB
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -2557,11 +3249,16 @@ data:
       809 N. Campbell Avenue
       Springfield, MO  65802
       (417) 881-0533
-  Worth County:
+    court_address_and_operating_hours: |
+      Webster County Courthouse
+      101 S. Crittenden Street, Room 22
+      Marshfield, MO 65706
+      8 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Worth:
     circuit: 4
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        WOR
     legal_aid_program_website: |
       https://www.lawmo.org/
@@ -2580,11 +3277,17 @@ data:
       920 Southwest Blvd.
       Kansas City, MO 64108
       (816) 474-9868
-  Wright County:
+    court_address_and_operating_hours: |
+      Worth County Courthouse
+      11 West 4th Street
+      P.O. Box 350
+      Grant City, MO 64456
+      8 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+  Wright:
     circuit: 44
     class: |
       Class 3
-    casenet_code: |-
+    casenet_code: |
        WRI
     legal_aid_program_website: |
       http://www.lsosm.org/
@@ -2599,4 +3302,8 @@ data:
       809 N. Campbell Avenue
       Springfield, MO  65802
       (417) 881-0533
----
+    court_address_and_operating_hours: |
+      Wright County Courthouse
+      125 Court Square
+      Hartville, MO 65667
+

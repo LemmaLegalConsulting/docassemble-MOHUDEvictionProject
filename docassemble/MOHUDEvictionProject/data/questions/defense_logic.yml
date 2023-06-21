@@ -1,5 +1,4 @@
- 
----
+id:  defense logic order
 comment: |
   This can't be the best way to do this. Can a DADict act like a checkboxes dictionary?
 code: |
@@ -21,6 +20,7 @@ code: |
   defense_excessive_rent_for_subsidized_housing
   defense_logic = True
 ---
+id: rent pleadings requirement logic
 depends on:
   - tenant_got_summons
   - petition_available
@@ -41,6 +41,7 @@ code: |
   else:
       defense_rent_pleading_requirement = None
 ---
+id: lease not attached logic
 depends on:
   - tenant_got_summons
   - petition_available
@@ -54,11 +55,13 @@ code: |
   else:
       defense_lease_not_attached = None
 ---
+id: lease attached fact
 question: Is the lease attached to the petition?
 fields:
   - Is the lease attached to the complaint?: lease_attached
     datatype: yesnoradio
 ---
+id: tender refused logic
 depends on: offer_attempts
 code: |
   defense_tender_refused = False
@@ -69,6 +72,7 @@ code: |
 comment: |
   add date requirement
 ---
+id: rent payment defense logic
 code: |
   if was_rent_paid:
     defense_rent_payment = True
@@ -76,6 +80,7 @@ code: |
     defense_rent_payment = False
 depends on: was_rent_paid
 ---
+id: settlement defense logic
 code: |
   if landlord_agreement and tenant_compliance_with_agreement:
     defense_settlement = True
@@ -113,6 +118,7 @@ fields:
     datatype: yesnoradio
     show if: landlord_agreement
 ---
+id: unfair duress defense logic
 code: |
   defense_lease_signed_under_duress = unfair_duress
 depends on:
@@ -151,6 +157,7 @@ content: |
   * An **implied** threat to hurt you or someone else, or
   * Extreme psychological pressure.
 ---
+id: false promises defense logic
 code: |
   if len(false_promises) > 0 and relied_on_false_promises:
     defense_fraud_lease = True
@@ -332,6 +339,7 @@ fields:
       % endif
       % endif
 ---
+id:: late fees defense logic
 code: |
   if late_fees_assessed and late_fees_penalty:
     defense_liquidated_damages_late_fees = True
@@ -376,6 +384,7 @@ fields:
       The fee may be too high.
     show if: late_fees_assessed
 ---
+id: cqe breach logic
 comment: |
   Are we going to separate levels of cqe breach? E.g. (1) mere breach, (2) constructive eviction, (3) significant enough to physically deprive the tenant of possession.
 code: |
@@ -385,6 +394,7 @@ code: |
     defense_breach_of_cqe = False
 depends on: cqe_breaches
 ---
+id: estoppel defense logic
 code: |
   if estoppel_breaches.any_true() or defense_breach_of_cqe:
     defense_estoppel_illegality = True
@@ -394,14 +404,34 @@ depends on:
   - estoppel_breaches
   - defense_breach_of_cqe
 ---
+id: warranty breach logic
 code: |
-  if warranty_breaches.any_true():
+  if warranty_breaches.any_true() and notice_of_breach_to_landlord == True:
     defense_breach_of_habitability = True
   else:
     defense_breach_of_habitability = False
 depends on:
   - warranty_breaches
+  - notice_of_breach_to_landlord
 ---
+id: notice of problems fact
+question: |
+  % if person_answering == "tenant":
+  Did you tell the landlord about these problems?
+  % else: 
+  Did the tenant tell the landlord about these problems?
+  % endif
+fields:
+  - label: |
+      % if person_answering == "tenant":
+      Did you let the landlord know about these problems, either by writing to the landlord or talking to the landlord?
+      % else: 
+      Did the tenant let the landlord know about these problems, either by writing to the landlord or talking to the landlord?
+      % endif
+    field: notice_of_breach_to_landlord
+    datatype: yesnomaybe
+---
+id: foreclosure defense logic
 code: |
   if landlord_foreclosed and not notice_of_foreclosure:
     defense_foreclosure = True
@@ -433,6 +463,7 @@ fields:
     datatype: yesnomaybe
     show if: landlord_foreclosed
 ---
+id: new owner logic for all counties
 code: |
   if previous_landlord_sold_property and (notice_of_sale_provided_new_landlord == False or not notice_contains_sale_document == False):
     defense_new_owner_failed_to_provide_notice_of_sale = True
@@ -447,7 +478,7 @@ depends on:
 depends on: trial_court.classification
 if: |
   trial_court.classification != 1
-id: sale of property
+id: new owner facts for non-class 1 counties
 question: |
   Did your landlord ever sell the house while you were a tenant at this address?
 fields:
@@ -463,7 +494,7 @@ fields:
 depends on: trial_court.classification
 if: |
   trial_court.classification == 1
-id: sale of property
+id: new owner facts for class 1 counties
 question: |
   % if person_answering == "tenant":
   Did your landlord ever sell the house while you were living at this address?
@@ -492,6 +523,7 @@ fields:
     datatype: yesnomaybe
     show if: notice_of_sale_provided_new_landlord
 ---
+id: unrepresented landlord defense logic
 code: |
   temp_counter = 0
   for op in other_parties:
@@ -504,6 +536,7 @@ code: |
 depends on:
   - other_parties
 ---
+id: lease not attached defense
 code: |
   if defense_lease_not_attached or defense_lease_signed_under_duress or defense_fraud_lease:
     defense_no_landlord_tenant_relationship = True
@@ -514,6 +547,7 @@ depends on:
   - defense_lease_signed_under_duress
   - defense_fraud_lease
 ---
+id: subsidized excessive rent defense
 code: |
   if is_rent_subsidized and excessive_rent:
     defense_excessive_rent_for_subsidized_housing = True
@@ -580,7 +614,6 @@ data:
       ${ "Housing project run by a private landlord (and I pay 30% of my income for rent)" if person_answering == "tenant" else "Housing project run by a private landlord (and the tenant pays 30% of their income for rent)"}  
     document: |
       ${ "Housing project run by a private landlord (and I pay 30% of my income for rent)" if person_answering == "tenant" else "Housing project run by a private landlord (and the tenant pays 30% of their income for rent)"}  
-  
 ---
 id: rent not owed by tenant
 question: |
@@ -609,4 +642,3 @@ fields:
       % endif
     field: excessive_rent
     datatype: yesnoradio
----
