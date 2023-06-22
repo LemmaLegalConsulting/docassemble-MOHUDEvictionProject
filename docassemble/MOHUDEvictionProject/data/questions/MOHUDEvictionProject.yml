@@ -210,7 +210,7 @@ subquestion: |
   You said you do not know if you got the Summons and Petition.
   % endif
   In your situation,
-  most tenants file an answer.
+  most tenants file an answer.  An answer is a document that you file with the court to respond to the landlord's petition.  You can explain why you shouldn't be evicted in an answer.
 
   Filing an answer may:
 
@@ -229,7 +229,7 @@ subquestion: |
   You said the tenant does not know if they got the Summons and Petition.
   % endif
   In this situation,
-  most tenants file an answer.
+  most tenants file an answer.  An answer is a document that the tenant files with the court to respond to the landlord's petition.  The tenant can explain why the tenant shouldn't be evicted in an answer.
 
   Filing an answer may:
 
@@ -287,17 +287,19 @@ subquestion: |
   Missouri Tenant Help can help you complete and download forms in 3 steps:
 
   
-  Step 1. Answer questions that will fill in your form for you.  
+  Step 1. Fill in your form.  
+  
   Step 2. Preview the completed form.  
+  
   % if form_approved_for_email_filing:  
   Step 3. Email the form to the court using this secure website and save copies
   for yourself for later reference.  
   % elif al_form_type in ['starts_case','existing_case','appeal']:
-  Step 3. Download and print the final form. You will need to deliver it
-  to the court on your own.
+  Step 3. Download and print the final form. **You will need to deliver it
+  to the court on your own.**
   % else:
-  Step 3. Download and print the final form. You will need to deliver it 
-  on your own.
+  Step 3. Download and print the final form. **You will need to deliver it 
+  on your own.**
   % endif
   
   This site is not a lawyer. If you would like a lawyer, find [a Missouri legal aid provider](https://www.lsmo.org/).  If you are outside Missouri, find your [your local
@@ -327,49 +329,6 @@ terms:
     Green words are legal terms or a short way of referring to something that needs more explanation. The definition or explanation pops up when you tap the green words.
 
 ---
-template: about_page_contents
-subject: Terms of Use and Privacy Policy
-content: |
-  This website is free to use. Legal Services of Eastern Missouri (“LSEM”), a nonprofit legal aid program, hosts the site.
-  <h3 class="h5">You need to know</h3>
-  * **This website does not provide legal advice**. If you need legal advice, you can use [https://www.lsmo.org/](https://www.lsmo.org/) to find a lawyer.
-  * The information and documents on this website have no warranty. We provide the information “as-is.” By using the site, you agree not to hold GBLS or the information providers on this site liable.
-  * We work hard to keep the information on the site up to date. Lawyers drafted and reviewed the documents this site uses. But laws and local rules change over time. These changes can make a document unenforceable when you use it.
-  * We do our best to keep the site working! To do that, we allow you to submit feedback so we can track problems on the site. But we cannot provide individual technical support.
-  <h3 class="h5">To use this site</h3>
-  * You need to be over 13 to use this site.
-  * This site is for **anyone** 13 and over. For example: you can be the person who needs the help, a lawyer, or a social worker.
-  * You may not sell the information or the contents of this site. But you can charge for your own time.
-  * Please keep your use fair. Do not use this site in a way that is illegal or that makes it harder for other people to use.
-  <h3 class="h5">Information we and others collect</h3>
-  * We collect the information that you type to help you complete your forms. We delete all information 180 days after you last update it. You can also delete information immediately.
-  * We log information including IP addresses and web browsers from all visitors. We use this information to keep our site secure. We keep logs for up to 180 days.
-  * We use Google Maps to help fill in addresses automatically. This feature sends your IP address to Google Maps to get your approximate location.
-  * We use Google Analytics to learn how people use our website. This helps us understand which pages are hardest to use. Google may use this information to show you better advertisements.
-  * We use email and text message delivery services that may keep their own records of any messages you send. If you choose to log in with your phone number, this may include a record of the times you log in to the site.
-  <h3 class="h5">We keep your information safe</h3>
-  * We use the same technology that banks and online stores use to keep your information safe. We use:
-  * 256 bit encryption
-  * Software firewalls
-  * Limited access controls
-  * Continual monitoring
-  * Regular security updates
-  <h3 class="h5">Sharing your information</h3>
-  * We never sell your information.
-  * We share anonymous information with a small number of nonprofits and researchers. We use the information to improve our site and to improve free legal help in Missouri.
-  * When you visit some pages of the site, the site may ask if you want to apply to get a free lawyer from legal aid. You get to decide if you want to share your personal information.
-  * You may choose to email completed forms or share a link to your in-progress work at any time to any person.
-  <h3 class="h5">These terms of use can change</h3>
-  We may change these Terms of Use at any time with no notice. Please review the terms on a regular basis to see any changes.
-  If you use the site after we make changes, you accept our changed Terms of Use.
-  <h3 class="h5">The laws of Missouri apply to these Terms of Use</h3>
-  If a judge decides that one of the terms in this Terms of Use is unenforceable, it will not change the terms that remain.
-  <h3 class="h5">If you still have questions</h3>
-  Send any questions to:
-  Legal Services of Eastern Missouri
-  701 Market Street, Suite 1100
-  St. Louis, MO 63101
----
 ### not changing "you" reference language on this question because it appears before selection of person_answering
 id: eviction_defender_introduction
 continue button field: eviction_defender_intro
@@ -384,13 +343,10 @@ subquestion: |
   1. About problems in your home and in your landlord's case that may
      stop your eviction.
 
-  At the end of the questions, you will have completed documents that you
-  need to deliver to your landlord and to the court. The documents make up
-  your "Answer" and motions for your eviction case.
+  Your answers will complete your forms. You will need to deliver your forms to the court on your own.
 
   <h2 class="h4">Before you start</h2>
-  1. Get ready to print and deliver these documents. We can help you
-     fill in the documents, but you need to deliver them on your own.
+  1. Get ready to download, print, and deliver your forms to the court. This tool will help you fill in your forms, but you need to deliver them to the court on your own.
   1. Do your best to find any documents from the court and your landlord about the eviction, including:
   
       - The Summons from the court
@@ -463,11 +419,12 @@ buttons:
   - Exit: exit
     url: https://motenantassistance.org/
 ---
----
+id: add motion to continue if hearing not in the past
 depends on: original_hearing_date_past
 code: |
   eviction_motion_to_continue_attachment.enabled = not original_hearing_date_past
 ---
+id: eviction answer determination code
 code: |
   if (not case_type["AC Rent and Possession"] and not case_type["AC Landlord Action (Bulk)"]) and unlawful_detainer_kick_out_option:
     eviction_answer_attachment.enabled = False

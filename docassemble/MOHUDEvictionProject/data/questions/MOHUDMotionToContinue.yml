@@ -72,17 +72,19 @@ subquestion: |
   Missouri Tenant Help can help you complete and download forms  in 3 steps:
 
   
-  Step 1. Answer questions that will fill in your form for you.  
-  Step 2. Preview the completed form.  
+  Step 1. Fill in your form.
+  
+  Step 2. Preview the completed form.
+    
   % if form_approved_for_email_filing:  
   Step 3. Email the form to the court using this secure website and save copies
   for yourself for later reference.  
   % elif al_form_type in ['starts_case','existing_case','appeal']:
-  Step 3. Download and print the final form. You will need to deliver it
-  to the court on your own.
+  Step 3. Download and print the final form. **You will need to deliver it
+  to the court on your own.**
   % else:
-  Step 3. Download and print the final form. You will need to deliver it 
-  on your own.
+  Step 3. Download and print the final form. **You will need to deliver it 
+  on your own.**
   % endif
   
   This site is not a lawyer. If you would like a lawyer, find [a Missouri legal aid provider](https://www.lsmo.org/).  If you are outside Missouri, find your [your local
@@ -117,12 +119,10 @@ subquestion: |
   <h2 class="h4">How this works</h2>
   One the next screens you will tell us the details about your eviction case that are needed to complete a Motion to Continue.
 
-  At the end of the questions, you will have completed documents that you
-  need to deliver to your landlord and to the court. 
+  Your answers will complete your forms. You will need to deliver your forms to the court on your own.
 
   <h2 class="h4">Before you start</h2>
-  1. Get ready to print and deliver these documents. We can help you
-     fill in the documents, but you need to deliver them on your own.
+  1. Get ready to download, print, and deliver your forms to the court. This tool will help you fill in your forms, but you need to deliver them to the court on your own.
   1. Do your best to find the needed information, which you can find in:
       - The Summons from the court
       - The Online Docket for your case
