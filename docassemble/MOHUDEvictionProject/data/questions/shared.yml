@@ -7,12 +7,24 @@ include:
   - docassemble.ALToolbox:display_template.yml
   - court_information.yml
 ---
+features:
+  bootstrap theme: lsem.bootstrap.css
+---
+default screen parts:
+  pre: |
+---
 objects:
   - other_parties: ALPeopleList.using(there_are_any=True,complete_attribute="complete")
   - other_parties[i].attorney: ALPeopleList.using(complete_attribute="complete")
   - users[i].attorney: ALPeopleList.using(ask_number=True)
   - users: ALPeopleList.using(there_are_any=True)
   - offer_attempts: DAList.using(object_type=DAObject, complete_attribute="attempt_date")
+---
+code: |
+  github_repo_name =  'docassemble-MOHUDEvictionProject'
+---
+objects:
+  - al_logo: DAStaticFile.using(filename="logo.svg")
 ---
 comment: |
   I added document_order, which is set in the individual interviews.
@@ -58,7 +70,7 @@ code: |
   users[0].name.first
   greet_user
   nav.set_section("section_eviction_answer_can_i")
-  if not tenant_got_summons or not method_of_summons_service["sheriff"]:
+  if not tenant_got_summons or not (method_of_summons_service['sheriff'] or method_of_summons_service['certified_mail'] or (method_of_summons_service['mail'] and method_of_summons_service['posting'])):
     posting_warning
   else:
     recommend_filing_answer
@@ -73,10 +85,10 @@ code: |
   for party in other_parties:
     party.address.address
     party.attorney.gather()
+  users.gather()
   nav.set_section("section_eviction_answer_case")
   original_hearing_date
   docket_number
-  users.gather()
   set_progress(50)
   motion_to_continue_order = True
 
@@ -534,11 +546,12 @@ fields:
     field: method_of_summons_service
     datatype: checkboxes
     choices:
-      - "By mail": mail
-      - ${ "It was taped, stapled, or posted to your door or home" if person_answering == "tenant" else "It was taped, stapled, or posted to the tenant's door or home" }: posting
-      - ${ "It was stuffed in the door or left somewhere without being taped, stapled or posted"}: left
-      - ${ "It was handed to you by the sheriff" if person_answering == "tenant" else "It was handed to the tenant by the sheriff" }: sheriff
-      - ${ "It was handed to you by your landlord or somebody other than the sheriff" if person_answering == "tenant" else "It was handed to the tenant by the landlord or somebody other than the sheriff" }: other_delivery
+      - ${ method_of_summons_service_text["mail"] }: mail
+      - ${ method_of_summons_service_text["certified_mail"] }: certified_mail
+      - ${ method_of_summons_service_text["posting"] }: posting
+      - ${ method_of_summons_service_text["left"] }: left
+      - ${ method_of_summons_service_text["sheriff"] }: sheriff
+      - ${ method_of_summons_service_text["other_delivery"] }: other_delivery
       - "Some other method of getting the petition": other
     none of the above: False
     show if: tenant_got_summons
@@ -586,8 +599,11 @@ variable name: method_of_summons_service_text
 use objects: True
 data:
   mail:
-    question: By mail
-    document: By mail
+    question: By regular mail
+    document: By regular mail
+  certified_mail:
+    question: By certified mail
+    document: By certified mail
   posting:
     question: |
       % if person_answering == "tenant":

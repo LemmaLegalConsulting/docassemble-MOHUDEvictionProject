@@ -14,12 +14,6 @@ metadata:
     - Ian Eisaman
     - Mia Bonardi
 ---
-features:
-  bootstrap theme: lsem.bootstrap.css
----
-default screen parts:
-  pre: |
----
 mandatory: True
 comment: |
   Global interview metadata
@@ -46,16 +40,8 @@ include:
   - shared.yml
 ---
 code: |
-  github_repo_name =  'docassemble-MOHUDEvictionProject'
----
-code: |
   interview_short_title = "Eviction Defender"
----
-objects:
-  - al_logo: DAStaticFile.using(filename="logo.svg")
-
----
-sections:
+---:
   - section_eviction_answer_intro: Introduction
   - section_eviction_answer_can_i: Should you file an Answer?
   - section_eviction_answer_you: Information about you
@@ -90,7 +76,7 @@ code: |
   else:
     users[0].attorney.target_number = 0
   nav.set_section("section_eviction_answer_can_i")
-  if not tenant_got_summons or not method_of_summons_service['sheriff']:
+  if not tenant_got_summons or not (method_of_summons_service['sheriff'] or method_of_summons_service['certified_mail'] or (method_of_summons_service['mail'] and method_of_summons_service['posting'])):
     posting_warning
   else:
     recommend_filing_answer
@@ -113,6 +99,7 @@ code: |
   for party in other_parties:
     party.address.address
     party.attorney.gather()
+  users.gather()
   nav.set_section("section_eviction_answer_tenancy")  
   is_rent_subsidized
   lease_section
@@ -126,7 +113,6 @@ code: |
   nav.set_section("section_eviction_answer_case")
   original_hearing_date
   docket_number
-  users.gather()
   petition_states_rent_amount
   nav.set_section("section_eviction_answer_defenses")
   landlord_agreement_section
@@ -138,7 +124,7 @@ code: |
   document_order = True
 ---
 sets: posting_warning
-id: soft exit posting
+id: soft exit posting eviction
 decoration: hand
 question: |
   % if person_answering == "tenant":
@@ -148,8 +134,22 @@ question: |
   % endif
 subquestion: |
   % if person_answering == "tenant":
-  You said that you got the Summons and Petition by "posting" (taping, stapling, or pinning to your door) or that you did not receive the Summons and Petition at all.
-
+  You said that
+  % if not tenant_got_summons:
+  you did not receive the Summons and Petition at all.
+  % else:
+  you got the Summons and Petition in the following ways:
+  % for method in method_of_summons_service.true_values():
+  
+   - ${ method_of_summons_service_text[method] }  
+  % endfor
+  % endif
+  
+  In order to serve a tenant personally a landlord must do one of the following things:
+   - Have the sheriff or a process server hand the tenant the summons and petition
+   - Send the summons and petition to the tenant through certified mail
+   - Send the summons and petition to the tenant through regular mail and post the summons and petition at the tenant's door.
+  
   Because your landlord did not serve you personally, the landlord cannot sue you for money damages.  If you file an answer, the court may order 
   you to pay money that you would not need to pay otherwise.
 
@@ -161,10 +161,24 @@ subquestion: |
   You do not need to decide now. If you keep going, we will remind you about your choices at the end.
   You may want to talk to a lawyer to decide for sure.
   % else: 
-  The tenant got the Summons and Petition by "posting" (taping, stapling, or pinning to their door) or that they did not receive the Summons and Petition at all.
+  % if not tenant_got_summons:
+  The tenant did not receive the Summons and Petition at all.
+  % else:
+  The tenant got the Summons and Petition in the following ways:
+  % for method in method_of_summons_service.true_values():
+   - method_of_summons_service_text[method]
+    
+  % endfor
+  % endif
 
-  Because their landlord did not mail the Summons and Petition, if they file an answer, the court may order 
-  them to pay money that they would not need to pay otherwise.
+  In order to serve a tenant personally a landlord must do one of the following things:
+  
+   - Have the sheriff or a process server hand the tenant the summons and petition
+   - Send the summons and petition to the tenant through certified mail
+   - Send the summons and petition to the tenant through regular mail and post the summons and petition at the tenant's door.
+  
+  Because your landlord did not serve you personally, the landlord cannot sue you for money damages.  If you file an answer, the court may order 
+  you to pay money that you would not need to pay otherwise.
 
   The tenant may still want to keep going if they:
 

@@ -152,7 +152,22 @@ question: |
   % endif
 subquestion: |
   % if person_answering == "tenant":
-  You said that you got the Summons and Petition by "posting" (taping, stapling, or pinning to your door) or that you did not receive the Summons and Petition at all.
+  You said that
+  % if not tenant_got_summons:
+  you did not receive the Summons and Petition at all.
+  % else:
+  you got the Summons and Petition in the following ways:
+  % for method in method_of_summons_service.true_values():
+  
+   - ${ method_of_summons_service_text[method] }
+  % endfor
+  % endif
+  
+  In order to serve a tenant personally a landlord must do one of the following things:
+  
+   - Have the sheriff or a process server hand the tenant the summons and petition
+   - Send the summons and petition to the tenant through certified mail
+   - Send the summons and petition to the tenant through regular mail and post the summons and petition at the tenant's door.
 
   Because your landlord did not serve you personally, the landlord cannot sue you for money damages.  If you file anything in court, including a motion to continue, the court may order you to pay money that you would not need to pay otherwise.
 
@@ -164,9 +179,22 @@ subquestion: |
   You do not need to decide now. If you keep going, we will remind you about your choices at the end.
   You may want to talk to a lawyer to decide for sure.
   % else: 
-  The tenant got the Summons and Petition by "posting" (taping, stapling, or pinning to their door) or that they did not receive the Summons and Petition at all.
+  % if not tenant_got_summons:
+  The tenant did not receive the Summons and Petition at all.
+  % else:
+  The tenant got the Summons and Petition in the following ways:
+  % for method in method_of_summons_service.true_values():
+   - method_of_summons_service_text[method]
+    
+  % endfor
+  % endif
 
-  Because their landlord did not mail the Summons and Petition, if they file a motion to continue, the court may order 
+  In order to serve a tenant personally a landlord must do one of the following things:
+   - Have the sheriff or a process server hand the tenant the summons and petition
+   - Send the summons and petition to the tenant through certified mail
+   - Send the summons and petition to the tenant through regular mail and post the summons and petition at the tenant's door.
+
+  Because their landlord did not serve the tenant personally, if they file a motion to continue, the court may order 
   them to pay money that they would not need to pay otherwise.
 
   The tenant may still want to keep going if they:
