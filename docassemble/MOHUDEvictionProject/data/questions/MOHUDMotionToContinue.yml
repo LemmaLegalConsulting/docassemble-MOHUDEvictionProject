@@ -22,6 +22,12 @@ metadata:
     - Ian Eisaman
     - Mia Bonardi
 ---
+objects:
+  - al_logo: DAStaticFile.using(filename="logo.svg")
+---
+features:
+  bootstrap theme: lsem.bootstrap.css    
+---
 mandatory: True
 comment: |
   Global interview metadata
