@@ -31,23 +31,13 @@ subquestion: |
   The tenant can find the:
   % endif
   
-  - Name of the court,
-  - Case number, and
-  - Nature of Action  
+  - Name of the court and
+  - Case number
   
   at the top of the Summons.
   
-  [FILE MOSummonsCourtDate.png]
+  [FILE MOSummonsCourtDate.png, 100%]
       
-  % elif docket_available:
-  % if person_answering == "tenant":
-  The first tab you see when you open your case is the "Case Header" tab, which will look something like this -
-  % else: 
-  The first tab the tenant will see when they open their case is the "Case Header" tab, which will look something like this -
-  % endif
-  
-  [FILE CaseHeader.png, 100%]
-
   % endif
 fields:
   - Court: trial_court.name
@@ -56,10 +46,13 @@ fields:
       ${ ordinal_number(trial_court.circuit, use_word=False).capitalize() + " Judicial Circuit - " + trial_court.county }
       % endif
   - Case Number: docket_number
-    required: False
+    required: True
     help: |
       The case number helps the court clerk put your answer in the right file.
-      Leave this blank if you cannot find it or do not know.
+under: |
+  ${ collapse_template(find_case_number_docket_template) }
+  
+
 ---
 id: reason for eviction
 question: |

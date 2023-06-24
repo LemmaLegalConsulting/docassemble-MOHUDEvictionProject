@@ -138,11 +138,6 @@ fields:
     show if:
       variable: person_answering
       is: attorney
-  - note: |
-      **Okay. The court documents will state "Prepared with assistance of counsel" in the footer.**
-    show if:
-      variable: representation_type
-      is: ghostwriting
 ---
 id: your name
 question:  |
@@ -180,7 +175,7 @@ sets:
   - users[0].attorney[0].address.unit
   - users[0].attorney[0].address.state
   - users[0].attorney[0].address.country
-id: persons address
+id: tenants attorney address
 generic object: ALIndividual
 question: |
   What is your address for the pleading?
@@ -188,16 +183,19 @@ fields:
   - code: |
       users[0].attorney[0].address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)
 ---
+id: other parties complete
 code: |
   other_parties[i].name.first
   other_parties[i].person_type
   other_parties[i].attorney.gather()
   other_parties[i].complete = True
 ---
+id: other parties attorney complete
 code: |
   other_parties[i].attorney[j].name.first
   other_parties[i].attorney[j].complete = True
 ---
+id: block limiting other parties attorney to 1
 code: |
   other_parties[i].attorney.there_is_another = False
 ---
@@ -210,12 +208,22 @@ subquestion:  |
 
   If you have the Summons and Petition, the name of each Plaintiff is listed
   in the box labeled "Plaintiff". 
+  
   % else:
   We know about ${ other_parties.complete_elements() }.
 
   The name of each Plaintiff is listed on the Summons and Petition
   in the box labeled "Plaintiff". 
   % endif
+  
+  There is a Parties & Attorneys tab on the online docket.
+  
+  There may also be a "Doing Business As" that looks like this
+  
+  [FILE DocketDBAExample.png, 100%]
+  
+  You do not need to answer yes to this question if there is only another party listed as Doing Business As.
+  
 fields:
   - Is there another Plaintiff?: other_parties.there_is_another
     datatype: yesnomaybe
@@ -442,11 +450,11 @@ sets:
 question: |
   % if i >= 1 and person_answering == "tenant":
   What is your ${ ordinal(i) } landlord's name?
-  % elif i == 1 and person_answering == "tenant":
+  % elif i == 0 and person_answering == "tenant":
   What is your landlord's name?
   % elif i >= 1 and person_answering == "attorney" or person_answering == "tenant_helper":
   What is the tenant's ${ ordinal(i) } landlord's name?
-  % elif i == 1 and person_answering == "attorney" or person_answering == "tenant_helper":
+  % elif i == 0 and person_answering == "attorney" or person_answering == "tenant_helper":
   What is the tenant's landlord's name?
   % endif
 subquestion: |
@@ -486,6 +494,8 @@ fields:
     datatype: date
   - "Original hearing time": original_hearing_time
 ---
+comment: |
+  This block is not used because of another block that sets docket number underneath.
 sets: docket_number
 id: docket number
 question: |
@@ -494,6 +504,10 @@ question: |
   % else: 
   What is the case number for the tenant's case?
   % endif
+subquestion: |
+  ${ collapse_template(find_case_number_docket_template) }
+  
+  ${ collapse_template(find_case_number_summons_template) }
 fields:
   - label: |
       % if person_answering == "tenant":
@@ -505,10 +519,33 @@ fields:
     datatype: yesnowide
   - no label: docket_number
     hide if: dont_know_docket_number
+  - note: |
+      % if person_answering == "tenant":
+      You will need to add the case number before you file the document.  You can finish this interview, but it is recommended that you find the summons or the online docket to add the case number.
+      % else:
+      The tenant will need to add the case number before the tenant files the document.  You can finish this interview, but it is recommended that you find the summons or the online docket to enter the case number now.
+      % endif     
+    show if: dont_know_docket_number
 validation code: |
   # This should be safe to 
   if dont_know_docket_number:
     docket_number = ''      
+---
+template: find_case_number_docket_template
+subject: |
+  Where is the case number in the online docket?
+content: |
+  The case number is at of the top of the webpage, next to the names of the Plaintiff and Defendant.
+  
+  [FILE CaseHeaderNumber.png, 100%]
+---
+template: find_case_number_summons_template
+subject: |
+  Where is the case number in the summons?
+content: |
+  The case number is at of the top of the webpage, next to the names of the Plaintiff and Defendant.
+  
+  [FILE MOSummonsNumber.png, 100%]
 ---
 ###################### PETITION REVIEW ######################
 id: Petition_introduction
@@ -522,12 +559,12 @@ subquestion: |
   The {Summons} will look like this:
  
   [CENTER]
-  [FILE MOSummons.png]
+  [FILE MOSummons.png, 100%]
  
   The {Petition} looks different in some counties, but it may look like this:
  
   [CENTER]
-  [FILE ComplaintForm.png]
+  [FILE ComplaintForm.png, 100%]
 fields:
   - label: |
       % if person_answering == "tenant":
@@ -621,16 +658,16 @@ data:
   sheriff:
     question: |
       % if person_answering == "tenant":
-      It was handed to you by the sheriff
+      It was handed to you by the sheriff or process server (called personal service)
       % else:
-      It was handed to the tenant by the sheriff
+      It was handed to the tenant by the sheriff or process server (called personal service)
       % endif   
     document: |
       It was handed to the tenant by the sheriff
   other_delivery:
     question: |
       % if person_answering == "tenant":
-      It was handed to you by your landlord or somebody other than the sheriff
+      It was handed to you by your landlord or somebody other than the sheriff or a process server
       % else:
       It was handed to the tenant by the landlord or somebody other than the sheriff
       % endif   
@@ -642,6 +679,7 @@ data:
     document: |
       Some other method of getting the petition
 ---
+id: Other tenants
 if: tenant_got_summons and petition_available and len(users)==1
 question: Is any other tenant listed on this eviction case?
 subquestion: |
@@ -651,6 +689,8 @@ subquestion: |
   In an eviction case, tenants are called Defendants. Defendants are listed underneath the Plaintiffs, and the tenant's name and address should be included as a Defendant.
   % endif
   [FILE ComplaintCaptionDefendant.png, 100%]
+  
+  Sometimes a landlord will add "John Doe" or "Jane Doe" as a party.  You do not need to include these additional parties.
   
 fields:
   - label: |
@@ -662,6 +702,7 @@ fields:
     field: users.there_is_another
     datatype: yesnoradio
 ---
+id: Other tenants if docket available
 if: defined('docket_available') and docket_available and len(users)==1
 question: |
   Is any other tenant listed on this eviction case?
@@ -671,6 +712,8 @@ subquestion: |
   % else:
     In an eviction case, tenants are called Defendants. Defendants are listed underneath the Plaintiffs, and the tenant's name and address should be included as a Defendant.
   % endif
+  
+  Sometimes a landlord will add "John Doe" or "Jane Doe" as a party.  You do not need to include these additional parties.
 fields:
   - label: |
       % if person_answering == "tenant":

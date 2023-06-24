@@ -34,7 +34,7 @@ depends on:
   - petition_separates_nonrent
 code: |
   if tenant_got_summons and petition_available:
-    if petition_alleges_nonrent or not petition_states_rent_amount or (not lease_attached and not petition_states_terms_of_lease) or not petition_states_rent_periods or not petition_states_demand_made or (trial_court.circuit == 21 and not petition_separates_nonrent):
+    if petition_alleges_nonrent or not petition_states_rent_amount or (not has_written_lease and not petition_states_terms_of_lease) or (has_written_lease and not lease_attached and not petition_states_term_of_lease) or not petition_states_rent_periods or not petition_states_demand_made or (trial_court.circuit == 21 and not petition_separates_nonrent):
       defense_rent_pleading_requirement = True
     else:
       defense_rent_pleading_requirement = False
@@ -48,18 +48,12 @@ depends on:
   - lease_attached
 code: |
   if tenant_got_summons and petition_available:
-    if not lease_attached:
+    if has_written_lease and not lease_attached:
       defense_lease_not_attached = True
     else:
       defense_lease_not_attached = False
   else:
       defense_lease_not_attached = None
----
-id: lease attached fact
-question: Is the lease attached to the petition?
-fields:
-  - Is the lease attached to the complaint?: lease_attached
-    datatype: yesnoradio
 ---
 id: tender refused logic
 depends on: offer_attempts
@@ -339,7 +333,7 @@ fields:
       % endif
       % endif
 ---
-id:: late fees defense logic
+id: late fees defense logic
 code: |
   if late_fees_assessed and late_fees_penalty:
     defense_liquidated_damages_late_fees = True
@@ -692,7 +686,7 @@ fields:
   - note: |
       Other charges may include a pet fee, cleaning fee, fee for repairs, etc.
 ---
-id: separate amounts
+id: rent separated from other charges
 question: |
   % if person_answering == "tenant":
   Does the petition separate the amount you owe in rent from other charges?
@@ -733,8 +727,18 @@ subquestion: |
 
   [FILE ComplaintTerms.png, 100%]
 fields:
+  - label: |
+      % if person_answering == "tenant":
+      Do you have a written lease? (Some rental agreements can be oral.)
+      % else:
+      Does the tenant have a written lease? (Some rental agreements can be oral.)
+      % endif
+    field: has_written_lease 
   - "Is the lease attached to the Landlord's Petition?": lease_attached
     datatype: yesnoradio
+    show if:
+      variable: has_written_lease
+      is: True
   - label: |
       % if person_answering == "tenant":
       Does the Landlord's Petition include a summary of your rental agreement?
@@ -743,14 +747,12 @@ fields:
       % endif 
     field: petition_states_terms_of_lease
     datatype: yesnomaybe
-    show if: 
-      variable: lease_attached
-      is: False
+    js show if: |
+      val("has_written_lease") === false || val("lease_attached") === false
   - note: |
       ${ collapse_template(terms_of_lease_explanation) }
-    show if: 
-      variable: lease_attached
-      is: False
+    js show if: |
+      val("has_written_lease") === false || val("lease_attached") === false
 ---
 template: terms_of_lease_explanation
 subject: |
