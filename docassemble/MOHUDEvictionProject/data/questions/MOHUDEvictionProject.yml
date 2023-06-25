@@ -254,9 +254,9 @@ code: |
 code: |
   petition_states_rent_amount
   petition_states_rent_periods
+  offer_attempts.gather()
   was_rent_paid
   will_offer_payment
-  offer_attempts.gather()
   if is_rent_subsidized:
     excessive_rent
   if late_fees_assessed:
