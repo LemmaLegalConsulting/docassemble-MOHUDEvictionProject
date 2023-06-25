@@ -223,6 +223,8 @@ content: |
   have signed the lease if the landlord had not told the tenant something that
   turned out not to be true.
   % endif
+  
+  A false promise can also be a written promise, or a promise in an advertisement.
 ---
 id: promises i
 question: |
@@ -361,9 +363,9 @@ fields:
     datatype: yesnoradio
   - label: |
       % if person_answering == "tenant":
-      Is your rent more than a fair amount to cover the landlord's cost?
+      Is the late fee more than a fair amount to cover the landlord's cost?
       % else: 
-      Is the tenant's rent more than a fair amount to cover the landlord's cost?
+      Is the tenant's late fee more than a fair amount to cover the landlord's cost?
       % endif
     field: late_fees_penalty
     datatype: yesnomaybe
@@ -674,15 +676,12 @@ fields:
     show if: petition_states_rent_amount
   - label: |
       % if person_answering == "tenant":
-      Does the petition say you owe an amount **other** than rent?
+      Does the petition say you owe an amount **other** than rent?  (Not including attorney fees and costs from the eviction case.)
       % else:
-      Does the petition say the tenant owes an amount **other** than rent?
+      Does the petition say the tenant owes an amount **other** than rent? (Not including attorney fees and costs from the eviction case.)
       % endif 
     field: other_charges_alleged
     datatype: yesnomaybe
-    show if: 
-      code: |
-        person_answering == "tenant"
   - note: |
       Other charges may include a pet fee, cleaning fee, fee for repairs, etc.
 ---
@@ -782,6 +781,11 @@ fields:
       % endif 
     field: petition_states_rent_periods
     datatype: yesnomaybe
+---
+if: |
+  petition_states_rent_amount == False
+code: |
+  petition_states_rent_periods = False
 ---
 id: petition requirements - demand
 question: |
@@ -907,9 +911,9 @@ fields:
     datatype: yesnoradio
   - label: |
       % if person_answering == "tenant":
-      Did your landlord say no in a writing that you can bring to court, or did someone else see your landlord say "no"?
+      Did your landlord say no in a writing that you can bring to court? Did someone else see your landlord say "no"?
       % else:
-      Did the landlord say no in a writing that the tenant can bring to court, or did someone else see the tenant's landlord say "no"?
+      Did the landlord say no in a writing that the tenant can bring to court? Did someone else see the tenant's landlord say "no"?
       % endif 
     field: offer_attempts[i].has_attempt_evidence
     datatype: yesnoradio
@@ -1033,6 +1037,8 @@ fields:
       - ${ conditions_text["has_structural_issues"] }: has_structural_issues
       - ${ conditions_text["ceiling_not_weathertight"] }: ceiling_not_weathertight
       - ${ conditions_text["floor_holes"] }: floor_holes
+      - ${ conditions_text["trash"] }: trash
+      - ${ conditions_text["fire_safety"] }: fire_safety
       - Other: other
   - label: |
       % if person_answering == "tenant":
@@ -1135,7 +1141,7 @@ data:
     question: Has plumbing not in working order or is subject to flooding
     document: Has plumbing not in working order or is subject to flooding
   has_structural_issues:
-    question: Dangerous structural problem
+    question: Dangerous structural problem, like unsafe stairs or railways
     document: Dangerous structural problem
   ceiling_not_weathertight:
     question: Ceiling has holes or cracks or is not weathertight
@@ -1143,6 +1149,12 @@ data:
   floor_holes:
     question: Floor has holes or cracks
     document: Floor has holes or cracks
+  trash:
+    question: Inadequate trash collection
+    document: Inadequate trash collection
+  fire_safety:
+    question: Broken smoke detectors
+    document: Broken smoke detectors
 ---
 ## leaving "you" references because not sure how to make conditional
 variable name: cqe_breaches_text
