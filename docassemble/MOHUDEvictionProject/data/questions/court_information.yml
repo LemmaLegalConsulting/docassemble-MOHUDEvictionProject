@@ -76,12 +76,17 @@ fields:
         tenant_got_summons and petition_available
     datatype: checkboxes
     required: False
+    none of the above: False
     choices:
       - AC Rent and Possession: AC Rent and Possession
       - AC Unlawful Detainer: AC Unlawful Detainer
       - AC Landlord Action (Bulk): AC Landlord Action (Bulk)
       - AC Expedited Eviction: AC Expedited Eviction
       - Other: Other
+  - Other Case Type: case_type_other
+    show if:
+      variable: case_type['Other']
+      is: True
   - label: |
       % if person_answering == "tenant":
       Why does your landlord says they are evicting you?:
@@ -137,6 +142,10 @@ fields:
       - Something else: other
     none of the above: | 
       I do not know
+  - Other eviction reason: eviction_reason_other
+    show if:
+      variable: eviction_reason['other']
+      is: True
   - Is the landlord asking for an expedited (emergency) eviction?: landlord_seeking_emergency_eviction
     datatype: yesnomaybe
     help: |
