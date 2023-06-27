@@ -552,20 +552,20 @@ content: |
 id: Petition_introduction
 question: |
   % if person_answering == "tenant":
-  Did you get a Summons and Landlord's Petition?
+  Did you get a Summons and Petition?
   % else:
-  Did the tenant get a Summons and Landlord's Petition?
+  Did the tenant get a Summons and Petition?
   % endif
 subquestion: |
   The {Summons} will look like this:
  
   [CENTER]
-  [FILE MOSummons.png, 100%]
+  [FILE MOSummons.png]
  
   The {Petition} looks different in some counties, but it may look like this:
  
   [CENTER]
-  [FILE ComplaintForm.png, 100%]
+  [FILE ComplaintForm.png]
 fields:
   - label: |
       % if person_answering == "tenant":
@@ -577,9 +577,9 @@ fields:
     datatype: yesnomaybe
   - label: |
       % if person_answering == "tenant":
-      How did you get the Summons and Landlord's Petition?
+      How did you get the {Summons} and {Petition}?
       % else:
-      How did the tenant get the Summons and Landlord's Petition?
+      How did the tenant get the {Summons} and {Petition}?
       % endif
     field: method_of_summons_service
     datatype: checkboxes
@@ -595,20 +595,20 @@ fields:
     show if: tenant_got_summons
   - label: |
       % if person_answering == "tenant":
-      Do you have the Summons next to you now?
+      Do you have the {Summons} next to you now?
       % else:
-      Does the tenant have the Summons next to them now?
+      Does the tenant have the {Summons} next to them now?
       % endif
     field: petition_available
     datatype: yesnoradio
     show if: tenant_got_summons
   - note: |
       % if person_answering == "tenant":
-      **You may want to stop and get the petition now.** It can help you answer
+      **You may want to stop and get the {Summons} and {Petition} now.** It can help you answer
       the questions on this website more accurately. If you cannot easily get it,
       it is OK to keep going.
       % else: 
-      **The tenant may want to stop and get the petition now.** It can help them answer
+      **The tenant may want to stop and get the {Summons} and {Petition} now.** It can help them answer
       the questions on this website more accurately. If they cannot easily get it,
       it is OK to keep going.
       % endif
