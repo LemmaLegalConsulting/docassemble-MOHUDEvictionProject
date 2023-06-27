@@ -1,0 +1,1011 @@
+include:
+  - docassemble.AssemblyLine:assembly_line.yml
+  - docassemble.ALAnyState:any_state.yml
+  - defense_logic.yml
+  - information_collected.yml
+  - al_reminders.yml
+  - docassemble.ALToolbox:display_template.yml
+  - court_information.yml
+---
+features:
+  bootstrap theme: lsem.bootstrap.css
+---
+default screen parts:
+  pre: |
+---
+objects:
+  - other_parties: ALPeopleList.using(there_are_any=True,complete_attribute="complete")
+  - other_parties[i].attorney: ALPeopleList.using(complete_attribute="complete")
+  - users[i].attorney: ALPeopleList.using(ask_number=True)
+  - users: ALPeopleList.using(there_are_any=True)
+  - offer_attempts: DAList.using(object_type=DAObject, complete_attribute="attempt_date")
+---
+code: |
+  github_repo_name =  'docassemble-MOHUDEvictionProject'
+---
+objects:
+  - al_logo: DAStaticFile.using(filename="logo.svg")
+---
+comment: |
+  I added document_order, which is set in the individual interviews.
+###################### Main order ######################
+mandatory: True
+code: |
+  al_intro_screen
+  eviction_defender_intro
+  document_order
+  signature_date
+  nav.set_section("section_serve_other_side")
+  if other_parties[0].service_method == "email":
+    other_parties[0].service_email
+  elif other_parties[0].service_method in ["mail", "hand"]:
+    if other_parties[0].attorney.there_are_any:
+      other_parties[0].attorney[0].address.address
+    other_parties[0].service_address
+  # Store anonymous data for analytics / statistics
+  nav.set_section("review_eviction_answer")
+  review_eviction_answer
+  al_user_wants_reminders
+  store_variables_snapshot(
+      persistent=True,
+      data={
+          "zip": showifdef("users[0].address.zip"),
+          "reached_interview_end": True,
+      },
+  )
+  nav.set_section("section_eviction_answer_download")
+  eviction_defender_download
+---
+#################### Interview order #####################
+comment: |
+  Controls order and branching logic for the motion to continue, which may be used in a standalone interview and may be used in other interviews with other forms.
+id: interview_order_eviction_motion_to_continue
+code: |
+  # Set the allowed courts for this interview
+  allowed_courts = interview_metadata["eviction_defender"]["allowed courts"]
+  nav.set_section('section_eviction_answer_intro')
+  user_role = 'defendant'
+  landlord_doc_name
+  tenant_doc_name
+  users[0].name.first
+  greet_user
+  nav.set_section("section_eviction_answer_can_i")
+  if not tenant_got_summons or not (method_of_summons_service['sheriff'] or method_of_summons_service['certified_mail'] or (method_of_summons_service['mail'] and method_of_summons_service['posting'])):
+    posting_warning
+  else:
+    recommend_filing_answer
+  nav.set_section("section_eviction_answer_you")
+  users[0].address.address
+  users[0].address.geocode()
+  nav.set_section("section_eviction_answer_casenet")
+  if not trial_court.county == None and docket_available:
+    docket_review
+  nav.set_section("section_eviction_answer_other")
+  other_parties.gather()
+  for party in other_parties:
+    party.address.address
+    party.attorney.gather()
+  users.gather()
+  nav.set_section("section_eviction_answer_case")
+  original_hearing_date
+  docket_number
+  set_progress(50)
+  motion_to_continue_order = True
+
+---
+code: |
+  interview_metadata['main_interview_key'] =  'eviction_defender'
+---
+code: |
+  AL_DEFAULT_COUNTRY = "US"
+---
+code: |  
+  AL_DEFAULT_STATE = "MO"
+---
+code: |
+  al_form_type = "existing_case" 
+---
+code: |
+  AL_ORGANIZATION_TITLE = "Missouri Tenant Help"
+---
+code: |
+  AL_ORGANIZATION_HOMEPAGE = "https://motenantassistance.org/"
+---
+code: |
+  user_started_case = False
+---
+code: |
+  landlord_doc_name = "Plaintiff"
+---
+code: |
+  tenant_doc_name = "Defendant"
+---
+id: who is using this interview
+question: |
+  Who is using this website?
+fields:
+  - I am: person_answering
+    datatype: radio
+    choices:
+      - The tenant: tenant
+      - An attorney: attorney
+      - Someone **else** helping a tenant: tenant_helper
+  - Will you file an appearance?: representation_type
+    input type: radio
+    choices:
+      - Yes. I am entering an appearance.: entering_appearance
+      - No. I am only helping "ghostwrite" this document.: ghostwriting
+    show if:
+      variable: person_answering
+      is: attorney
+---
+id: your name
+question:  |
+  % if person_answering == "tenant":
+  Your name
+  % else:
+  Tenant's name
+  % endif
+fields:
+  - First: users[0].name.first
+  - Middle: users[0].name.middle
+    required: False
+  - Last: users[0].name.last
+  - Suffix: users[0].name.suffix
+    code: |
+      name_suffix()
+    required: False
+---
+id: name of the tenant attorney
+sets:
+  - users[0].attorney[0].name.first
+  - users[0].attorney[0].name.last
+  - users[0].attorney[0].name.middle
+  - users[0].attorney[0].name.suffix
+question: |
+  Your name (as the attorney signing the pleading)
+fields:
+  - code: |
+      users[0].attorney[0].name_fields()
+---
+sets:
+  - users[0].attorney[0].address.address
+  - users[0].attorney[0].address.city
+  - users[0].attorney[0].address.zip
+  - users[0].attorney[0].address.unit
+  - users[0].attorney[0].address.state
+  - users[0].attorney[0].address.country
+id: tenants attorney address
+generic object: ALIndividual
+question: |
+  What is your address for the pleading?
+fields:
+  - code: |
+      users[0].attorney[0].address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)
+---
+id: other parties complete
+code: |
+  other_parties[i].name.first
+  other_parties[i].person_type
+  other_parties[i].attorney.gather()
+  other_parties[i].complete = True
+---
+id: other parties attorney complete
+code: |
+  other_parties[i].attorney[j].name.first
+  other_parties[i].attorney[j].complete = True
+---
+id: block limiting other parties attorney to 1
+code: |
+  other_parties[i].attorney.there_is_another = False
+---
+id: any other opposing parties
+question: |
+  Is there another **Plaintiff** in this eviction case?
+subquestion:  |
+  % if person_answering == "tenant":
+  You have already told us about ${ other_parties.complete_elements() }.
+
+  If you have the Summons and Petition, the name of each Plaintiff is listed
+  in the box labeled "Plaintiff". 
+  
+  % else:
+  We know about ${ other_parties.complete_elements() }.
+
+  The name of each Plaintiff is listed on the Summons and Petition
+  in the box labeled "Plaintiff". 
+  % endif
+  
+  There is a Parties & Attorneys tab on the online docket.
+  
+  There may also be a "Doing Business As" that looks like this
+  
+  [FILE DocketDBAExample.png, 100%]
+  
+  You do not need to answer yes to this question if there is only another party listed as Doing Business As.
+  
+fields:
+  - Is there another Plaintiff?: other_parties.there_is_another
+    datatype: yesnomaybe
+---
+id: Landlord representation
+question: |
+  Does ${ other_parties[i] } have an attorney?
+subquestion: |
+  If the landlord is represented by an attorney, then it will say "represented by" next to the 
+  landlord's name, and the attorney's name and address will be to the right.
+fields:
+  - Is ${ other_parties[i] } represented by an attorney?: other_parties[i].attorney.there_are_any
+    datatype: yesnoradio
+---
+if: docket_available
+id: Landlord representation from Docket
+question: |
+  Does ${ other_parties[i] } have an attorney?
+subquestion: |
+  You can find the name and address of the attorney in the Parties and Attorneys tab in the online docket.
+  
+  [FILE Parties.png, 100%]
+fields:
+  - Is ${ other_parties[i] } represented by an attorney?: other_parties[i].attorney.there_are_any
+    datatype: yesnoradio
+---
+if: tenant_got_summons and petition_available
+id: Landlord representation from Summons
+question: |
+  Does ${ other_parties[i] } have an attorney?
+subquestion: |
+  If the landlord is represented by an attorney, then the attorney's name and address will be in the box next to the Landlord's name.
+  
+  [FILE MOSummonsPlaintiffAttorney.png, 100%]
+fields:
+  - Is ${ other_parties[i] } represented by an attorney?: other_parties[i].attorney.there_are_any
+    datatype: yesnoradio
+---
+sets:
+  - other_parties[i].attorney[j].name.first
+  - other_parties[i].attorney[j].name.last
+  - other_parties[i].attorney[j].name.middle
+  - other_parties[i].attorney[j].name.suffix
+question: What is the name of the ${ other_parties[i] }'s attorney?
+fields:
+  - code: |
+      other_parties[i].attorney[j].name_fields()
+---
+id: Opposing Attorney name from Docket
+if: docket_available
+sets:
+  - other_parties[i].attorney[j].name.first
+  - other_parties[i].attorney[j].name.last
+  - other_parties[i].attorney[j].name.middle
+  - other_parties[i].attorney[j].name.suffix
+question: |
+  What is the name of the ${ other_parties[i] }'s attorney?
+subquestion: |
+  You can find the name and address of the attorney in the Parties and Attorneys tab in the online docket.
+  
+  [FILE Parties.png, 100%]
+fields:
+  - code: |
+      other_parties[i].attorney[j].name_fields()
+---
+id: Opposing Attorney name from Summons
+if: tenant_got_summons and petition_available 
+sets:
+  - other_parties[i].attorney[j].name.first
+  - other_parties[i].attorney[j].name.last
+  - other_parties[i].attorney[j].name.middle
+  - other_parties[i].attorney[j].name.suffix
+question: What is the name of the ${ other_parties[i] }'s attorney?
+subquestion: |
+  If the landlord is represented by an attorney, then the attorney's name and address will be in the box next to the Landlord's name.
+  
+  [FILE MOSummonsPlaintiffAttorney.png, 100%]
+fields:
+  - code: |
+      other_parties[i].attorney[j].name_fields()
+---
+id: your address
+sets:
+  - users[0].address.address
+  - users[0].address.city
+  - users[0].address.zip
+  - users[0].address.unit
+  - users[0].address.state
+  - users[0].address.country
+question: |
+  % if person_answering == "tenant":
+  Where do you live?
+  % else:
+  Where does the tenant live?
+  % endif
+subquestion: |
+  % if person_answering == "tenant":
+  Write the address that you are being evicted from.
+  % else:
+  Write the address that the tenant is being evicted from.
+  % endif
+fields:
+  - code: |
+      users[0].address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)
+validation code: |
+  if users[0].address.state != "MO":
+    validation_error("Write an address that you are being evicted from in Missouri", field="users[0].address.state")
+---
+id: Information about the original hearing
+question: |
+  % if person_answering == "tenant":
+  When is your court hearing?
+  % else:
+  When is the tenant's court hearing?
+  % endif
+subquestion: |
+  % if person_answering == "tenant":
+  The Summons will say the time and date of your original court hearing.
+  % else:
+  The Summons will say the time and date of the tenant's original court hearing.
+  % endif
+  
+  [FILE MOSummonsCourtDate.png, 100%]
+  
+fields:
+  - "Date of original hearing": original_hearing_date
+    datatype: date
+  - "Original hearing time": original_hearing_time
+---
+id: any hearings
+question: |
+  % if person_answering == "tenant":
+  Has the court held any hearings on your eviction yet?
+  % else:
+  Has the court held any hearings on the tenant's eviction yet?
+  % endif
+subquestion: |
+  % if person_answering == "tenant":
+  Click the "Docket Entries" tab to see what has happened in your case so far.
+
+  The "Docket Entries" tab has a list of events. Each event has a date, a name,
+  and a few facts about what happened.
+  
+  If the court has not had a hearing for your case yet, the "Docket Entries"
+  tab will **only** show an event named "Summons Issued - Landlord/Tenant", like this:
+  % else:
+  Click the "Docket Entries" tab to see what has happened in the tenant's case so far.
+
+  The "Docket Entries" tab has a list of events. Each event has a date, a name,
+  and a few facts about what happened.
+  
+  If the court has not had a hearing for the tenant's case yet, the "Docket Entries"
+  tab will **only** show an event named "Summons Issued - Landlord/Tenant", like this:
+  % endif
+  
+  [FILE Docket.png, 100%]  
+fields:
+  - label: |
+      % if person_answering == "tenant":
+      Has the court already had a hearing on your case?
+      % else:
+      Has the court already had a hearing on the tenant's case?
+      % endif
+    field: past_hearings
+    datatype: yesnomaybe
+---
+depends on: original_hearing_date
+id: Calculating if hearing date is past
+code: |
+  original_hearing_date_past = original_hearing_date < today()
+---
+sets:
+  - other_parties[i].name.first
+  - other_parties[i].name.last
+  - other_parties[i].name.middle
+  - other_parties[i].name.suffix
+  - other_parties[i].person_type
+id: names of opposing parties - no petition or docket
+question: |
+  % if i >= 1:
+  What is your ${ ordinal(i) } landlord's name?
+  % else:
+  What is your landlord's name?
+  % endif 
+fields:
+  - code: |
+      other_parties[i].name_fields(person_or_business='unsure')   
+---
+if: docket_available
+sets:
+  - other_parties[i].name.first
+  - other_parties[i].name.last
+  - other_parties[i].name.middle
+  - other_parties[i].name.suffix
+  - other_parties[i].person_type
+id: names of opposing parties - docket only
+question: |
+  Name of Plaintiff
+subquestion: |
+  % if i == 0:
+    You can click on "Parties & Attorneys", the next tab to the right.  This tab should look like this:
+  
+    [FILE Parties.png, 100%]
+    
+    Who is listed as the Plaintiff?
+  % else:
+    
+    [FILE Parties.png, 100%]
+  
+    Another Plaintiff may be listed underneath the first Plaintiff.  Who is the  ${ ordinal(i) } Plaintiff?
+  % endif
+fields:
+  - code: |
+      other_parties[i].name_fields(person_or_business='unsure')    
+---
+id: names of opposing parties - petition
+if: tenant_got_summons and petition_available
+sets:
+  - other_parties[i].name.first
+  - other_parties[i].name.last
+  - other_parties[i].name.middle
+  - other_parties[i].name.suffix
+  - other_parties[i].person_type
+question: |
+  % if i >= 1 and person_answering == "tenant":
+  What is your ${ ordinal(i) } landlord's name?
+  % elif i == 0 and person_answering == "tenant":
+  What is your landlord's name?
+  % elif i >= 1 and person_answering == "attorney" or person_answering == "tenant_helper":
+  What is the tenant's ${ ordinal(i) } landlord's name?
+  % elif i == 0 and person_answering == "attorney" or person_answering == "tenant_helper":
+  What is the tenant's landlord's name?
+  % endif
+subquestion: |
+  Look at the Summons and Petition, and write the name of the ${ ordinal(i) } "Plaintiff"
+  exactly as it is written on the Summons and Petition.
+  
+  [FILE ComplaintCaptionPlaintiff.png, 100%]
+  
+fields:
+  - code: |
+      other_parties[i].name_fields(person_or_business='unsure')   
+---
+id: eviction hearing date if docket available
+if: docket_available
+question: |
+  % if person_answering == "tenant":
+  When is your eviction hearing?
+  % else:
+  When is the tenant's eviction hearing?
+  % endif
+subquestion: |
+  % if person_answering == "tenant":
+  Click the "Scheduled Hearings and Trials" tab and find the
+  date scheduled for your case.
+  
+  Your results may look like this:
+  % else:
+  Click the "Scheduled Hearings and Trials" tab and find the
+  date scheduled for the tenant's case.
+  
+  The tenant's results may look like this:
+  % endif
+
+  [FILE ScheduledEvents.png, 100%]
+fields:
+  - "Date of hearing": original_hearing_date
+    datatype: date
+  - "Original hearing time": original_hearing_time
+---
+comment: |
+  This block is not used because of another block that sets docket number underneath.
+sets: docket_number
+id: docket number
+question: |
+  % if person_answering == "tenant":
+  What is the case number for your case?
+  % else: 
+  What is the case number for the tenant's case?
+  % endif
+subquestion: |
+  ${ collapse_template(find_case_number_docket_template) }
+  
+  ${ collapse_template(find_case_number_summons_template) }
+fields:
+  - label: |
+      % if person_answering == "tenant":
+      I do not know the case number
+      % else:
+      The tenant does not know the case number
+      % endif
+    field: dont_know_docket_number
+    datatype: yesnowide
+  - no label: docket_number
+    hide if: dont_know_docket_number
+  - note: |
+      % if person_answering == "tenant":
+      You will need to add the case number before you file the document.  You can finish this interview, but it is recommended that you find the summons or the online docket to add the case number.
+      % else:
+      The tenant will need to add the case number before the tenant files the document.  You can finish this interview, but it is recommended that you find the summons or the online docket to enter the case number now.
+      % endif     
+    show if: dont_know_docket_number
+validation code: |
+  # This should be safe to 
+  if dont_know_docket_number:
+    docket_number = ''      
+---
+template: find_case_number_docket_template
+subject: |
+  Where is the case number in the online docket?
+content: |
+  The case number is at of the top of the webpage, next to the names of the Plaintiff and Defendant.
+  
+  [FILE CaseHeaderNumber.png, 100%]
+---
+template: find_case_number_summons_template
+subject: |
+  Where is the case number in the summons?
+content: |
+  The case number is at of the top of the webpage, next to the names of the Plaintiff and Defendant.
+  
+  [FILE MOSummonsNumber.png, 100%]
+---
+###################### PETITION REVIEW ######################
+id: Petition_introduction
+question: |
+  % if person_answering == "tenant":
+  Did you get a Summons and Landlord's Petition?
+  % else:
+  Did the tenant get a Summons and Landlord's Petition?
+  % endif
+subquestion: |
+  The {Summons} will look like this:
+ 
+  [CENTER]
+  [FILE MOSummons.png, 100%]
+ 
+  The {Petition} looks different in some counties, but it may look like this:
+ 
+  [CENTER]
+  [FILE ComplaintForm.png, 100%]
+fields:
+  - label: |
+      % if person_answering == "tenant":
+      I got a copy of the {Summons} and {Petition}
+      % else:
+      Did the tenant get a copy of the {Summons} and {Petition}?
+      % endif
+    field: tenant_got_summons
+    datatype: yesnomaybe
+  - label: |
+      % if person_answering == "tenant":
+      How did you get the Summons and Landlord's Petition?
+      % else:
+      How did the tenant get the Summons and Landlord's Petition?
+      % endif
+    field: method_of_summons_service
+    datatype: checkboxes
+    choices:
+      - ${ method_of_summons_service_text["mail"] }: mail
+      - ${ method_of_summons_service_text["certified_mail"] }: certified_mail
+      - ${ method_of_summons_service_text["posting"] }: posting
+      - ${ method_of_summons_service_text["left"] }: left
+      - ${ method_of_summons_service_text["sheriff"] }: sheriff
+      - ${ method_of_summons_service_text["other_delivery"] }: other_delivery
+      - "Some other method of getting the petition": other
+    none of the above: False
+    show if: tenant_got_summons
+  - label: |
+      % if person_answering == "tenant":
+      Do you have the Summons next to you now?
+      % else:
+      Does the tenant have the Summons next to them now?
+      % endif
+    field: petition_available
+    datatype: yesnoradio
+    show if: tenant_got_summons
+  - note: |
+      % if person_answering == "tenant":
+      **You may want to stop and get the petition now.** It can help you answer
+      the questions on this website more accurately. If you cannot easily get it,
+      it is OK to keep going.
+      % else: 
+      **The tenant may want to stop and get the petition now.** It can help them answer
+      the questions on this website more accurately. If they cannot easily get it,
+      it is OK to keep going.
+      % endif
+    show if: 
+      variable: petition_available
+      is: False
+terms:
+  Summons: |
+    % if person_answering == "tenant":
+    The Summons is the form that the Court sends you to tell you 
+    to attend a court hearing.
+    % else: 
+    The Summons is the form that the Court sends the tenant to 
+    tell them to attend a court hearing.
+    % endif
+  Petition: |
+    % if person_answering == "tenant":
+    The Landlord's Petition is the form that your landlord must 
+    file with the court to start an eviction case.
+    % else: 
+    The Landlord's Petition is the form that the tenant's 
+    landlord must file with the court to start an eviction case.
+    % endif
+---
+variable name: method_of_summons_service_text
+use objects: True
+data:
+  mail:
+    question: By regular mail
+    document: By regular mail
+  certified_mail:
+    question: By certified mail
+    document: By certified mail
+  posting:
+    question: |
+      % if person_answering == "tenant":
+      It was taped, stapled, or posted to your door or home
+      % else:
+      It was taped, stapled, or posted to the tenant's door or home
+      % endif   
+    document: |
+      It was taped, stapled, or posted to the tenant's door or home   
+  left:
+    question: |
+      It was stuffed in the door or left somewhere without being taped, stapled or posted  
+    document: |
+      It was stuffed in the door or left somewhere without being taped, stapled or posted
+  sheriff:
+    question: |
+      % if person_answering == "tenant":
+      It was handed to you by the sheriff or process server (called personal service)
+      % else:
+      It was handed to the tenant by the sheriff or process server (called personal service)
+      % endif   
+    document: |
+      It was handed to the tenant by the sheriff
+  other_delivery:
+    question: |
+      % if person_answering == "tenant":
+      It was handed to you by your landlord or somebody other than the sheriff or a process server
+      % else:
+      It was handed to the tenant by the landlord or somebody other than the sheriff
+      % endif   
+    document: |
+      It was handed to the tenant by the landlord or somebody other than the sheriff
+  other:
+    question: |
+      Some other method of getting the petition
+    document: |
+      Some other method of getting the petition
+---
+id: Other tenants
+if: tenant_got_summons and petition_available and len(users)==1
+question: Is any other tenant listed on this eviction case?
+subquestion: |
+  % if person_answering == "tenant":
+  In an eviction case, tenants are called Defendants. Defendants are listed underneath the Plaintiffs, and your name and address should be included as a Defendant.
+  % else:
+  In an eviction case, tenants are called Defendants. Defendants are listed underneath the Plaintiffs, and the tenant's name and address should be included as a Defendant.
+  % endif
+  [FILE ComplaintCaptionDefendant.png, 100%]
+  
+  Sometimes a landlord will add "John Doe" or "Jane Doe" as a party.  You do not need to include these additional parties.
+  
+fields:
+  - label: |
+      % if person_answering == "tenant":
+      Are there any other Defendants listed besides you?
+      % else:
+      Are there any other Defendants listed besides the tenant?
+      % endif
+    field: users.there_is_another
+    datatype: yesnoradio
+---
+id: Other tenants if docket available
+if: defined('docket_available') and docket_available and len(users)==1
+question: |
+  Is any other tenant listed on this eviction case?
+subquestion: |
+  % if person_answering == "tenant":
+  In an eviction case, tenants are called Defendants. Defendants are listed underneath the Plaintiffs, and your name and address should be included as a Defendant.
+  % else:
+    In an eviction case, tenants are called Defendants. Defendants are listed underneath the Plaintiffs, and the tenant's name and address should be included as a Defendant.
+  % endif
+  
+  Sometimes a landlord will add "John Doe" or "Jane Doe" as a party.  You do not need to include these additional parties.
+fields:
+  - label: |
+      % if person_answering == "tenant":
+      Are there any other Defendants listed besides you?
+      % else:
+      Are there any other Defendants listed besides the tenant?
+      % endif
+    field: users.there_is_another
+    datatype: yesnoradio
+---
+generic object: ALIndividual
+id: service method
+question: |
+  % if person_answering == "tenant":
+  How will you get a copy of the documents to ${ x }?
+  % else:
+  How will the tenant get a copy of the documents to ${ x }?
+  % endif
+fields:
+  - label: |
+      % if person_answering == "tenant":
+      I will serve ${ x } by
+      % else:
+      The tenant will serve ${ x } by
+      % endif
+    field: x.service_method
+    input type: radio
+    code: al_service_methods
+---
+comment: |
+  You can customize this block, and also add a translation for it with a language modifier,
+  demonstrated below
+variable name: al_service_methods
+use objects: True
+data:
+  mail:
+    question: Mail
+    document: mail
+  hand:
+    question: Hand delivery
+    document: hand delivery
+  email:
+    question: Email
+    document: email
+---
+generic object: ALIndividual
+id: any service address
+question: |
+  % if person_answering == "tenant":
+  At what address will you serve ${ x }?
+  % else:
+  At what address will the tenant serve ${ x }?
+  % endif
+fields:
+  - ${ x }'s service address is: x.service_address
+    datatype: object_radio
+    default: 
+      - x.address if defined(x.address.attr_name("address")) else None
+    choices:
+      - x.address if defined(x.address.attr_name("address")) else None
+      - x.mailing_address if defined(x.mailing_address.attr_name("address")) else None
+    object labeler: |
+      lambda y: y.on_one_line()      
+    none of the above: |
+      Somewhere else   
+  - ${ x.service_address.address_label }: x.service_address.address
+    address autocomplete: True
+    show if:
+      variable: x.service_address
+      is: None
+  - ${ x.service_address.unit_label }: x.service_address.unit
+    required: False
+    show if:
+      variable: x.service_address
+      is: None
+  - ${ x.service_address.city_label }: x.service_address.city
+    show if:
+      variable: x.service_address
+      is: None
+  - ${ x.service_address.state_label }: x.service_address.state
+    code: |
+      states_list(country_code=AL_DEFAULT_COUNTRY)
+    default: ${ AL_DEFAULT_STATE }
+    show if:
+      variable: x.service_address
+      is: None
+  - ${ x.service_address.zip_label }: x.service_address.zip
+    required: False      
+    show if:
+      variable: x.service_address
+      is: None
+  - ${ x.service_address.country_label }: x.service_address.country
+    code: countries_list()
+    default: ${ AL_DEFAULT_COUNTRY }
+    show if:
+      variable: x.service_address
+      is: None
+---
+if: x.attorney.there_are_any
+generic object: ALIndividual
+id: any service address - attorney
+question: |
+  % if person_answering == "tenant":
+  At what address will you serve ${ x.attorney }?
+  % else:
+  At what address will the tenant serve ${ x.attorney }?
+  % endif
+subquestion: |
+  ${ x } is represented by attorney ${ x.attorney }.  When somebody is represented by an attorney, the attorney must be served.
+fields:
+  - ${ x }'s service address is: x.service_address
+    datatype: object_radio
+    default: 
+      - x.attorney[0].address if defined(x.attorney[0].address.attr_name("address")) else None
+    choices:
+      - x.attorney[0].address if defined(x.attorney[0].address.attr_name("address")) else None
+      - x.attorney[0].mailing_address if defined(x.attorney[0].mailing_address.attr_name("address")) else None
+    object labeler: |
+      lambda y: y.on_one_line()      
+    none of the above: |
+      Somewhere else   
+  - ${ x.service_address.address_label }: x.service_address.address
+    address autocomplete: True
+    show if:
+      variable: x.service_address
+      is: None
+  - ${ x.service_address.unit_label }: x.service_address.unit
+    required: False
+    show if:
+      variable: x.service_address
+      is: None
+  - ${ x.service_address.city_label }: x.service_address.city
+    show if:
+      variable: x.service_address
+      is: None
+  - ${ x.service_address.state_label }: x.service_address.state
+    code: |
+      states_list(country_code=AL_DEFAULT_COUNTRY)
+    default: ${ AL_DEFAULT_STATE }
+    show if:
+      variable: x.service_address
+      is: None
+  - ${ x.service_address.zip_label }: x.service_address.zip
+    required: False      
+    show if:
+      variable: x.service_address
+      is: None
+  - ${ x.service_address.country_label }: x.service_address.country
+    code: countries_list()
+    default: ${ AL_DEFAULT_COUNTRY }
+    show if:
+      variable: x.service_address
+      is: None
+---
+generic object: ALIndividual
+code: |
+  if x.attorney.there_are_any:
+    x.service_email = x.attorney[0].email
+  else:
+    x.service_email = x.email
+---
+attachments:
+  - name: eviction motion to continue post interview instructions
+    filename: Post-interview-instructions     
+    variable name: eviction_defender_post_interview_instructions[i]        
+    skip undefined: True
+    docx template file: eviction_helper_next_steps.docx
+  - name: eviction motion to continue attachment
+    filename: eviction_motion_to_continue.docx     
+    variable name: eviction_motion_to_continue_attachment[i]        
+    skip undefined: True
+    docx template file: motion_to_continue.docx
+  - name: eviction answer
+    filename: answer_defenses.docx     
+    variable name: eviction_answer_attachment[i]        
+    skip undefined: True
+    docx template file: answer_defenses.docx
+---
+id: preview eviction_defender
+question: |
+  % if person_answering == "tenant":
+  Preview your form before you sign it
+  % else:
+  Preview the form before signing
+  % endif
+subquestion: |
+  % if person_answering == "tenant":
+  Here is a preview of the form you will sign on the next page.
+  % else:
+  Here is a preview of the form to be signed on the next page.
+  % endif
+  
+  ${ al_court_bundle.as_pdf(key='preview') }
+
+  Click the image to open it in a new tab. Click the "Edit answers" button
+  to edit your answers.
+
+  ${ action_button_html(url_action('review_eviction_answer'), label='Edit answers', color='info') }
+  
+  % if person_answering == "tenant":
+  Remember to come back to this window to continue and sign your form.
+  % else:
+  Remember to come back to this window to continue and sign the form.
+  % endif
+continue button field: eviction_defender_preview_question    
+---
+code: |
+  signature_fields = []
+---
+code: |
+  # This is a placeholder for the addresses that will be searched
+  # for matching address to court. Edit if court venue is based on 
+  # a different address than the user's
+  addresses_to_search = [user.address for user in users]
+---
+include:
+  - review.yml
+---
+id: download eviction_defender
+event: eviction_defender_download
+question: |
+  All done
+subquestion: |
+  % if person_answering == "tenant":
+  Thank you ${users}. Your form is ready to download and deliver.
+  
+  View, download, and send your form below. Click the "Edit answers" button to fix any mistakes.
+  % else:
+  Thank you ${users}. The tenant's form is ready to download and deliver.
+  
+  View, download, and send the tenant's form below. Click the "Edit answers" button to fix any mistakes.
+  % endif 
+
+  ${ action_button_html(url_action('review_eviction_answer'), label='Edit answers', color='info') }
+  
+  
+  ${ al_user_bundle.download_list_html() }
+  
+
+  ${ al_user_bundle.send_button_html(show_editable_checkbox=True) }
+
+progress: 100
+---
+objects:
+  - eviction_defender_post_interview_instructions: ALDocument.using(title="Instructions", filename="eviction_helper_next_steps.docx", enabled=True, has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+  - eviction_motion_to_continue_attachment: ALDocument.using(title="Postpone your eviction hearing", filename="eviction_motion_to_continue.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+  - eviction_answer_attachment: ALDocument.using(title="File an Answer and Affirmative Defenses", filename="answer_defenses.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+---
+objects:
+  - al_user_bundle: ALDocumentBundle.using(elements=[eviction_defender_post_interview_instructions,eviction_motion_to_continue_attachment,eviction_answer_attachment], filename="eviction_helper.docx_package.pdf", title="All forms to download for your records", enabled=True)
+  - al_court_bundle: ALDocumentBundle.using(elements=attachment_list_court, filename="eviction_helper.docx_package.pdf", title="All forms to download for your records", enabled=True)
+---
+template: about_page_contents
+subject: Terms of Use and Privacy Policy
+content: |
+  This website is free to use. Legal Services of Eastern Missouri (“LSEM”), a nonprofit legal aid program, hosts the site.
+  <h3 class="h5">You need to know</h3>
+  * **This website does not provide legal advice**. If you need legal advice, you can use [https://www.lsmo.org/](https://www.lsmo.org/) to find a lawyer.
+  * The information and documents on this website have no warranty. We provide the information “as-is.” By using the site, you agree not to hold GBLS or the information providers on this site liable.
+  * We work hard to keep the information on the site up to date. Lawyers drafted and reviewed the documents this site uses. But laws and local rules change over time. These changes can make a document unenforceable when you use it.
+  * We do our best to keep the site working! To do that, we allow you to submit feedback so we can track problems on the site. But we cannot provide individual technical support.
+  <h3 class="h5">To use this site</h3>
+  * You need to be over 13 to use this site.
+  * This site is for **anyone** 13 and over. For example: you can be the person who needs the help, a lawyer, or a social worker.
+  * You may not sell the information or the contents of this site. But you can charge for your own time.
+  * Please keep your use fair. Do not use this site in a way that is illegal or that makes it harder for other people to use.
+  <h3 class="h5">Information we and others collect</h3>
+  * We collect the information that you type to help you complete your forms. We delete all information 180 days after you last update it. You can also delete information immediately.
+  * We log information including IP addresses and web browsers from all visitors. We use this information to keep our site secure. We keep logs for up to 180 days.
+  * We use Google Maps to help fill in addresses automatically. This feature sends your IP address to Google Maps to get your approximate location.
+  * We use Google Analytics to learn how people use our website. This helps us understand which pages are hardest to use. Google may use this information to show you better advertisements.
+  * We use email and text message delivery services that may keep their own records of any messages you send. If you choose to log in with your phone number, this may include a record of the times you log in to the site.
+  <h3 class="h5">We keep your information safe</h3>
+  * We use the same technology that banks and online stores use to keep your information safe. We use:
+  * 256 bit encryption
+  * Software firewalls
+  * Limited access controls
+  * Continual monitoring
+  * Regular security updates
+  <h3 class="h5">Sharing your information</h3>
+  * We never sell your information.
+  * We share anonymous information with a small number of nonprofits and researchers. We use the information to improve our site and to improve free legal help in Missouri.
+  * When you visit some pages of the site, the site may ask if you want to apply to get a free lawyer from legal aid. You get to decide if you want to share your personal information.
+  * You may choose to email completed forms or share a link to your in-progress work at any time to any person.
+  <h3 class="h5">These terms of use can change</h3>
+  We may change these Terms of Use at any time with no notice. Please review the terms on a regular basis to see any changes.
+  If you use the site after we make changes, you accept our changed Terms of Use.
+  <h3 class="h5">The laws of Missouri apply to these Terms of Use</h3>
+  If a judge decides that one of the terms in this Terms of Use is unenforceable, it will not change the terms that remain.
+  <h3 class="h5">If you still have questions</h3>
+  Send any questions to:
+  Legal Services of Eastern Missouri
+  701 Market Street, Suite 1100
+  St. Louis, MO 63101
+---
