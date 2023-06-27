@@ -8,7 +8,10 @@ code: |
     trial_court.circuit = 22
   else:
     if hasattr(users[0].normalized_address(), "county"):
-      trial_court.county = users[0].normalized_address().county
+      if " County" in users[0].normalized_address().county:
+        trial_court.county = users[0].normalized_address().county[:-7]
+      else:
+        trial_court.county = users[0].normalized_address().county
       trial_court.circuit = county_dictionary[trial_court.county]['circuit']
     else:
       trial_court.county = trial_court_county_selected
