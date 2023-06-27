@@ -330,6 +330,7 @@ code: |
   case_type_kickout
   nav.set_section("section_eviction_answer_other") 
   for party in other_parties:
+    party.attorney.gather()
     if party.attorney.there_are_any:
       party.attorney[0].address.address
     else:

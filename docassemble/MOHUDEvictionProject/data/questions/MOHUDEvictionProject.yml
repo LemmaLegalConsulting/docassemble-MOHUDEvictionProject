@@ -97,7 +97,8 @@ code: |
   nav.set_section("section_eviction_answer_other")
   other_parties.gather()
   for party in other_parties:
-    if party.attorney.there_are_any:
+    party.attorney.gather()
+    if party.attorney.there_are_any: # TODO(qs): move to complete attribute block?
       party.attorney[0].address.address
     else:
       party.address.address
