@@ -153,13 +153,15 @@ question: |
 subquestion: |
   % if person_answering == "tenant":
   You said that
-  % if not tenant_got_summons:
+  % if tenant_got_summons is None:
+  you do not know if you received the Summons and Petition.
+  % elif not tenant_got_summons:
   you did not receive the Summons and Petition at all.
   % else:
   you got the Summons and Petition in the following ways:
   % for method in method_of_summons_service.true_values():
   
-   - ${ method_of_summons_service_text[method] }
+   - ${ method_of_summons_service_text[method] }  
   % endfor
   % endif
   
@@ -169,7 +171,7 @@ subquestion: |
    - Send the summons and petition to the tenant through certified mail
    - Send the summons and petition to the tenant through regular mail and post the summons and petition at the tenant's door.
 
-  Because your landlord did not serve you personally, the landlord cannot sue you for money damages.  If you file anything in court, including a motion to continue, the court may order you to pay money that you would not need to pay otherwise.
+  If your landlord did not serve you personally, the landlord cannot sue you for money damages.  If you file anything in court, including a motion to continue, the court may order you to pay money that you would not need to pay otherwise.
 
   You may still want to keep going if you:
 
@@ -179,7 +181,9 @@ subquestion: |
   You do not need to decide now. If you keep going, we will remind you about your choices at the end.
   You may want to talk to a lawyer to decide for sure.
   % else: 
-  % if not tenant_got_summons:
+  % if not tenant_got_summons is None:
+  The tenant does not know if the tenant received the Summons and Petition at all.
+  % elif not tenant_got_summons:
   The tenant did not receive the Summons and Petition at all.
   % else:
   The tenant got the Summons and Petition in the following ways:
@@ -190,11 +194,12 @@ subquestion: |
   % endif
 
   In order to serve a tenant personally a landlord must do one of the following things:
+  
    - Have the sheriff or a process server hand the tenant the summons and petition
    - Send the summons and petition to the tenant through certified mail
    - Send the summons and petition to the tenant through regular mail and post the summons and petition at the tenant's door.
 
-  Because their landlord did not serve the tenant personally, if they file a motion to continue, the court may order 
+  If their landlord did not serve the tenant personally, if they file a motion to continue, the court may order 
   them to pay money that they would not need to pay otherwise.
 
   The tenant may still want to keep going if they:
@@ -222,10 +227,16 @@ question: |
 subquestion: |
   % if person_answering == "tenant":
   % if tenant_got_summons:
-  You said that you got the Summons and Petition by personal delivery.
-  % else:
-  You said you do not know if you got the Summons and Petition.
+  You said that you got the Summons and Petition by 
+  % if method_of_summons_service['sheriff']:
+  personal delivery.
+  % elif method_of_summons_service['certified_mail']:
+  certified mail.
+  % elif method_of_summons_service['posting'] and method_of_summons_service['mail']:
+  mail and posting.
   % endif
+  % endif
+  
   In your situation,
   most tenants may be able to file a motion to continue
 
@@ -236,10 +247,18 @@ subquestion: |
   
   % else:
   % if tenant_got_summons:
-  You said that the tenant got the Summons and Petition by personal delivery.
+  You said that the tenant got the Summons and Petition by
+  % if method_of_summons_service['sheriff']:
+  personal delivery.
+  % elif method_of_summons_service['certified_mail']:
+  certified mail.
+  % elif method_of_summons_service['posting'] and method_of_summons_service['mail']:
+  mail and posting.
+  % endif
   % else:
   You said the tenant does not know if they got the Summons and Petition.
   % endif
+  
   In this situation,
   most tenants can file a motion to continue.
 
