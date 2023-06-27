@@ -167,7 +167,7 @@ subquestion: |
   You do not need to decide now. If you keep going, we will remind you about your choices at the end.
   You may want to talk to a lawyer to decide for sure.
   % else: 
-  % if not tenant_got_summons is None:
+  % if tenant_got_summons is None:
   The tenant does not know if the tenant received the Summons and Petition at all.
   % elif not tenant_got_summons:
   The tenant did not receive the Summons and Petition at all.
