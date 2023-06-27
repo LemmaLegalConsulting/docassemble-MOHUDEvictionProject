@@ -99,7 +99,6 @@ code: |
   for party in other_parties:
     party.attorney.gather()
     if party.attorney.there_are_any: # TODO(qs): move to complete attribute block?
-    if party.attorney.there_are_any:
       party.attorney[0].address.address
     else:
       party.address.address
@@ -139,7 +138,9 @@ question: |
 subquestion: |
   % if person_answering == "tenant":
   You said that
-  % if not tenant_got_summons:
+  % if tenant_got_summons is None:
+  you do not know if you received the Summons and Petition.
+  % elif not tenant_got_summons:
   you did not receive the Summons and Petition at all.
   % else:
   you got the Summons and Petition in the following ways:
@@ -150,11 +151,12 @@ subquestion: |
   % endif
   
   In order to serve a tenant personally a landlord must do one of the following things:
+  
    - Have the sheriff or a process server hand the tenant the summons and petition
    - Send the summons and petition to the tenant through certified mail
    - Send the summons and petition to the tenant through regular mail and post the summons and petition at the tenant's door.
   
-  Because your landlord did not serve you personally, the landlord cannot sue you for money damages.  If you file an answer, the court may order 
+  If your landlord did not serve you personally, the landlord cannot sue you for money damages.  If you file an answer, the court may order 
   you to pay money that you would not need to pay otherwise.
 
   You may still want to keep going if you:
@@ -165,7 +167,9 @@ subquestion: |
   You do not need to decide now. If you keep going, we will remind you about your choices at the end.
   You may want to talk to a lawyer to decide for sure.
   % else: 
-  % if not tenant_got_summons:
+  % if not tenant_got_summons is None:
+  The tenant does not know if the tenant received the Summons and Petition at all.
+  % elif not tenant_got_summons:
   The tenant did not receive the Summons and Petition at all.
   % else:
   The tenant got the Summons and Petition in the following ways:
@@ -181,8 +185,8 @@ subquestion: |
    - Send the summons and petition to the tenant through certified mail
    - Send the summons and petition to the tenant through regular mail and post the summons and petition at the tenant's door.
   
-  Because your landlord did not serve you personally, the landlord cannot sue you for money damages.  If you file an answer, the court may order 
-  you to pay money that you would not need to pay otherwise.
+  If the landlord did not serve the tenant personally, the landlord cannot sue the tenant for money damages.  If the tenant files an answer, the court may order 
+  the tenant to pay money that the tenant would not need to pay otherwise.
 
   The tenant may still want to keep going if they:
 
@@ -209,12 +213,19 @@ question: |
 subquestion: |
   % if person_answering == "tenant":
   % if tenant_got_summons:
-  You said that you got the Summons and Petition by personal delivery.
-  % else:
-  You said you do not know if you got the Summons and Petition.
+  You said that you got the Summons and Petition by 
+  % if method_of_summons_service['sheriff']:
+  personal delivery.
+  % elif method_of_summons_service['certified_mail']:
+  certified mail.
+  % elif method_of_summons_service['posting'] and method_of_summons_service['mail']:
+  mail and posting.
   % endif
-  In your situation,
-  most tenants file an answer.  An answer is a document that you file with the court to respond to the landlord's petition.  You can explain why you shouldn't be evicted in an answer.
+  
+  In your situation, most tenants file an answer.  An answer is a document that you file with the court to respond to the landlord's petition.  You can explain why you shouldn't be evicted in an answer.
+  % else:
+  You said you do not know if you got the Summons and Petition.  You should try to find out if you received the Summons and Petition to determine whether you should file an Answer.  An Answer makes it easier to defend against an eviction, but if you file an Answer in a case where you were not served the Summons and Petition, you could end up owing the landlord money.
+  % endif
 
   Filing an answer may:
 
@@ -228,7 +239,15 @@ subquestion: |
   
   % else:
   % if tenant_got_summons:
-  You said that the tenant got the Summons and Petition by personal delivery.
+  You said that the tenant got the Summons and Petition by
+  % if method_of_summons_service['sheriff']:
+  personal delivery.
+  % elif method_of_summons_service['certified_mail']:
+  certified mail.
+  % elif method_of_summons_service['posting'] and method_of_summons_service['mail']:
+  mail and posting.
+  % endif
+  
   % else:
   You said the tenant does not know if they got the Summons and Petition.
   % endif
