@@ -210,7 +210,7 @@ buttons:
       code: |
         posting_warning = True
   - Exit: exit
-    url: https://motenantassistance.org/
+    url: https://motenanthelp.org/
 ---
 id: yep motion for continuance
 question: |
