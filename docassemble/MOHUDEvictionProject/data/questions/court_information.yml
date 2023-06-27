@@ -13,7 +13,7 @@ code: |
     else:
       trial_court.county = trial_court_county_selected
       trial_court.circuit = county_dictionary[trial_court.county]['circuit']
-  trial_court.division = "Housing Division"
+  trial_court.division = "Associate Division"
   trial_court.address.county = trial_court.county
 ---
 id: caption - docket number and file date
@@ -330,8 +330,11 @@ code: |
   case_type_kickout
   nav.set_section("section_eviction_answer_other") 
   for party in other_parties:
-    party.address.address
     party.attorney.gather()
+    if party.attorney.there_are_any:
+      party.attorney[0].address.address
+    else:
+      party.address.address
   nav.set_section("section_eviction_answer_case")   
   users.gather()
   original_hearing_date
