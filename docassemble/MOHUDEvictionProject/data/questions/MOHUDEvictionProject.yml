@@ -99,6 +99,7 @@ code: |
   for party in other_parties:
     party.attorney.gather()
     if party.attorney.there_are_any: # TODO(qs): move to complete attribute block?
+    if party.attorney.there_are_any:
       party.attorney[0].address.address
     else:
       party.address.address
