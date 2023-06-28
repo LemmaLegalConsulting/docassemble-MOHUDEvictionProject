@@ -41,7 +41,8 @@ include:
 ---
 code: |
   interview_short_title = "Eviction Defender"
----:
+---
+sections:
   - section_eviction_answer_intro: Introduction
   - section_eviction_answer_can_i: Should you file an Answer?
   - section_eviction_answer_you: Information about you
