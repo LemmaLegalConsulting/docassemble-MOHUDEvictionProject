@@ -125,6 +125,7 @@ code: |
   landlord_problems_section
   set_progress(50)
   information_collected
+  explanation_answer
   document_order = True
 ---
 sets: posting_warning
@@ -454,4 +455,166 @@ code: |
     eviction_answer_attachment.enabled = False
   else:
     eviction_answer_attachment.enabled = True
+---
+id: defenses explanation
+question: Explanation of your answer
+continue button field: explanation_answer
+subquestion: |
+  Based on your answers, you may have the following defenses to the eviction case:
+  % if defense_rent_pleading_requirement:
+  
+  **Landlord failed to state a claim for rent and possession**
+
+  A landlord must include specific things in the landlord's petition in order to be able to evict.  Your landlord failed to include the following things: 
+  % if petition_alleges_nonrent == True:
+  
+   - a claim that you owe rent (the petition says that you owe for other charges)
+  % endif
+  % if petition_states_rent_amount == False:
+  
+   - an exact amount of what you owe in rent
+  % endif
+  % if petition_states_rent_periods == False:
+  
+   - the months that you supposedly owe rent
+  % endif
+  % if petition_states_demand_made == False:
+  
+   - a claim that the landlord demanded rent from you
+  % endif
+  % endif
+  % if defense_lease_not_attached:
+  
+  **Landlord has failed to comply with M.R.C.P. § 55.22**
+
+  A landlord must attach the written lease to the landlord's petition to be able to evict.  
+  % endif
+  % if defense_tender_refused:
+  
+  **Landlord refused Tenant’s tender of rent**
+
+  Landlord refused payment before the lawsuit was filed: For example, you presented the landlord the full amount of money you owed prior to the lawsuit but the landlord refused to accept the money. You should ask the judge to dismiss the case because you offered to pay the landlord the money you owed and the landlord refused to accept the money. You will need proof such as a letter from the landlord refusing to accept the money, a written check or money order or a witness to the landlord’s refusal. If you have no proof, you can offer to pay the amount claimed plus court costs in front of the judge. Make sure you have a certified check, money order or cash for the full amount with you. Full payment of rent owed plus court costs is your best defense. 	
+  % endif
+  % if defense_rent_payment:
+  
+  **Tenant has paid the rent allegedly owed**
+
+  A landlord also needs to allege that you didn't make the payment that you were obligated to make.
+  % endif
+  % if defense_settlement:
+  
+  **Landlord and Tenant entered into a settlement agreement and Tenant has complied with the settlement’s terms**
+
+  
+  % endif
+  % if defense_lease_signed_under_duress:
+  
+  **The lease is invalid because unfair duress by Landlord caused Tenant to enter the lease**
+
+  
+  % endif
+  % if defense_fraud_lease:
+  **Landlord’s fraudulent promises induced Tenant to enter the lease**
+
+  
+  % endif
+  % if defense_liquidated_damages_late_fees:
+  
+  **The late fees attached to the Landlord’s Petition are an unfair penalty**
+
+  Late fees must be based on what it actually costs the landlord when a tenant pays late.
+  This defense alone may not help you avoid the eviction, but it can reduce the amount of money you owe the landlord.
+  % endif
+  % if defense_estoppel_illegality:
+  
+  **Landlord is estopped from enforcement of the lease because it has violated Missouri law**
+
+  "Estopped" means that the landlord should be prevented from benefiting from a lease if the landlord already violated the law.
+  % endif
+  % if defense_breach_of_habitability:
+  
+  **Landlord has breached the implied warranty of habitability**
+
+  For example, your landlord has let the building run down and has not fixed major problems such as lack of running water, even after being notified of such problems. You should ask the judge to let you stay and either continue to pay a lower rent, make the landlord pay you for damages caused by the landlord’s failure to make needed repairs or excuse you from paying all, or part of, the back rent owed. You will need proof such as photos, letters to your landlord asking for repairs, copies of code violation reports or witnesses such as the building inspector. In some cases, the court may ask for proof that you have set aside the money you did not pay.
+  
+  % endif
+  % if defense_foreclosure:
+  
+  **The premises have been foreclosed upon but the Landlord has not followed proper procedures**
+
+  There are special protections for tenants when their landlord loses the home through foreclosure.  The new owner of the home is required to provide notice of the foreclosure
+  % endif
+  % if defense_new_owner_failed_to_provide_notice_of_sale:
+  
+  **The premises have been sold but the prior Landlord has not provided Tenant the required notices and therefore no rent is owed**
+
+  There are special protections for tenants when their landlord loses the home through foreclosure.  The new owner of the home is required to provide notice of the foreclosure
+  % endif
+  % if defense_unrepresented_corporation:
+  
+  **The Landlord is required to have an attorney in this case and it must be dismissed**
+
+  A business entity, like a corporation, must have an attorney to file the case.
+  % endif
+  % if defense_no_landlord_tenant_relationship:
+  
+  **There is no landlord-tenant relationship between the parties**
+
+  This defense can be difficult to understand, if you have also said there is a lease between you and the landlord.  However, that lease may not be valid for because
+  If the lease is not valid, then the landlord should not be able to evict you in a rent and possession action.
+  % endif
+  % if defense_excessive_rent_for_subsidized_housing:
+  
+  **The Landlord has charged the Tenant rent that is not owed according to the Housing Choice Voucher Program contract entered into by the Landlord and the Tenant**
+
+  
+  % endif
+
+
+  ###Evidence###
+  
+  You need to show the court evidence that 
+  
+  % if defense_tender_refused:
+
+   1. Evidence that you attempted to pay the rent on 
+   % for offer in offer_attempts:
+   ${ offer.attempt_date }
+   % if loop.last:
+   .
+   % elif loop.reverse_index == 1:
+   , and 
+   % else:
+   , 
+   % endif
+   % endfor
+  % endif
+
+  % if defense_rent_payment:
+
+   1. Payment records or a cancelled check showing that you paid the rent
+  % endif
+
+  % if defense_settlement:
+
+   1. A copy of the settlement agreement you made with the landlord
+   1. Evidence that you complied with the settlement agreement  
+  % endif
+
+  % if defense_breach_of_habitability:
+
+   1. Photographs or other evidence of the problems in the home
+   1. A copy of the notice that you sent to the landlord about the problem that needs repaired.
+  % endif
+
+  % if original_hearing_date_past:
+  
+  ###Motion for Leave to File Responsive Pleadings###
+  
+  Your answer also contains a "Motion for Leave to File Responsive Pleadings" because the original hearing date for already past.  The original hearing date is the deadline for filing an Answer, so you need to ask for the court's permission to file this Answer.
+  
+  % endif
+---
+id: next steps explanation
+question:  Print, Sign, Serve and File
 ---
