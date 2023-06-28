@@ -51,42 +51,18 @@ fields:
       The case number helps the court clerk put your answer in the right file.
 under: |
   ${ collapse_template(find_case_number_docket_template) }
-  
-
 ---
+
 id: reason for eviction
 question: |
   Why does your landlord say they are evicting you?
 subquestion: |
-  % if tenant_got_summons and petition_available:
-  Look at the Summons and Landlord Petition when you answer this question.
-  Write down the same reason that your landlord wrote on the Summons.
-  % else:
   It helps to look at the Summons and Landlord Petition when you answer this question.
   If you do not have it in front of you, do your best to answer from what you remember.
-  % endif
+
 
   ${ collapse_template(what_if_i_disagree_template) }
 fields:
-  - label: |
-      Nature of Suit or Case Type
-    field: case_type
-    show if:
-      code: |
-        tenant_got_summons and petition_available
-    datatype: checkboxes
-    required: False
-    none of the above: False
-    choices:
-      - AC Rent and Possession: AC Rent and Possession
-      - AC Unlawful Detainer: AC Unlawful Detainer
-      - AC Landlord Action (Bulk): AC Landlord Action (Bulk)
-      - AC Expedited Eviction: AC Expedited Eviction
-      - Other: Other
-  - Other Case Type: case_type_other
-    show if:
-      variable: case_type['Other']
-      is: True
   - label: |
       % if person_answering == "tenant":
       Why does your landlord says they are evicting you?:
@@ -142,10 +118,6 @@ fields:
       - Something else: other
     none of the above: | 
       I do not know
-  - Other eviction reason: eviction_reason_other
-    show if:
-      variable: eviction_reason['other']
-      is: True
   - Is the landlord asking for an expedited (emergency) eviction?: landlord_seeking_emergency_eviction
     datatype: yesnomaybe
     help: |
@@ -158,15 +130,70 @@ fields:
       code: |
         not (tenant_got_summons and petition_available)
 ---
+id: code to make case type from eviction reason
 code: |
   if not (tenant_got_summons and petition_available):
     case_type = DADict("case type", elements={
-      "AC Unlawful Detainer": len(eviction_reasons.true_values()) >1, 
+      "AC Unlawful Detainer": len(eviction_reason.true_values()) >1, 
       "AC Rent and Possession": eviction_reason["nonpayment of rent"],
       "AC Landlord Action (Bulk)": False,
-      "AC Expedited Eviction": eviction_reasons["criminal activity"] and landlord_seeking_emergency_eviction,
+      "AC Expedited Eviction": eviction_reason["criminal activity"] and landlord_seeking_emergency_eviction,
       "Other": False
     })
+---
+if: docket_available
+id: case type from docket
+question: |
+  What kind of eviction case type?
+subquestion: |
+  The Case Header Tab on the Online Docket has a section called case type.  Use this information to answer this question. 
+  
+  [FILE CaseHeaderType.png, 100%]
+
+fields:
+  - label: |
+      Case Type
+    field: case_type
+    datatype: checkboxes
+    required: False
+    none of the above: False
+    choices:
+      - AC Rent and Possession: AC Rent and Possession
+      - AC Unlawful Detainer: AC Unlawful Detainer
+      - AC Landlord Action (Bulk): AC Landlord Action (Bulk)
+      - AC Expedited Eviction: AC Expedited Eviction
+      - Other: Other
+  - Other Case Type: case_type_other
+    show if:
+      variable: case_type['Other']
+      is: True
+---
+if: tenant_got_summons and petition_available
+id: case type from summons
+question: |
+  What kind of eviction suit?
+subquestion: |
+  The Summons has a section called Nature of Suit.  Use this information to answer this question. 
+  
+  [FILE MOSummonsType.png, 100%]
+
+fields:
+  - label: |
+      Nature of Suit
+    field: case_type
+    datatype: checkboxes
+    required: False
+    none of the above: False
+    choices:
+      - AC Rent and Possession: AC Rent and Possession
+      - AC Unlawful Detainer: AC Unlawful Detainer
+      - AC Landlord Action (Bulk): AC Landlord Action (Bulk)
+      - AC Expedited Eviction: AC Expedited Eviction
+      - Other: Other
+  - Other Case Type: case_type_other
+    show if:
+      variable: case_type['Other']
+      is: True
 ---
 template: what_if_i_disagree_template
 subject: |
