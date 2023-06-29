@@ -926,6 +926,7 @@ review:
   - Edit:
       - petition_states_rent_amount
       - recompute:
+        - petition_alleges_nonrent
         - defense_rent_pleading_requirement
         - defense_logic
       - explanation_answer
@@ -936,15 +937,6 @@ review:
       Does the petition say what amount of rent the tenant owes?
       % endif
       **${ "Maybe" if petition_states_rent_amount is None else yesno(petition_states_rent_amount) }**
-  - Edit:
-      - petition_alleges_nonrent
-      - recompute:
-        - defense_rent_pleading_requirement
-        - defense_logic
-      - explanation_answer
-    button: |
-      Does the petition allege nonrent?
-      **${ "Maybe" if petition_alleges_nonrent is None else yesno(petition_alleges_nonrent) }**
   - Edit:
       - petition_states_rent_periods
       - recompute:
