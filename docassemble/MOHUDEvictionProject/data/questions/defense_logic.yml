@@ -63,7 +63,7 @@ code: |
   defense_tender_refused = False
   if offer_attempts.there_are_any:
     for offer in offer_attempts:
-      if offer.has_refused_payment and offer.has_attempt_evidence and offer.was_attempt_full:
+      if offer.has_refused_payment and offer.was_attempt_full:
         defense_tender_refused = True
 comment: |
   add date requirement
@@ -404,7 +404,7 @@ depends on:
 ---
 id: warranty breach logic
 code: |
-  if warranty_breaches.any_true() and notice_of_breach_to_landlord == True:
+  if warranty_breaches.any_true() == True:
     defense_breach_of_habitability = True
   else:
     defense_breach_of_habitability = False
