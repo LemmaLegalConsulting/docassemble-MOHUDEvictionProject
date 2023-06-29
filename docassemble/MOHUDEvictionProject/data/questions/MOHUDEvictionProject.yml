@@ -300,8 +300,8 @@ code: |
 ---
 code: |
   warranty_breaches
-  estoppel_breaches
   cqe_breaches
+  estoppel_breaches
   landlord_problems_section = True
 
 ---
@@ -516,6 +516,7 @@ subquestion: |
   
   % endif
   % if defense_fraud_lease:
+  
   **Landlord’s fraudulent promises induced Tenant to enter the lease**
 
   
@@ -571,7 +572,7 @@ subquestion: |
 
   
   % endif
-
+  % if defense_tender_refused or defense_rent_payment or defense_settlement or defense_breach_of_habitability:
 
   ###Evidence###
   
@@ -607,6 +608,7 @@ subquestion: |
 
    1. Photographs or other evidence of the problems in the home
    1. A copy of the notice that you sent to the landlord about the problem that needs repaired.
+  % endif
   % endif
 
   % if original_hearing_date_past:
@@ -666,8 +668,9 @@ review:
   - Edit:
       - other_parties.revisit
       - recompute:
-          - defense_logic
-          - defense_unrepresented_corporation
+        - defense_unrepresented_corporation
+        - defense_logic
+      - explanation_answer
     button: |
       Plaintiffs:
       % if other_parties.there_are_any:
@@ -695,27 +698,40 @@ review:
       ##Information about the rental agreement##
       % endif
   - Edit:
+      - has_written_lease
+      - recompute:
+        - defense_lease_not_attached
+        - defense_rent_pleading_requirement
+        - defense_logic
+      - explanation_answer
+    button: |
+      Does a lease exist?
+      **${ "Maybe" if has_written_lease is None else yesno(has_written_lease) }**
+  - Edit:
       - lease_attached
       - recompute:
-        - defense_logic
         - defense_lease_not_attached
-        - lease_or_terms
+        - defense_rent_pleading_requirement
+        - defense_logic
+      - explanation_answer
     button: |
       Does the summons and petition packet have the lease attached as an exhibit?
       **${ "Maybe" if lease_attached is None else yesno(lease_attached) }**
   - Edit:
       - petition_states_terms_of_lease
       - recompute:
+        - defense_rent_pleading_requirement
         - defense_logic
-        - lease_or_terms
+      - explanation_answer
     button: |
-      Is the lease attached to the petition?
+      Does the petition have a summary of the terms of the rental agreement?
       **${ "Maybe" if petition_states_terms_of_lease is None else yesno(petition_states_terms_of_lease) }**
   - Edit:
       - is_rent_subsidized
       - recompute:
-        - defense_logic
         - defense_excessive_rent_for_subsidized_housing
+        - defense_logic
+      - explanation_answer
     button: |
       % if person_answering == "tenant":
       Do you get a rent subsidy or do you live in public housing?
@@ -733,8 +749,9 @@ review:
   - Edit:
       - unfair_duress
       - recompute:
-        - defense_logic
         - defense_lease_signed_under_duress
+        - defense_logic
+      - explanation_answer
     button: |
       % if person_answering == "tenant":
       Did the landlord unfairly pressure you to sign the lease?
@@ -745,8 +762,9 @@ review:
   - Edit:
       - false_promises.revisit
       - recompute:
-        - defense_logic
         - defense_fraud_lease
+        - defense_logic
+      - explanation_answer
     button: |
       False Promises Made By The Landlord:
       % if false_promises.there_are_any:
@@ -761,8 +779,9 @@ review:
   - Edit:
       - relied_on_false_promises
       - recompute:
-        - defense_logic
         - defense_fraud_lease
+        - defense_logic
+      - explanation_answer
     button: |
       % if person_answering == "tenant":
       Did the landlord's promise get you to sign the lease?
@@ -773,8 +792,9 @@ review:
   - Edit:
       - landlord_foreclosed
       - recompute:
-        - defense_logic
         - defense_foreclosure
+        - defense_logic
+      - explanation_answer
     button: |
       % if person_answering == "tenant":
       Did the bank foreclose on this property while you lived there?
@@ -785,20 +805,22 @@ review:
   - Edit:
       - notice_of_foreclosure
       - recompute:
-        - defense_logic
         - defense_foreclosure
+        - defense_logic
+      - explanation_answer
     button: |
       % if person_answering == "tenant":
       Did you get a letter that told you about the foreclosure?
       % else:
-      Did the tenanat get a letter that told the tenant about the foreclosure?
+      Did the tenant get a letter that told the tenant about the foreclosure?
       % endif
       **${ "Maybe" if notice_of_foreclosure is None else yesno(notice_of_foreclosure) }**
   - Edit:
       - previous_landlord_sold_property
       - recompute:
-        - defense_logic
         - defense_new_owner_failed_to_provide_notice_of_sale
+        - defense_logic
+      - explanation_answer
     button: |
       % if person_answering == "tenant":
       Did your previous landlord sell the property to the new landlord?
@@ -807,9 +829,10 @@ review:
       % endif
       **${ "Maybe" if previous_landlord_sold_property is None else yesno(previous_landlord_sold_property) }**
   - Edit:
-      - notice_of_sale_provided
+      - notice_of_sale_provided_new_landlord
       - recompute:
         - defense_logic
+      - explanation_answer
     button: |
       % if person_answering == "tenant":
       Did the landlord provide you notice of the sale?
@@ -817,6 +840,18 @@ review:
       Did the new landlord provide the tenant notice of the sale?
       % endif
       **${ "Maybe" if notice_of_sale_provided is None else yesno(notice_of_sale_provided) }**
+  - Edit:
+      - notice_contains_sale_document
+      - recompute:
+        - defense_logic
+      - explanation_answer
+    button: |
+      % if trial_court.classification.strip() == "Class 1":
+      Did that letter have a copy of the deed, or a notarized document signed both by the original landlord and the new landlord?
+      % else:
+      Did that letter have a copy of the deed?
+      % endif
+      **${ "Maybe" if notice_contains_sale_document is None else yesno(notice_contains_sale_document) }**
   - note: | 
       ##Information about the eviction##
   - Edit:
@@ -850,7 +885,7 @@ review:
   - Edit:
       - case_type
       - recompute:
-        - defense_logic
+        - document_order
     button: |
       Case Type:
       % if case_type.any_true():
@@ -870,9 +905,9 @@ review:
   - Edit:
       - tenant_got_summons
       - recompute:
-        - defense_logic
         - defense_rent_pleading_requirement
         - defense_lease_not_attached
+        - defense_logic
     button: |
       % if person_answering == "tenant":
       Did you receive the summons?
@@ -883,7 +918,7 @@ review:
   - Edit:
       - method_of_summons_service
       - recompute:
-        - defense_logic
+        - document_order
     button: |
       % if person_answering == "tenant":
       How did you receive the Summons and Landlord's Petition?
@@ -900,9 +935,10 @@ review:
   - Edit:
       - petition_available
       - recompute:
-        - defense_logic
         - defense_rent_pleading_requirement
         - defense_lease_not_attached
+        - defense_logic
+      - explanation_answer
     button: |
       Do you have a copy of the Landlord's Petition available?
       **${ yesno(petition_available) }**
@@ -911,8 +947,9 @@ review:
   - Edit:
       - petition_states_rent_amount
       - recompute:
-        - defense_logic
         - defense_rent_pleading_requirement
+        - defense_logic
+      - explanation_answer
     button: |
       % if person_answering == "tenant":
       Does the petition say what amount of rent you owe?
@@ -923,24 +960,27 @@ review:
   - Edit:
       - petition_alleges_nonrent
       - recompute:
-        - defense_logic
         - defense_rent_pleading_requirement
+        - defense_logic
+      - explanation_answer
     button: |
       Does the petition allege nonrent?
       **${ "Maybe" if petition_alleges_nonrent is None else yesno(petition_alleges_nonrent) }**
   - Edit:
       - petition_states_rent_periods
       - recompute:
-        - defense_logic
         - defense_rent_pleading_requirement
+        - defense_logic
+      - explanation_answer
     button: |
       Does the petition list each month that the landlord claims you owe rent?
       **${ "Maybe" if petition_states_rent_periods is None else yesno(petition_states_rent_periods) }**
   - Edit:
       - was_rent_paid
       - recompute:
-        - defense_logic
         - defense_rent_payment
+        - defense_logic
+      - explanation_answer
     button: |
       % if person_answering == "tenant":
       Did you pay at least part of the rent?
@@ -951,8 +991,9 @@ review:
   - Edit:
       - rent_amount_paid
       - recompute:
-        - defense_logic
         - defense_rent_payment
+        - defense_logic
+      - explanation_answer
     button: |
       % if person_answering == "tenant":
       How much did you pay?
@@ -963,8 +1004,9 @@ review:
   - Edit:
       - offer_attempts.revisit
       - recompute:
-        - defense_logic
         - defense_tender_refused
+        - defense_logic
+      - explanation_answer
     button: |
       Attempts to Pay Rent:
       % if len(offer_attempts) == 1:
@@ -977,8 +1019,9 @@ review:
   - Edit:
       - excessive_rent
       - recompute:
-        - defense_logic
         - defense_excessive_rent_for_subsidized_housing
+        - defense_logic
+      - explanation_answer
     button: |
       % if person_answering == "tenant":
       Is your landlord asking you to pay an amount that is more than your tenant rent share?
@@ -989,9 +1032,10 @@ review:
   - Edit:
       - late_fees_assessed
       - recompute:
-        - defense_logic
         - defense_liquidated_damages_late_fees
         - defense_illegal_late_fees
+        - defense_logic
+      - explanation_answer
     button: |
       % if person_answering == "tenant":
       Is the landlord claiming that you owe late fees?
@@ -1002,17 +1046,19 @@ review:
   - Edit:
       - late_fees_penalty
       - recompute:
-        - defense_logic
         - defense_liquidated_damages_late_fees
+        - defense_logic
+      - explanation_answer
     button: |
       Are the late fees more than any actual costs the landlord would have to pay because of late rent?
       **${ "Maybe" if late_fees_penalty is None else yesno(late_fees_penalty) }**
   - Edit:
       - late_fees_provision_in_lease
       - recompute:
-        - defense_logic
         - defense_liquidated_damages_late_fees
-      - defense_illegal_late_fees
+        - defense_illegal_late_fees
+        - defense_logic
+      - explanation_answer
     button: |
       Does the lease say that they landlord can charge late fees?
       **${ "Maybe" if late_fees_provision_in_lease is None else yesno(late_fees_provision_in_lease) }**
@@ -1020,6 +1066,7 @@ review:
       - petition_separates_nonrent
       - recompute:
         - defense_logic
+      - explanation_answer
     button: |
       % if person_answering == "tenant":
       Does the petition separate the amount you owe in rent from other charges?
@@ -1030,8 +1077,9 @@ review:
   - Edit:
       - petition_states_demand_made
       - recompute:
-        - defense_logic
         - defense_rent_pleading_requirement
+        - defense_logic
+      - explanation_answer
     button: |
       Does the Petition say that the landlord demanded rent?
       **${ "Maybe" if petition_states_demand_made is None else yesno(petition_states_demand_made) }**
@@ -1053,6 +1101,7 @@ review:
       - landlord_agreement_type
       - recompute:
         - defense_logic
+      - explanation_answer
     button: |
       What type of agreement did you make?
       **${ landlord_agreement_type }**
@@ -1060,14 +1109,16 @@ review:
       - landlord_agreement_terms
       - recompute:
         - defense_logic
+      - explanation_answer
     button: |
       What were the terms of the settlement agreement with the landlord?
       **${ landlord_agreement_terms }**
   - Edit:
       - tenant_compliance_with_agreement
       - recompute:
-        - defense_logic
         - defense_settlement
+        - defense_logic
+      - explanation_answer
     button: |
       % if person_answering == "tenant":
       Did you comply with the settlement agreement with the landlord?
@@ -1078,8 +1129,9 @@ review:
   - Edit:
       - tenant_compliance_with_agreement_proof
       - recompute:
-        - defense_logic
         - defense_settlement
+        - defense_logic
+      - explanation_answer
     button: |
       % if person_answering == "tenant":
       Do you have proof that you complied with the agreement?
@@ -1091,9 +1143,11 @@ review:
       ##Landlord Problems##
   - Edit:
       - warranty_breaches
+      - notice_of_breach_to_landlord
       - recompute:
         - defense_breach_of_habitability
         - defense_logic
+      - explanation_answer
     button: |
       Problems Landlord Failed to Repair:
       % if warranty_breaches.any_true():
@@ -1114,8 +1168,9 @@ review:
   - Edit:
       - notice_of_breach_to_landlord
       - recompute:
-        - defense_logic
         - defense_breach_of_habitability
+        - defense_logic
+      - explanation_answer
     button: |
       % if person_answering == "tenant":
       Did you tell the landlord about these problems?
@@ -1126,9 +1181,10 @@ review:
   - Edit:
       - cqe_breaches
       - recompute:
-        - defense_logic
         - defense_breach_of_cqe
         - defense_estoppel_illegality
+        - defense_logic
+      - explanation_answer
     button: |
       Harassment and other breaches of quiet enjoyment:
       % if cqe_breaches.any_true():
@@ -1149,8 +1205,9 @@ review:
   - Edit:
       - estoppel_breaches
       - recompute:
-        - defense_logic
         - defense_estoppel_illegality
+        - defense_logic
+      - explanation_answer
     button: |
       Other Landlord Violations:
       % if estoppel_breaches.any_true():
