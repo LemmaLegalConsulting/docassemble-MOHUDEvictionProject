@@ -1,4 +1,7 @@
 ---
+include:
+  - shared.yml
+---
 metadata:
   title: |
     Defend Against an Eviction
@@ -13,31 +16,8 @@ metadata:
     - Toby Fey
     - Ian Eisaman
     - Mia Bonardi
----
-mandatory: True
-comment: |
-  Global interview metadata
-variable name: interview_metadata["eviction_defender"]
-data:
   al_weaver_version: "1.7.0"
   generated on: "2022-09-08"
-  title: >-
-    Eviction Helper
-  short title: >-
-    Eviction Help
-  description: |-
-    Helps with Evictions
-  original_form: >-
-    
-  allowed courts: 
-    - "Missouri"
-  categories:
-    - "HO-00-00-00-00"
-  typical role: "defendant"
-  generate download screen: True
----
-include:
-  - shared.yml
 ---
 code: |
   interview_short_title = "Eviction Defender"
@@ -61,7 +41,6 @@ comment: |
 id: interview_order_eviction
 code: |
   # Set the allowed courts for this interview
-  allowed_courts = interview_metadata["eviction_defender"]["allowed courts"]
   nav.set_section('section_eviction_answer_intro')
   user_role = 'defendant'
   landlord_doc_name
