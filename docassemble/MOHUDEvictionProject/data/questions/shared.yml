@@ -84,8 +84,8 @@ code: |
   nav.set_section("section_eviction_answer_other")
   other_parties.gather()
   for party in other_parties:
-    party.address.address
-    party.attorney.gather()
+    if party.attorney.there_are_any == False:
+      party.address.address
   users.gather()
   nav.set_section("section_eviction_answer_case")
   original_hearing_date
@@ -268,10 +268,12 @@ sets:
   - other_parties[i].attorney[j].name.last
   - other_parties[i].attorney[j].name.middle
   - other_parties[i].attorney[j].name.suffix
-question: What is the name of the ${ other_parties[i] }'s attorney?
+question: What is the name and address of the ${ other_parties[i] }'s attorney?
 fields:
   - code: |
       other_parties[i].attorney[j].name_fields()
+  - code: |
+      x.address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)
 ---
 id: Opposing Attorney name from Docket
 if: docket_available
@@ -281,7 +283,7 @@ sets:
   - other_parties[i].attorney[j].name.middle
   - other_parties[i].attorney[j].name.suffix
 question: |
-  What is the name of the ${ other_parties[i] }'s attorney?
+  What is the name and address of the ${ other_parties[i] }'s attorney?
 subquestion: |
   You can find the name and address of the attorney in the Parties and Attorneys tab in the online docket.
   
@@ -289,6 +291,8 @@ subquestion: |
 fields:
   - code: |
       other_parties[i].attorney[j].name_fields()
+  - code: |
+      x.address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)
 ---
 id: Opposing Attorney name from Summons
 if: tenant_got_summons and petition_available 
@@ -297,7 +301,7 @@ sets:
   - other_parties[i].attorney[j].name.last
   - other_parties[i].attorney[j].name.middle
   - other_parties[i].attorney[j].name.suffix
-question: What is the name of the ${ other_parties[i] }'s attorney?
+question: What is the name and address of the ${ other_parties[i] }'s attorney?
 subquestion: |
   If the landlord is represented by an attorney, then the attorney's name and address will be in the box next to the Landlord's name.
   
@@ -305,6 +309,8 @@ subquestion: |
 fields:
   - code: |
       other_parties[i].attorney[j].name_fields()
+  - code: |
+      x.address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)
 ---
 id: your address
 sets:
