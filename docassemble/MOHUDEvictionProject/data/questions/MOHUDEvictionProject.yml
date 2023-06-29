@@ -1,4 +1,7 @@
 ---
+include:
+  - shared.yml
+---
 metadata:
   title: |
     Defend Against an Eviction
@@ -13,31 +16,8 @@ metadata:
     - Toby Fey
     - Ian Eisaman
     - Mia Bonardi
----
-mandatory: True
-comment: |
-  Global interview metadata
-variable name: interview_metadata["eviction_defender"]
-data:
   al_weaver_version: "1.7.0"
   generated on: "2022-09-08"
-  title: >-
-    Eviction Helper
-  short title: >-
-    Eviction Help
-  description: |-
-    Helps with Evictions
-  original_form: >-
-    
-  allowed courts: 
-    - "Missouri"
-  categories:
-    - "HO-00-00-00-00"
-  typical role: "defendant"
-  generate download screen: True
----
-include:
-  - shared.yml
 ---
 code: |
   interview_short_title = "Eviction Defender"
@@ -61,7 +41,6 @@ comment: |
 id: interview_order_eviction
 code: |
   # Set the allowed courts for this interview
-  allowed_courts = interview_metadata["eviction_defender"]["allowed courts"]
   nav.set_section('section_eviction_answer_intro')
   user_role = 'defendant'
   landlord_doc_name
@@ -1033,7 +1012,6 @@ review:
       - late_fees_assessed
       - recompute:
         - defense_liquidated_damages_late_fees
-        - defense_illegal_late_fees
         - defense_logic
       - explanation_answer
     button: |
@@ -1053,15 +1031,14 @@ review:
       Are the late fees more than any actual costs the landlord would have to pay because of late rent?
       **${ "Maybe" if late_fees_penalty is None else yesno(late_fees_penalty) }**
   - Edit:
-      - late_fees_provision_in_lease
+      - late_fees_lease_provision
       - recompute:
         - defense_liquidated_damages_late_fees
-        - defense_illegal_late_fees
         - defense_logic
       - explanation_answer
     button: |
       Does the lease say that they landlord can charge late fees?
-      **${ "Maybe" if late_fees_provision_in_lease is None else yesno(late_fees_provision_in_lease) }**
+      **${ "Maybe" if late_fees_lease_provision is None else yesno(late_fees_lease_provision) }**
   - Edit:
       - petition_separates_nonrent
       - recompute:

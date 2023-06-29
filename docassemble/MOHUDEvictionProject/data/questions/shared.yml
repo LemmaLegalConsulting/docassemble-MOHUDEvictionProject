@@ -1,6 +1,5 @@
 include:
   - docassemble.AssemblyLine:assembly_line.yml
-  - docassemble.ALAnyState:any_state.yml
   - defense_logic.yml
   - information_collected.yml
   - al_reminders.yml
@@ -8,10 +7,21 @@ include:
   - court_information.yml
 ---
 features:
-  bootstrap theme: lsem.bootstrap.css
+  bootstrap theme: motenanthelp.bootstrap.css
+  css: custom.css
+  inverse navbar: False
 ---
 default screen parts:
   pre: |
+  logo: |
+    <span class="mo-logo">
+      <img src="${ al_logo.url_for() }" alt="${ al_logo.alt_text }"/>
+    </span>
+  short logo: |
+    <span class="mo-logo">
+      <img src="${ al_logo.url_for() }" alt="${ al_logo.alt_text }"/>
+    </span>
+    
 ---
 objects:
   - other_parties: ALPeopleList.using(there_are_any=True,complete_attribute="complete")

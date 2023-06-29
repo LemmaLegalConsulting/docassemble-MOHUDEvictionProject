@@ -1,8 +1,5 @@
-# docassemble.MOHudEvictionProject
+# Missouri eviction answer and motions
 
-Postpone your eviction hearing
+Built for Legal Services of Eastern Missouri with a grant from the Department of Housing and Urban Development.
 
-## Author
-
-Quinten Steenhuis
 
