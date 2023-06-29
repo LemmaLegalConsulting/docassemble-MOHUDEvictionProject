@@ -1011,7 +1011,7 @@ question: |
 subquestion: |
   ${ collapse_template(bad_conditions_explanation_template) }
 
-  List problems that have been fixed if they happened with the last 2 years. 
+  You can also list problems that have been fixed if they happened with the last 2 years. 
 fields: 
   - label: |
       % if person_answering == "tenant":

@@ -275,3 +275,133 @@ code: |
 code: |
   eviction_answer_attachment.enabled = False
 ---
+id: eviction motion to continue review screen
+continue button field: review_eviction_answer
+question: |
+  % if person_answering == "tenant":
+  Review your answers
+  % else: 
+  Review the answers
+  % endif
+review:
+  - note: | 
+      % if person_answering == "tenant":
+      ##Information about you##
+      % else:
+      ##Information about the tenant##
+      % endif
+  - Edit:
+      - users.revisit
+    button: |
+      Defendants:
+      % if users.there_are_any:
+      % for item in users:
+
+         - **${ item }**
+
+      % endfor
+      % else:
+      **None**
+      % endif
+  - Edit:
+      - will_offer_payment
+    button: |
+      % if person_answering == "tenant":
+      You are able to pay rent and court costs
+      % else:
+      The tenant is able to pay rent and court costs
+      % endif
+      **${ "Maybe" if will_offer_payment is None else yesno(will_offer_payment) }**
+  - note: | 
+      ##Information about the other party##
+  - Edit:
+      - other_parties.revisit
+    button: |
+      Plaintiffs:
+      % if other_parties.there_are_any:
+      % for item in other_parties:
+      
+       - **${ item }**
+      
+      % if item.attorney.there_are_any:
+         - Attorney: **${ item.attorney[0] }**
+      **${ item.attorney[0].address }**
+      
+      % else:
+         - Attorney: **None**
+      
+      % endif
+         - Person or Business: **${ "Person" if item.person_type == "ALIndividual" else "Business" }**
+      % endfor
+      % else:
+      **None**
+      % endif
+  - note: | 
+      ##Information about the eviction##
+  - Edit:
+      - trial_court_name
+    button: |
+      Trial Court Name:
+      **${ trial_court_name }**
+  - Edit:
+      - docket_number
+    button: |
+      Docket number:
+      **${ docket_number }**
+  - Edit:
+      - original_hearing_date
+    button: |
+      Date of hearing:
+      **${ original_hearing_date }**
+  - Edit:
+      - original_hearing_time
+    button: |
+      Time of hearing:
+      **${ original_hearing_time }**
+  - Edit:
+      - case_type
+    button: |
+      Case Type:
+      % if case_type.any_true():
+      % for item in case_type.true_values():
+        **${ item }**
+      % endfor
+      % else:
+      **None**
+      % endif
+  - Edit:
+      - filing_date
+    button: |
+      Filing Date:
+      **${ filing_date }**
+  - Edit:
+      - tenant_got_summons
+    button: |
+      % if person_answering == "tenant":
+      Did you receive the summons?
+      % else:
+      Did the tenant receive a copy of the Summons and Landlord's Petition?
+      % endif
+      **${ "Maybe" if tenant_got_summons is None else yesno(tenant_got_summons) }**
+  - Edit:
+      - method_of_summons_service
+    button: |
+      % if person_answering == "tenant":
+      How did you receive the Summons and Landlord's Petition?
+      % else:
+      How did the tenant receive the Summons and Landlord's Petition?
+      % endif
+      % if method_of_summons_service.any_true():
+      % for item in method_of_summons_service.true_values():
+        **${ method_of_summons_service_text["item"] }**
+      % endfor
+      % else:
+      **None**
+      % endif
+  - Edit:
+      - petition_available
+    button: |
+      Do you have a copy of the Landlord's Petition available?
+      **${ yesno(petition_available) }**
+
+---
