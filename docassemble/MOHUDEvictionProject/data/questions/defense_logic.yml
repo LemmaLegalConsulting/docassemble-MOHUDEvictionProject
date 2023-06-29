@@ -10,9 +10,9 @@ code: |
   defense_lease_signed_under_duress
   defense_fraud_lease
   defense_liquidated_damages_late_fees
+  defense_breach_of_habitability
   defense_breach_of_cqe
   defense_estoppel_illegality
-  defense_breach_of_habitability
   defense_foreclosure
   defense_new_owner_failed_to_provide_notice_of_sale
   defense_unrepresented_corporation
@@ -32,9 +32,10 @@ depends on:
   - petition_states_demand_made
   - trial_court.circuit
   - petition_separates_nonrent
+  - has_written_lease
 code: |
   if tenant_got_summons and petition_available:
-    if petition_alleges_nonrent or not petition_states_rent_amount or (not has_written_lease and not petition_states_terms_of_lease) or (has_written_lease and not lease_attached and not petition_states_term_of_lease) or not petition_states_rent_periods or not petition_states_demand_made or (trial_court.circuit == 21 and not petition_separates_nonrent):
+    if petition_alleges_nonrent or not petition_states_rent_amount or (not has_written_lease and not petition_states_terms_of_lease) or (has_written_lease and not lease_attached and not petition_states_terms_of_lease) or not petition_states_rent_periods or not petition_states_demand_made or (trial_court.circuit == 21 and not petition_separates_nonrent):
       defense_rent_pleading_requirement = True
     else:
       defense_rent_pleading_requirement = False
@@ -46,6 +47,7 @@ depends on:
   - tenant_got_summons
   - petition_available
   - lease_attached
+  - has_written_lease
 code: |
   if tenant_got_summons and petition_available:
     if has_written_lease and not lease_attached:
@@ -473,7 +475,7 @@ depends on:
 ---
 depends on: trial_court.classification
 if: |
-  trial_court.classification != 1
+  trial_court.classification.strip() != "Class 1"
 id: new owner facts for non-class 1 counties
 question: |
   Did your landlord ever sell the house while you were a tenant at this address?
@@ -489,7 +491,7 @@ fields:
 ---
 depends on: trial_court.classification
 if: |
-  trial_court.classification == 1
+  trial_court.classification.strip() == "Class 1"
 id: new owner facts for class 1 counties
 question: |
   % if person_answering == "tenant":
@@ -748,7 +750,17 @@ fields:
     field: petition_states_terms_of_lease
     datatype: yesnomaybe
     js show if: |
-      val("has_written_lease") === false || val("lease_attached") === false
+      val("lease_attached") === false
+  - label: |
+      % if person_answering == "tenant":
+      Does the Landlord's Petition include a summary of your rental agreement?
+      % else:
+      Does the Landlord's Petition include a summary of the tenant's rental agreement?
+      % endif 
+    field: petition_states_terms_of_lease
+    datatype: yesnomaybe
+    js show if: |
+      val("has_written_lease") === false
   - note: |
       ${ collapse_template(terms_of_lease_explanation) }
     js show if: |
