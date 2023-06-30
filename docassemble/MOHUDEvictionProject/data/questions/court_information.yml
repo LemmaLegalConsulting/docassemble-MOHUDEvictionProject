@@ -7,7 +7,7 @@ code: |
     trial_court.county = "City of St. Louis"
     trial_court.circuit = 22
   else:
-    if hasattr(users[0].normalized_address(), "county"):
+    if hasattr(users[0].normalized_address(), "county") and users[0].normalized_address().county in county_dictionary:
       trial_court.county = users[0].normalized_address().county
       trial_court.circuit = county_dictionary[trial_court.county]['circuit']
     else:
