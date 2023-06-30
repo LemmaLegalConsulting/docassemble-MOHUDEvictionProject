@@ -278,7 +278,8 @@ code: |
   landlord_agreement_section = True
 ---
 code: |
-  warranty_breaches
+  if warranty_breaches.any_true():
+    notice_of_breach_to_landlord
   cqe_breaches
   estoppel_breaches
   landlord_problems_section = True
@@ -1113,6 +1114,7 @@ review:
   - Edit:
       - warranty_breaches
       - recompute:
+        - landlord_problems_section
         - defense_breach_of_habitability
         - defense_logic
       - explanation_answer
