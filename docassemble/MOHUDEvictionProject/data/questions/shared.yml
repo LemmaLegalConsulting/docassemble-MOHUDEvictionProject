@@ -51,7 +51,7 @@ code: |
   elif other_parties[0].service_method in ["mail", "hand"]:
     if other_parties[0].attorney.there_are_any:
       other_parties[0].attorney[0].address.address
-    other_parties[0].service_address
+    other_parties[0].service_address.address
   # Store anonymous data for analytics / statistics
   nav.set_section("review_eviction_answer")
   review_eviction_answer
