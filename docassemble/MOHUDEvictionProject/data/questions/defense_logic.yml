@@ -339,7 +339,7 @@ fields:
 ---
 id: late fees defense logic
 code: |
-  if late_fees_assessed and late_fees_penalty:
+  if late_fees_assessed and (late_fees_penalty or not late_fees_lease_provision):
     defense_liquidated_damages_late_fees = True
   else:
     defense_liquidated_damages_late_fees = False
@@ -380,6 +380,14 @@ fields:
       * The cost of the landlord's time to handle the late payment,
 
       The fee may be too high.
+    show if: late_fees_assessed
+  - label: |
+      Is there a part of the lease that allows the landlord to charge the late fee?
+      % if has_written_lease == False:
+      You can answer no if you don't have a written lease.
+      % endif
+    field: late_fees_lease_provision
+    datatype: yesnomaybe
     show if: late_fees_assessed
 ---
 id: cqe breach logic
