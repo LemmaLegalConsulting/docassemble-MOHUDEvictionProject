@@ -380,6 +380,8 @@ fields:
       * The cost of the landlord's time to handle the late payment,
 
       The fee may be too high.
+      
+      In some counties, more than $5 per day is considered too high.
     show if: late_fees_assessed
   - label: |
       Is there a part of the lease that allows the landlord to charge the late fee?
@@ -453,9 +455,9 @@ question: |
 fields:
   - label: |
       % if person_answering == "tenant":
-      Did the bank foreclose on this property while you lived there?
+      Do you have any reason to believe that the property was foreclosed while you lived there?
       % else: 
-      Did the bank foreclose on this property while the tenant lived there?
+      Is there any reason to believe that the property was foreclosed while the tenant lived there?
       % endif
     field: landlord_foreclosed
     datatype: yesnomaybe
@@ -635,9 +637,9 @@ subquestion: |
   * Part of the rent the housing authority would normally pay but the housing authority has stopped payment.
 
   % if person_answering == "tenant":
-  Your landlord can only charge you the amount that your Section 8 contract says. You never owe more than your tenant rent share.
+  Your landlord can only charge you the amount that you are responsible for, based on your income. You never owe more than your tenant rent share.
   % else:
-  The tenant's landlord can only charge them the amount that their Section 8 contract says. The tenant never owes more than their tenant rent share.
+  The tenant's landlord can only charge them the amount that the tenant is responsible for, based on their income. The tenant never owes more than their tenant rent share.
   % endif
 fields:
   - label: |
@@ -722,16 +724,17 @@ question: |
   % endif
 subquestion: |
   % if person_answering == "tenant":
-  With the Landlord's Petition, your landlord needs to either:
+  With the Landlord's Petition, your landlord must have either:
   
-   1. attach a copy of the lease, or
-   2. write a summary of your rental agreement, including the monthly rent, the kind of agreement (year to year or month to month), and the day rent is due.
+   1. attached a copy of the lease, or
+   2. written a summary of your rental agreement, including the monthly rent, the kind of agreement (year to year or month to month), and the day rent is due.
   % else: 
     With the Landlord's Petition, the tenant's landlord needs to either:
   
    1. attach a copy of the lease, or
    2. write a summary of the tenant's rental agreement, including the monthly rent, the kind of agreement (year to year or month to month), and the day rent is due.
   % endif
+  
   The petition looks different in different counties. But it may look like this:
 
   [FILE ComplaintTerms.png, 100%]
