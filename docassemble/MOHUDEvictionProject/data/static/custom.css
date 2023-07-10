@@ -5,3 +5,15 @@
 .navbar, .danavcontainer {
     background-color: white;
 }
+
+.da-pad-for-navbar {
+    padding-top: 82px;
+}
+@media (min-width: 576px) {
+    body.dasignature.da-pad-for-navbar {
+	    padding-top: 82px;
+    }
+}
+.da-top-for-navbar {
+    top: 82px;
+}
