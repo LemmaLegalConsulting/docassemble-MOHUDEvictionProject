@@ -6,6 +6,9 @@ include:
   - docassemble.ALToolbox:display_template.yml
   - court_information.yml
 ---
+code: |
+  feedback_form = "docassemble.MOHUDEvictionProject:feedback.yml"
+---
 features:
   bootstrap theme: motenanthelp.bootstrap.css
   css: custom.css
@@ -21,7 +24,6 @@ default screen parts:
     <span class="mo-logo">
       <img src="${ al_logo.url_for() }" alt="${ al_logo.alt_text }"/>
     </span>
-    
 ---
 objects:
   - other_parties: ALPeopleList.using(there_are_any=True,complete_attribute="complete")
@@ -120,7 +122,7 @@ code: |
   AL_ORGANIZATION_TITLE = "Missouri Tenant Help"
 ---
 code: |
-  AL_ORGANIZATION_HOMEPAGE = "https://motenantassistance.org/"
+  AL_ORGANIZATION_HOMEPAGE = "https://motenanthelp.org/"
 ---
 code: |
   user_started_case = False
