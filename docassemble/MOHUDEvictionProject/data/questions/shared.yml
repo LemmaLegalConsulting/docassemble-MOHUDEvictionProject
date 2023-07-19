@@ -133,6 +133,58 @@ code: |
 code: |
   tenant_doc_name = "Defendant"
 ---
+event: about_this_interview
+id: about AssemblyLine project
+question: |
+  About this form
+# TODO: I think people might want more form-specific info here?
+# It is easy to copy and edit this event without removing the version
+# information. We may consider using the form description, adding a 
+# thumbnail of the original form, etc. at some point.
+subquestion: |  
+
+  Missouri Tenant Help offers free, easy-to-use, and mobile-friendly resources to Missouri tenants facing eviction or other housing needs. Our DIY Forms are accessible to tenants, attorneys, paralegals, or anyone helping a tenant.
+
+  Missouri Tenant Help is proudly funded by HUD (U.S. Department of Housing and Urban Development) and is supported by legal aid organizations across Missouri.
+
+  The work that provided the basis for this publication was supported by funding under an award from the U.S. Department of Housing and Urban Development. The substance and findings of the work are dedicated to the public. The author and publisher are solely responsible for the accuracy of the statements and interpretations contained in this publication. Such interpretations do not necessarily reflect the views of the Government.
+
+  ${ about_this_interview_version_info }
+back button label: |
+  Back to form
+---
+template: about_this_interview_version_info
+content: |
+  "${all_variables(special='metadata').get('title','').rstrip()}" version 
+  `${ package_version_number }`; AssemblyLine version `${ al_version }`.
+
+  % if interview_metadata.get("main_interview_key"):
+    <%
+      MAIN_METADATA = interview_metadata[interview_metadata["main_interview_key"]]
+    %>
+  % elif len(interview_metadata) > 1:    
+    <% 
+      del(interview_metadata["main_interview_key"]) # DADict creates the key on lookup above
+      MAIN_METADATA = next(iter(interview_metadata.values())) 
+    %>
+  % else:
+    <% MAIN_METADATA = {} %>
+  % endif
+  % if MAIN_METADATA.get("original_form") and not MAIN_METADATA.get("original_form").strip() == "None" and MAIN_METADATA.get("original_form").startswith("http"):
+  [View the original version of this form](${ MAIN_METADATA.get("original_form") }).
+  % endif
+  
+  % if package_updated_on:
+  Last updated on ${ package_updated_on }. [:fab-fa-github: View code on GitHub](${ github_url }).  
+  % endif
+
+  % if all_variables(special='metadata').get('authors'):
+  This form was authored by ${ comma_and_list(all_variables(special='metadata').get('authors')) }.
+  % endif
+  
+  "${all_variables(special='metadata').get('title','').rstrip()}" includes code 
+  from the [Document Assembly Line project](https://suffolklitlab.org/docassemble-AssemblyLine-documentation/docs/). 
+---
 id: who is using this interview
 question: |
   Who is using this website?
