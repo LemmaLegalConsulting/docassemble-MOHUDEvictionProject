@@ -1,0 +1,34 @@
+---
+include:
+  - docassemble.AssemblyLine:feedback.yml
+---
+template: al_how_to_get_legal_help
+subject: |
+  Do you need more help?
+content: |
+  If you need more help, these are free resources:
+  
+  - [Find Free Legal help - Legal Services Corporation](https://www.lsc.gov/about-lsc/what-legal-aid/get-legal-help)
+
+  - [Hire a lawyer](https://missourilawyershelp.org/)
+  
+  - [Missouri Courts](https://www.courts.mo.gov/)
+---
+code: |
+  # Set this to the name of your application
+  # Defaults to checking for a possible name from global docassemble config
+  al_app_name = "Missouri Tenant Help"
+---
+code: |
+  # The name of your organization. Defaults to a similar value as `al_app_name`,
+  # but is still distinct
+  AL_ORGANIZATION_TITLE = "Missouri Tenant Help"
+---
+code: |
+  AL_ORGANIZATION_HOMEPAGE = "https://motenanthelp.org/"
+---
+metadata:
+  title: User Feedback
+  exit url: |
+    https://motenanthelp.org/
+---
