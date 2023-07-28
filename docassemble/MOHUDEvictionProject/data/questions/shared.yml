@@ -7,7 +7,7 @@ include:
   - court_information.yml
 ---
 code: |
-  feedback_form = "docassemble.MOHUDEvictionProject:feedback.yml"
+  feedback_form = f"{user_info().package}:feedback.yml"
 ---
 features:
   bootstrap theme: motenanthelp.bootstrap.css
