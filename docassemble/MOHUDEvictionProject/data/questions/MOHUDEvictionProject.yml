@@ -503,9 +503,26 @@ subquestion: |
   % endif
   % if defense_liquidated_damages_late_fees:
   
-  **The late fees attached to the Landlord’s Petition are an unfair penalty**
+  **The late fees attached to the Landlord’s Petition are** 
+  % if late_fees_penalty:
+  **an unfair penalty**
+  % if not late_fees_lease_provision or late_fee_doesnt_comply_with_lease:
+  **and** 
+  % endif
+  % endif
+  % if not late_fees_lease_provision or late_fee_doesnt_comply_with_lease:
+  **an unauthorized charge**
+  % endif  
 
-  Late fees must be based on what it actually costs the landlord when a tenant pays late.
+  % if late_fees_penalty:
+  Late fees must be based on what it actually costs the landlord when a tenant pays late.  
+  % endif
+  % if not late_fees_lease_provision:
+  Late fees can't be charged if the late fees are not authorized by the lease.
+  % elif late_fee_doesnt_comply_with_lease:
+  Late fees that do not comply with the lease can't be charged.
+  % endif
+
   This defense alone may not help you avoid the eviction, but it can reduce the amount of money you owe the landlord.
   % endif
   % if defense_estoppel_illegality:
@@ -1032,6 +1049,15 @@ review:
     button: |
       Does the lease say that they landlord can charge late fees?
       **${ "Maybe" if late_fees_lease_provision is None else yesno(late_fees_lease_provision) }**
+  - Edit:
+      - late_fee_doesnt_comply_with_lease
+      - recompute:
+        - defense_liquidated_damages_late_fees
+        - defense_logic
+      - explanation_answer
+    button: |
+      Do the late fees charged by the landlord comply with the lease provision?
+      **${ "Maybe" if late_fee_doesnt_comply_with_lease is None else noyes(late_fee_doesnt_comply_with_lease) }**
   - Edit:
       - petition_separates_nonrent
       - recompute:
