@@ -100,8 +100,8 @@ code: |
   nav.set_section("section_eviction_answer_defenses")
   landlord_agreement_section
   rent_defenses_section
-  defense_logic
   landlord_problems_section
+  defense_logic
   set_progress(50)
   information_collected
   explanation_answer
