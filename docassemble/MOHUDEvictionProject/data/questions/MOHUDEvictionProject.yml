@@ -376,12 +376,13 @@ subquestion: |
   At the end you will have customized documents, ready to file in court.
 continue button field: greet_user
 ---
+only sets: case_type_kickout
 id: case type kickout for answer
 code: |
   if not case_type["AC Rent and Possession"] and not case_type["AC Landlord Action (Bulk)"]:
     if unlawful_detainer_kick_out_option:
       motion_to_continue_order
-      docket_review = True
+      define('docket_review', True)
   case_type_kickout = True
 ---
 code: |
