@@ -1,0 +1,228 @@
+---
+mandatory: True
+code: |
+  tenant_doc_name
+  landlord_doc_name
+  if motion_list['motion_for_leave_to_file']:
+    motion_for_leave_to_file_order
+  if motion_list['motion_to_dismiss']:
+    motion_to_dismiss_order
+  if motion_list['motion_to_set_aside_judgment']:
+    motion_to_set_aside_judgment_order
+  if motion_list['motion_to_shorten_time']:
+    motion_to_shorten_time_order
+  if motion_list['motion_to_elevate_security']:
+    motion_to_elevate_security_order
+  if motion_list['notice_of_hearing']:
+    notice_of_hearing_order
+  eviction_defender_download
+---
+include:
+  - shared.yml
+---
+code: |
+  motion_for_leave_to_file_questions
+  motion_for_leave_to_file_order = True
+---
+code: |
+  motion_to_dismiss_order = True
+---
+code: |
+  motion_to_set_aside_judgment_order = True
+---
+code: |
+  motion_to_shorten_time_order = True
+---
+code: |
+  motion_to_elevate_security_questions
+  motion_to_elevate_security_order = True
+---
+code: |
+  notice_of_hearing_order = True
+---
+code: |
+  eviction_answer_attachment.enabled = False
+---
+code: |
+  eviction_motion_to_continue_attachment.enabled = False
+---
+code: |
+  motion_for_leave_to_file_attachment.enabled = motion_list['motion_for_leave_to_file']
+---
+code: |
+  motion_to_dismiss_attachment.enabled = motion_list['motion_to_dismiss']
+---
+code: |
+  motion_to_set_aside_judgment_attachment.enabled = motion_list['motion_to_set_aside_judgment']
+---
+code: |
+  motion_to_shorten_time_attachment.enabled = motion_list['motion_to_shorten_time']
+---
+code: |
+  motion_to_elevate_security_attachment.enabled = motion_list['motion_to_elevate_security']
+---
+code: |
+  notice_of_hearing_attachment.enabled = motion_list['notice_of_hearing']
+---
+code: |
+  eviction_defender_post_interview_instructions.enabled = False
+---
+question: Select motions to test
+fields:
+  - Motions: motion_list
+    datatype: checkboxes
+    choices:
+      - Motion for Leave to File: motion_for_leave_to_file
+      - Motion to Dismiss or More Definite Statement: motion_to_dismiss
+      - Motion to Set Aside Judgment: motion_to_set_aside_judgment
+      - Motion to Shorten Time: motion_to_shorten_time
+      - Motion to Elevate Security: motion_to_elevate_security
+      - Notice of Hearing: notice_of_hearing
+      
+---
+question: Additional questions for Motion To Elevate Security
+fields:
+  - Does the landlord consent to this motion?: opposing_party_consent
+    datatype: yesnoradio
+  - Will the eviction case hinder your ability to rent housing?: tenant_would_be_prejudiced
+    datatype: yesnoradio
+  - What was the outcome of this eviction case?: eviction_outcome
+    datatype: radio
+    choices:
+      - Default Judgment
+      - Dismissal
+  - Will you have to pay higher rent, or find a co-signer, or face other economic consequences if this case remains public?: economic_consequences
+    datatype: yesnoradio
+  - Do you believe landlords will refuse to rent to you because the information about this case is public?: tenant_believes_landlords_wont_rent
+    datatype: yesnoradio
+  - Have you already experienced costs because of the visibility of this case, including excessive rental application fees or being summarily denied for housing?: tenant_exposed_to_threats
+    datatype: yesnoradio
+  - What was the address of the rental property in this case?: rental_property_address
+  - Do any of the following specific reasons justify securing case records in your case?: reason_for_elevated_security
+    datatype: checkboxes
+    choices:
+      - Eviction was improperly granted
+      - Domestic violence
+      - Other
+  - What other specific reason justifies securing case records in this case?: reason_for_elevated_security_other
+    show if:
+      variable: reason_for_elevated_security['Other']
+      is: True
+continue button field: motion_to_elevate_security_questions
+
+---
+question: Additional questions for Motion For Leave to File Answer
+fields:
+  - Does the landlord consent to this motion?: opposing_party_consent
+    datatype: yesnoradio
+  - Are affirmative defenses being asserted?: wishes_to_assert_affirmative_defenses
+    datatype: yesnoradio
+  - Are there reasons why you were unable to prepare a defense?: reasons_unable_to_prepare_exists
+    datatype: yesnoradio
+  - Why were you unable to prepare a defense?: reasons_unable_to_prepare
+    datatype: checkboxes
+    show if:
+      variable: reasons_unable_to_prepare_exists
+      is: True
+    choices:
+      - Could not find attorney
+      - Out of town
+      - In hospital
+  - Filing Date: filing_date
+    datatype: date
+  - Has the trial date been set?: trial_date_set
+    datatype: yesnoradio
+  - What date is the trial date set for?: trial_date
+    datatype: date
+    show if:
+      variable: trial_date_set
+      is: True
+  - Is there a trial setting in this case?: trial_setting
+    datatype: yesnoradio
+  - When did you receive notice of the the trial setting?: trial_setting_notice
+    datatype: date
+    show if:
+      variable: trial_setting
+      is: True
+  - Did you request discovery?: was_discovery_requested
+    datatype: yesnoradio
+  - Do you plan to conduct discovery?: discovery_planned
+    datatype: yesnoradio
+    show if:
+      variable: was_discovery_requested
+      is: False
+  - Did the landlord provide a response to discovery requests?: was_discovery_produced
+    datatype: yesnoradio
+    show if:
+      variable: was_discovery_requested
+      is: True
+  - What date did the landlord provide the discovery?: discovery_provided_date
+    datatype: date
+    show if:
+      variable: was_discovery_produced
+      is: True
+  - Do you plan to object to the landlord's objections to discovery?: discovery_objections_planned
+    datatype: yesnoradio
+    show if:
+      variable: was_discovery_produced
+      is: True
+  - Do you plan to continue to conduct discovery?: continue_conduct_discovery
+    datatype: yesnoradio
+    show if:
+      variable: was_discovery_requested
+      is: True
+continue button field: motion_for_leave_to_file_questions
+---
+attachments:
+  - name: eviction motion to continue post interview instructions
+    filename: Post-interview-instructions     
+    variable name: eviction_defender_post_interview_instructions[i]        
+    skip undefined: True
+    docx template file: eviction_helper_next_steps.docx
+  - name: eviction motion to continue attachment
+    filename: eviction_motion_to_continue.docx     
+    variable name: eviction_motion_to_continue_attachment[i]        
+    skip undefined: True
+    docx template file: motion_to_continue.docx
+  - name: eviction answer
+    filename: answer_defenses.docx     
+    variable name: eviction_answer_attachment[i]        
+    skip undefined: True
+    docx template file: answer_defenses.docx
+  - name: motion for leave to file answer
+    filename: motion_for_leave_to_file_answer.docx     
+    variable name: motion_for_leave_to_file_attachment[i]        
+    skip undefined: True
+    docx template file: motion_for_leave_to_file.docx
+  - name: motion to elevate security
+    filename: motion_to_elevate_security.docx     
+    variable name: motion_to_elevate_security_attachment[i]        
+    skip undefined: True
+    docx template file: motion_to_elevate_security.docx
+---
+objects:
+  - eviction_defender_post_interview_instructions: ALDocument.using(title="Instructions", filename="eviction_helper_next_steps.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+  - eviction_motion_to_continue_attachment: ALDocument.using(title="Postpone your eviction hearing", filename="eviction_motion_to_continue.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+  - eviction_answer_attachment: ALDocument.using(title="File an Answer and Affirmative Defenses", filename="answer_defenses.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+  - motion_for_leave_to_file_attachment: ALDocument.using(title="File a Motion for Leave to File Answer", filename="motion_for_leave_to_file_answer.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+  - motion_to_elevate_security_attachment: ALDocument.using(title="File a Motion to Elevate Security", filename="motion_to_elevate_security.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+---
+objects:
+  - al_user_bundle: ALDocumentBundle.using(elements=[motion_for_leave_to_file_attachment, motion_to_elevate_security_attachment], filename="eviction_helper.docx_package.pdf", title="All forms to download for your records", enabled=True)
+  - al_court_bundle: ALDocumentBundle.using(elements=attachment_list_court, filename="eviction_helper.docx_package.pdf", title="All forms to download for your records", enabled=True)
+---
+id: download eviction_defender
+event: eviction_defender_download
+question: |
+  All done
+subquestion: |
+
+  ${ action_button_html(url_action('review_eviction_answer'), label='Edit answers', color='info') }
+  
+  
+  ${ al_user_bundle.download_list_html() }
+  
+
+  ${ al_user_bundle.send_button_html(show_editable_checkbox=True) }
+
+progress: 100
