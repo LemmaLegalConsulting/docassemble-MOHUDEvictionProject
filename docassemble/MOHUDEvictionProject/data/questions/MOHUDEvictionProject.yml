@@ -537,7 +537,7 @@ subquestion: |
   
   **The Landlord is required to have an attorney in this case and it must be dismissed**
 
-  A business entity, like a corporation, must have an attorney to file the case.
+  A business entity, like a corporation, must have an attorney to evict a tenant in court.
   % endif
   % if defense_no_landlord_tenant_relationship:
   
@@ -548,7 +548,7 @@ subquestion: |
   % endif
   % if defense_excessive_rent_for_subsidized_housing:
   
-  **The Landlord has charged the Tenant rent that is not owed according to the Housing Choice Voucher Program contract entered into by the Landlord and the Tenant**
+  **Plaintiff has charged Defendant excessive rent in violation of the housing subsidy**
 
   
   % endif

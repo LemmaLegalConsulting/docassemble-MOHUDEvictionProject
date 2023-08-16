@@ -1011,11 +1011,24 @@ subquestion: |
   % if person_answering == "tenant":
   Thank you ${users}. Your form is ready to download and deliver.
   
-  View, download, and send your form below. Click the "Edit answers" button to fix any mistakes.
+  View and download your form below. Click the "Edit answers" button to fix any mistakes.
+  
+  Print the forms.  You may be able to use a printer at a library or your county law library.
+  
+  Sign and complete the forms.  You will need to fill in the date in the Certificate of Service box at the end of the document.  Use the date you deliver the document to the other party using the method you chose.
+  
+  
+  File the document at the clerk of court.
   % else:
   Thank you ${users}. The tenant's form is ready to download and deliver.
   
   View, download, and send the tenant's form below. Click the "Edit answers" button to fix any mistakes.
+  
+  Print the forms.  You may be able to use a printer at a library or your county law library.
+  
+  Sign and complete the forms.  The tenant will need to fill in the date in the Certificate of Service box at the end of the document.  The tenant should use the date the tenant delivers a copy of the document to the other party using the method you chose.
+  
+  File the document at the clerk of court.
   % endif 
 
   ${ action_button_html(url_action('review_eviction_answer'), label='Edit answers', color='info') }
