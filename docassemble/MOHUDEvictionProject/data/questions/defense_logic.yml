@@ -455,9 +455,9 @@ question: |
 fields:
   - label: |
       % if person_answering == "tenant":
-      Do you have any reason to believe that the property was foreclosed while you lived there?
+      As far as you know during the time that you were a tenant, did a bank foreclose on the property?
       % else: 
-      Is there any reason to believe that the property was foreclosed while the tenant lived there?
+      As far as you know during the time that the tenant lived in the property, did a bank foreclose on the property?
       % endif
     field: landlord_foreclosed
     datatype: yesnomaybe
