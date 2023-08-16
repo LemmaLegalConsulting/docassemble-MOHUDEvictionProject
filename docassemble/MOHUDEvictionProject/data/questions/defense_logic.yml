@@ -339,13 +339,15 @@ fields:
 ---
 id: late fees defense logic
 code: |
-  if late_fees_assessed and (late_fees_penalty or not late_fees_lease_provision):
+  if late_fees_assessed and (late_fees_penalty or ((not late_fees_lease_provision) or late_fee_doesnt_comply_with_lease)):
     defense_liquidated_damages_late_fees = True
   else:
     defense_liquidated_damages_late_fees = False
 depends on:
   - late_fees_assessed
   - late_fees_penalty
+  - late_fees_lease_provision
+  - late_fee_doesnt_comply_with_lease
 ---
 id: late fees
 question: |
@@ -391,6 +393,14 @@ fields:
     field: late_fees_lease_provision
     datatype: yesnomaybe
     show if: late_fees_assessed
+  - label: |
+      Do the late fees charged by the landlord comply with the lease provision?
+      % if has_written_lease == False:
+      You can answer no if you don't have a written lease.
+      % endif
+    field: late_fee_doesnt_comply_with_lease
+    datatype: noyesmaybe
+    show if: late_fees_lease_provision
 ---
 id: cqe breach logic
 comment: |
