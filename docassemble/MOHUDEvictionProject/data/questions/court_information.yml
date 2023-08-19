@@ -141,7 +141,7 @@ code: |
       "Other": False
     })
 ---
-if: docket_available
+if: tenant_using_casenet
 id: case type from docket
 question: |
   What kind of eviction case type?
@@ -205,14 +205,32 @@ content: |
   You will be able to explain why the reason is not true
   later.
 ---
-question: Pick the county
+id: what court are you in
+question: |
+  What county is your court in?
 subquestion: |
-  The county of the trial court couldn't be determined by your address.  Please pick the county (or the City of St. Louis) from the list.
+  Most counties have just one court, the same as the county you live in.
+  We couldn't tell what your county is from the address you gave us. Please
+  pick your county from the list.
+
+  We will use your county to find the court you need to file your answer in.
+
+  If you live in the City of St Louis, pick "City of St Louis" as your
+  county.
+
+  ${ collapse_template(find_county_name_template) }
 fields:
   - Trial Court County: trial_court_county_selected
     datatype: dropdown
     code: |
       county_list
+---
+template: find_county_name_template
+subject: |
+  What if I don't know the name of my county?
+content: |
+  You can use [data.mo.gov](https://data.mo.gov/Demographics/Missouri-County-Boundaries-Map/n34b-fwqr)
+  to look at a map of county boundaries.
 ---
 depends on: trial_court.county
 code: |
@@ -233,40 +251,28 @@ subquestion: |
   % if person_answering == "tenant":
   You can use [Case.net](https://www.courts.mo.gov/cnet)
   to help answer some questions on this website.
+  % else:
+  The tenant may use [Case.net](https://www.courts.mo.gov/cnet)
+  to help answer some questions on this website.
+  % endif
 
-  Case.net is a free website run by the Missouri Court. You do not need an
-  account to access Case.net.
+  Case.net is a free website from the Missouri Court. You do not need an
+  account for Case.net.
 
   Using Case.net is optional, but it can help you answer the questions more
   accurately.    
 
   You will need both this website and the Case.net website open at the same time. You will
   need to switch back and forth between the two websites.
-  % else:
-  The tenant may use [Case.net](https://www.courts.mo.gov/cnet)
-  to help answer some questions on this website.
-
-  Case.net is a free website run by the Missouri Court. No
-  account is needed to access Case.net.
-
-  Using Case.net is optional, but it can help the tenant answer the questions more
-  accurately.    
-
-  This website and the Case.net website will need to be open at the same time. Switch back and forth between the two websites.
-  % endif
 fields:
   - label: |
-      % if person_answering == "tenant":
       Do you want to use Case.net to help answer some questions?
-      % else:
-      Does the tenant want to use Case.net to help answer some questions?
-      % endif
-    field: docket_available
+    field: tenant_using_casenet
     datatype: yesnoradio
 ---
 if: trial_court.county == None
 code: |
-  docket_available = False
+  tenant_using_casenet = False
 ---
 depends on:
   - users[0].address.county
@@ -294,21 +300,18 @@ code: |
 ---
 id: how to login to Case net
 question: |
-  Getting started with Case.net
+  How to use Case.net
 subquestion: |
-  To answer the questions on the next few screens, you need to:
+  To use Case.net to answer questions in this interview, you need to:
 
-  1. Open the [Case.net](https://www.courts.mo.gov/cnet) website in a new tab.
-  1. Use the case lookup feature to find your eviction case.
+  1. Click the button below to open a search page on Case.net with your address
+     and court name filled in.
+  1. Find your case name in the search results and open it.
 
   You will need both this website and the Case.net website open at the same time. You will
   need to switch back and forth between the two windows.
 
-  <h2 class="h4">Before you start, read these instructions</h2>
-  Use the button below to open Case.net website with your address and court
-  already filled in.
-
-  Look for your eviction case. Click the link with the case number for your case
+  Look for your eviction case in the search results. Click the link with the case number for your case
   to see the details about your case. If you do not see your case, try a different
   search.
 
@@ -349,6 +352,8 @@ subquestion: |
   get a reminder both 10 days and 2 days before their court date.
   % endif
 continue button field: docket_review_conclusion
+---
+
 ---
 id: docket review order
 code: |

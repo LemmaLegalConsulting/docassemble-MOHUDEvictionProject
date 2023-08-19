@@ -23,26 +23,26 @@ code: |
   interview_short_title = "Eviction Defender"
 ---
 sections:
-  - section_eviction_answer_intro: Introduction
+  - section_eviction_answer_intro: Getting started
   - section_eviction_answer_can_i: Should you file an Answer?
-  - section_eviction_answer_you: Information about you
-  - section_eviction_answer_other: Information about the other party
-  - section_eviction_answer_tenancy: Information about your rental agreement
-  - section_eviction_answer_casenet: Using Case.net
-  - section_eviction_answer_case: Information about the eviction
-  - section_eviction_answer_defenses: Your claims and defenses
+  - section_eviction_answer_you: About you
+  - section_eviction_answer_other: About your landlord
+  - section_eviction_answer_case: About your court case
+  - section_eviction_answer_tenancy: About your tenancy
+  - section_eviction_answer_defenses: Claims and defenses
   - review_eviction_answer: Review your answers
-  - section_serve_other_side: Getting a copy to your landlord
   - section_eviction_answer_download: Download, print and file
+---
+code: |
+  user_role = user_ask_role = "defendant"
 ---
 #################### Interview order #####################
 comment: |
   Controls order and branching logic for questions specific to this form
 id: interview_order_eviction
 code: |
-  # Set the allowed courts for this interview
+  ############## Intro
   nav.set_section('section_eviction_answer_intro')
-  user_role = 'defendant'
   landlord_doc_name
   tenant_doc_name
   users[0].name.first
@@ -55,26 +55,26 @@ code: |
     users[0].attorney[0].address.address
   else:
     users[0].attorney.target_number = 0
+
+  ########## Should you file an answer?
   nav.set_section("section_eviction_answer_can_i")
   if not tenant_got_summons or not (method_of_summons_service['sheriff'] or method_of_summons_service['certified_mail'] or (method_of_summons_service['mail'] and method_of_summons_service['posting'])):
     posting_warning
   else:
     recommend_filing_answer
+
+  ######## About you
   nav.set_section("section_eviction_answer_you")
   users[0].address.address
   users[0].address.geocode()
-  trial_court.county
-  trial_court.circuit
-  trial_court.name
-  if not tenant_got_summons or not petition_available:
-    nav.set_section("section_eviction_answer_casenet")
-    if not trial_court.county == None and docket_available:
-      docket_review
-  if not case_type["AC Rent and Possession"] and not case_type["AC Landlord Action (Bulk)"]:
-    if unlawful_detainer_kick_out_option:
-      motion_to_continue_order
-      interview_order_eviction_defender = True
+  users.gather()
+  
+  ######### About your landlord
   nav.set_section("section_eviction_answer_other")
+  if not (tenant_got_summons and petition_available):
+    signpost_case_net_for_landlord_name
+    if tenant_using_casenet:
+      casenet_login_instructions
   other_parties.gather()
   for party in other_parties:
     party.attorney.gather()
@@ -83,19 +83,37 @@ code: |
     else:
       party.address.address
   users.gather()
+
+  ######### About your court case
+  nav.set_section("section_eviction_answer_case")
+  trial_court.county
+  trial_court.circuit
+  trial_court.name
+  if not trial_court.county == None and tenant_using_casenet:
+    docket_review
+
+  original_hearing_date
+  docket_number
+
+  if not tenant_got_summons or not petition_available:
+    if not trial_court.county == None and tenant_using_casenet:
+      docket_review
+  if not case_type["AC Rent and Possession"] and not case_type["AC Landlord Action (Bulk)"]:
+    if unlawful_detainer_kick_out_option:
+      motion_to_continue_order
+      interview_order_eviction_defender = True
+
+  ######## About your tenancy
   nav.set_section("section_eviction_answer_tenancy")  
   is_rent_subsidized
+  
   lease_section
   if previous_landlord_sold_property:
     notice_of_sale_provided_new_landlord
   if landlord_foreclosed:
     notice_of_foreclosure
-  nav.set_section("section_eviction_answer_casenet")
-  if not trial_court.county == None and docket_available:
-    docket_review
-  nav.set_section("section_eviction_answer_case")
-  original_hearing_date
-  docket_number
+  
+  
   petition_states_rent_amount
   nav.set_section("section_eviction_answer_defenses")
   landlord_agreement_section
@@ -351,13 +369,13 @@ continue button field: greet_user
 id: how to answer
 decoration: info-circle
 question: |
-  How to fill out this interview
+  About this interview
 subquestion: |
   **What's this about?**: This is a place to tell your side of the story about you, 
   your landlord, and why they want to evict you.
 
-  Your answers complete your **Eviction Answer** form. You will need to **print** and
-  **deliver**
+  Your answers complete your **Eviction Answer** form and any other forms that you need.
+  You will need to **print** and **deliver**
   the forms to the court on your own.
 
   <h2 class="h4">What to do</h2>

@@ -91,7 +91,7 @@ code: |
   users[0].address.geocode()
   nav.set_section("section_eviction_answer_casenet")
   trial_court.name
-  if not trial_court.county == None and docket_available:
+  if not trial_court.county == None and tenant_using_casenet:
     docket_review
   nav.set_section("section_eviction_answer_other")
   other_parties.gather()
@@ -303,7 +303,7 @@ fields:
   - Is ${ other_parties[i] } represented by an attorney?: other_parties[i].attorney.there_are_any
     datatype: yesnoradio
 ---
-if: docket_available
+if: tenant_using_casenet
 id: Landlord representation from Docket
 question: |
   Does ${ other_parties[i] } have an attorney?
@@ -340,7 +340,7 @@ fields:
       x.address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)
 ---
 id: Opposing Attorney name from Docket
-if: docket_available
+if: tenant_using_casenet
 sets:
   - other_parties[i].attorney[j].name.first
   - other_parties[i].attorney[j].name.last
@@ -483,7 +483,7 @@ fields:
   - code: |
       other_parties[i].name_fields(person_or_business='unsure')   
 ---
-if: docket_available
+if: tenant_using_casenet
 sets:
   - other_parties[i].name.first
   - other_parties[i].name.last
@@ -492,7 +492,7 @@ sets:
   - other_parties[i].person_type
 id: names of opposing parties - docket only
 question: |
-  Name of Plaintiff
+  Landlord's name
 subquestion: |
   % if i == 0:
     You can click on "Parties & Attorneys", the next tab to the right.  This tab should look like this:
@@ -508,7 +508,38 @@ subquestion: |
   % endif
 fields:
   - code: |
-      other_parties[i].name_fields(person_or_business='unsure')    
+      other_parties[i].name_fields(person_or_business='unsure')
+---
+id: signpost casenet for landlord name
+# not (tenant_got_summons and petition_available)
+continue button field: signpost_case_net_for_landlord_name
+question: |
+  Do you want to check your landlord's name online?
+subquestion: |
+  You said you don't have the Summons and Petition with you. If you want, 
+  you can check your landlord's name online on a free website run by the
+  Missouri Court.
+
+  The website is called Case.net.
+
+  If the landlord's name isn't right, it might be a bit tricky for the 
+  court person to put your answer in the right spot. But, if you know the 
+  name they used on the court papers, you can just write it down without 
+  checking online.
+
+  You can also use the Case.net website to check other information,
+  like your court date and the case number.
+
+  We can give you step by step instructions if you want to check online.
+fields:
+  - label: |
+      % if person_answering == "tenant":
+      Do you want to use Case.net to help answer some questions?
+      % else:
+      Does the tenant want to use Case.net to help answer some questions?
+      % endif
+    field: tenant_using_casenet
+    datatype: yesnoradio
 ---
 id: names of opposing parties - petition
 if: tenant_got_summons and petition_available
@@ -539,7 +570,7 @@ fields:
       other_parties[i].name_fields(person_or_business='unsure')   
 ---
 id: eviction hearing date if docket available
-if: docket_available
+if: tenant_using_casenet
 question: |
   % if person_answering == "tenant":
   When is your eviction hearing?
@@ -774,7 +805,7 @@ fields:
     datatype: yesnoradio
 ---
 id: Other tenants if docket available
-if: defined('docket_available') and docket_available and len(users)==1
+if: defined('tenant_using_casenet') and tenant_using_casenet and len(users)==1
 question: |
   Is any other tenant listed on this eviction case?
 subquestion: |
