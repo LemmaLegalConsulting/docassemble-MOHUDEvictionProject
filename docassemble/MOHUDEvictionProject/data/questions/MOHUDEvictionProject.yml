@@ -334,34 +334,6 @@ continue button field: al_intro_screen
 terms:
   green words: |
     Green words are legal terms or a short way of referring to something that needs more explanation. The definition or explanation pops up when you tap the green words.
-
----
-### not changing "you" reference language on this question because it appears before selection of person_answering
-id: eviction_defender_introduction
-continue button field: eviction_defender_intro
-question: |
-  Defend against an Eviction
-subquestion: |
-  <h2 class="h4">How this works</h2>
-  On the next screens you will tell us:
-
-  1. About your eviction case.
-  1. Why you should not be evicted.
-  1. About problems in your home and in your landlord's case that may
-     stop your eviction.
-
-  Your answers will complete your forms. You will need to deliver your forms to the court on your own.
-
-  <h2 class="h4">Before you start</h2>
-  1. Get ready to download, print, and deliver your forms to the court. This tool will help you fill in your forms, but you need to deliver them to the court on your own.
-  1. Do your best to find any documents from the court and your landlord about the eviction, including:
-  
-      - The Summons from the court
-      - The Landlord's petition
-      - The eviction notice
-      - Your lease
-  
-  **Currently, we can only help when your landlord is evicting you because you have not paid your rent.**  This type of eviction is called a Rent and Possession case.  If you are being evicted for another reason, contact [a Missouri legal aid provider](https://www.lsmo.org/).
 ---
 id: you can do it affirmation
 question: |
@@ -375,6 +347,45 @@ subquestion: |
 
   At the end you will have customized documents, ready to file in court.
 continue button field: greet_user
+---
+id: how to answer
+decoration: info-circle
+question: |
+  How to fill out this interview
+subquestion: |
+  **What's this about?**: This is a place to tell your side of the story about you, 
+  your landlord, and why they want to evict you.
+
+  Your answers complete your **Eviction Answer** form. You will need to **print** and
+  **deliver**
+  the forms to the court on your own.
+
+  <h2 class="h4">What to do</h2>
+
+  1. Be honest and give full answers.
+  1. Put a check next to things that are true, even if they don't seem related.
+  1. If you are not sure, it's okay to skip a question. Giving some answers is 
+    better than none.
+  1. Sometimes, you might want to look up an answer. That's okay! But looking up some 
+    things can take time and might be tricky. If you can't find the answer, or it's taking 
+    too long, it's okay to leave the question blank.
+  4. Filling this out doesn't stop talks with your landlord. It might help you both
+     agree about what is fair.
+
+  <h2 class="h4">What documents to find now</h2>
+
+  Before you start, try to find these documents from the court and your landlord:
+
+  1. The Summons from the court
+  1. The Landlord's petition
+  1. The eviction notice
+  1. Your lease
+
+  If you can't find a document, it is okay to keep going. Just do your best to answer
+  the questions from what you remember.
+continue button field: eviction_defender_intro
+buttons:
+  - I agree: continue
 ---
 only sets: case_type_kickout
 id: case type kickout for answer
