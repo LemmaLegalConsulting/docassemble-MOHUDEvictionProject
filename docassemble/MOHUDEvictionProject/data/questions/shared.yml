@@ -495,9 +495,13 @@ question: |
   Landlord's name
 subquestion: |
   % if i == 0:
-    You can click on "Parties & Attorneys", the next tab to the right.  This tab should look like this:
+    With your case open on case.net, click the tab labeled "Parties & Attorneys." 
+    This tab should look like this:
   
     [FILE Parties.png, 100%]
+    
+    Your name should be listed next to the word "Defendant." The landlord's name should be listed
+    next to the word "Plaintiff." The name may look different than it does on your lease.
     
     Who is listed as the Plaintiff?
   % else:
