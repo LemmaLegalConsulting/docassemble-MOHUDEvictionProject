@@ -84,6 +84,7 @@ code: |
       party.address.address
   users.gather()
 
+  set_progress(25)
   ######### About your court case
   nav.set_section("section_eviction_answer_case")
   trial_court.county
@@ -106,21 +107,45 @@ code: |
   ######## About your tenancy
   nav.set_section("section_eviction_answer_tenancy")  
   is_rent_subsidized
-  
-  lease_section
+  # put kind of lease question here
+
+  ######### Claims and defenses
+  set_progress(50)
+  nav.set_section("section_eviction_answer_defenses")
+  signpost_claims_and_defenses
+  if (
+    (has_written_lease and not lease_attached) 
+    or not has_written_lease
+  ):
+    petition_states_terms_of_lease
+  if len(false_promises):
+    relied_on_false_promises
+  unfair_duress
+
   if previous_landlord_sold_property:
     notice_of_sale_provided_new_landlord
   if landlord_foreclosed:
     notice_of_foreclosure
   
-  
+  set_progress(75)
   petition_states_rent_amount
-  nav.set_section("section_eviction_answer_defenses")
-  landlord_agreement_section
-  rent_defenses_section
+  petition_states_rent_periods
+  
+  offer_attempts.gather()
+  was_rent_paid
+  will_offer_payment
+  if is_rent_subsidized:
+    excessive_rent
+  if late_fees_assessed:
+    late_fees_penalty
+    if trial_court.circuit == 21:
+      petition_separates_nonrent
+  petition_states_demand_made
   landlord_problems_section
+
+  if landlord_agreement:
+    tenant_compliance_with_agreement
   defense_logic
-  set_progress(50)
   information_collected
   explanation_answer
   document_order = True
@@ -264,36 +289,6 @@ subquestion: |
   answer.
   % endif
 continue button field: recommend_filing_answer
----
-code: |
-  if has_written_lease and not lease_attached:
-    petition_states_terms_of_lease
-  elif not has_written_lease:
-    petition_states_terms_of_lease
-  if len(false_promises):
-    relied_on_false_promises
-  unfair_duress
-  lease_section = True
----
-code: |
-  petition_states_rent_amount
-  petition_states_rent_periods
-  offer_attempts.gather()
-  was_rent_paid
-  will_offer_payment
-  if is_rent_subsidized:
-    excessive_rent
-  if late_fees_assessed:
-    late_fees_penalty
-    if trial_court.circuit == 21:
-      petition_separates_nonrent
-  petition_states_demand_made
-  rent_defenses_section = True
----
-code: |
-  if landlord_agreement:
-    tenant_compliance_with_agreement
-  landlord_agreement_section = True
 ---
 code: |
   if warranty_breaches.any_true():
@@ -467,6 +462,23 @@ code: |
     eviction_answer_attachment.enabled = False
   else:
     eviction_answer_attachment.enabled = True
+---
+id: signpost claims and defenses section
+decoration: user-shield
+question: |
+  Claims and defenses
+subquestion: |
+  % if person_answering == "tenant":
+  This section will ask you about both defenses to the eviction
+  and any **counterclaim** that you may have against your landlord.
+  % else:
+  This section will ask you about both defenses to the eviction
+  and any **counterclaim** that the tenant may have against their landlord.
+  % endif
+
+  A defense is a reason why you should not be evicted.  
+  A counterclaim is a reason why your landlord should pay you money.
+continue button field: signpost_claims_and_defenses
 ---
 id: defenses explanation
 question: Explanation of your answer

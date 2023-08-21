@@ -268,27 +268,23 @@ id: any other opposing parties
 question: |
   Is there another **Plaintiff** in this eviction case?
 subquestion:  |
-  % if person_answering == "tenant":
   You have already told us about ${ other_parties.complete_elements() }.
 
-  If you have the Summons and Petition, the name of each Plaintiff is listed
-  in the box labeled "Plaintiff". 
-  
-  % else:
-  We know about ${ other_parties.complete_elements() }.
+  % if tenant_using_casenet:
+  You can find the name of each Plaintiff in the Parties and Attorneys tab 
+  in the online docket.
 
-  The name of each Plaintiff is listed on the Summons and Petition
-  in the box labeled "Plaintiff". 
-  % endif
-  
-  There is a Parties & Attorneys tab on the online docket.
-  
-  There may also be a "Doing Business As" that looks like this
+  If the online docket lists a "Doing business as" but not
+  another plaintiff like in the example below, you can answer "no" to 
+  this question:
   
   [FILE DocketDBAExample.png, 100%]
-  
-  You do not need to answer yes to this question if there is only another party listed as Doing Business As.
-  
+
+  ${ warn_picture_is_example_template }
+  % else:
+  If you have the Summons and Petition, the name of each Plaintiff is listed
+  in the box labeled "Plaintiff". 
+  % endif  
 fields:
   - Is there another Plaintiff?: other_parties.there_is_another
     datatype: yesnomaybe
@@ -311,6 +307,8 @@ subquestion: |
   You can find the name and address of the attorney in the Parties and Attorneys tab in the online docket.
   
   [FILE Parties.png, 100%]
+
+  ${ warn_picture_is_example_template }
 fields:
   - Is ${ other_parties[i] } represented by an attorney?: other_parties[i].attorney.there_are_any
     datatype: yesnoradio
@@ -352,6 +350,8 @@ subquestion: |
   You can find the name and address of the attorney in the Parties and Attorneys tab in the online docket.
   
   [FILE Parties.png, 100%]
+
+  ${ warn_picture_is_example_template }
 fields:
   - code: |
       other_parties[i].attorney[j].name_fields()
@@ -370,6 +370,8 @@ subquestion: |
   If the landlord is represented by an attorney, then the attorney's name and address will be in the box next to the Landlord's name.
   
   [FILE MOSummonsPlaintiffAttorney.png, 100%]
+
+  ${ warn_picture_is_example_template }
 fields:
   - code: |
       other_parties[i].attorney[j].name_fields()
@@ -418,7 +420,6 @@ subquestion: |
   % endif
   
   [FILE MOSummonsCourtDate.png, 100%]
-  
 fields:
   - "Date of original hearing": original_hearing_date
     datatype: date
@@ -450,7 +451,9 @@ subquestion: |
   tab will **only** show an event named "Summons Issued - Landlord/Tenant", like this:
   % endif
   
-  [FILE Docket.png, 100%]  
+  [FILE Docket.png, 100%]
+
+  ${ warn_picture_is_example_template }
 fields:
   - label: |
       % if person_answering == "tenant":
@@ -496,23 +499,30 @@ question: |
 subquestion: |
   % if i == 0:
     With your case open on case.net, click the tab labeled "Parties & Attorneys." 
-    This tab should look like this:
+    It may look like this:
   
     [FILE Parties.png, 100%]
+
+    ${ warn_picture_is_example_template }
     
     Your name should be listed next to the word "Defendant." The landlord's name should be listed
     next to the word "Plaintiff." The name may look different than it does on your lease.
     
-    Who is listed as the Plaintiff?
+    Who is listed as the first Plaintiff? If there is more than one Plaintiff, you can name them later.
   % else:
-    
-    [FILE Parties.png, 100%]
-  
-    Another Plaintiff may be listed underneath the first Plaintiff.  Who is the  ${ ordinal(i) } Plaintiff?
+    Who is the ${ ordinal(i) } Plaintiff listed on your case?
   % endif
 fields:
   - code: |
       other_parties[i].name_fields(person_or_business='unsure')
+---
+template: warn_picture_is_example_template
+content: |
+  <div class="alert alert-warning" role="alert">
+    <i class="fas fa-exclamation-triangle"></i>
+    <strong>Important</strong>: the picture above is just a sample. Make sure you are looking at the results
+    on Missouri Case.net for your case.
+  </div>
 ---
 id: signpost casenet for landlord name
 # not (tenant_got_summons and petition_available)
@@ -595,10 +605,14 @@ subquestion: |
   % endif
 
   [FILE ScheduledEvents.png, 100%]
+
+  ${ warn_picture_is_example_template }
 fields:
   - "Date of hearing": original_hearing_date
     datatype: date
   - "Original hearing time": original_hearing_time
+    validate: |
+      lambda y: ":" in y or validation_error("Write out a time, like 9:00 AM", field="original_hearing_time")
 ---
 comment: |
   This block is not used because of another block that sets docket number underneath.
@@ -644,6 +658,8 @@ content: |
   The case number is at of the top of the webpage, next to the names of the Plaintiff and Defendant.
   
   [FILE CaseHeaderNumber.png, 100%]
+
+  ${ warn_picture_is_example_template }
 ---
 template: find_case_number_summons_template
 subject: |
@@ -652,6 +668,8 @@ content: |
   The case number is at of the top of the webpage, next to the names of the Plaintiff and Defendant.
   
   [FILE MOSummonsNumber.png, 100%]
+
+  ${ warn_picture_is_example_template }
 ---
 ###################### PETITION REVIEW ######################
 id: Petition_introduction

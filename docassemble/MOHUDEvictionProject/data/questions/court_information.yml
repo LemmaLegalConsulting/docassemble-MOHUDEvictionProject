@@ -144,12 +144,17 @@ code: |
 if: tenant_using_casenet
 id: case type from docket
 question: |
-  What kind of eviction case type?
+  What is the case type for your eviction?
 subquestion: |
-  The Case Header Tab on the Online Docket has a section called case type.  Use this information to answer this question. 
-  
+  Look at the Case Header Tab on the Online Docket to answer this question.
+
+  Find the field labeled "Case type." There may be more than one case type
+  listed.
+
+  Example:
   [FILE CaseHeaderType.png, 100%]
 
+  ${ warn_picture_is_example_template }
 fields:
   - label: |
       Case Type
@@ -171,12 +176,13 @@ fields:
 if: tenant_got_summons and petition_available
 id: case type from summons
 question: |
-  What kind of eviction suit?
+  What is the "nature of suit" for your eviction?
 subquestion: |
-  The Summons has a section called Nature of Suit.  Use this information to answer this question. 
+  Look at **your summons and petition** to answer this question. Find
+  the information labeled "Nature of Suit."
   
+  Example:
   [FILE MOSummonsType.png, 100%]
-
 fields:
   - label: |
       Nature of Suit
