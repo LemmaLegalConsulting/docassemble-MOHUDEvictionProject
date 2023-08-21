@@ -174,6 +174,9 @@ question: |
   Did the landlord tell the tenant something that was not true to get the tenant to sign the lease?
   % endif
 subquestion: |
+  If your landlord tricked you into signing the lease by telling you
+  something that was not true, you may have a defense.
+
   ${ collapse_template(false_promise_example_template) }
 fields:
   - label: |
@@ -300,24 +303,8 @@ subquestion: |
 
   % for promise in false_promises:
   * ${ promise }
-  % endfor  
+  % endfor
 fields:
-  - label: |
-      % if person_answering == "tenant":
-      % if false_promises.number() == 1:
-      Did your landlord's promise get you to sign the lease?
-      % else:
-      Did your landlord's promises get you to sign the lease?
-      % endif
-      % else: 
-      % if false_promises.number() == 1:
-      Did the landlord's promise get the tenant to sign the lease?
-      % else:
-      Did the landlord's promises get the tenant to sign the lease?
-      % endif
-      % endif
-    field: relied_on_false_promises
-    datatype: yesnoradio
   - note: |
       % if person_answering == "tenant":
       % if false_promises.number() == 1:
@@ -336,6 +323,22 @@ fields:
       the landlord's promises, answer yes.
       % endif
       % endif
+  - label: |
+      % if person_answering == "tenant":
+      % if false_promises.number() == 1:
+      Did your landlord's promise get you to sign the lease?
+      % else:
+      Did your landlord's promises get you to sign the lease?
+      % endif
+      % else: 
+      % if false_promises.number() == 1:
+      Did the landlord's promise get the tenant to sign the lease?
+      % else:
+      Did the landlord's promises get the tenant to sign the lease?
+      % endif
+      % endif
+    field: relied_on_false_promises
+    datatype: yesnoradio
 ---
 id: late fees defense logic
 code: |
@@ -365,16 +368,8 @@ fields:
       % endif
     field: late_fees_assessed
     datatype: yesnoradio
-  - label: |
-      % if person_answering == "tenant":
-      Is the late fee more than a fair amount to cover the landlord's cost?
-      % else: 
-      Is the tenant's late fee more than a fair amount to cover the landlord's cost?
-      % endif
-    field: late_fees_penalty
-    datatype: yesnomaybe
-    show if: late_fees_assessed
   - note: |
+      <h2 class="h4">Was the amount the landlord charged "fair"?</h2>
       It is up to a judge to decide if the late fee is "fair". But if the late fee is
       a lot more than:
 
@@ -384,6 +379,15 @@ fields:
       The fee may be too high.
       
       In some counties, more than $5 per day is considered too high.
+    show if: late_fees_assessed
+  - label: |
+      % if person_answering == "tenant":
+      Is the late fee more than a fair amount to cover the landlord's cost?
+      % else: 
+      Is the tenant's late fee more than a fair amount to cover the landlord's cost?
+      % endif
+    field: late_fees_penalty
+    datatype: yesnomaybe
     show if: late_fees_assessed
   - label: |
       Is there a part of the lease that allows the landlord to charge the late fee?
@@ -435,16 +439,16 @@ depends on:
 id: notice of problems fact
 question: |
   % if person_answering == "tenant":
-  Did you tell the landlord about these problems?
+  Did you tell the landlord about the problems that needed to get repaired?
   % else: 
-  Did the tenant tell the landlord about these problems?
+  Did the tenant tell the landlord about the problems that needed to get repaired?
   % endif
 fields:
   - label: |
       % if person_answering == "tenant":
-      Did you let the landlord know about these problems, either by writing to the landlord or talking to the landlord?
+      Did you let the landlord know about at least one of these problems, either by writing to the landlord or talking to the landlord?
       % else: 
-      Did the tenant let the landlord know about these problems, either by writing to the landlord or talking to the landlord?
+      Did the tenant let the landlord know about at least one of these problems, either by writing to the landlord or talking to the landlord?
       % endif
     field: notice_of_breach_to_landlord
     datatype: yesnomaybe
@@ -592,11 +596,7 @@ fields:
     field: is_rent_subsidized
     datatype: yesnoradio
   - label: |
-      % if person_answering == "tenant":
-      What type of housing do you have?
-      % else: 
-      What type of housing does the tenant have?
-      % endif
+      What kind?
     field: subsidized_housing_type
     datatype: radio
     choices:
@@ -619,7 +619,7 @@ variable name: subsidized_housing_text
 use objects: True
 data:
   voucher:
-    question: Section 8 voucher
+    question: Mobile voucher (like Section 8)
     document: Section 8 voucher
   public:
     question: Public housing
@@ -772,6 +772,16 @@ fields:
     datatype: yesnomaybe
     js show if: |
       val("lease_attached") === false
+  - note: |
+      <h2 class="h4">Summary of rental agreement</h2>
+      The Petition should include a summary of the rental agreement. It should include 
+      at least:
+
+      * The rent amount,
+      * The day rent is due, and
+      * The kind of agreement (year to year or month to month).
+    js show if: |
+      val("has_written_lease") === false || val("lease_attached") === false
   - label: |
       % if person_answering == "tenant":
       Does the Landlord's Petition include a summary of your rental agreement?
@@ -782,16 +792,6 @@ fields:
     datatype: yesnomaybe
     js show if: |
       val("has_written_lease") === false
-  - note: |
-      ${ collapse_template(terms_of_lease_explanation) }
-    js show if: |
-      val("has_written_lease") === false || val("lease_attached") === false
----
-template: terms_of_lease_explanation
-subject: |
-  What kind of summary?
-content: |
-  For example, does it include the monthly rent, the kind of agreement (year to year or month to month), and the day rent is due?
 ---
 id: petition requirements - periods due
 question: |
@@ -1325,8 +1325,6 @@ subquestion: |
   You said your landlord said you owe ${ currency(rent_amount_owed) }.
   % elif petition_states_rent_amount:
   The tenant's landlord said the tenant owes ${ currency(rent_amount_owed) }.
-  % else:
-  The petition does not say the amount that is allegedly owed.
   % endif
 fields:
   - label: |
