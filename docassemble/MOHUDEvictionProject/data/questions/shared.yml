@@ -46,18 +46,10 @@ code: |
   al_intro_screen
   eviction_defender_intro
   document_order
-  signature_date
-  nav.set_section("section_serve_other_side")
-  if other_parties[0].service_method == "email":
-    other_parties[0].service_email
-  elif other_parties[0].service_method in ["mail", "hand"]:
-    if other_parties[0].attorney.there_are_any:
-      other_parties[0].attorney[0].address.address
-    other_parties[0].service_address.address
+
   # Store anonymous data for analytics / statistics
   nav.set_section("review_eviction_answer")
   review_eviction_answer
-  al_user_wants_reminders
   store_variables_snapshot(
       persistent=True,
       data={
@@ -65,7 +57,19 @@ code: |
           "reached_interview_end": True,
       },
   )
-  nav.set_section("section_eviction_answer_download")
+  set_progress(90)
+  signpost_service_of_process
+  nav.set_section("section_eviction_answer_download")  
+  signature_date
+  if other_parties[0].service_method == "email":
+    other_parties[0].service_email
+  elif other_parties[0].service_method in ["mail", "hand"]:
+    if other_parties[0].attorney.there_are_any:
+      other_parties[0].attorney[0].address.address
+    other_parties[0].service_address.address
+
+  al_user_wants_reminders
+  set_progress(100)
   eviction_defender_download
 ---
 #################### Interview order #####################
@@ -1146,3 +1150,11 @@ content: |
   701 Market Street, Suite 1100
   St. Louis, MO 63101
 ---
+id: signpost service of process
+decoration: clipboard-check
+question: |
+  You are almost done!
+subquestion: |
+  The last few questions are about getting a copy
+  of your documents to your landlord.
+continue button field: signpost_service_of_process      

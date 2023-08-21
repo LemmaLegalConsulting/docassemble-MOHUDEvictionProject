@@ -147,6 +147,7 @@ code: |
     tenant_compliance_with_agreement
   defense_logic
   information_collected
+  nav.set_section("review_eviction_answer")
   explanation_answer
   document_order = True
 ---
@@ -481,8 +482,9 @@ subquestion: |
 continue button field: signpost_claims_and_defenses
 ---
 id: defenses explanation
-question: Explanation of your answer
 continue button field: explanation_answer
+question: |
+  You may have defenses to the eviction
 subquestion: |
   Based on your answers, you may have the following defenses to the eviction case:
   % if defense_rent_pleading_requirement:
@@ -664,11 +666,10 @@ question:  Print, Sign, Serve and File
 id: eviction review screen
 continue button field: review_eviction_answer
 question: |
-  % if person_answering == "tenant":
   Review your answers
-  % else: 
-  Review the answers
-  % endif
+subquestion: |
+  Look over your answers below. If you need to make any changes, click the "Edit" button
+  next to the answer that you want to change.
 review:
   - note: | 
       % if person_answering == "tenant":

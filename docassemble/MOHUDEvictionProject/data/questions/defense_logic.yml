@@ -368,16 +368,8 @@ fields:
       % endif
     field: late_fees_assessed
     datatype: yesnoradio
-  - label: |
-      % if person_answering == "tenant":
-      Is the late fee more than a fair amount to cover the landlord's cost?
-      % else: 
-      Is the tenant's late fee more than a fair amount to cover the landlord's cost?
-      % endif
-    field: late_fees_penalty
-    datatype: yesnomaybe
-    show if: late_fees_assessed
   - note: |
+      <h2 class="h4">Was the amount the landlord charged "fair"?</h2>
       It is up to a judge to decide if the late fee is "fair". But if the late fee is
       a lot more than:
 
@@ -387,6 +379,15 @@ fields:
       The fee may be too high.
       
       In some counties, more than $5 per day is considered too high.
+    show if: late_fees_assessed
+  - label: |
+      % if person_answering == "tenant":
+      Is the late fee more than a fair amount to cover the landlord's cost?
+      % else: 
+      Is the tenant's late fee more than a fair amount to cover the landlord's cost?
+      % endif
+    field: late_fees_penalty
+    datatype: yesnomaybe
     show if: late_fees_assessed
   - label: |
       Is there a part of the lease that allows the landlord to charge the late fee?
@@ -438,16 +439,16 @@ depends on:
 id: notice of problems fact
 question: |
   % if person_answering == "tenant":
-  Did you tell the landlord about these problems?
+  Did you tell the landlord about the problems that needed to get repaired?
   % else: 
-  Did the tenant tell the landlord about these problems?
+  Did the tenant tell the landlord about the problems that needed to get repaired?
   % endif
 fields:
   - label: |
       % if person_answering == "tenant":
-      Did you let the landlord know about these problems, either by writing to the landlord or talking to the landlord?
+      Did you let the landlord know about at least one of these problems, either by writing to the landlord or talking to the landlord?
       % else: 
-      Did the tenant let the landlord know about these problems, either by writing to the landlord or talking to the landlord?
+      Did the tenant let the landlord know about at least one of these problems, either by writing to the landlord or talking to the landlord?
       % endif
     field: notice_of_breach_to_landlord
     datatype: yesnomaybe
@@ -1324,8 +1325,6 @@ subquestion: |
   You said your landlord said you owe ${ currency(rent_amount_owed) }.
   % elif petition_states_rent_amount:
   The tenant's landlord said the tenant owes ${ currency(rent_amount_owed) }.
-  % else:
-  The petition does not say the amount that is allegedly owed.
   % endif
 fields:
   - label: |
