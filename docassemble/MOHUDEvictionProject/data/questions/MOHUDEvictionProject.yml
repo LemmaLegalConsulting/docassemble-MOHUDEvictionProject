@@ -36,6 +36,38 @@ sections:
 code: |
   user_role = user_ask_role = "defendant"
 ---
+###################### Main order ######################
+mandatory: True
+code: |
+  al_intro_screen
+  eviction_defender_intro
+  document_order
+
+  # Store anonymous data for analytics / statistics
+  nav.set_section("review_eviction_answer")
+  review_eviction_answer
+  store_variables_snapshot(
+      persistent=True,
+      data={
+          "zip": showifdef("users[0].address.zip"),
+          "reached_interview_end": True,
+      },
+  )
+  set_progress(90)
+  signpost_service_of_process
+  nav.set_section("section_eviction_answer_download")  
+  signature_date
+  if other_parties[0].service_method == "email":
+    other_parties[0].service_email
+  elif other_parties[0].service_method in ["mail", "hand"]:
+    if other_parties[0].attorney.there_are_any:
+      other_parties[0].attorney[0].address.address
+    other_parties[0].service_address.address
+
+  al_user_wants_reminders
+  set_progress(100)
+  eviction_defender_download
+---
 #################### Interview order #####################
 comment: |
   Controls order and branching logic for questions specific to this form
@@ -75,6 +107,7 @@ code: |
     signpost_case_net_for_landlord_name
     if tenant_using_casenet:
       casenet_login_instructions
+      
   other_parties.gather()
   for party in other_parties:
     party.attorney.gather()

@@ -38,78 +38,6 @@ code: |
 objects:
   - al_logo: DAStaticFile.using(filename="logo.svg")
 ---
-comment: |
-  I added document_order, which is set in the individual interviews.
-###################### Main order ######################
-mandatory: True
-code: |
-  al_intro_screen
-  eviction_defender_intro
-  document_order
-
-  # Store anonymous data for analytics / statistics
-  nav.set_section("review_eviction_answer")
-  review_eviction_answer
-  store_variables_snapshot(
-      persistent=True,
-      data={
-          "zip": showifdef("users[0].address.zip"),
-          "reached_interview_end": True,
-      },
-  )
-  set_progress(90)
-  signpost_service_of_process
-  nav.set_section("section_eviction_answer_download")  
-  signature_date
-  if other_parties[0].service_method == "email":
-    other_parties[0].service_email
-  elif other_parties[0].service_method in ["mail", "hand"]:
-    if other_parties[0].attorney.there_are_any:
-      other_parties[0].attorney[0].address.address
-    other_parties[0].service_address.address
-
-  al_user_wants_reminders
-  set_progress(100)
-  eviction_defender_download
----
-#################### Interview order #####################
-comment: |
-  Controls order and branching logic for the motion to continue, which may be used in a standalone interview and may be used in other interviews with other forms.
-id: interview_order_eviction_motion_to_continue
-code: |
-  # Set the allowed courts for this interview
-  allowed_courts = interview_metadata["eviction_defender"]["allowed courts"]
-  nav.set_section('section_eviction_answer_intro')
-  user_role = 'defendant'
-  landlord_doc_name
-  tenant_doc_name
-  users[0].name.first
-  greet_user
-  nav.set_section("section_eviction_answer_can_i")
-  if not tenant_got_summons or not (method_of_summons_service['sheriff'] or method_of_summons_service['certified_mail'] or (method_of_summons_service['mail'] and method_of_summons_service['posting'])):
-    posting_warning
-  else:
-    recommend_filing_answer
-  nav.set_section("section_eviction_answer_you")
-  users[0].address.address
-  users[0].address.geocode()
-  nav.set_section("section_eviction_answer_casenet")
-  trial_court.name
-  if not trial_court.county == None and tenant_using_casenet:
-    docket_review
-  nav.set_section("section_eviction_answer_other")
-  other_parties.gather()
-  for party in other_parties:
-    if party.attorney.there_are_any == False:
-      party.address.address
-  users.gather()
-  nav.set_section("section_eviction_answer_case")
-  original_hearing_date
-  docket_number
-  set_progress(50)
-  motion_to_continue_order = True
-
----
 code: |
   interview_metadata['main_interview_key'] =  'eviction_defender'
 ---
@@ -1113,7 +1041,7 @@ content: |
   This website is free to use. Legal Services of Eastern Missouri (“LSEM”), a nonprofit legal aid program, hosts the site.
   <h3 class="h5">You need to know</h3>
   * **This website does not provide legal advice**. If you need legal advice, you can use [https://www.lsmo.org/](https://www.lsmo.org/) to find a lawyer.
-  * The information and documents on this website have no warranty. We provide the information “as-is.” By using the site, you agree not to hold GBLS or the information providers on this site liable.
+  * The information and documents on this website have no warranty. We provide the information “as-is.” By using the site, you agree not to hold LSEM or the information providers on this site liable.
   * We work hard to keep the information on the site up to date. Lawyers drafted and reviewed the documents this site uses. But laws and local rules change over time. These changes can make a document unenforceable when you use it.
   * We do our best to keep the site working! To do that, we allow you to submit feedback so we can track problems on the site. But we cannot provide individual technical support.
   <h3 class="h5">To use this site</h3>
