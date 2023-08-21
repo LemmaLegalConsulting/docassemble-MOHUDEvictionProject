@@ -174,6 +174,9 @@ question: |
   Did the landlord tell the tenant something that was not true to get the tenant to sign the lease?
   % endif
 subquestion: |
+  If your landlord tricked you into signing the lease by telling you
+  something that was not true, you may have a defense.
+
   ${ collapse_template(false_promise_example_template) }
 fields:
   - label: |
@@ -300,24 +303,8 @@ subquestion: |
 
   % for promise in false_promises:
   * ${ promise }
-  % endfor  
+  % endfor
 fields:
-  - label: |
-      % if person_answering == "tenant":
-      % if false_promises.number() == 1:
-      Did your landlord's promise get you to sign the lease?
-      % else:
-      Did your landlord's promises get you to sign the lease?
-      % endif
-      % else: 
-      % if false_promises.number() == 1:
-      Did the landlord's promise get the tenant to sign the lease?
-      % else:
-      Did the landlord's promises get the tenant to sign the lease?
-      % endif
-      % endif
-    field: relied_on_false_promises
-    datatype: yesnoradio
   - note: |
       % if person_answering == "tenant":
       % if false_promises.number() == 1:
@@ -336,16 +323,34 @@ fields:
       the landlord's promises, answer yes.
       % endif
       % endif
+  - label: |
+      % if person_answering == "tenant":
+      % if false_promises.number() == 1:
+      Did your landlord's promise get you to sign the lease?
+      % else:
+      Did your landlord's promises get you to sign the lease?
+      % endif
+      % else: 
+      % if false_promises.number() == 1:
+      Did the landlord's promise get the tenant to sign the lease?
+      % else:
+      Did the landlord's promises get the tenant to sign the lease?
+      % endif
+      % endif
+    field: relied_on_false_promises
+    datatype: yesnoradio
 ---
 id: late fees defense logic
 code: |
-  if late_fees_assessed and (late_fees_penalty or not late_fees_lease_provision):
+  if late_fees_assessed and (late_fees_penalty or ((not late_fees_lease_provision) or late_fee_doesnt_comply_with_lease)):
     defense_liquidated_damages_late_fees = True
   else:
     defense_liquidated_damages_late_fees = False
 depends on:
   - late_fees_assessed
   - late_fees_penalty
+  - late_fees_lease_provision
+  - late_fee_doesnt_comply_with_lease
 ---
 id: late fees
 question: |
@@ -363,6 +368,18 @@ fields:
       % endif
     field: late_fees_assessed
     datatype: yesnoradio
+  - note: |
+      <h2 class="h4">Was the amount the landlord charged "fair"?</h2>
+      It is up to a judge to decide if the late fee is "fair". But if the late fee is
+      a lot more than:
+
+      * The interest the money could earn in a bank, plus
+      * The cost of the landlord's time to handle the late payment,
+
+      The fee may be too high.
+      
+      In some counties, more than $5 per day is considered too high.
+    show if: late_fees_assessed
   - label: |
       % if person_answering == "tenant":
       Is the late fee more than a fair amount to cover the landlord's cost?
@@ -372,15 +389,6 @@ fields:
     field: late_fees_penalty
     datatype: yesnomaybe
     show if: late_fees_assessed
-  - note: |
-      It is up to a judge to decide if the late fee is "fair". But if the late fee is
-      a lot more than:
-
-      * The interest the money could earn in a bank, plus
-      * The cost of the landlord's time to handle the late payment,
-
-      The fee may be too high.
-    show if: late_fees_assessed
   - label: |
       Is there a part of the lease that allows the landlord to charge the late fee?
       % if has_written_lease == False:
@@ -389,6 +397,14 @@ fields:
     field: late_fees_lease_provision
     datatype: yesnomaybe
     show if: late_fees_assessed
+  - label: |
+      Do the late fees charged by the landlord comply with the lease provision?
+      % if has_written_lease == False:
+      You can answer no if you don't have a written lease.
+      % endif
+    field: late_fee_doesnt_comply_with_lease
+    datatype: noyesmaybe
+    show if: late_fees_lease_provision
 ---
 id: cqe breach logic
 comment: |
@@ -423,16 +439,16 @@ depends on:
 id: notice of problems fact
 question: |
   % if person_answering == "tenant":
-  Did you tell the landlord about these problems?
+  Did you tell the landlord about the problems that needed to get repaired?
   % else: 
-  Did the tenant tell the landlord about these problems?
+  Did the tenant tell the landlord about the problems that needed to get repaired?
   % endif
 fields:
   - label: |
       % if person_answering == "tenant":
-      Did you let the landlord know about these problems, either by writing to the landlord or talking to the landlord?
+      Did you let the landlord know about at least one of these problems, either by writing to the landlord or talking to the landlord?
       % else: 
-      Did the tenant let the landlord know about these problems, either by writing to the landlord or talking to the landlord?
+      Did the tenant let the landlord know about at least one of these problems, either by writing to the landlord or talking to the landlord?
       % endif
     field: notice_of_breach_to_landlord
     datatype: yesnomaybe
@@ -453,9 +469,9 @@ question: |
 fields:
   - label: |
       % if person_answering == "tenant":
-      Did the bank foreclose on this property while you lived there?
+      As far as you know during the time that you were a tenant, did a bank foreclose on the property?
       % else: 
-      Did the bank foreclose on this property while the tenant lived there?
+      As far as you know during the time that the tenant lived in the property, did a bank foreclose on the property?
       % endif
     field: landlord_foreclosed
     datatype: yesnomaybe
@@ -580,11 +596,7 @@ fields:
     field: is_rent_subsidized
     datatype: yesnoradio
   - label: |
-      % if person_answering == "tenant":
-      What type of housing do you have?
-      % else: 
-      What type of housing does the tenant have?
-      % endif
+      What kind?
     field: subsidized_housing_type
     datatype: radio
     choices:
@@ -607,7 +619,7 @@ variable name: subsidized_housing_text
 use objects: True
 data:
   voucher:
-    question: Section 8 voucher
+    question: Mobile voucher (like Section 8)
     document: Section 8 voucher
   public:
     question: Public housing
@@ -635,9 +647,9 @@ subquestion: |
   * Part of the rent the housing authority would normally pay but the housing authority has stopped payment.
 
   % if person_answering == "tenant":
-  Your landlord can only charge you the amount that your Section 8 contract says. You never owe more than your tenant rent share.
+  Your landlord can only charge you the amount that you are responsible for, based on your income. You never owe more than your tenant rent share.
   % else:
-  The tenant's landlord can only charge them the amount that their Section 8 contract says. The tenant never owes more than their tenant rent share.
+  The tenant's landlord can only charge them the amount that the tenant is responsible for, based on their income. The tenant never owes more than their tenant rent share.
   % endif
 fields:
   - label: |
@@ -722,16 +734,17 @@ question: |
   % endif
 subquestion: |
   % if person_answering == "tenant":
-  With the Landlord's Petition, your landlord needs to either:
+  With the Landlord's Petition, your landlord must have either:
   
-   1. attach a copy of the lease, or
-   2. write a summary of your rental agreement, including the monthly rent, the kind of agreement (year to year or month to month), and the day rent is due.
+   1. attached a copy of the lease, or
+   2. written a summary of your rental agreement, including the monthly rent, the kind of agreement (year to year or month to month), and the day rent is due.
   % else: 
     With the Landlord's Petition, the tenant's landlord needs to either:
   
    1. attach a copy of the lease, or
    2. write a summary of the tenant's rental agreement, including the monthly rent, the kind of agreement (year to year or month to month), and the day rent is due.
   % endif
+  
   The petition looks different in different counties. But it may look like this:
 
   [FILE ComplaintTerms.png, 100%]
@@ -759,6 +772,16 @@ fields:
     datatype: yesnomaybe
     js show if: |
       val("lease_attached") === false
+  - note: |
+      <h2 class="h4">Summary of rental agreement</h2>
+      The Petition should include a summary of the rental agreement. It should include 
+      at least:
+
+      * The rent amount,
+      * The day rent is due, and
+      * The kind of agreement (year to year or month to month).
+    js show if: |
+      val("has_written_lease") === false || val("lease_attached") === false
   - label: |
       % if person_answering == "tenant":
       Does the Landlord's Petition include a summary of your rental agreement?
@@ -769,16 +792,6 @@ fields:
     datatype: yesnomaybe
     js show if: |
       val("has_written_lease") === false
-  - note: |
-      ${ collapse_template(terms_of_lease_explanation) }
-    js show if: |
-      val("has_written_lease") === false || val("lease_attached") === false
----
-template: terms_of_lease_explanation
-subject: |
-  What kind of summary?
-content: |
-  For example, does it include the monthly rent, the kind of agreement (year to year or month to month), and the day rent is due?
 ---
 id: petition requirements - periods due
 question: |
@@ -1312,8 +1325,6 @@ subquestion: |
   You said your landlord said you owe ${ currency(rent_amount_owed) }.
   % elif petition_states_rent_amount:
   The tenant's landlord said the tenant owes ${ currency(rent_amount_owed) }.
-  % else:
-  The petition does not say the amount that is allegedly owed.
   % endif
 fields:
   - label: |

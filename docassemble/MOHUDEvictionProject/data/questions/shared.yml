@@ -38,74 +38,6 @@ code: |
 objects:
   - al_logo: DAStaticFile.using(filename="logo.svg")
 ---
-comment: |
-  I added document_order, which is set in the individual interviews.
-###################### Main order ######################
-mandatory: True
-code: |
-  al_intro_screen
-  eviction_defender_intro
-  document_order
-  signature_date
-  nav.set_section("section_serve_other_side")
-  if other_parties[0].service_method == "email":
-    other_parties[0].service_email
-  elif other_parties[0].service_method in ["mail", "hand"]:
-    if other_parties[0].attorney.there_are_any:
-      other_parties[0].attorney[0].address.address
-    other_parties[0].service_address.address
-  # Store anonymous data for analytics / statistics
-  nav.set_section("review_eviction_answer")
-  review_eviction_answer
-  al_user_wants_reminders
-  store_variables_snapshot(
-      persistent=True,
-      data={
-          "zip": showifdef("users[0].address.zip"),
-          "reached_interview_end": True,
-      },
-  )
-  nav.set_section("section_eviction_answer_download")
-  eviction_defender_download
----
-#################### Interview order #####################
-comment: |
-  Controls order and branching logic for the motion to continue, which may be used in a standalone interview and may be used in other interviews with other forms.
-id: interview_order_eviction_motion_to_continue
-code: |
-  # Set the allowed courts for this interview
-  allowed_courts = interview_metadata["eviction_defender"]["allowed courts"]
-  nav.set_section('section_eviction_answer_intro')
-  user_role = 'defendant'
-  landlord_doc_name
-  tenant_doc_name
-  users[0].name.first
-  greet_user
-  nav.set_section("section_eviction_answer_can_i")
-  if not tenant_got_summons or not (method_of_summons_service['sheriff'] or method_of_summons_service['certified_mail'] or (method_of_summons_service['mail'] and method_of_summons_service['posting'])):
-    posting_warning
-  else:
-    recommend_filing_answer
-  nav.set_section("section_eviction_answer_you")
-  users[0].address.address
-  users[0].address.geocode()
-  nav.set_section("section_eviction_answer_casenet")
-  trial_court.name
-  if not trial_court.county == None and docket_available:
-    docket_review
-  nav.set_section("section_eviction_answer_other")
-  other_parties.gather()
-  for party in other_parties:
-    if party.attorney.there_are_any == False:
-      party.address.address
-  users.gather()
-  nav.set_section("section_eviction_answer_case")
-  original_hearing_date
-  docket_number
-  set_progress(50)
-  motion_to_continue_order = True
-
----
 code: |
   interview_metadata['main_interview_key'] =  'eviction_defender'
 ---
@@ -268,27 +200,23 @@ id: any other opposing parties
 question: |
   Is there another **Plaintiff** in this eviction case?
 subquestion:  |
-  % if person_answering == "tenant":
   You have already told us about ${ other_parties.complete_elements() }.
 
-  If you have the Summons and Petition, the name of each Plaintiff is listed
-  in the box labeled "Plaintiff". 
-  
-  % else:
-  We know about ${ other_parties.complete_elements() }.
+  % if tenant_using_casenet:
+  You can find the name of each Plaintiff in the Parties and Attorneys tab 
+  in the online docket.
 
-  The name of each Plaintiff is listed on the Summons and Petition
-  in the box labeled "Plaintiff". 
-  % endif
-  
-  There is a Parties & Attorneys tab on the online docket.
-  
-  There may also be a "Doing Business As" that looks like this
+  If the online docket lists a "Doing business as" but not
+  another plaintiff like in the example below, you can answer "no" to 
+  this question:
   
   [FILE DocketDBAExample.png, 100%]
-  
-  You do not need to answer yes to this question if there is only another party listed as Doing Business As.
-  
+
+  ${ warn_picture_is_example_template }
+  % else:
+  If you have the Summons and Petition, the name of each Plaintiff is listed
+  in the box labeled "Plaintiff". 
+  % endif  
 fields:
   - Is there another Plaintiff?: other_parties.there_is_another
     datatype: yesnomaybe
@@ -303,7 +231,7 @@ fields:
   - Is ${ other_parties[i] } represented by an attorney?: other_parties[i].attorney.there_are_any
     datatype: yesnoradio
 ---
-if: docket_available
+if: tenant_using_casenet
 id: Landlord representation from Docket
 question: |
   Does ${ other_parties[i] } have an attorney?
@@ -311,6 +239,8 @@ subquestion: |
   You can find the name and address of the attorney in the Parties and Attorneys tab in the online docket.
   
   [FILE Parties.png, 100%]
+
+  ${ warn_picture_is_example_template }
 fields:
   - Is ${ other_parties[i] } represented by an attorney?: other_parties[i].attorney.there_are_any
     datatype: yesnoradio
@@ -340,7 +270,7 @@ fields:
       x.address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)
 ---
 id: Opposing Attorney name from Docket
-if: docket_available
+if: tenant_using_casenet
 sets:
   - other_parties[i].attorney[j].name.first
   - other_parties[i].attorney[j].name.last
@@ -352,6 +282,8 @@ subquestion: |
   You can find the name and address of the attorney in the Parties and Attorneys tab in the online docket.
   
   [FILE Parties.png, 100%]
+
+  ${ warn_picture_is_example_template }
 fields:
   - code: |
       other_parties[i].attorney[j].name_fields()
@@ -370,6 +302,8 @@ subquestion: |
   If the landlord is represented by an attorney, then the attorney's name and address will be in the box next to the Landlord's name.
   
   [FILE MOSummonsPlaintiffAttorney.png, 100%]
+
+  ${ warn_picture_is_example_template }
 fields:
   - code: |
       other_parties[i].attorney[j].name_fields()
@@ -418,7 +352,6 @@ subquestion: |
   % endif
   
   [FILE MOSummonsCourtDate.png, 100%]
-  
 fields:
   - "Date of original hearing": original_hearing_date
     datatype: date
@@ -450,7 +383,9 @@ subquestion: |
   tab will **only** show an event named "Summons Issued - Landlord/Tenant", like this:
   % endif
   
-  [FILE Docket.png, 100%]  
+  [FILE Docket.png, 100%]
+
+  ${ warn_picture_is_example_template }
 fields:
   - label: |
       % if person_answering == "tenant":
@@ -483,7 +418,7 @@ fields:
   - code: |
       other_parties[i].name_fields(person_or_business='unsure')   
 ---
-if: docket_available
+if: tenant_using_casenet
 sets:
   - other_parties[i].name.first
   - other_parties[i].name.last
@@ -492,23 +427,66 @@ sets:
   - other_parties[i].person_type
 id: names of opposing parties - docket only
 question: |
-  Name of Plaintiff
+  Landlord's name
 subquestion: |
   % if i == 0:
-    You can click on "Parties & Attorneys", the next tab to the right.  This tab should look like this:
+    With your case open on case.net, click the tab labeled "Parties & Attorneys." 
+    It may look like this:
   
     [FILE Parties.png, 100%]
+
+    ${ warn_picture_is_example_template }
     
-    Who is listed as the Plaintiff?
+    Your name should be listed next to the word "Defendant." The landlord's name should be listed
+    next to the word "Plaintiff." The name may look different than it does on your lease.
+    
+    Who is listed as the first Plaintiff? If there is more than one Plaintiff, you can name them later.
   % else:
-    
-    [FILE Parties.png, 100%]
-  
-    Another Plaintiff may be listed underneath the first Plaintiff.  Who is the  ${ ordinal(i) } Plaintiff?
+    Who is the ${ ordinal(i) } Plaintiff listed on your case?
   % endif
 fields:
   - code: |
-      other_parties[i].name_fields(person_or_business='unsure')    
+      other_parties[i].name_fields(person_or_business='unsure')
+---
+template: warn_picture_is_example_template
+content: |
+  <div class="alert alert-warning" role="alert">
+    <i class="fas fa-exclamation-triangle"></i>
+    <strong>Important</strong>: the picture above is just a sample. Make sure you are looking at the results
+    on Missouri Case.net for your case.
+  </div>
+---
+id: signpost casenet for landlord name
+# not (tenant_got_summons and petition_available)
+only sets: signpost_case_net_for_landlord_name
+continue button field: signpost_case_net_for_landlord_name
+question: |
+  Do you want to check your landlord's name online?
+subquestion: |
+  You said you don't have the Summons and Petition with you. If you want, 
+  you can check your landlord's name online on a free website run by the
+  Missouri Court.
+
+  The website is called Case.net.
+
+  If the landlord's name isn't right, it might be a bit tricky for the 
+  court person to put your answer in the right spot. But, if you know the 
+  name they used on the court papers, you can just write it down without 
+  checking online.
+
+  You can also use the Case.net website to check other information,
+  like your court date and the case number.
+
+  We can give you step by step instructions if you want to check online.
+fields:
+  - label: |
+      % if person_answering == "tenant":
+      Do you want to use Case.net to help answer some questions?
+      % else:
+      Does the tenant want to use Case.net to help answer some questions?
+      % endif
+    field: tenant_using_casenet
+    datatype: yesnoradio
 ---
 id: names of opposing parties - petition
 if: tenant_got_summons and petition_available
@@ -539,7 +517,7 @@ fields:
       other_parties[i].name_fields(person_or_business='unsure')   
 ---
 id: eviction hearing date if docket available
-if: docket_available
+if: tenant_using_casenet
 question: |
   % if person_answering == "tenant":
   When is your eviction hearing?
@@ -560,10 +538,14 @@ subquestion: |
   % endif
 
   [FILE ScheduledEvents.png, 100%]
+
+  ${ warn_picture_is_example_template }
 fields:
   - "Date of hearing": original_hearing_date
     datatype: date
   - "Original hearing time": original_hearing_time
+    validate: |
+      lambda y: ":" in y or validation_error("Write out a time, like 9:00 AM", field="original_hearing_time")
 ---
 comment: |
   This block is not used because of another block that sets docket number underneath.
@@ -609,6 +591,8 @@ content: |
   The case number is at of the top of the webpage, next to the names of the Plaintiff and Defendant.
   
   [FILE CaseHeaderNumber.png, 100%]
+
+  ${ warn_picture_is_example_template }
 ---
 template: find_case_number_summons_template
 subject: |
@@ -617,6 +601,8 @@ content: |
   The case number is at of the top of the webpage, next to the names of the Plaintiff and Defendant.
   
   [FILE MOSummonsNumber.png, 100%]
+
+  ${ warn_picture_is_example_template }
 ---
 ###################### PETITION REVIEW ######################
 id: Petition_introduction
@@ -774,7 +760,7 @@ fields:
     datatype: yesnoradio
 ---
 id: Other tenants if docket available
-if: defined('docket_available') and docket_available and len(users)==1
+if: defined('tenant_using_casenet') and tenant_using_casenet and len(users)==1
 question: |
   Is any other tenant listed on this eviction case?
 subquestion: |
@@ -1011,11 +997,24 @@ subquestion: |
   % if person_answering == "tenant":
   Thank you ${users}. Your form is ready to download and deliver.
   
-  View, download, and send your form below. Click the "Edit answers" button to fix any mistakes.
+  View and download your form below. Click the "Edit answers" button to fix any mistakes.
+  
+  Print the forms.  You may be able to use a printer at a library or your county law library.
+  
+  Sign and complete the forms.  You will need to fill in the date in the Certificate of Service box at the end of the document.  Use the date you deliver the document to the other party using the method you chose.
+  
+  
+  File the document at the clerk of court.
   % else:
   Thank you ${users}. The tenant's form is ready to download and deliver.
   
   View, download, and send the tenant's form below. Click the "Edit answers" button to fix any mistakes.
+  
+  Print the forms.  You may be able to use a printer at a library or your county law library.
+  
+  Sign and complete the forms.  The tenant will need to fill in the date in the Certificate of Service box at the end of the document.  The tenant should use the date the tenant delivers a copy of the document to the other party using the method you chose.
+  
+  File the document at the clerk of court.
   % endif 
 
   ${ action_button_html(url_action('review_eviction_answer'), label='Edit answers', color='info') }
@@ -1043,7 +1042,7 @@ content: |
   This website is free to use. Legal Services of Eastern Missouri (“LSEM”), a nonprofit legal aid program, hosts the site.
   <h3 class="h5">You need to know</h3>
   * **This website does not provide legal advice**. If you need legal advice, you can use [https://www.lsmo.org/](https://www.lsmo.org/) to find a lawyer.
-  * The information and documents on this website have no warranty. We provide the information “as-is.” By using the site, you agree not to hold GBLS or the information providers on this site liable.
+  * The information and documents on this website have no warranty. We provide the information “as-is.” By using the site, you agree not to hold LSEM or the information providers on this site liable.
   * We work hard to keep the information on the site up to date. Lawyers drafted and reviewed the documents this site uses. But laws and local rules change over time. These changes can make a document unenforceable when you use it.
   * We do our best to keep the site working! To do that, we allow you to submit feedback so we can track problems on the site. But we cannot provide individual technical support.
   <h3 class="h5">To use this site</h3>
@@ -1080,3 +1079,11 @@ content: |
   701 Market Street, Suite 1100
   St. Louis, MO 63101
 ---
+id: signpost service of process
+decoration: clipboard-check
+question: |
+  You are almost done!
+subquestion: |
+  The last few questions are about getting a copy
+  of your documents to your landlord.
+continue button field: signpost_service_of_process      

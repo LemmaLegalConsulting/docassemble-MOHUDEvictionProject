@@ -23,26 +23,58 @@ code: |
   interview_short_title = "Eviction Defender"
 ---
 sections:
-  - section_eviction_answer_intro: Introduction
+  - section_eviction_answer_intro: Getting started
   - section_eviction_answer_can_i: Should you file an Answer?
-  - section_eviction_answer_you: Information about you
-  - section_eviction_answer_other: Information about the other party
-  - section_eviction_answer_tenancy: Information about your rental agreement
-  - section_eviction_answer_casenet: Using Case.net
-  - section_eviction_answer_case: Information about the eviction
-  - section_eviction_answer_defenses: Your claims and defenses
+  - section_eviction_answer_you: About you
+  - section_eviction_answer_other: About your landlord
+  - section_eviction_answer_case: About your court case
+  - section_eviction_answer_tenancy: About your tenancy
+  - section_eviction_answer_defenses: Claims and defenses
   - review_eviction_answer: Review your answers
-  - section_serve_other_side: Getting a copy to your landlord
   - section_eviction_answer_download: Download, print and file
+---
+code: |
+  user_role = user_ask_role = "defendant"
+---
+###################### Main order ######################
+mandatory: True
+code: |
+  al_intro_screen
+  eviction_defender_intro
+  document_order
+
+  # Store anonymous data for analytics / statistics
+  nav.set_section("review_eviction_answer")
+  review_eviction_answer
+  store_variables_snapshot(
+      persistent=True,
+      data={
+          "zip": showifdef("users[0].address.zip"),
+          "reached_interview_end": True,
+      },
+  )
+  set_progress(90)
+  signpost_service_of_process
+  nav.set_section("section_eviction_answer_download")  
+  signature_date
+  if other_parties[0].service_method == "email":
+    other_parties[0].service_email
+  elif other_parties[0].service_method in ["mail", "hand"]:
+    if other_parties[0].attorney.there_are_any:
+      other_parties[0].attorney[0].address.address
+    other_parties[0].service_address.address
+
+  al_user_wants_reminders
+  set_progress(100)
+  eviction_defender_download
 ---
 #################### Interview order #####################
 comment: |
   Controls order and branching logic for questions specific to this form
 id: interview_order_eviction
 code: |
-  # Set the allowed courts for this interview
+  ############## Intro
   nav.set_section('section_eviction_answer_intro')
-  user_role = 'defendant'
   landlord_doc_name
   tenant_doc_name
   users[0].name.first
@@ -55,26 +87,27 @@ code: |
     users[0].attorney[0].address.address
   else:
     users[0].attorney.target_number = 0
+
+  ########## Should you file an answer?
   nav.set_section("section_eviction_answer_can_i")
   if not tenant_got_summons or not (method_of_summons_service['sheriff'] or method_of_summons_service['certified_mail'] or (method_of_summons_service['mail'] and method_of_summons_service['posting'])):
     posting_warning
   else:
     recommend_filing_answer
+
+  ######## About you
   nav.set_section("section_eviction_answer_you")
   users[0].address.address
   users[0].address.geocode()
-  trial_court.county
-  trial_court.circuit
-  trial_court.name
-  if not tenant_got_summons or not petition_available:
-    nav.set_section("section_eviction_answer_casenet")
-    if not trial_court.county == None and docket_available:
-      docket_review
-  if not case_type["AC Rent and Possession"] and not case_type["AC Landlord Action (Bulk)"]:
-    if unlawful_detainer_kick_out_option:
-      motion_to_continue_order
-      interview_order_eviction_defender = True
+  users.gather()
+  
+  ######### About your landlord
   nav.set_section("section_eviction_answer_other")
+  if not (tenant_got_summons and petition_available):
+    signpost_case_net_for_landlord_name # Alternate version of tenant_using_casenet question
+  if tenant_using_casenet:
+    casenet_login_instructions
+      
   other_parties.gather()
   for party in other_parties:
     party.attorney.gather()
@@ -83,27 +116,71 @@ code: |
     else:
       party.address.address
   users.gather()
+
+  set_progress(25)
+  ######### About your court case
+  nav.set_section("section_eviction_answer_case")
+  trial_court.county
+  trial_court.circuit
+  trial_court.name
+  if not trial_court.county == None and tenant_using_casenet:
+    docket_review
+
+  original_hearing_date
+  docket_number
+
+  if not tenant_got_summons or not petition_available:
+    if not trial_court.county == None and tenant_using_casenet:
+      docket_review
+  if not case_type["AC Rent and Possession"] and not case_type["AC Landlord Action (Bulk)"]:
+    if unlawful_detainer_kick_out_option:
+      motion_to_continue_order
+      interview_order_eviction_defender = True
+
+  ######## About your tenancy
   nav.set_section("section_eviction_answer_tenancy")  
   is_rent_subsidized
-  lease_section
+  # put kind of lease question here
+
+  ######### Claims and defenses
+  set_progress(50)
+  nav.set_section("section_eviction_answer_defenses")
+  signpost_claims_and_defenses
+  if (
+    (has_written_lease and not lease_attached) 
+    or not has_written_lease
+  ):
+    petition_states_terms_of_lease
+  if len(false_promises):
+    relied_on_false_promises
+  unfair_duress
+
   if previous_landlord_sold_property:
     notice_of_sale_provided_new_landlord
   if landlord_foreclosed:
     notice_of_foreclosure
-  nav.set_section("section_eviction_answer_casenet")
-  if not trial_court.county == None and docket_available:
-    docket_review
-  nav.set_section("section_eviction_answer_case")
-  original_hearing_date
-  docket_number
+  
+  set_progress(75)
   petition_states_rent_amount
-  nav.set_section("section_eviction_answer_defenses")
-  landlord_agreement_section
-  rent_defenses_section
-  defense_logic
+  petition_states_rent_periods
+  
+  offer_attempts.gather()
+  was_rent_paid
+  will_offer_payment
+  if is_rent_subsidized:
+    excessive_rent
+  if late_fees_assessed:
+    late_fees_penalty
+    if trial_court.circuit == 21:
+      petition_separates_nonrent
+  petition_states_demand_made
   landlord_problems_section
-  set_progress(50)
+
+  if landlord_agreement:
+    tenant_compliance_with_agreement
+  defense_logic
   information_collected
+  nav.set_section("review_eviction_answer")
   explanation_answer
   document_order = True
 ---
@@ -248,36 +325,6 @@ subquestion: |
 continue button field: recommend_filing_answer
 ---
 code: |
-  if has_written_lease and not lease_attached:
-    petition_states_terms_of_lease
-  elif not has_written_lease:
-    petition_states_terms_of_lease
-  if len(false_promises):
-    relied_on_false_promises
-  unfair_duress
-  lease_section = True
----
-code: |
-  petition_states_rent_amount
-  petition_states_rent_periods
-  offer_attempts.gather()
-  was_rent_paid
-  will_offer_payment
-  if is_rent_subsidized:
-    excessive_rent
-  if late_fees_assessed:
-    late_fees_penalty
-    if trial_court.circuit == 21:
-      petition_separates_nonrent
-  petition_states_demand_made
-  rent_defenses_section = True
----
-code: |
-  if landlord_agreement:
-    tenant_compliance_with_agreement
-  landlord_agreement_section = True
----
-code: |
   if warranty_breaches.any_true():
     notice_of_breach_to_landlord
   cqe_breaches
@@ -334,34 +381,6 @@ continue button field: al_intro_screen
 terms:
   green words: |
     Green words are legal terms or a short way of referring to something that needs more explanation. The definition or explanation pops up when you tap the green words.
-
----
-### not changing "you" reference language on this question because it appears before selection of person_answering
-id: eviction_defender_introduction
-continue button field: eviction_defender_intro
-question: |
-  Defend against an Eviction
-subquestion: |
-  <h2 class="h4">How this works</h2>
-  On the next screens you will tell us:
-
-  1. About your eviction case.
-  1. Why you should not be evicted.
-  1. About problems in your home and in your landlord's case that may
-     stop your eviction.
-
-  Your answers will complete your forms. You will need to deliver your forms to the court on your own.
-
-  <h2 class="h4">Before you start</h2>
-  1. Get ready to download, print, and deliver your forms to the court. This tool will help you fill in your forms, but you need to deliver them to the court on your own.
-  1. Do your best to find any documents from the court and your landlord about the eviction, including:
-  
-      - The Summons from the court
-      - The Landlord's petition
-      - The eviction notice
-      - Your lease
-  
-  **Currently, we can only help when your landlord is evicting you because you have not paid your rent.**  This type of eviction is called a Rent and Possession case.  If you are being evicted for another reason, contact [a Missouri legal aid provider](https://www.lsmo.org/).
 ---
 id: you can do it affirmation
 question: |
@@ -376,12 +395,52 @@ subquestion: |
   At the end you will have customized documents, ready to file in court.
 continue button field: greet_user
 ---
+id: how to answer
+decoration: info-circle
+question: |
+  About this interview
+subquestion: |
+  **What's this about?**: This is a place to tell your side of the story about you, 
+  your landlord, and why they want to evict you.
+
+  Your answers complete your **Eviction Answer** form and any other forms that you need.
+  You will need to **print** and **deliver**
+  the forms to the court on your own.
+
+  <h2 class="h4">What to do</h2>
+
+  1. Be honest and give full answers.
+  1. Put a check next to things that are true, even if they don't seem related.
+  1. If you are not sure, it's okay to skip a question. Giving some answers is 
+    better than none.
+  1. Sometimes, you might want to look up an answer. That's okay! But looking up some 
+    things can take time and might be tricky. If you can't find the answer, or it's taking 
+    too long, it's okay to leave the question blank.
+  4. Filling this out doesn't stop talks with your landlord. It might help you both
+     agree about what is fair.
+
+  <h2 class="h4">What documents to find now</h2>
+
+  Before you start, try to find these documents from the court and your landlord:
+
+  1. The Summons from the court
+  1. The Landlord's petition
+  1. The eviction notice
+  1. Your lease
+
+  If you can't find a document, it is okay to keep going. Just do your best to answer
+  the questions from what you remember.
+continue button field: eviction_defender_intro
+buttons:
+  - I agree: continue
+---
+only sets: case_type_kickout
 id: case type kickout for answer
 code: |
   if not case_type["AC Rent and Possession"] and not case_type["AC Landlord Action (Bulk)"]:
     if unlawful_detainer_kick_out_option:
       motion_to_continue_order
-      docket_review = True
+      define('docket_review', True)
   case_type_kickout = True
 ---
 code: |
@@ -438,9 +497,27 @@ code: |
   else:
     eviction_answer_attachment.enabled = True
 ---
+id: signpost claims and defenses section
+decoration: user-shield
+question: |
+  Claims and defenses
+subquestion: |
+  % if person_answering == "tenant":
+  This section will ask you about both defenses to the eviction
+  and any **counterclaim** that you may have against your landlord.
+  % else:
+  This section will ask you about both defenses to the eviction
+  and any **counterclaim** that the tenant may have against their landlord.
+  % endif
+
+  A defense is a reason why you should not be evicted.  
+  A counterclaim is a reason why your landlord should pay you money.
+continue button field: signpost_claims_and_defenses
+---
 id: defenses explanation
-question: Explanation of your answer
 continue button field: explanation_answer
+question: |
+  You may have defenses to the eviction
 subquestion: |
   Based on your answers, you may have the following defenses to the eviction case:
   % if defense_rent_pleading_requirement:
@@ -503,9 +580,26 @@ subquestion: |
   % endif
   % if defense_liquidated_damages_late_fees:
   
-  **The late fees attached to the Landlord’s Petition are an unfair penalty**
+  **The late fees attached to the Landlord’s Petition are** 
+  % if late_fees_penalty:
+  **an unfair penalty**
+  % if not late_fees_lease_provision or late_fee_doesnt_comply_with_lease:
+  **and** 
+  % endif
+  % endif
+  % if not late_fees_lease_provision or late_fee_doesnt_comply_with_lease:
+  **an unauthorized charge**
+  % endif  
 
-  Late fees must be based on what it actually costs the landlord when a tenant pays late.
+  % if late_fees_penalty:
+  Late fees must be based on what it actually costs the landlord when a tenant pays late.  
+  % endif
+  % if not late_fees_lease_provision:
+  Late fees can't be charged if the late fees are not authorized by the lease.
+  % elif late_fee_doesnt_comply_with_lease:
+  Late fees that do not comply with the lease can't be charged.
+  % endif
+
   This defense alone may not help you avoid the eviction, but it can reduce the amount of money you owe the landlord.
   % endif
   % if defense_estoppel_illegality:
@@ -537,7 +631,7 @@ subquestion: |
   
   **The Landlord is required to have an attorney in this case and it must be dismissed**
 
-  A business entity, like a corporation, must have an attorney to file the case.
+  A business entity, like a corporation, must have an attorney to evict a tenant in court.
   % endif
   % if defense_no_landlord_tenant_relationship:
   
@@ -548,7 +642,7 @@ subquestion: |
   % endif
   % if defense_excessive_rent_for_subsidized_housing:
   
-  **The Landlord has charged the Tenant rent that is not owed according to the Housing Choice Voucher Program contract entered into by the Landlord and the Tenant**
+  **Plaintiff has charged Defendant excessive rent in violation of the housing subsidy**
 
   
   % endif
@@ -605,11 +699,10 @@ question:  Print, Sign, Serve and File
 id: eviction review screen
 continue button field: review_eviction_answer
 question: |
-  % if person_answering == "tenant":
   Review your answers
-  % else: 
-  Review the answers
-  % endif
+subquestion: |
+  Look over your answers below. If you need to make any changes, click the "Edit" button
+  next to the answer that you want to change.
 review:
   - note: | 
       % if person_answering == "tenant":
@@ -1032,6 +1125,15 @@ review:
     button: |
       Does the lease say that they landlord can charge late fees?
       **${ "Maybe" if late_fees_lease_provision is None else yesno(late_fees_lease_provision) }**
+  - Edit:
+      - late_fee_doesnt_comply_with_lease
+      - recompute:
+        - defense_liquidated_damages_late_fees
+        - defense_logic
+      - explanation_answer
+    button: |
+      Do the late fees charged by the landlord comply with the lease provision?
+      **${ "Maybe" if late_fee_doesnt_comply_with_lease is None else noyes(late_fee_doesnt_comply_with_lease) }**
   - Edit:
       - petition_separates_nonrent
       - recompute:

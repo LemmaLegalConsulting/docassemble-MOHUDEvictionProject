@@ -203,6 +203,9 @@ id: eviction motion to continue review screen
 event: review_eviction_motion_to_continue
 question: |
   Review your answers
+subquestion: |
+  Look over your answers below. If you need to make any changes, click the "Edit" button
+  next to the answer that you want to change.
 review:
   - Edit: service_methods
     button: |
