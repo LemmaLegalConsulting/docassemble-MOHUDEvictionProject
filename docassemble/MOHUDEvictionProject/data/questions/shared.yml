@@ -458,6 +458,7 @@ content: |
 ---
 id: signpost casenet for landlord name
 # not (tenant_got_summons and petition_available)
+only sets: signpost_case_net_for_landlord_name
 continue button field: signpost_case_net_for_landlord_name
 question: |
   Do you want to check your landlord's name online?

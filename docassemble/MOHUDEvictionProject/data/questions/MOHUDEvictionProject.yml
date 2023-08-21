@@ -104,9 +104,9 @@ code: |
   ######### About your landlord
   nav.set_section("section_eviction_answer_other")
   if not (tenant_got_summons and petition_available):
-    signpost_case_net_for_landlord_name
-    if tenant_using_casenet:
-      casenet_login_instructions
+    signpost_case_net_for_landlord_name # Alternate version of tenant_using_casenet question
+  if tenant_using_casenet:
+    casenet_login_instructions
       
   other_parties.gather()
   for party in other_parties:
