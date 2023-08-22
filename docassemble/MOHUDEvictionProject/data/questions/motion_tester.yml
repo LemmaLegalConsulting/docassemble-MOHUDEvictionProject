@@ -6,24 +6,32 @@ mandatory: True
 code: |
   al_intro_screen
   
-  if motion_list['motion_for_leave_to_file']:
-    motion_for_leave_to_file_order
   if motion_list['motion_to_dismiss']:
     motion_to_dismiss_order
-  if motion_list['motion_to_set_aside_judgment']:
-    motion_to_set_aside_judgment_order
-  if motion_list['motion_to_shorten_time']:
-    motion_to_shorten_time_order
-  if motion_list['motion_to_elevate_security']:
-    motion_to_elevate_security_order
+  #if motion_list['motion_to_set_aside_judgment']:
+  #  motion_to_set_aside_judgment_order
+  #if motion_list['motion_to_shorten_time']:
+  #  motion_to_shorten_time_order
+  #if motion_list['motion_to_elevate_security']:
+  #  motion_to_elevate_security_order
+  #if motion_list['motion_for_leave_to_file']:
+  #  motion_for_leave_to_file_order
 
   tenant_doc_name
   landlord_doc_name
   person_answering
   users[0].name.first
+  users[0].address.address
+  users.there_is_another
+  
+  other_parties[0].name.first
+  other_parties[0].address.address
+  other_parties.there_is_another
+  other_parties[0].attorney.there_are_any
+  
   other_parties[0].service_method
   
-  eviction_defender_download
+  motions_download
 ---
 code: |
   motion_for_leave_to_file_questions
@@ -46,12 +54,6 @@ code: |
   motion_to_elevate_security_order = True
 ---
 code: |
-  eviction_answer_attachment.enabled = False
----
-code: |
-  eviction_motion_to_continue_attachment.enabled = False
----
-code: |
   motion_for_leave_to_file_attachment.enabled = motion_list['motion_for_leave_to_file']
 ---
 code: |
@@ -68,9 +70,6 @@ code: |
 ---
 code: |
   notice_of_hearing_attachment.enabled = motion_list['notice_of_hearing']
----
-code: |
-  motion_to_dismiss_attachment.enabled = motion_list['motion_to_dismiss']
 ---
 code: |
   eviction_defender_post_interview_instructions.enabled = False
@@ -241,19 +240,20 @@ fields:
       lambda y: ":" in y or validation_error("Write out a time, like 9:00 AM", field="original_hearing_time")
 ---
 id: motion list
-question: Select motions to test
+question: Which motions do you need?
 fields:
   - Motions: motion_list
     datatype: checkboxes
-    code: |
-      motion_checkboxes
----
-code: |
-  motion_checkboxes = {'motion_for_leave_to_file': 'Motion for Leave to File',
-      'motion_to_dismiss': 'Motion to Dismiss or More Definite Statement',
-      'motion_to_set_aside_judgment': 'Motion to Set Aside Judgment',
-      'motion_to_shorten_time': 'Motion to Shorten Time',
-      'motion_to_elevate_security': 'Motion to Elevate Security'}
+    choices: 
+      - Motion to Dismiss or More Definite Statement: motion_to_dismiss
+    none of the above: false
+#---
+#code: |
+#  motion_checkboxes = {'motion_for_leave_to_file': 'Motion for Leave to File',
+#      'motion_to_dismiss': 'Motion to Dismiss or More Definite Statement',
+#      'motion_to_set_aside_judgment': 'Motion to Set Aside Judgment',
+#      'motion_to_shorten_time': 'Motion to Shorten Time',
+#      'motion_to_elevate_security': 'Motion to Elevate Security'}
 ---
 question: Additional questions for Motion To Elevate Security
 fields:
@@ -377,57 +377,39 @@ code: |
       motions_attached.append(motion_checkboxes[motion])
 ---
 attachments:
-  - name: eviction motion to continue post interview instructions
-    filename: Post-interview-instructions     
-    variable name: eviction_defender_post_interview_instructions[i]        
-    skip undefined: False
-    docx template file: eviction_helper_next_steps.docx
-  - name: eviction motion to continue attachment
-    filename: eviction_motion_to_continue.docx     
-    variable name: eviction_motion_to_continue_attachment[i]
-    skip undefined: False
-    docx template file: motion_to_continue.docx
-  - name: eviction answer
-    filename: answer_defenses.docx     
-    variable name: eviction_answer_attachment[i]        
-    skip undefined: False
-    docx template file: answer_defenses.docx
   - name: motion for leave to file answer
     filename: motion_for_leave_to_file_answer.docx     
     variable name: motion_for_leave_to_file_attachment[i]        
-    skip undefined: False
+    skip undefined: True
     docx template file: motion_for_leave_to_file.docx
   - name: motion to elevate security
     filename: motion_to_elevate_security.docx     
     variable name: motion_to_elevate_security_attachment[i]       
-    skip undefined: False
+    skip undefined: True
     docx template file: motion_to_elevate_security.docx
   - name: motion to shorten time
     filename: motion_to_shorten_time.docx     
     variable name: motion_to_shorten_time_attachment[i]        
-    skip undefined: False
+    skip undefined: True
     docx template file: motion_to_shorten_time.docx
-  - name: motion to shorten time
-    filename: MTD_MDS.docx     
+  - name: motion to dismiss
+    filename: motion_to_dismiss  
     variable name: motion_to_dismiss_attachment[i]        
-    skip undefined: False
-    docx template file: MTD_MDS.docx
+    skip undefined: True
+    docx template file: motion_to_dismiss.docx
 ---
 objects:
-  - eviction_defender_post_interview_instructions: ALDocument.using(title="Instructions", filename="eviction_helper_next_steps.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
-  - eviction_motion_to_continue_attachment: ALDocument.using(title="Postpone your eviction hearing", filename="eviction_motion_to_continue.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
-  - eviction_answer_attachment: ALDocument.using(title="File an Answer and Affirmative Defenses", filename="answer_defenses.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
   - motion_for_leave_to_file_attachment: ALDocument.using(title="File a Motion for Leave to File Answer", filename="motion_for_leave_to_file_answer.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
   - motion_to_elevate_security_attachment: ALDocument.using(title="File a Motion to Elevate Security", filename="motion_to_elevate_security.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
   - motion_to_shorten_time_attachment: ALDocument.using(title="File a Motion to Shorten Time", filename="motion_to_shorten_time.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
-  - motion_to_dismiss_attachment: ALDocument.using(title="File a Motion to Dismiss", filename="motion_to_dismiss.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+  - motion_to_dismiss_attachment: ALDocument.using(title="File a Motion to Dismiss", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
 ---
 objects:
-  - al_user_bundle: ALDocumentBundle.using(elements=[motion_for_leave_to_file_attachment, motion_to_elevate_security_attachment, motion_to_shorten_time_attachment, motion_to_dismiss_attachment], filename="eviction_helper.docx_package.pdf", title="All forms to download for your records", enabled=True)
-  - al_court_bundle: ALDocumentBundle.using(elements=attachment_list_court, filename="eviction_helper.docx_package.pdf", title="All forms to download for your records", enabled=True)
+  - al_user_bundle: ALDocumentBundle.using(elements=[motion_to_dismiss_attachment], filename="motions.docx", title="All forms to download for your records", enabled=True)
+  - al_court_bundle: ALDocumentBundle.using(elements=attachment_list_court, filename="motions.docx", title="All forms to download for your records", enabled=True)
 ---
-id: download eviction_defender
-event: eviction_defender_download
+id: download motions
+event: motions_download
 question: |
   All done
 subquestion: |
