@@ -1,8 +1,11 @@
 ---
+include:
+  - shared.yml
+---
 mandatory: True
 code: |
-  tenant_doc_name
-  landlord_doc_name
+  al_intro_screen
+  
   if motion_list['motion_for_leave_to_file']:
     motion_for_leave_to_file_order
   if motion_list['motion_to_dismiss']:
@@ -13,12 +16,14 @@ code: |
     motion_to_shorten_time_order
   if motion_list['motion_to_elevate_security']:
     motion_to_elevate_security_order
-  if motion_list['notice_of_hearing']:
-    notice_of_hearing_order
+
+  tenant_doc_name
+  landlord_doc_name
+  person_answering
+  users[0].name.first
+  other_parties[0].service_method
+  
   eviction_defender_download
----
-include:
-  - shared.yml
 ---
 code: |
   motion_for_leave_to_file_questions
@@ -39,9 +44,6 @@ code: |
 code: |
   motion_to_elevate_security_questions
   motion_to_elevate_security_order = True
----
-code: |
-  notice_of_hearing_order = True
 ---
 code: |
   eviction_answer_attachment.enabled = False
@@ -68,8 +70,177 @@ code: |
   notice_of_hearing_attachment.enabled = motion_list['notice_of_hearing']
 ---
 code: |
+  motion_to_dismiss_attachment.enabled = motion_list['motion_to_dismiss']
+---
+code: |
   eviction_defender_post_interview_instructions.enabled = False
 ---
+### not changing "you" reference language on this question because it appears before selection of person_answering
+id: basic questions intro screen
+decoration: form-lineal
+question: |
+  DIY Motions: Missouri Tenant Help
+subquestion: |
+  Missouri Tenant Help can help you complete and download forms in 3 steps:
+
+  Step 1. Fill in your form.  
+  
+  Step 2. Preview the completed form.  
+  
+  Step 3. Download and print the final form. **You will need to deliver it 
+  
+  This site is not a lawyer. If you would like a lawyer, find [a Missouri legal aid provider](https://www.lsmo.org/). If you are outside Missouri, find your [your local
+  legal aid provider](https://www.lsc.gov/what-legal-aid/find-legal-aid).
+  
+  Tap the {green words} in any screen for a definition or more information.
+  
+  % if chat_partners_available().help:
+  Live help is currently available in this interview. Click the speech bubble
+  (:comment-alt:) in the navigation bar to connect to a live advocate for help.
+  % endif
+  
+  ${ display_template(about_page_contents, scrollable=True, collapse=True) }
+fields:
+  - To continue, you must accept the terms of use: acknowledged_information_use
+    datatype: checkboxes
+    none of the above: False    
+    minlength: 1
+    choices:
+      - I accept the terms of use.
+    validation messages:
+      minlength: |
+        You cannot continue unless you agree to the terms of use.
+continue button field: al_intro_screen
+terms:
+  green words: |
+    Green words are legal terms or a short way of referring to something that needs more explanation. The definition or explanation pops up when you tap the green words.
+---
+## if statement question
+id: names of opposing parties - petition
+sets:
+  - other_parties[i].name.first
+  - other_parties[i].name.last
+  - other_parties[i].name.middle
+  - other_parties[i].name.suffix
+  - other_parties[i].person_type
+question: |
+  % if i >= 1 and person_answering == "tenant":
+  What is your ${ ordinal(i) } landlord's name?
+  % elif i == 0 and person_answering == "tenant":
+  What is your landlord's name?
+  % elif i >= 1 and person_answering == "attorney" or person_answering == "tenant_helper":
+  What is the tenant's ${ ordinal(i) } landlord's name?
+  % elif i == 0 and person_answering == "attorney" or person_answering == "tenant_helper":
+  What is the tenant's landlord's name?
+  % endif
+subquestion: |
+  Look at the Summons and Petition, and write the name of the ${ ordinal(i) } "Plaintiff"
+  exactly as it is written on the Summons and Petition.
+  
+  [FILE ComplaintCaptionPlaintiff.png, 100%]
+  
+fields:
+  - code: |
+      other_parties[i].name_fields(person_or_business='unsure') 
+---
+## if statement question
+id: Other tenants
+question: Is any other tenant listed on this eviction case?
+subquestion: |
+  % if person_answering == "tenant":
+  In an eviction case, tenants are called Defendants. Defendants are listed underneath the Plaintiffs, and your name and address should be included as a Defendant.
+  % else:
+  In an eviction case, tenants are called Defendants. Defendants are listed underneath the Plaintiffs, and the tenant's name and address should be included as a Defendant.
+  % endif
+  [FILE ComplaintCaptionDefendant.png, 100%]
+  
+  Sometimes a landlord will add "John Doe" or "Jane Doe" as a party.  You do not need to include these additional parties.
+  
+fields:
+  - label: |
+      % if person_answering == "tenant":
+      Are there any other Defendants listed besides you?
+      % else:
+      Are there any other Defendants listed besides the tenant?
+      % endif
+    field: users.there_is_another
+    datatype: yesnoradio
+---
+## if statement question
+id: Landlord representation from Summons
+question: |
+  Does ${ other_parties[i] } have an attorney?
+subquestion: |
+  If the landlord is represented by an attorney, then the attorney's name and address will be in the box next to the Landlord's name.
+  
+  [FILE MOSummonsPlaintiffAttorney.png, 100%]
+fields:
+  - Is ${ other_parties[i] } represented by an attorney?: other_parties[i].attorney.there_are_any
+    datatype: yesnoradio
+---
+## if statement question (within body)
+id: any other opposing parties
+question: |
+  Is there another **Plaintiff** in this eviction case?
+subquestion:  |
+  You have already told us about ${ other_parties.complete_elements() }.
+
+  If you have the Summons and Petition, the name of each Plaintiff is listed
+  in the box labeled "Plaintiff".  
+fields:
+  - Is there another Plaintiff?: other_parties.there_is_another
+    datatype: yesnomaybe
+---
+## if statement question (within body)
+id: caption - docket number and file date
+question: |
+  % if person_answering == "tenant":
+  What court is your case in?
+  % else: 
+  What court is the tenant's case in?
+  % endif
+subquestion: |
+  % if person_answering == "tenant":
+  You can find the:
+  % else:
+  The tenant can find the:
+  % endif
+  
+  - Name of the court and
+  - Case number
+  
+  at the top of the Summons.
+  
+  [FILE MOSummonsCourtDate.png, 100%]
+fields:
+  - Court: trial_court.name
+    default: |
+      % if trial_court.circuit:
+      ${ ordinal_number(trial_court.circuit, use_word=False).capitalize() + " Judicial Circuit - " + trial_court.county }
+      % endif
+  - Case Number: docket_number
+    required: True
+    help: |
+      The case number helps the court clerk put your answer in the right file.
+under: |
+  ${ collapse_template(find_case_number_docket_template) }
+---
+id: eviction hearing date if docket available
+## if statement question
+question: |
+  % if person_answering == "tenant":
+  When is your eviction hearing?
+  % else:
+  When is the tenant's eviction hearing?
+  % endif
+fields:
+  - "Date of hearing": original_hearing_date
+    datatype: date
+  - "Original hearing time": original_hearing_time
+    validate: |
+      lambda y: ":" in y or validation_error("Write out a time, like 9:00 AM", field="original_hearing_time")
+---
+id: motion list
 question: Select motions to test
 fields:
   - Motions: motion_list
@@ -82,8 +253,7 @@ code: |
       'motion_to_dismiss': 'Motion to Dismiss or More Definite Statement',
       'motion_to_set_aside_judgment': 'Motion to Set Aside Judgment',
       'motion_to_shorten_time': 'Motion to Shorten Time',
-      'motion_to_elevate_security': 'Motion to Elevate Security',
-      'notice_of_hearing': 'Notice of Hearing'}
+      'motion_to_elevate_security': 'Motion to Elevate Security'}
 ---
 question: Additional questions for Motion To Elevate Security
 fields:
@@ -210,33 +380,38 @@ attachments:
   - name: eviction motion to continue post interview instructions
     filename: Post-interview-instructions     
     variable name: eviction_defender_post_interview_instructions[i]        
-    skip undefined: True
+    skip undefined: False
     docx template file: eviction_helper_next_steps.docx
   - name: eviction motion to continue attachment
     filename: eviction_motion_to_continue.docx     
-    variable name: eviction_motion_to_continue_attachment[i]        
-    skip undefined: True
+    variable name: eviction_motion_to_continue_attachment[i]
+    skip undefined: False
     docx template file: motion_to_continue.docx
   - name: eviction answer
     filename: answer_defenses.docx     
     variable name: eviction_answer_attachment[i]        
-    skip undefined: True
+    skip undefined: False
     docx template file: answer_defenses.docx
   - name: motion for leave to file answer
     filename: motion_for_leave_to_file_answer.docx     
     variable name: motion_for_leave_to_file_attachment[i]        
-    skip undefined: True
+    skip undefined: False
     docx template file: motion_for_leave_to_file.docx
   - name: motion to elevate security
     filename: motion_to_elevate_security.docx     
-    variable name: motion_to_elevate_security_attachment[i]        
-    skip undefined: True
+    variable name: motion_to_elevate_security_attachment[i]       
+    skip undefined: False
     docx template file: motion_to_elevate_security.docx
   - name: motion to shorten time
     filename: motion_to_shorten_time.docx     
     variable name: motion_to_shorten_time_attachment[i]        
-    skip undefined: True
+    skip undefined: False
     docx template file: motion_to_shorten_time.docx
+  - name: motion to shorten time
+    filename: MTD_MDS.docx     
+    variable name: motion_to_dismiss_attachment[i]        
+    skip undefined: False
+    docx template file: MTD_MDS.docx
 ---
 objects:
   - eviction_defender_post_interview_instructions: ALDocument.using(title="Instructions", filename="eviction_helper_next_steps.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
@@ -245,9 +420,10 @@ objects:
   - motion_for_leave_to_file_attachment: ALDocument.using(title="File a Motion for Leave to File Answer", filename="motion_for_leave_to_file_answer.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
   - motion_to_elevate_security_attachment: ALDocument.using(title="File a Motion to Elevate Security", filename="motion_to_elevate_security.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
   - motion_to_shorten_time_attachment: ALDocument.using(title="File a Motion to Shorten Time", filename="motion_to_shorten_time.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+  - motion_to_dismiss_attachment: ALDocument.using(title="File a Motion to Dismiss", filename="motion_to_dismiss.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
 ---
 objects:
-  - al_user_bundle: ALDocumentBundle.using(elements=[motion_for_leave_to_file_attachment, motion_to_elevate_security_attachment, motion_to_shorten_time_attachment], filename="eviction_helper.docx_package.pdf", title="All forms to download for your records", enabled=True)
+  - al_user_bundle: ALDocumentBundle.using(elements=[motion_for_leave_to_file_attachment, motion_to_elevate_security_attachment, motion_to_shorten_time_attachment, motion_to_dismiss_attachment], filename="eviction_helper.docx_package.pdf", title="All forms to download for your records", enabled=True)
   - al_court_bundle: ALDocumentBundle.using(elements=attachment_list_court, filename="eviction_helper.docx_package.pdf", title="All forms to download for your records", enabled=True)
 ---
 id: download eviction_defender

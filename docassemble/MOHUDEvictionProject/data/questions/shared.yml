@@ -15,7 +15,6 @@ features:
   inverse navbar: False
 ---
 default screen parts:
-  pre: |
   logo: |
     <span class="mo-logo">
       <img src="${ al_logo.url_for() }" alt="${ al_logo.alt_text }"/>
