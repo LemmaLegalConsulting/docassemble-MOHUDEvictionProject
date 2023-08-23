@@ -224,85 +224,46 @@ id: Landlord representation
 question: |
   Does ${ other_parties[i] } have an attorney?
 subquestion: |
+  % if tenant_using_casenet:
+  You can find the name and address of the attorney in the Parties and Attorneys tab in the online docket.
+  
+  [FILE Parties.png, 100%]
+
+  ${ warn_picture_is_example_template }
+  % elif tenant_got_summons and petition_available:
+  If the landlord is represented by an attorney, then the attorney's name and address will be in the box next to the Landlord's name.
+  
+  [FILE MOSummonsPlaintiffAttorney.png, 100%]
+  % else:
   If the landlord is represented by an attorney, then it will say "represented by" next to the 
   landlord's name, and the attorney's name and address will be to the right.
+  % endif
 fields:
   - Is ${ other_parties[i] } represented by an attorney?: other_parties[i].attorney.there_are_any
     datatype: yesnoradio
 ---
-if: tenant_using_casenet
-id: Landlord representation from Docket
+id: opposing attorney name
+sets:
+  - other_parties[i].attorney[j].name.first
+  - other_parties[i].attorney[j].name.last
+  - other_parties[i].attorney[j].name.middle
+  - other_parties[i].attorney[j].name.suffix
 question: |
-  Does ${ other_parties[i] } have an attorney?
-subquestion: |
+  % if tenant_using_casenet: 
   You can find the name and address of the attorney in the Parties and Attorneys tab in the online docket.
   
   [FILE Parties.png, 100%]
 
   ${ warn_picture_is_example_template }
-fields:
-  - Is ${ other_parties[i] } represented by an attorney?: other_parties[i].attorney.there_are_any
-    datatype: yesnoradio
----
-if: tenant_got_summons and petition_available
-id: Landlord representation from Summons
-question: |
-  Does ${ other_parties[i] } have an attorney?
-subquestion: |
-  If the landlord is represented by an attorney, then the attorney's name and address will be in the box next to the Landlord's name.
-  
-  [FILE MOSummonsPlaintiffAttorney.png, 100%]
-fields:
-  - Is ${ other_parties[i] } represented by an attorney?: other_parties[i].attorney.there_are_any
-    datatype: yesnoradio
----
-sets:
-  - other_parties[i].attorney[j].name.first
-  - other_parties[i].attorney[j].name.last
-  - other_parties[i].attorney[j].name.middle
-  - other_parties[i].attorney[j].name.suffix
-question: What is the name and address of the ${ other_parties[i] }'s attorney?
-fields:
-  - code: |
-      other_parties[i].attorney[j].name_fields()
-  - code: |
-      x.address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)
----
-id: Opposing Attorney name from Docket
-if: tenant_using_casenet
-sets:
-  - other_parties[i].attorney[j].name.first
-  - other_parties[i].attorney[j].name.last
-  - other_parties[i].attorney[j].name.middle
-  - other_parties[i].attorney[j].name.suffix
-question: |
-  What is the name and address of the ${ other_parties[i] }'s attorney?
-subquestion: |
-  You can find the name and address of the attorney in the Parties and Attorneys tab in the online docket.
-  
-  [FILE Parties.png, 100%]
-
-  ${ warn_picture_is_example_template }
-fields:
-  - code: |
-      other_parties[i].attorney[j].name_fields()
-  - code: |
-      x.address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)
----
-id: Opposing Attorney name from Summons
-if: tenant_got_summons and petition_available 
-sets:
-  - other_parties[i].attorney[j].name.first
-  - other_parties[i].attorney[j].name.last
-  - other_parties[i].attorney[j].name.middle
-  - other_parties[i].attorney[j].name.suffix
-question: What is the name and address of the ${ other_parties[i] }'s attorney?
-subquestion: |
+  % elif tenant_got_summons and petition_available: 
   If the landlord is represented by an attorney, then the attorney's name and address will be in the box next to the Landlord's name.
   
   [FILE MOSummonsPlaintiffAttorney.png, 100%]
 
   ${ warn_picture_is_example_template }
+  % else:
+  What is the name and address of ${ other_parties[i] }'s attorney?
+  % endif
 fields:
   - code: |
       other_parties[i].attorney[j].name_fields()
@@ -336,7 +297,7 @@ validation code: |
   if users[0].address.state != "MO":
     validation_error("Write an address that you are being evicted from in Missouri", field="users[0].address.state")
 ---
-id: Information about the original hearing
+id: original hearing
 question: |
   % if person_answering == "tenant":
   When is your court hearing?
@@ -406,28 +367,19 @@ sets:
   - other_parties[i].name.middle
   - other_parties[i].name.suffix
   - other_parties[i].person_type
-id: names of opposing parties - no petition or docket
-question: |
-  % if i >= 1:
-  What is your ${ ordinal(i) } landlord's name?
-  % else:
-  What is your landlord's name?
-  % endif 
-fields:
-  - code: |
-      other_parties[i].name_fields(person_or_business='unsure')   
----
-if: tenant_using_casenet
-sets:
-  - other_parties[i].name.first
-  - other_parties[i].name.last
-  - other_parties[i].name.middle
-  - other_parties[i].name.suffix
-  - other_parties[i].person_type
 id: names of opposing parties - docket only
 question: |
-  Landlord's name
+  % if i >= 1 and person_answering == "tenant":
+  What is your ${ ordinal(i) } landlord's name?
+  % elif i == 0 and person_answering == "tenant":
+  What is your landlord's name?
+  % elif i >= 1 and person_answering == "attorney" or person_answering == "tenant_helper":
+  What is the tenant's ${ ordinal(i) } landlord's name?
+  % elif i == 0 and person_answering == "attorney" or person_answering == "tenant_helper":
+  What is the tenant's landlord's name?
+  % endif
 subquestion: |
+  % if tenant_using_casenet:
   % if i == 0:
     With your case open on case.net, click the tab labeled "Parties & Attorneys." 
     It may look like this:
@@ -443,6 +395,12 @@ subquestion: |
   % else:
     Who is the ${ ordinal(i) } Plaintiff listed on your case?
   % endif
+  % elif tenant_got_summons and petition_available:
+  Look at the Summons and Petition, and write the name of the ${ ordinal(i) } "Plaintiff"
+  exactly as it is written on the Summons and Petition.
+  
+  [FILE ComplaintCaptionPlaintiff.png, 100%]
+  % endif 
 fields:
   - code: |
       other_parties[i].name_fields(person_or_business='unsure')
@@ -486,34 +444,6 @@ fields:
       % endif
     field: tenant_using_casenet
     datatype: yesnoradio
----
-id: names of opposing parties - petition
-if: tenant_got_summons and petition_available
-sets:
-  - other_parties[i].name.first
-  - other_parties[i].name.last
-  - other_parties[i].name.middle
-  - other_parties[i].name.suffix
-  - other_parties[i].person_type
-question: |
-  % if i >= 1 and person_answering == "tenant":
-  What is your ${ ordinal(i) } landlord's name?
-  % elif i == 0 and person_answering == "tenant":
-  What is your landlord's name?
-  % elif i >= 1 and person_answering == "attorney" or person_answering == "tenant_helper":
-  What is the tenant's ${ ordinal(i) } landlord's name?
-  % elif i == 0 and person_answering == "attorney" or person_answering == "tenant_helper":
-  What is the tenant's landlord's name?
-  % endif
-subquestion: |
-  Look at the Summons and Petition, and write the name of the ${ ordinal(i) } "Plaintiff"
-  exactly as it is written on the Summons and Petition.
-  
-  [FILE ComplaintCaptionPlaintiff.png, 100%]
-  
-fields:
-  - code: |
-      other_parties[i].name_fields(person_or_business='unsure')   
 ---
 id: eviction hearing date if docket available
 if: tenant_using_casenet
@@ -735,40 +665,20 @@ data:
     document: |
       Some other method of getting the petition
 ---
-id: Other tenants
-if: tenant_got_summons and petition_available and len(users)==1
-question: Is any other tenant listed on this eviction case?
-subquestion: |
-  % if person_answering == "tenant":
-  In an eviction case, tenants are called Defendants. Defendants are listed underneath the Plaintiffs, and your name and address should be included as a Defendant.
-  % else:
-  In an eviction case, tenants are called Defendants. Defendants are listed underneath the Plaintiffs, and the tenant's name and address should be included as a Defendant.
-  % endif
-  [FILE ComplaintCaptionDefendant.png, 100%]
-  
-  Sometimes a landlord will add "John Doe" or "Jane Doe" as a party.  You do not need to include these additional parties.
-  
-fields:
-  - label: |
-      % if person_answering == "tenant":
-      Are there any other Defendants listed besides you?
-      % else:
-      Are there any other Defendants listed besides the tenant?
-      % endif
-    field: users.there_is_another
-    datatype: yesnoradio
----
-id: Other tenants if docket available
-if: defined('tenant_using_casenet') and tenant_using_casenet and len(users)==1
+id: other tenants
 question: |
   Is any other tenant listed on this eviction case?
 subquestion: |
   % if person_answering == "tenant":
   In an eviction case, tenants are called Defendants. Defendants are listed underneath the Plaintiffs, and your name and address should be included as a Defendant.
   % else:
-    In an eviction case, tenants are called Defendants. Defendants are listed underneath the Plaintiffs, and the tenant's name and address should be included as a Defendant.
+  In an eviction case, tenants are called Defendants. Defendants are listed underneath the Plaintiffs, and the tenant's name and address should be included as a Defendant.
   % endif
+  % if tenant_got_summons and petition_available and len(users)==1:
   
+  [FILE ComplaintCaptionDefendant.png, 100%]
+  
+  % endif
   Sometimes a landlord will add "John Doe" or "Jane Doe" as a party.  You do not need to include these additional parties.
 fields:
   - label: |
@@ -878,7 +788,7 @@ question: |
   At what address will the tenant serve ${ x.attorney }?
   % endif
 subquestion: |
-  ${ x } is represented by attorney ${ x.attorney }.  When somebody is represented by an attorney, the attorney must be served.
+  ${ x } is represented by attorney ${ x.attorney }. When somebody is represented by an attorney, the attorney must be served.
 fields:
   - ${ x }'s service address is: x.service_address
     datatype: object_radio

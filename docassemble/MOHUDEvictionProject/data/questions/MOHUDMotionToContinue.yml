@@ -473,5 +473,4 @@ review:
     button: |
       Do you have a copy of the Landlord's Petition available?
       **${ yesno(petition_available) }**
-
 ---

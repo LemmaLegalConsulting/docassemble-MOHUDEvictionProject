@@ -107,15 +107,8 @@ code: |
     signpost_case_net_for_landlord_name # Alternate version of tenant_using_casenet question
   if tenant_using_casenet:
     casenet_login_instructions
-      
+    
   other_parties.gather()
-  for party in other_parties:
-    party.attorney.gather()
-    if party.attorney.there_are_any: # TODO(qs): move to complete attribute block?
-      party.attorney[0].address.address
-    else:
-      party.address.address
-  users.gather()
 
   set_progress(25)
   ######### About your court case
@@ -183,6 +176,20 @@ code: |
   nav.set_section("review_eviction_answer")
   explanation_answer
   document_order = True
+---
+## other parties 
+code: | 
+  other_parties[i].name.first
+  other_parties[i].attorney.gather()
+  if len(other_parties[i].attorney) == 0:
+    other_parties[i].address.address
+  other_parties[i].complete = True
+---
+## other party's attorneys
+code: |
+  other_parties[i].attorney[0].name.first
+  other_parties[i].attorney[0].address.address
+  other_parties[i].attorney.complete = True
 ---
 sets: posting_warning
 id: soft exit posting eviction
