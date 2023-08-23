@@ -141,11 +141,11 @@ code: |
       "Other": False
     })
 ---
-if: tenant_using_casenet
-id: case type from docket
+id: case type from summons
 question: |
-  What is the case type for your eviction?
+  What kind of eviction did your landlord file?
 subquestion: |
+  % if tenant_using_casenet: 
   Look at the Case Header Tab on the Online Docket to answer this question.
 
   Find the field labeled "Case type." There may be more than one case type
@@ -155,34 +155,13 @@ subquestion: |
   [FILE CaseHeaderType.png, 100%]
 
   ${ warn_picture_is_example_template }
-fields:
-  - label: |
-      Case Type
-    field: case_type
-    datatype: checkboxes
-    required: False
-    none of the above: False
-    choices:
-      - AC Rent and Possession: AC Rent and Possession
-      - AC Unlawful Detainer: AC Unlawful Detainer
-      - AC Landlord Action (Bulk): AC Landlord Action (Bulk)
-      - AC Expedited Eviction: AC Expedited Eviction
-      - Other: Other
-  - Other Case Type: case_type_other
-    show if:
-      variable: case_type['Other']
-      is: True
----
-if: tenant_got_summons and petition_available
-id: case type from summons
-question: |
-  What is the "nature of suit" for your eviction?
-subquestion: |
+  % elif tenant_got_summons and petition_available: 
   Look at **your summons and petition** to answer this question. Find
   the information labeled "Nature of Suit."
   
   Example:
   [FILE MOSummonsType.png, 100%]
+  % endif
 fields:
   - label: |
       Nature of Suit
