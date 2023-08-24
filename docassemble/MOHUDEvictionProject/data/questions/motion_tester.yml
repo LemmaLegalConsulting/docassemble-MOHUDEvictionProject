@@ -8,17 +8,6 @@ code: |
   tenant_got_summons = True
   petition_available = True
   tenant_using_casenet = False
-  
-  if motion_list['motion_to_dismiss']:
-    motion_to_dismiss_order
-  if motion_list['motion_to_shorten_time']:
-    motion_to_shorten_time_order
-  #if motion_list['motion_to_set_aside_judgment']:
-  #  motion_to_set_aside_judgment_order
-  #if motion_list['motion_to_elevate_security']:
-  #  motion_to_elevate_security_order
-  #if motion_list['motion_for_leave_to_file']:
-  #  motion_for_leave_to_file_order
 
   tenant_doc_name
   landlord_doc_name
@@ -28,15 +17,32 @@ code: |
   users.there_is_another
   
   other_parties[0].name.first
-  other_parties[0].address.address
   other_parties.there_is_another
   other_parties[0].attorney.there_are_any
   
   trial_court.name
   docket_number
   
-  other_parties[0].service_method
+  if motion_list['motion_to_dismiss']:
+    motion_to_dismiss_order
+  if motion_list['motion_to_shorten_time']:
+    motion_to_shorten_time_order
+  if motion_list['motion_to_set_aside_judgment']:
+    motion_to_set_aside_judgment_order
+  #if motion_list['motion_to_elevate_security']:
+  #  motion_to_elevate_security_order
+  #if motion_list['motion_for_leave_to_file']:
+  #  motion_for_leave_to_file_order
   
+  other_parties[0].service_method
+  if other_parties[0].service_method == "email":
+    other_parties[0].service_email
+  elif other_parties[0].service_method in ["mail", "hand"]:
+    if other_parties[0].attorney.there_are_any:
+      other_parties[0].attorney[0].address.address
+    other_parties[0].service_address.address
+
+  signature_date
   motions_download
 ---
 code: |
@@ -47,6 +53,9 @@ code: |
   motion_to_dismiss_order = True
 ---
 code: |
+  petition_date 
+  judgment_date 
+  statements[0]
   motion_to_set_aside_judgment_order = True
 ---
 code: |
@@ -70,16 +79,13 @@ code: |
   motion_to_dismiss_attachment.enabled = motion_list['motion_to_dismiss']
 ---
 code: |
-  motion_to_set_aside_judgment_attachment.enabled = motion_list['motion_to_set_aside_judgment']
+  motion_to_set_aside_attachment.enabled = motion_list['motion_to_set_aside_judgment']
 ---
 code: |
   motion_to_shorten_time_attachment.enabled = motion_list['motion_to_shorten_time']
 ---
 code: |
   motion_to_elevate_security_attachment.enabled = motion_list['motion_to_elevate_security']
----
-code: |
-  notice_of_hearing_attachment.enabled = motion_list['notice_of_hearing']
 ---
 ### not changing "you" reference language on this question because it appears before selection of person_answering
 id: basic questions intro screen
@@ -120,132 +126,6 @@ continue button field: al_intro_screen
 terms:
   green words: |
     Green words are legal terms or a short way of referring to something that needs more explanation. The definition or explanation pops up when you tap the green words.
-#---
-### if statement question
-#id: names of opposing parties - petition
-#sets:
-#  - other_parties[i].name.first
-#  - other_parties[i].name.last
-#  - other_parties[i].name.middle
-#  - other_parties[i].name.suffix
-#  - other_parties[i].person_type
-#question: |
-#  % if i >= 1 and person_answering == "tenant":
-#  What is your ${ ordinal(i) } landlord's name?
-#  % elif i == 0 and person_answering == "tenant":
-#  What is your landlord's name?
-#  % elif i >= 1 and person_answering == "attorney" or person_answering == "tenant_helper":
-#  What is the tenant's ${ ordinal(i) } landlord's name?
-#  % elif i == 0 and person_answering == "attorney" or person_answering == "tenant_helper":
-#  What is the tenant's landlord's name?
-#  % endif
-#subquestion: |
-#  Look at the Summons and Petition, and write the name of the ${ ordinal(i) } "Plaintiff"
-#  exactly as it is written on the Summons and Petition.
-#  
-#  [FILE ComplaintCaptionPlaintiff.png, 100%]
-#  
-#fields:
-#  - code: |
-#      other_parties[i].name_fields(person_or_business='unsure') 
-#---
-### if statement question
-#id: Other tenants
-#question: |
-#  Is any other tenant listed on this eviction case?
-#subquestion: |
-#  % if person_answering == "tenant":
-#  In an eviction case, tenants are called Defendants. Defendants are listed underneath the Plaintiffs, and your name and address should be included as a Defendant.
-#  % else:
-#  In an eviction case, tenants are called Defendants. Defendants are listed underneath the Plaintiffs, and the tenant's name and address should be included as a Defendant.
-#  % endif
-#  [FILE ComplaintCaptionDefendant.png, 100%]
-#  
-#  Sometimes a landlord will add "John Doe" or "Jane Doe" as a party.  You do not need to include these additional parties.
-#  
-#fields:
-#  - label: |
-#      % if person_answering == "tenant":
-#      Are there any other Defendants listed besides you?
-#      % else:
-#      Are there any other Defendants listed besides the tenant?
-#      % endif
-#    field: users.there_is_another
-#    datatype: yesnoradio
-#---
-### if statement question
-#id: Landlord representation from Summons
-#question: |
-#  Does ${ other_parties[i] } have an attorney?
-#subquestion: |
-#  If the landlord is represented by an attorney, then the attorney's name and address will be in the box next to the Landlord's name.
-#  
-#  [FILE MOSummonsPlaintiffAttorney.png, 100%]
-#fields:
-#  - Is ${ other_parties[i] } represented by an attorney?: other_parties[i].attorney.there_are_any
-#    datatype: yesnoradio
-#---
-### if statement question (within body)
-#id: any other opposing parties
-#question: |
-#  Is there another **Plaintiff** in this eviction case?
-#subquestion:  |
-#  You have already told us about ${ other_parties.complete_elements() }.
-#
-#  If you have the Summons and Petition, the name of each Plaintiff is listed
-#  in the box labeled "Plaintiff".  
-#fields:
-#  - Is there another Plaintiff?: other_parties.there_is_another
-#    datatype: yesnomaybe
-#---
-### if statement question (within body)
-#id: caption - docket number and file date
-#question: |
-#  % if person_answering == "tenant":
-#  What court is your case in?
-#  % else: 
-#  What court is the tenant's case in?
-#  % endif
-#subquestion: |
-#  % if person_answering == "tenant":
-#  You can find the:
-#  % else:
-#  The tenant can find the:
-#  % endif
-#  
-#  - Name of the court and
-#  - Case number
-#  
-#  at the top of the Summons.
-#  
-#  [FILE MOSummonsCourtDate.png, 100%]
-#fields:
-#  - Court: trial_court.name
-#    default: |
-#      % if trial_court.circuit:
-#      ${ ordinal_number(trial_court.circuit, use_word=False).capitalize() + " Judicial Circuit - " + trial_court.county }
-#      % endif
-#  - Case Number: docket_number
-#    required: True
-#    help: |
-#      The case number helps the court clerk put your answer in the right file.
-#under: |
-#  ${ collapse_template(find_case_number_docket_template) }
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#like 9:00 AM", field="original_hearing_time")
 ---
 id: motion list
 question: |
@@ -256,106 +136,132 @@ fields:
     choices: 
       - Motion to Dismiss or More Definite Statement: motion_to_dismiss
       - Motion to Shorten Time: motion_to_shorten_time
+      - Motion to Set Aside Judgment: motion_to_set_aside_judgment
     none of the above: false
 #---
 #code: |
 #  motion_checkboxes = {'motion_for_leave_to_file': 'Motion for Leave to File',
 #      'motion_to_dismiss': 'Motion to Dismiss or More Definite Statement',
-#      'motion_to_set_aside_judgment': 'Motion to Set Aside Judgment',
 #      'motion_to_elevate_security': 'Motion to Elevate Security'}
 ---
-question: Additional questions for Motion To Elevate Security
+id: judgment_date
+question: |
+  When was a judgment entered in this matter?
 fields:
-  - Does the landlord consent to this motion?: opposing_party_consent
-    datatype: yesnoradio
-  - Will the eviction case hinder your ability to rent housing?: tenant_would_be_prejudiced
-    datatype: yesnoradio
-  - What was the outcome of this eviction case?: eviction_outcome
-    datatype: radio
-    choices:
-      - Default Judgment
-      - Dismissal
-  - Will you have to pay higher rent, or find a co-signer, or face other economic consequences if this case remains public?: economic_consequences
-    datatype: yesnoradio
-  - Do you believe landlords will refuse to rent to you because the information about this case is public?: tenant_believes_landlords_wont_rent
-    datatype: yesnoradio
-  - Have you already experienced costs because of the visibility of this case, including excessive rental application fees or being summarily denied for housing?: tenant_exposed_to_threats
-    datatype: yesnoradio
-  - What was the address of the rental property in this case?: rental_property_address
-  - Do any of the following specific reasons justify securing case records in your case?: reason_for_elevated_security
-    datatype: checkboxes
-    choices:
-      - Eviction was improperly granted
-      - Domestic violence
-      - Other
-  - What other specific reason justifies securing case records in this case?: reason_for_elevated_security_other
-    show if:
-      variable: reason_for_elevated_security['Other']
-      is: True
-continue button field: motion_to_elevate_security_questions
-
+  - Date: judgment_date
+    datatype: date
 ---
-question: Additional questions for Motion For Leave to File Answer
+id: petition_date 
+question: |
+  When did the Plaintiff file their petition in this case?
 fields:
-  - Does the landlord consent to this motion?: opposing_party_consent
-    datatype: yesnoradio
-  - Are affirmative defenses being asserted?: wishes_to_assert_affirmative_defenses
-    datatype: yesnoradio
-  - Are there reasons why you were unable to prepare a defense?: reasons_unable_to_prepare_exists
-    datatype: yesnoradio
-  - Why were you unable to prepare a defense?: reasons_unable_to_prepare
-    datatype: checkboxes
-    show if:
-      variable: reasons_unable_to_prepare_exists
-      is: True
-    choices:
-      - Could not find attorney
-      - Out of town
-      - In hospital
-  - Filing Date: filing_date
+  - Date: petition_date
     datatype: date
-  - Has the trial date been set?: trial_date_set
-    datatype: yesnoradio
-  - What date is the trial date set for?: trial_date
-    datatype: date
-    show if:
-      variable: trial_date_set
-      is: True
-  - Is there a trial setting in this case?: trial_setting
-    datatype: yesnoradio
-  - When did you receive notice of the the trial setting?: trial_setting_notice
-    datatype: date
-    show if:
-      variable: trial_setting
-      is: True
-  - Did you request discovery?: was_discovery_requested
-    datatype: yesnoradio
-  - Do you plan to conduct discovery?: discovery_planned
-    datatype: yesnoradio
-    show if:
-      variable: was_discovery_requested
-      is: False
-  - Did the landlord provide a response to discovery requests?: was_discovery_produced
-    datatype: yesnoradio
-    show if:
-      variable: was_discovery_requested
-      is: True
-  - What date did the landlord provide the discovery?: discovery_provided_date
-    datatype: date
-    show if:
-      variable: was_discovery_produced
-      is: True
-  - Do you plan to object to the landlord's objections to discovery?: discovery_objections_planned
-    datatype: yesnoradio
-    show if:
-      variable: was_discovery_produced
-      is: True
-  - Do you plan to continue to conduct discovery?: continue_conduct_discovery
-    datatype: yesnoradio
-    show if:
-      variable: was_discovery_requested
-      is: True
-continue button field: motion_for_leave_to_file_questions
+---
+objects: 
+  - statements: DAList
+---
+id: statements
+question: |
+  Add any supporting statements to your motion. 
+fields: 
+  - Statement: statements[i]
+    input type: area
+    rows: 5
+list collect: True
+#---
+#question: Additional questions for Motion To Elevate Security
+#fields:
+#  - Does the landlord consent to this motion?: opposing_party_consent
+#    datatype: yesnoradio
+#  - Will the eviction case hinder your ability to rent housing?: tenant_would_be_prejudiced
+#    datatype: yesnoradio
+#  - What was the outcome of this eviction case?: eviction_outcome
+#    datatype: radio
+#    choices:
+#      - Default Judgment
+#      - Dismissal
+#  - Will you have to pay higher rent, or find a co-signer, or face other economic consequences if this case remains public?: economic_consequences
+#    datatype: yesnoradio
+#  - Do you believe landlords will refuse to rent to you because the information about this case is public?: tenant_believes_landlords_wont_rent
+#    datatype: yesnoradio
+#  - Have you already experienced costs because of the visibility of this case, including excessive rental application fees or being summarily denied for housing?: tenant_exposed_to_threats
+#    datatype: yesnoradio
+#  - What was the address of the rental property in this case?: rental_property_address
+#  - Do any of the following specific reasons justify securing case records in your case?: reason_for_elevated_security
+#    datatype: checkboxes
+#    choices:
+#      - Eviction was improperly granted
+#      - Domestic violence
+#      - Other
+#  - What other specific reason justifies securing case records in this case?: reason_for_elevated_security_other
+#    show if:
+#      variable: reason_for_elevated_security['Other']
+#      is: True
+#continue button field: motion_to_elevate_security_questions
+#
+#---
+#question: Additional questions for Motion For Leave to File Answer
+#fields:
+#  - Does the landlord consent to this motion?: opposing_party_consent
+#    datatype: yesnoradio
+#  - Are affirmative defenses being asserted?: wishes_to_assert_affirmative_defenses
+#    datatype: yesnoradio
+#  - Are there reasons why you were unable to prepare a defense?: reasons_unable_to_prepare_exists
+#    datatype: yesnoradio
+#  - Why were you unable to prepare a defense?: reasons_unable_to_prepare
+#    datatype: checkboxes
+#    show if:
+#      variable: reasons_unable_to_prepare_exists
+#      is: True
+#    choices:
+#      - Could not find attorney
+#      - Out of town
+#      - In hospital
+#  - Filing Date: filing_date
+#    datatype: date
+#  - Has the trial date been set?: trial_date_set
+#    datatype: yesnoradio
+#  - What date is the trial date set for?: trial_date
+#    datatype: date
+#    show if:
+#      variable: trial_date_set
+#      is: True
+#  - Is there a trial setting in this case?: trial_setting
+#    datatype: yesnoradio
+#  - When did you receive notice of the the trial setting?: trial_setting_notice
+#    datatype: date
+#    show if:
+#      variable: trial_setting
+#      is: True
+#  - Did you request discovery?: was_discovery_requested
+#    datatype: yesnoradio
+#  - Do you plan to conduct discovery?: discovery_planned
+#    datatype: yesnoradio
+#    show if:
+#      variable: was_discovery_requested
+#      is: False
+#  - Did the landlord provide a response to discovery requests?: was_discovery_produced
+#    datatype: yesnoradio
+#    show if:
+#      variable: was_discovery_requested
+#      is: True
+#  - What date did the landlord provide the discovery?: discovery_provided_date
+#    datatype: date
+#    show if:
+#      variable: was_discovery_produced
+#      is: True
+#  - Do you plan to object to the landlord's objections to discovery?: discovery_objections_planned
+#    datatype: yesnoradio
+#    show if:
+#      variable: was_discovery_produced
+#      is: True
+#  - Do you plan to continue to conduct discovery?: continue_conduct_discovery
+#    datatype: yesnoradio
+#    show if:
+#      variable: was_discovery_requested
+#      is: True
+#continue button field: motion_for_leave_to_file_questions
 ---
 id: trial_date
 question: |
@@ -423,36 +329,43 @@ code: |
     if not motion == "motion_to_shorten_time":
       motions_attached.append(motion_list[motion])
 ---
+#  - name: motion for leave to file answer
+#    filename: motion_for_leave_to_file_answer.docx     
+#    variable name: motion_for_leave_to_file_attachment[i]        
+#    skip undefined: True
+#    docx template file: motion_for_leave_to_file.docx
+#  - name: motion to elevate security
+#    filename: motion_to_elevate_security.docx     
+#    variable name: motion_to_elevate_security_attachment[i]       
+#    skip undefined: True
+#    docx template file: motion_to_elevate_security.docx
+#  - motion_for_leave_to_file_attachment: ALDocument.using(title="File a Motion for Leave to File Answer", filename="motion_for_leave_to_file_answer.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+#  - motion_to_elevate_security_attachment: ALDocument.using(title="File a Motion to Elevate Security", filename="motion_to_elevate_security.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+---
 attachments:
-  - name: motion for leave to file answer
-    filename: motion_for_leave_to_file_answer.docx     
-    variable name: motion_for_leave_to_file_attachment[i]        
-    skip undefined: True
-    docx template file: motion_for_leave_to_file.docx
-  - name: motion to elevate security
-    filename: motion_to_elevate_security.docx     
-    variable name: motion_to_elevate_security_attachment[i]       
-    skip undefined: True
-    docx template file: motion_to_elevate_security.docx
   - name: motion to shorten time
     filename: motion_to_shorten_time.docx     
     variable name: motion_to_shorten_time_attachment[i]        
-    skip undefined: False
+    skip undefined: True
     docx template file: motion_to_shorten_time.docx
   - name: motion to dismiss
     filename: motion_to_dismiss  
     variable name: motion_to_dismiss_attachment[i]        
     skip undefined: True
     docx template file: motion_to_dismiss.docx
+  - name: motion to set aside
+    filename: motion_to_set_aside
+    variable name: motion_to_set_aside_attachment[i]        
+    skip undefined: True
+    docx template file: motion_to_set_aside.docx
 ---
 objects:
-  - motion_for_leave_to_file_attachment: ALDocument.using(title="File a Motion for Leave to File Answer", filename="motion_for_leave_to_file_answer.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
-  - motion_to_elevate_security_attachment: ALDocument.using(title="File a Motion to Elevate Security", filename="motion_to_elevate_security.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+  - motion_to_set_aside_attachment: ALDocument.using(title="File a Motion to Set Aside", filename="motion_to_set_aside.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
   - motion_to_shorten_time_attachment: ALDocument.using(title="File a Motion to Shorten Time", filename="motion_to_shorten_time.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
   - motion_to_dismiss_attachment: ALDocument.using(title="File a Motion to Dismiss", filename="motion_to_dismiss.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
 ---
 objects:
-  - al_user_bundle: ALDocumentBundle.using(elements=[motion_to_dismiss_attachment, motion_to_shorten_time_attachment], filename="motions.docx", title="All forms to download for your records", enabled=True)
+  - al_user_bundle: ALDocumentBundle.using(elements=[motion_to_dismiss_attachment, motion_to_shorten_time_attachment, motion_to_set_aside_attachment], filename="motions.docx", title="All forms to download for your records", enabled=True)
   - al_court_bundle: ALDocumentBundle.using(elements=attachment_list_court, filename="motions.docx", title="All forms to download for your records", enabled=True)
 ---
 id: download motions
