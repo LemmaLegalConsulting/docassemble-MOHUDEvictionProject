@@ -631,7 +631,7 @@ data:
   posting:
     question: |
       % if person_answering == "tenant":
-      It was taped, stapled, or posted to your door or home
+      It was taped, stapled, or posted to my door or home
       % else:
       It was taped, stapled, or posted to the tenant's door or home
       % endif   
@@ -645,7 +645,7 @@ data:
   sheriff:
     question: |
       % if person_answering == "tenant":
-      It was handed to you by the sheriff or process server (called personal service)
+      It was handed to me by the sheriff or process server (called personal service)
       % else:
       It was handed to the tenant by the sheriff or process server (called personal service)
       % endif   
@@ -654,7 +654,7 @@ data:
   other_delivery:
     question: |
       % if person_answering == "tenant":
-      It was handed to you by your landlord or somebody other than the sheriff or a process server
+      It was handed to me by my landlord or somebody other than the sheriff or a process server
       % else:
       It was handed to the tenant by the landlord or somebody other than the sheriff
       % endif   
