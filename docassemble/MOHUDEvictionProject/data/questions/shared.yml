@@ -750,34 +750,34 @@ fields:
     address autocomplete: True
     show if:
       variable: x.service_address
-      is: None
+      is: null
   - ${ x.service_address.unit_label }: x.service_address.unit
     required: False
     show if:
       variable: x.service_address
-      is: None
+      is: null
   - ${ x.service_address.city_label }: x.service_address.city
     show if:
       variable: x.service_address
-      is: None
+      is: null
   - ${ x.service_address.state_label }: x.service_address.state
     code: |
       states_list(country_code=AL_DEFAULT_COUNTRY)
     default: ${ AL_DEFAULT_STATE }
     show if:
       variable: x.service_address
-      is: None
+      is: null
   - ${ x.service_address.zip_label }: x.service_address.zip
     required: False      
     show if:
       variable: x.service_address
-      is: None
+      is: null
   - ${ x.service_address.country_label }: x.service_address.country
     code: countries_list()
     default: ${ AL_DEFAULT_COUNTRY }
     show if:
       variable: x.service_address
-      is: None
+      is: null
 ---
 if: x.attorney.there_are_any
 generic object: ALIndividual

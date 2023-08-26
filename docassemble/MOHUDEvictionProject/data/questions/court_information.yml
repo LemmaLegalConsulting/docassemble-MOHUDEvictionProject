@@ -255,9 +255,9 @@ fields:
     field: tenant_using_casenet
     datatype: yesnoradio
 ---
-if: trial_court.county == None
 code: |
-  tenant_using_casenet = False
+  if trial_court.county == None:
+    tenant_using_casenet = False
 ---
 depends on:
   - users[0].address.county

@@ -1,0 +1,483 @@
+---
+include:
+  - shared.yml
+---
+mandatory: True
+code: |
+  al_intro_screen
+  motions_intro_screen
+  
+  tenant_got_summons = True
+  petition_available = True
+  tenant_using_casenet = False
+
+  tenant_doc_name
+  landlord_doc_name
+  
+  person_answering
+  users[0].name.first
+  users[0].address.address
+  users.there_is_another
+  
+  other_parties[0].name.first
+  other_parties[0].address.address
+  other_parties.there_is_another
+  other_parties[0].attorney.there_are_any
+  
+  trial_court.name
+  docket_number
+  
+  if motion_list['motion_to_dismiss']:
+    motion_to_dismiss_order
+  if motion_list['motion_to_shorten_time']:
+    motion_to_shorten_time_order
+  if motion_list['motion_to_set_aside_judgment']:
+    motion_to_set_aside_judgment_order
+  if motion_list['motion_for_leave_to_file']:
+    motion_for_leave_to_file_order
+  if motion_list['motion_to_elevate_security']:
+    motion_to_elevate_security_order
+  
+  other_parties[0].service_method
+  if other_parties[0].service_method == "email":
+    other_parties[0].service_email
+  elif other_parties[0].service_method in ["mail", "hand"]:
+    if other_parties[0].attorney.there_are_any:
+      other_parties[0].attorney[0].address.address
+    other_parties[0].service_address.address
+
+  signature_date
+  motions_download
+---
+code: |
+  petition_date
+  opposing_party_consent
+  original_hearing_date
+  discovery_requested
+  if reasons_unable_to_prepare_exists: 
+    reasons[0]
+  if trial_date_set:
+    trial_date
+  
+  wishes_to_assert_affirmative_defenses 
+  
+  motion_for_leave_to_file_order = True
+---
+code: |
+  motion_to_dismiss_order = True
+---
+code: |
+  petition_date 
+  judgment_date
+  statements[0]
+  motion_to_set_aside_judgment_order = True
+---
+code: |
+  trial_date
+  days_before_trial
+  date_counsel_retained
+  opposing_party_consent 
+  no_dilatory_motive 
+  may_resolve_case_more_efficiently
+  motions_attached
+  motion_to_shorten_time_order = True
+---
+code: |
+  opposing_party_consent 
+  rental_address.address
+  eviction_outcome
+  reason_for_elevated_security
+  tenant_exposed_to_threats
+  tenant_believes_landlords_wont_rent 
+  
+  motion_to_elevate_security_order = True
+---
+code: |
+  motion_for_leave_to_file_attachment.enabled = motion_list['motion_for_leave_to_file']
+---
+code: |
+  motion_to_dismiss_attachment.enabled = motion_list['motion_to_dismiss']
+---
+code: |
+  motion_to_set_aside_attachment.enabled = motion_list['motion_to_set_aside_judgment']
+---
+code: |
+  motion_to_shorten_time_attachment.enabled = motion_list['motion_to_shorten_time']
+---
+code: |
+  motion_to_elevate_security_attachment.enabled = motion_list['motion_to_elevate_security']
+---
+id: motions intro
+continue button field: motions_intro_screen
+question: | 
+  DIY Motions
+subquestion: |
+  This form can help you prepare the following motions: 
+  
+    * Motion to Dismiss or More Definite Statement
+    
+    * Motion to Shorten Time
+    
+    * Motion to Set Aside Judgment
+    
+    * Motion for Leave to File
+    
+    * Motion to Elevate Security
+---
+### not changing "you" reference language on this question because it appears before selection of person_answering
+id: basic questions intro screen
+decoration: form-lineal
+question: |
+  DIY Motions: Missouri Tenant Help
+subquestion: |
+  Missouri Tenant Help can help you complete and download forms in 3 steps:
+
+  Step 1. Fill in your form.  
+  
+  Step 2. Preview the completed form.  
+  
+  Step 3. Download and print the final form. **You will need to deliver it.**
+  
+  This site is not a lawyer. If you would like a lawyer, find [a Missouri legal aid provider](https://www.lsmo.org/). If you are outside Missouri, find your [your local
+  legal aid provider](https://www.lsc.gov/what-legal-aid/find-legal-aid).
+  
+  Tap the {green words} in any screen for a definition or more information.
+  
+  % if chat_partners_available().help:
+  Live help is currently available in this interview. Click the speech bubble
+  (:comment-alt:) in the navigation bar to connect to a live advocate for help.
+  % endif
+  
+  ${ display_template(about_page_contents, scrollable=True, collapse=True) }
+fields:
+  - To continue, you must accept the terms of use: acknowledged_information_use
+    datatype: checkboxes
+    none of the above: False    
+    minlength: 1
+    choices:
+      - I accept the terms of use.
+    validation messages:
+      minlength: |
+        You cannot continue unless you agree to the terms of use.
+continue button field: al_intro_screen
+terms:
+  green words: |
+    Green words are legal terms or a short way of referring to something that needs more explanation. The definition or explanation pops up when you tap the green words.
+---
+id: motion list
+question: |
+  Which motions do you need?
+fields:
+  - Motions: motion_list
+    datatype: checkboxes
+    choices: 
+      - Motion to Dismiss or More Definite Statement: motion_to_dismiss
+      - Motion to Shorten Time: motion_to_shorten_time
+      - Motion to Set Aside Judgment: motion_to_set_aside_judgment
+      - Motion for Leave to File: motion_for_leave_to_file
+      - Motion to Elevate Security: motion_to_elevate_security
+    none of the above: false
+---
+id: judgment_date
+question: |
+  When was a judgment entered in this matter?
+fields:
+  - Date: judgment_date
+    datatype: date
+---
+id: petition_date 
+question: |
+  When did the Plaintiff file their petition in this case?
+fields:
+  - Date: petition_date
+    datatype: date
+---
+objects: 
+  - statements: DAList
+---
+id: statements
+question: |
+  Add any supporting statements to your motion. 
+fields: 
+  - Statement: statements[i]
+    input type: area
+    rows: 5
+list collect: True
+---
+objects: 
+  - rental_address: ALAddress
+---
+id: rental address
+question: |
+  Rental property address
+subquestion: |
+  What was the address of the rental property in this case?
+fields:
+  - Address: rental_address.address
+    address autocomplete: True
+  - Unit: rental_address.unit
+    required: False
+  - City: rental_address.city
+  - State: rental_address.state
+    code: |
+      states_list(country_code=AL_DEFAULT_COUNTRY)
+    default: ${ AL_DEFAULT_STATE }
+  - Zip: rental_address.zip
+    required: False      
+---
+id: outcome
+question: |
+  What was the outcome of this eviction case?
+fields:
+  - Outcome: eviction_outcome
+    datatype: radio
+    choices:
+      - Default Judgment
+      - Dismissal
+---
+id: reasons for motion
+question: |
+  % if person_answering == "tenant":
+  Why do you need the court records secured?
+  % else: 
+  Why does the tenant need the court records secured?
+  % endif
+subquestion: |
+  % if person_answering == "tenant":
+  Do any of the following reasons justify securing case records in your case?
+  % else: 
+  Do any of the following reasons justify securing case records in the plaintiff's case?
+  % endif
+fields:
+  - Reasons: reason_for_elevated_security
+    datatype: checkboxes
+    choices:
+      - Eviction was improperly granted
+      - Domestic violence
+      - Other
+    none of the above: false
+  - Other: reason_for_elevated_security_other
+    input type: area
+    rows: 5
+    show if:
+      variable: reason_for_elevated_security['Other']
+      is: True
+---
+id: reasons for motion
+question: |
+  Prior or current costs
+subquestion: |
+  % if person_answering == "tenant":
+  Have you already experienced costs because of the visibility of this case, including excessive rental application fees or being summarily denied for housing?
+  % else: 
+  Has the tenant already experienced costs because of the visibility of this case, including excessive rental application fees or being summarily denied for housing?
+  % endif
+fields:
+  - Experienced costs: tenant_exposed_to_threats
+    datatype: yesnoradio
+---
+id: future costs
+question: |
+  Future costs
+fields:
+  - Do you believe landlords will refuse to rent to you because the information about this case is public?: tenant_believes_landlords_wont_rent 
+    datatype: yesnoradio
+  - Will you have to pay higher rent, or find a co-signer, or face other economic consequences if this case remains public?: economic_consequences
+    datatype: yesnoradio
+  - Will the visibility of the eviction case hinder your ability to rent housing?: tenant_would_be_prejudiced
+    datatype: yesnoradio
+---
+id: hearing date time
+question: |
+  % if person_answering == "tenant":
+  When and where is your original hearing planned?
+  % else: 
+  When and where is the tenant's original hearing planned?
+  % endif
+fields:
+  - Date: original_hearing_date
+    datatype: date
+  - Time: original_hearing_time
+---
+id: trial date 
+question: |
+  Trial
+fields:
+  - Has the trial date been set?: trial_date_set
+    datatype: yesnoradio
+  - Trial date: trial_date
+    datatype: date
+    show if:
+      variable: trial_date_set
+      is: True
+---
+## needs plain language
+id: trial date 
+question: |
+  Are affirmative defenses being asserted?
+fields:
+  - no label: wishes_to_assert_affirmative_defenses
+    datatype: yesnoradio
+---
+objects: 
+  - reasons: DAList
+---
+id: reasons
+question: |
+  Add any reasons. 
+fields: 
+  - Reason: reasons[i]
+    input type: area
+    rows: 5
+list collect: True
+---
+id: reasons_unable_to_prepare_exists
+question: |
+  Is there any reason you were unable to prepare the and file the responsive pleading on time?
+fields:
+  - Reasons exist: reasons_unable_to_prepare_exists
+    datatype: yesnoradio
+---
+id: discovery
+question: |
+  Discovery
+fields:
+  - Did you request discovery?: discovery_requested
+    datatype: yesnoradio
+  - Do you plan to conduct discovery?: discovery_planned
+    datatype: yesnoradio
+    show if:
+      variable: discovery_requested
+      is: False
+  - Did the landlord provide a response to discovery requests?: discovery_produced
+    datatype: yesnoradio
+    show if:
+      variable: discovery_requested
+      is: True
+  - What date did the landlord provide discovery?: discovery_provided_date
+    datatype: date
+    show if:
+      variable: discovery_produced
+      is: True
+  - Do you plan to object to the landlord's objections to discovery?: discovery_objections_planned
+    datatype: yesnoradio
+    show if:
+      variable: discovery_produced
+      is: True
+---
+id: trial_date
+question: |
+  % if person_answering == "tenant":
+  When and where is your trial date planned?
+  % else: 
+  When and where is the tenant's trial date planned?
+  % endif
+fields:
+  - Date: trial_date
+    datatype: date
+  - Time: trial_time
+---
+id: date_counsel_retained
+question: |
+  % if person_answering == "tenant":
+  When did you get a lawyer for this case?
+  % else: 
+  When did the tenant hire you for this case?
+  % endif
+fields:
+  - Date: date_counsel_retained
+    datatype: date
+---
+### make this question plain language
+id: no_dilatory_motive
+question: |
+  Unfair motive 
+subquestion: |
+  % if person_answering == "tenant":
+  Is there any dilatory or unfair motive to shorten time?  Was there enough time to submit challenges to the Plaintiff's petition before?
+  % else: 
+  Is there any dilatory or unfair motive to shorten time?  Was there enough time to submit challenges to the Plaintiff's petition before?
+  % endif
+fields:
+  - Any unfair motive?: no_dilatory_motive 
+    datatype: yesnoradio
+---
+id: may_resolve_case_more_efficiently
+question: |
+  Is it possible that the case will be resolved more efficiently if the judge grants this motion?
+fields:
+  - Efficiency possible: may_resolve_case_more_efficiently
+    datatype: yesnoradio
+---
+id: opposing_party_consent
+question: |
+  Does the landlord consent to this motion?
+fields:
+  - Does the landlord consent to this motion?: opposing_party_consent
+    datatype: yesnoradio
+---
+code: |
+  before_trial = date_difference(starting=date_counsel_retained,ending=trial_date)
+  if before_trial.days == 0:
+    days_before_trial = "the same day as"
+  elif before_trial.days == 1:
+    days_before_trial = "the day prior to"
+  else:
+    days_before_trial = nice_number(before_trial.days) + " days prior to"
+---
+code: |
+  motions_attached = list()
+  for motion in motion_list.true_values():
+    if not motion == "motion_to_shorten_time":
+      motions_attached.append(motion_list[motion])
+---
+attachments:
+  - name: motion to shorten time
+    filename: motion_to_shorten_time.docx     
+    variable name: motion_to_shorten_time_attachment[i]        
+    skip undefined: True
+    docx template file: motion_to_shorten_time.docx
+  - name: motion to dismiss
+    filename: motion_to_dismiss  
+    variable name: motion_to_dismiss_attachment[i]        
+    skip undefined: True
+    docx template file: motion_to_dismiss.docx
+  - name: motion to set aside
+    filename: motion_to_set_aside
+    variable name: motion_to_set_aside_attachment[i]        
+    skip undefined: True
+    docx template file: motion_to_set_aside.docx
+  - name: motion for leave to file answer
+    filename: motion_for_leave_to_file_answer.docx     
+    variable name: motion_for_leave_to_file_attachment[i]        
+    skip undefined: True
+    docx template file: motion_for_leave_to_file.docx
+  - name: motion to elevate security
+    filename: motion_to_elevate_security.docx     
+    variable name: motion_to_elevate_security_attachment[i]       
+    skip undefined: True
+    docx template file: motion_to_elevate_security.docx
+---
+objects:
+  - motion_to_set_aside_attachment: ALDocument.using(title="File a Motion to Set Aside", filename="motion_to_set_aside.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+  - motion_to_shorten_time_attachment: ALDocument.using(title="File a Motion to Shorten Time", filename="motion_to_shorten_time.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+  - motion_to_dismiss_attachment: ALDocument.using(title="File a Motion to Dismiss", filename="motion_to_dismiss.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+  - motion_for_leave_to_file_attachment: ALDocument.using(title="File a Motion for Leave to File Answer", filename="motion_for_leave_to_file_answer.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+  - motion_to_elevate_security_attachment: ALDocument.using(title="File a Motion to Elevate Security", filename="motion_to_elevate_security.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+---
+objects:
+  - al_user_bundle: ALDocumentBundle.using(elements=[motion_to_dismiss_attachment, motion_to_shorten_time_attachment, motion_to_set_aside_attachment, motion_for_leave_to_file_attachment, motion_to_elevate_security_attachment], filename="motions.docx", title="All forms to download for your records", enabled=True)
+  - al_court_bundle: ALDocumentBundle.using(elements=attachment_list_court, filename="motions.docx", title="All forms to download for your records", enabled=True)
+---
+id: download motions
+event: motions_download
+question: |
+  All done
+subquestion: |
+  
+  ${ al_user_bundle.download_list_html() }
+  
+
+  ${ al_user_bundle.send_button_html(show_editable_checkbox=True) }
+
+progress: 100
