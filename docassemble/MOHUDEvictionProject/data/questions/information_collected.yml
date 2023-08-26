@@ -17,6 +17,7 @@ code: |
   if defense_foreclosure:
     more_information_ic.append("You can find more information about the Protecting Tenants at Foreclosure Act at this link.")
   warning_ic.append("Some courts do not allow tenants to bring their cell phone without prior approval. If you intend to use your cell phone to show the judge photos or other documentation, you should contact the court to see if there are any special requirements.")
+  times_per_year_list
   information_collected = True
 ---
 

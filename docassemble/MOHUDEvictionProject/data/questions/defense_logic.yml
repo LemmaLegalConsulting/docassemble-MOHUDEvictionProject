@@ -579,6 +579,16 @@ depends on:
   - is_rent_subsidized
   - excessive_rent
 ---
+variable name: times_per_year_list
+data:
+  - [52, "Weekly"]
+  - [26, "Once every two weeks"]
+  - [24, "Twice per month"]
+  - [12, "Monthly"]
+  - [4, "Once every 3 months"]
+  - [2, "Once every 6 months"]
+  - [1, "Yearly"]  
+---
 id: subsidized housing identification
 question: |
   % if person_answering == "tenant":
@@ -586,6 +596,15 @@ question: |
   % else: 
   What kind of housing does the tenant have?
   % endif
+subquestion: |
+  % if person_answering == "tenant":
+  It may help to look at your lease to answer this question.
+  % else:
+  It may help to look at the tenant's lease to answer this question.
+  % endif
+  If you do not have it, do your best to answer from your memory.
+
+  ${ collapse_template(why_tenancy_facts_template) }
 fields:
   - label: |
       % if person_answering == "tenant":
@@ -614,13 +633,84 @@ fields:
     show if:
       variable: is_rent_subsidized
       is: True
+  - How many units are in the building or apartment complex?: number_of_units_in_building
+    input type: radio
+    show if:
+      variable: is_rent_subsidized
+      is: False
+    choices:
+      - One (single-family): one
+      - More than 1 but fewer than 4: fewer_than_four
+      - 4 or more: four_or_more
+  - label: |
+      % if person_answering == "tenant":
+      What kind of lease do you have?
+      % else:
+      What kind of lease does the tenant have?
+      % endif
+    field: kind_of_lease_agreement
+    input type: radio
+    choices:
+      - A lease for a fixed period of time (like 1 year): fixed_period
+      - A month-to-month, week-to-week or other lease that automatically renews: periodic
+      - I don't have have a written lease: no_written_lease
+      - I don't know: dont_know
+  - What day does the fixed period lease end?: fixed_period_end_date
+    datatype: date
+    show if:
+      variable: kind_of_lease_agreement
+      is: fixed_period
+  - label: |
+      **Self-extending leases.**
+
+      Some leases include a term that says the lease will automatically renew
+      or that it will turn into a month-to-month lease when the term ends.
+
+      For example: _"a new tenancy from month-to-month shall be created between Landlord and Tenant...,"_
+      or: _"This lease shall automatically renew for successive terms ... unless..."_
+
+      Does this lease include a term like that?
+    label above field: True
+    show if:
+      variable: kind_of_lease_agreement
+      is: fixed_period
+    field: is_self_extending_lease
+    datatype: yesnomaybe
+  - label: |
+      **How often** is rent due?
+    field: rent_period
+    input type: radio
+    code: |
+      times_per_year_list
+    show if:
+      variable: kind_of_lease_agreement
+      is: periodic
+  - label: |
+      What **day** is rent due?
+      (enter a number, like **1** for the first day of the month or week)
+    field: rent_day
+    datatype: integer
+    show if:
+      variable: kind_of_lease_agreement
+      is: periodic
+---
+template: why_tenancy_facts_template
+subject: |
+  Why does this matter?
+content: |
+  The questions on this page help decide:
+  
+  * what kind of notice the landlord must give you
+  * whether your landlord must follow discrimination laws
+
+  Depending on your answer you may have a defense to the eviction.
 ---
 variable name: subsidized_housing_text
 use objects: True
 data:
   voucher:
     question: Mobile voucher (like Section 8)
-    document: Section 8 voucher
+    document: Section 8 housing choice vouche
   public:
     question: Public housing
     document: Public housing
@@ -631,7 +721,7 @@ data:
     question: |
       ${ "Housing project run by a private landlord (and I pay 30% of my income for rent)" if person_answering == "tenant" else "Housing project run by a private landlord (and the tenant pays 30% of their income for rent)"}  
     document: |
-      ${ "Housing project run by a private landlord (and I pay 30% of my income for rent)" if person_answering == "tenant" else "Housing project run by a private landlord (and the tenant pays 30% of their income for rent)"}  
+      Section 8 project-based housing development
 ---
 id: rent not owed by tenant
 question: |
@@ -725,12 +815,120 @@ code: |
   else:
     petition_alleges_nonrent = True
 ---
+id: notice to terminate
+question: |
+  Notice to terminate tenancy
+subquestion: |
+  % if person_answering == "tenant":
+  Your landlord must give you a notice to end your tenancy
+  before filing an eviction case. 
+  The amount of time that the landlord must give you depends on the kind 
+  of tenancy you have.
+  % else:
+  The tenant's landlord must give the tenant a notice to end their tenancy
+  before filing an eviction case.
+  The amount of time that the landlord must give the tenant depends on the kind
+  of tenancy the tenant has.
+  % endif
+
+  The notice might be called:
+
+  * Notice to Quit,
+  * Notice to Terminate Tenancy, or
+  * Notice to Vacate.
+
+  There is no standard form for the notice.
+
+  If you do not have the notice in front of you, do your best to answer
+  from memory.
+fields:
+  - label: |
+      % if person_answering == "tenant":
+      Did you get a written notice to end your tenancy?
+      % else:
+      Did the tenant get a written notice to end their tenancy?
+      % endif
+    field: got_notice_to_terminate
+    datatype: yesnomaybe
+  - About what day did you **get** the notice?: received_notice_date
+    datatype: date
+    show if: got_notice_to_terminate
+  - Did the notice include a specific day to **end** your tenancy?: notice_to_terminate_includes_specific_day
+    input type: radio
+    choices:
+      - Yes, it had a specific day: specific_day
+      - It said to move at the end of the rental period: rental_period
+      - It did not say when to move: no_specific_day
+    show if: got_notice_to_terminate
+  - What day did the notice say it would end your tenancy?: termination_of_tenancy_date
+    datatype: date
+    show if:
+      variable: notice_to_terminate_includes_specific_day
+      is: specific_day
+---
+id: lease requirement for notice
+question: |
+  % if person_answering == "tenant":
+  Notice requirements in your lease
+  % else:
+  Notice requirements in the tenant's lease
+  % endif
+subquestion: |
+  Look at the lease to answer this question. If you do not have
+  the lease in front of you, do your best to answer from memory.
+
+  Most leases will include a specific amount of notice that the landlord
+  must give the tenant before filing an eviction case. For example:
+  it may say that you must act to fix any problem they notify you about
+  within 7, 10, or 30 days. In the lease, look for a section labeled
+  "Termination," "Notice" or "Default."
+fields:
+  - Does the lease say how much notice the landlord must give to the tenant?: lease_says_how_much_notice
+    datatype: yesnomaybe
+  - label: |
+      **Summarize the notice amount from the lease.**
+      
+      For example:
+
+      you can write "30 days" or "the end of next rental period,"
+      depending on what the lease says.
+    label above field: True
+    field: notice_required_by_lease
+    datatype: area
+    rows: 2
+    show if: lease_says_how_much_notice
+  - label: |
+      % if person_answering == "tenant":
+      **Did the landlord give you the amount of notice required by the lease?**
+
+      % if notice_to_terminate_includes_specific_day == "specific_day":
+      Earlier, you said you got ${ (termination_of_tenancy_date - received_notice_date).days } days notice.
+      % endif
+      % else:
+      **Did the landlord give the tenant the amount of notice required by the lease?**
+
+      % if notice_to_terminate_includes_specific_day == "specific_day":
+      Earlier, you said the tenant got ${ (termination_of_tenancy_date - received_notice_date).days } days notice.
+      % endif
+      % endif
+
+      Answer as well as you can.
+    field: landlord_gave_notice_required_by_lease
+    datatype: yesnomaybe
+    show if: lease_says_how_much_notice
+---
+code: |
+  if kind_of_lease_agreement == "no_written_lease":
+    has_written_lease = False
+  else:
+    has_written_lease = True
+---
 id: petition requirements - terms of lease
 question: |
   % if person_answering == "tenant":
-  Is a copy of your lease attached to the petition?
-  % else: 
-  Is a copy of the tenant's lease attached to the petition? 
+  Does the petition say what the terms of your rental agreement are?
+  % else:
+  Does the petition say what the terms of the tenant's rental agreement are?
   % endif
 subquestion: |
   % if person_answering == "tenant":
@@ -749,29 +947,11 @@ subquestion: |
 
   [FILE ComplaintTerms.png, 100%]
 fields:
-  - label: |
-      % if person_answering == "tenant":
-      Do you have a written lease? (Some rental agreements can be oral.)
-      % else:
-      Does the tenant have a written lease? (Some rental agreements can be oral.)
-      % endif
-    field: has_written_lease
-    datatype: yesnoradio
   - "Is the lease attached to the Landlord's Petition?": lease_attached
     datatype: yesnoradio
     show if:
-      variable: has_written_lease
-      is: True
-  - label: |
-      % if person_answering == "tenant":
-      Does the Landlord's Petition include a summary of your rental agreement?
-      % else:
-      Does the Landlord's Petition include a summary of the tenant's rental agreement?
-      % endif 
-    field: petition_states_terms_of_lease
-    datatype: yesnomaybe
-    js show if: |
-      val("lease_attached") === false
+      code: |
+        has_written_lease
   - note: |
       <h2 class="h4">Summary of rental agreement</h2>
       The Petition should include a summary of the rental agreement. It should include 
@@ -781,7 +961,7 @@ fields:
       * The day rent is due, and
       * The kind of agreement (year to year or month to month).
     js show if: |
-      val("has_written_lease") === false || val("lease_attached") === false
+      val("has_written_lease") === false || val("lease_attached") === false    
   - label: |
       % if person_answering == "tenant":
       Does the Landlord's Petition include a summary of your rental agreement?
@@ -790,8 +970,20 @@ fields:
       % endif 
     field: petition_states_terms_of_lease
     datatype: yesnomaybe
-    js show if: |
-      val("has_written_lease") === false
+    show if:
+      variable: lease_attached
+      is: False
+  - label: |
+      % if person_answering == "tenant":
+      Does the Landlord's Petition include a summary of your rental agreement?
+      % else:
+      Does the Landlord's Petition include a summary of the tenant's rental agreement?
+      % endif 
+    field: petition_states_terms_of_lease
+    datatype: yesnomaybe
+    show if:
+      code: |
+        not has_written_lease
 ---
 id: petition requirements - periods due
 question: |
