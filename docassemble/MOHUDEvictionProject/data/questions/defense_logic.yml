@@ -18,6 +18,13 @@ code: |
   defense_unrepresented_corporation
   defense_no_landlord_tenant_relationship
   defense_excessive_rent_for_subsidized_housing
+  # UD defenses
+  defense_failure_to_terminate
+  defense_ud_no_written_notice
+  defense_ud_no_rental_period_notice
+  defense_ud_lease_requirements
+  defense_termination_notice_required_by_law
+
   defense_logic = True
 ---
 id: rent pleadings requirement logic
@@ -633,6 +640,11 @@ fields:
     show if:
       variable: is_rent_subsidized
       is: True
+  - Do you live in a mobile home that you own, and rent the land?: is_mobile_home_owner
+    datatype: yesno
+    show if:
+      variable: is_rent_subsidized
+      is: False
   - How many units are in the building or apartment complex?: number_of_units_in_building
     input type: radio
     show if:
@@ -655,7 +667,7 @@ fields:
       - A month-to-month, week-to-week or other lease that automatically renews: periodic
       - I don't have have a written lease: no_written_lease
       - I don't know: dont_know
-  - What day does the fixed period lease end?: fixed_period_end_date
+  - What day does the lease end?: fixed_period_end_date
     datatype: date
     show if:
       variable: kind_of_lease_agreement
@@ -688,6 +700,8 @@ fields:
   - label: |
       What **day** is rent due?
       (enter a number, like **1** for the first day of the month or week)
+    help: |
+      The most common rent days are the first and the 5th of the month.
     field: rent_day
     datatype: integer
     show if:
@@ -853,15 +867,18 @@ fields:
   - About what day did you **get** the notice?: received_notice_date
     datatype: date
     show if: got_notice_to_terminate
+    max: ${ today().format("yyyy-MM-dd") }
   - Did the notice include a specific day to **end** your tenancy?: notice_to_terminate_includes_specific_day
     input type: radio
     choices:
       - Yes, it had a specific day: specific_day
-      - It said to move at the end of the rental period: rental_period
+      - It said to move at the end of the next rental period: rental_period
       - It did not say when to move: no_specific_day
+      - It said something else: something_else
     show if: got_notice_to_terminate
   - What day did the notice say it would end your tenancy?: termination_of_tenancy_date
     datatype: date
+    max: ${ today().format("yyyy-MM-dd") }
     show if:
       variable: notice_to_terminate_includes_specific_day
       is: specific_day
@@ -916,6 +933,37 @@ fields:
     field: landlord_gave_notice_required_by_lease
     datatype: yesnomaybe
     show if: lease_says_how_much_notice
+---
+depends on:
+  - got_notice_to_terminate
+code: |
+  defense_ud_no_written_notice = not got_notice_to_terminate
+---
+code: |
+  if (not got_notice_to_terminate) or notice_to_terminate_includes_specific_day != "rental_period":
+    defense_ud_no_rental_period_notice = False
+  else:
+    if is_mobile_home_owner:
+      # Calculate the next rent due date from the received notice date
+      next_rent_due_date = received_notice_date.replace(day=rent_day).plus(months=1)
+      
+      # Calculate the earliest proper termination date for this scenario
+      proper_termination_date = next_rent_due_date.plus(days=60)
+
+      # If notice specifies a specific day
+      if notice_to_terminate_includes_specific_day == "specific_day":
+        if termination_of_tenancy_date < proper_termination_date:
+          defense_ud_no_rental_period_notice = True  # Improper notice
+        else:
+          defense_ud_no_rental_period_notice = False
+
+    # a month-to-month lease needs to be terminated on a rent day
+    # that is at least one month after receipt of the notice
+    received_notice_date
+    defense_ud_no_rental_period_notice = True
+  else:
+    defense_ud_no_rental_period_notice = False
+  
 ---
 code: |
   if kind_of_lease_agreement == "no_written_lease":

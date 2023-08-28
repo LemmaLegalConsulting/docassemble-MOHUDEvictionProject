@@ -19,6 +19,9 @@ metadata:
   al_weaver_version: "1.7.0"
   generated on: "2022-09-08"
 ---
+modules:
+  - docassemble.ALToolbox.al_income
+---
 code: |
   interview_short_title = "Eviction Defender"
 ---
