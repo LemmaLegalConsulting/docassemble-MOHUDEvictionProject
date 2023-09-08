@@ -589,9 +589,9 @@ question: |
 fields:
   - label: |
       % if person_answering == "tenant":
-      Do you get a rent subsidy or do you live in public housing?
+      Do you live in subsidized housing, including getting a rent subsidy or living in public housing?
       % else: 
-      Does the tenant get a rent subsidy or do they live in public housing?
+      Does the tenant live in subsidized housing, including getting a rent subsidy or living in public housing?
       % endif
     field: is_rent_subsidized
     datatype: yesnoradio
