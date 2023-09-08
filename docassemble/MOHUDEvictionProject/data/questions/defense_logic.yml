@@ -903,13 +903,12 @@ subquestion: |
   % endif
   % for offer in offer_attempts.complete_elements():
   
-   - Tried to pay ${ "the full amount" if offer.was_attempt_full else "part of the rent" } on ${ offer.attempt_date } ${ offer.attempt_method } but the landlord refused.
+   - Tried to pay ${ "the full amount" if offer.was_attempt_full else "part of the rent" } on ${ offer.attempt_date } ${ offer.attempt_method if not offer.attempt_method == "other" else "" } but the landlord refused.
    
   % endfor
   % endif
 fields:
   - When?: offer_attempts[i].attempt_date
-    datatype: date
   - label: |
       % if person_answering == "tenant":
       How did you try to give your landlord the money?
@@ -924,6 +923,10 @@ fields:
       - ${"I told my landlord in person" if person_answering == "tenant" else "Told the landlord in person"}: "in person"
       - ${"I told my landlord in a phone call" if person_answering == "tenant" else "Told the landlord in a phone call"}: "in a phone_call"
       - Other: "other"
+  - Explanation: offer_attempts[i].attempt_method_other
+    show if:
+      variable: offer_attempts[i].attempt_method
+      is: other
   - label: |
       % if person_answering == "tenant":
       How much did you offer to pay?
@@ -976,7 +979,7 @@ subquestion: |
   % endif
   % for offer in offer_attempts.complete_elements():
   
-   - tried to pay ${ "the full amount" if offer.was_attempt_full else "part of the rent" } on ${ offer.attempt_date } ${ offer.attempt_method } but the landlord refused.
+   - tried to pay ${ "the full amount" if offer.was_attempt_full else "part of the rent" } on ${ offer.attempt_date } ${ offer.attempt_method if not offer.attempt_method == "other" else "" } but the landlord refused.
    
   % endfor
   % endif
