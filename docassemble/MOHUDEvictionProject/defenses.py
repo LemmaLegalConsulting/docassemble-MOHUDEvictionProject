@@ -13,6 +13,7 @@ def check_improper_notice(
     Checks if the notice to terminate tenancy is improper according to:
 
     * RSMo 441.060
+    * Also see RSMo. 534
 
     Args:
         is_mobile_home_owner (bool): Whether the tenant owns their mobile home.

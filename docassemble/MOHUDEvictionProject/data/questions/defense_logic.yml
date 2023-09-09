@@ -641,7 +641,7 @@ fields:
       variable: is_rent_subsidized
       is: True
   - Do you live in a mobile home that you own, and rent the land?: is_mobile_home_owner
-    datatype: yesno
+    datatype: yesnoradio
     show if:
       variable: is_rent_subsidized
       is: False
@@ -847,6 +847,7 @@ subquestion: |
 
   The notice might be called:
 
+  * Lease termination,
   * Notice to Quit,
   * Notice to Terminate Tenancy, or
   * Notice to Vacate.
@@ -939,31 +940,22 @@ depends on:
 code: |
   defense_ud_no_written_notice = not got_notice_to_terminate
 ---
+depends on:
+  - is_mobile_home_owner
+  - rent_day
+  - rent_period
+  - received_notice_date
+  - notice_to_terminate_includes_specific_day
+  - termination_of_tenancy_date
 code: |
-  if (not got_notice_to_terminate) or notice_to_terminate_includes_specific_day != "rental_period":
-    defense_ud_no_rental_period_notice = False
-  else:
-    if is_mobile_home_owner:
-      # Calculate the next rent due date from the received notice date
-      next_rent_due_date = received_notice_date.replace(day=rent_day).plus(months=1)
-      
-      # Calculate the earliest proper termination date for this scenario
-      proper_termination_date = next_rent_due_date.plus(days=60)
-
-      # If notice specifies a specific day
-      if notice_to_terminate_includes_specific_day == "specific_day":
-        if termination_of_tenancy_date < proper_termination_date:
-          defense_ud_no_rental_period_notice = True  # Improper notice
-        else:
-          defense_ud_no_rental_period_notice = False
-
-    # a month-to-month lease needs to be terminated on a rent day
-    # that is at least one month after receipt of the notice
-    received_notice_date
-    defense_ud_no_rental_period_notice = True
-  else:
-    defense_ud_no_rental_period_notice = False
-  
+  defense_ud_no_rental_period_notice = check_improper_notice(
+    is_mobile_home_owner,
+    rent_day,
+    rent_period,
+    received_notice_date,
+    notice_to_terminate_includes_specific_day,
+    termination_of_tenancy_date
+  )  
 ---
 code: |
   if kind_of_lease_agreement == "no_written_lease":
