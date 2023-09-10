@@ -2,6 +2,10 @@ id:  defense logic order
 comment: |
   This can't be the best way to do this. Can a DADict act like a checkboxes dictionary?
 code: |
+  defense_vawa
+  defense_reasonable_accommodation
+  defense_discrimination
+  defense_ll_refused_section_8
   defense_rent_pleading_requirement
   defense_lease_not_attached
   defense_tender_refused
@@ -19,7 +23,7 @@ code: |
   defense_no_landlord_tenant_relationship
   defense_excessive_rent_for_subsidized_housing
   # UD defenses
-  defense_failure_to_terminate
+  
   defense_ud_no_written_notice
   defense_ud_no_rental_period_notice
   defense_ud_lease_requirements
@@ -640,7 +644,7 @@ fields:
     show if:
       variable: is_rent_subsidized
       is: True
-  - Do you live in a mobile home that you own, and rent the land?: is_mobile_home_owner
+  - Do you live in a mobile  home that you own, and rent the land?: is_mobile_home_owner
     datatype: yesnoradio
     show if:
       variable: is_rent_subsidized
@@ -718,6 +722,242 @@ content: |
   * whether your landlord must follow discrimination laws
 
   Depending on your answer you may have a defense to the eviction.
+---
+id: disability
+question: |
+  Disability
+subquestion: |
+  If you have a disability, you have the right to use your housing in the same way as someone without a disability.
+
+  You may have the right to a reasonable accommodation or modification in:
+
+  * The rules of your housing, or
+  * The physical structure of your housing
+
+  ${ collapse_template(what_is_disability_template) }
+fields:
+  - label: |
+      % if person_answering == "tenant":
+      Do you have a disability?
+      % else:
+      Does the tenant have a disability?
+      % endif
+    field: tenant_has_disability
+    datatype: yesnomaybe
+  - label: |
+      % if person_answering == "tenant":
+      What is your disability?
+      % else:
+      What is the tenant's disability?
+      % endif
+    field: tenant_disability
+    show if: tenant_has_disability
+  - label: |
+      % if person_answering == "tenant":
+      Would a change in the rules or the physical structure of your housing help you use or stay in your housing?
+      % else:
+      Would a change in the rules or the physical structure of the tenant's housing help them use or stay in their housing?
+      % endif
+    field: tenant_needs_accommodation
+    datatype: yesnomaybe
+    show if: tenant_has_disability
+  - How?: tenant_accommodation_description
+    show if: tenant_needs_accommodation
+    datatype: area
+  - Is the change "reasonable"?: tenant_accommodation_reasonable
+    show if: tenant_needs_accommodation
+    datatype: yesnomaybe
+  - label: |
+      % if person_answering == "tenant":
+      Did you ask your landlord to change the rules or the physical structure of your housing?
+      % else:
+      Did the tenant ask their landlord to change the rules or the physical structure of their housing?
+      % endif
+    field: tenant_asked_for_accommodation
+    datatype: yesnomaybe
+    js show if: | 
+      val("tenant_has_disability") && val("tenant_needs_accommodation")
+  - label: |
+      % if person_answering == "tenant":
+      Would you like to ask your landlord to change the rules or the physical structure of your housing now?
+      % else:
+      Would the tenant like to ask their landlord to change the rules or the physical structure of their housing now?
+      % endif
+    field: tenant_wants_accommodation_in_answer
+    datatype: yesnoradio
+    show if: 
+      variable: tenant_asked_for_accommodation
+      is: False
+  - label: |
+      % if person_answering == "tenant":
+      Did your landlord refuse to change the rules or the physical structure of your housing?
+      % else:
+      Did the tenant's landlord refuse to change the rules or the physical structure of their housing?
+      % endif
+    field: landlord_refused_accommodation
+    datatype: yesnomaybe
+    show if: tenant_asked_for_accommodation
+---
+depends on:
+  - tenant_has_disability
+  - tenant_needs_accommodation
+  - tenant_asked_for_accommodation
+code: |
+  defense_reasonable_accommodation = tenant_has_disability and tenant_needs_accommodation and tenant_asked_for_accommodation and landlord_refused_accommodation
+---
+id: st louis section 8 protection
+question: |
+  Section 8 protection for tenants in St Louis
+subquestion: |
+  If you live in St Louis, your landlord cannot refuse to accept a Section 8
+  voucher.
+fields:
+  - label: |
+      % if person_answering == "tenant":
+      Did your landlord refuse to accept your Section 8 voucher?
+      % else:
+      Did the tenant's landlord refuse to accept their Section 8 voucher?
+      % endif
+    field: landlord_refused_section_8
+    datatype: yesnoradio
+---
+depends on:
+  - users[0].address.city
+  - landlord_refused_section_8
+code: |
+  defense_ll_refused_section_8 = users[0].normalized_address().city == "St. Louis" and landlord_refused_section_8
+---
+template: what_is_disability_template
+subject: |
+  What is a disability?
+content: |
+  A disability is a physical or mental impairment that substantially limits one or more major life activities.
+
+  Major life activities include:
+
+  * Caring for yourself
+  * Performing manual tasks
+  * Seeing
+  * Hearing
+  * Eating
+  * Sleeping
+  * Walking
+  * Standing
+  * Lifting
+  * Bending
+  * Speaking
+  * Breathing
+  * Learning
+  * Reading
+  * Concentrating
+  * Thinking
+  * Communicating
+  * Working
+
+  You do **not** need to be disabled all the time to have a disability.
+  You do not need a doctor's diagnosis to have a disability. But it 
+  may help to prove your case in court.
+---
+id: discrimination
+question: |
+  Discrimination
+subquestion: |
+  You have the right to be free from discrimination in housing.
+
+  Discrimination law protects you from:
+
+  * Being treated differently,
+  * Being denied housing, or
+  * Being unfairly evicted
+
+  If:
+
+  1. You are a member of a protected class, and
+  2. The reason you are being treated differently or denied housing is 
+     **because** of your protected class.
+fields:
+  - label: |
+      % if person_answering == "tenant":
+      I believe my landlord is discriminating against me because of:
+      % else:
+      The tenant believes their landlord is discriminating against them because of:
+      % endif
+    field: tenant_protected_classes
+    datatype: checkboxes
+    choices:
+      - Family status (for example, having children): Family status
+      - Marital status: marital status
+      - Race: race
+      - Skin color: skin color
+      - Religion: religion
+      - Sex (e.g., being born male, female or nonbinary): sex
+      - Sex stereotyping related to gender identity: sex stereotyping related to gender identity
+      - Ancestry: ancestry
+      - National origin (the country my family comes from): national origin
+      - Disability: disability
+  - Explain: tenant_discrimination_explanation
+    datatype: area
+    show if: tenant_protected_classes
+---
+code: |
+  defense_discrimination = tenant_protected_classes.any_true()
+---
+id: violence against women act defenses
+question: |
+  Violence Against Women Act (VAWA)
+subquestion: |
+  If you are a survivor of:
+
+  * Domestic violence,
+  * Dating violence,
+  * Sexual assault, or
+  * Stalking
+
+  And you are being evicted **because** of something related to the
+  domestic violence or abuse, you may have a defense.
+
+  ${ collapse_template(dv_explanation_template) }
+fields:
+  - label: |
+      % if person_answering == "tenant":
+      Are you a survivor of domestic violence, dating violence, sexual assault, or stalking?
+      % else:
+      Is the tenant a survivor of domestic violence, dating violence, sexual assault, or stalking?
+      % endif
+    field: tenant_is_dv_survivor
+    datatype: yesnomaybe
+  - label: |
+      % if person_answering == "tenant":
+      Are you being evicted because of something related to the domestic violence or abuse?
+      % else:
+      Is the tenant being evicted because of something related to the domestic violence or abuse?
+      % endif
+    field: tenant_is_being_evicted_because_of_dv
+    datatype: yesnomaybe
+    show if: tenant_is_dv_survivor
+  - Briefly explain: tenant_dv_explanation
+    datatype: area
+    show if: tenant_is_being_evicted_because_of_dv
+---
+depends on:
+  - tenant_is_dv_survivor
+  - tenant_is_being_evicted_because_of_dv
+code: |
+  defense_vawa = tenant_is_dv_survivor and tenant_is_being_evicted_because_of_dv
+---
+template: dv_explanation_template
+subject: |
+  Can you give me an example?
+content: |
+  A landlord wants to evict a tenant because: 
+
+  * A survivor called the police to report the abuse, or
+  * The abuser frequently came onto the property or stayed overnight even though there
+    is a policy against overnight guests
+
+  In both examples above, the landlord may not be legally allowed to evict
+  the tenant, even though a tenant who was not a survivor of domestic violence
+  could be evicted for the same reasons.
 ---
 variable name: subsidized_housing_text
 use objects: True

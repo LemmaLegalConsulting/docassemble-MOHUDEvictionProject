@@ -129,7 +129,10 @@ code: |
     if not trial_court.county == None and tenant_using_casenet:
       docket_review
 
+  # Eviction reasons
   case_type
+  if eviction_reason.any_true("lease violation", "criminal activity"):
+    tenant_denies_reason_for_eviction
 
   ######## About your tenancy
   nav.set_section("section_eviction_answer_tenancy")  
@@ -499,6 +502,52 @@ subquestion: |
   A defense is a reason why you should not be evicted.  
   A counterclaim is a reason why your landlord should pay you money.
 continue button field: signpost_claims_and_defenses
+---
+id: do you agree with the landlord
+question: |
+  Landlord's reason for eviction
+subquestion: |
+  % if person_answering == "tenant":
+  Your landlord says that they are evicting you because:
+  % else:
+  The landlord says that they are evicting the tenant because:
+  % endif
+
+  % for reason in eviction_reason.true_values():
+   - ${ reason }
+  % endfor
+
+  % if person_answering == "tenant":
+  Do you agree with your landlord's reason for eviction, or do you deny it?
+
+  If at least **one** of the reasons or facts that the landlord
+  claims about you is not true, you should deny the landlord's reason for eviction.
+  % else:
+  Does the tenant agree with the landlord's reason for eviction?
+
+  If at least **one** of the reasons or facts that the landlord
+  claims about the tenant is not true, you should deny the landlord's reason for eviction.
+  % endif  
+fields:
+  - label: |
+      % if person_answering == "tenant":
+      I deny doing what the landlord says that I did
+      % else:
+      The tenant denies doing what the landlord says that they did
+      % endif
+    field: tenant_denies_reason_for_eviction
+    datatype: yesnoradio
+  - label: |
+      % if person_answering == "tenant":
+      Even if what the landlord says happened is true, I deny that the reason the landlord gave is a good enough reason
+      to evict me.
+      % else:
+      Even if what the landlord says happened is true, the tenant denies that the reason the landlord gave is a good enough reason
+      to evict the tenant.
+      % endif
+    field: tenant_agrees_reason_for_eviction
+    datatype: yesnoradio
+    default: True
 ---
 id: defenses explanation
 continue button field: explanation_answer
