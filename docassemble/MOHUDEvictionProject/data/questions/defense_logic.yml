@@ -1,3 +1,7 @@
+---
+modules:
+  - .defenses
+---
 id:  defense logic order
 comment: |
   This can't be the best way to do this. Can a DADict act like a checkboxes dictionary?
@@ -6,14 +10,17 @@ code: |
   defense_reasonable_accommodation
   defense_discrimination
   defense_ll_refused_section_8
-  defense_rent_pleading_requirement
+  if eviction_reason["nonpayment"]:
+    defense_rent_pleading_requirement
   defense_lease_not_attached
-  defense_tender_refused
-  defense_rent_payment
+  if eviction_reason["nonpayment"]:
+    defense_tender_refused
+    defense_rent_payment
   defense_settlement
   defense_lease_signed_under_duress
   defense_fraud_lease
-  defense_liquidated_damages_late_fees
+  if eviction_reason["nonpayment"]:
+    defense_liquidated_damages_late_fees
   defense_breach_of_habitability
   defense_breach_of_cqe
   defense_estoppel_illegality
@@ -24,12 +31,70 @@ code: |
   defense_excessive_rent_for_subsidized_housing
   # UD defenses
   
-  defense_ud_no_written_notice
-  defense_ud_no_rental_period_notice
-  defense_ud_lease_requirements
-  defense_termination_notice_required_by_law
+  if got_notice_to_terminate:
+    defense_ud_no_written_notice
+    defense_ud_no_rental_period_notice
+    defense_ud_lease_requirements
+    defense_termination_notice_required_by_law
 
   defense_logic = True
+---
+depends on:
+  - defense_no_breach
+  - defense_breach_not_material
+code: |
+  defense_ud_did_not_violate_lease = (
+    defense_no_breach or
+    defense_breach_not_material
+  )
+---
+depends on:
+  - got_notice_to_terminate
+  - has_written_lease
+  - lease_says_how_much_notice
+  - landlord_gave_notice_required_by_lease
+code: |
+  defense_ud_lease_requirements = got_notice_to_terminate and (
+    has_written_lease and
+    lease_says_how_much_notice and
+    not landlord_gave_notice_required_by_lease
+  )
+---
+code: |
+  # See: 24 C.F.R. § 247.4 (c)
+  # COVID-19 emergency currently not in effect
+  is_federal_emergency = False
+---
+depends on:
+  - is_federal_emergency
+  - eviction_reason
+  - subsidized_housing_type
+  - received_notice_date
+  - notice_to_terminate_includes_specific_day
+  - termination_of_tenancy_date
+code: |
+  defense_termination_notice_required_by_law = got_notice_to_terminate and has_improper_notice_required_by_law(
+      is_federal_emergency,
+      eviction_reason,
+      subsidized_housing_type.any_true(),
+      received_notice_date,
+      notice_to_terminate_includes_specific_day,
+      showifdef("termination_of_tenancy_date") or None,
+  )
+---
+depends on:
+  - got_notice_to_terminate
+  - defense_ud_no_written_notice
+  - defense_ud_no_rental_period_notice
+  - defense_ud_lease_requirements
+  - defense_termination_notice_required_by_law
+code: |
+  defense_failure_to_terminate = (not got_notice_to_terminate) or (
+    defense_ud_no_written_notice or 
+    defense_ud_no_rental_period_notice or
+    defense_ud_lease_requirements or
+    defense_termination_notice_required_by_law
+  )
 ---
 id: rent pleadings requirement logic
 depends on:
@@ -725,14 +790,18 @@ content: |
 ---
 id: disability
 question: |
-  Disability
+  Disability and reasonable accommodation
 subquestion: |
-  If you have a disability, you have the right to use your housing in the same way as someone without a disability.
+  If you have a disability, you have the right to use your housing in the same 
+  way as someone without a disability.
 
-  You may have the right to a reasonable accommodation or modification in:
+  You may have the right to a change in:
 
   * The rules of your housing, or
-  * The physical structure of your housing
+  * The physical structure of your housing.
+
+  If the change would help you stay in your housing or solve the problem that
+  the landlord is complaining about, it may be a defense (stop your eviction).
 
   ${ collapse_template(what_is_disability_template) }
 fields:
@@ -750,8 +819,13 @@ fields:
       % else:
       What is the tenant's disability?
       % endif
+      (optional)
     field: tenant_disability
     show if: tenant_has_disability
+    required: False
+    help: |
+      You do not have to say what the disability is. But it may help the judge
+      to know.
   - label: |
       % if person_answering == "tenant":
       Would a change in the rules or the physical structure of your housing help you use or stay in your housing?
@@ -761,28 +835,31 @@ fields:
     field: tenant_needs_accommodation
     datatype: yesnomaybe
     show if: tenant_has_disability
-  - How?: tenant_accommodation_description
+  - How? (optional): tenant_accommodation_description
     show if: tenant_needs_accommodation
+    required: False
     datatype: area
+    help: |
+      Explain the connection between your disability, the change you need,
+      and how the change could prevent the need for the eviction.
   - Is the change "reasonable"?: tenant_accommodation_reasonable
     show if: tenant_needs_accommodation
     datatype: yesnomaybe
+    help: |
+      It is up to a judge to decide if a change is reasonable. But think about the cost
+      and impact on the landlord of making the change.
   - label: |
       % if person_answering == "tenant":
-      Did you ask your landlord to change the rules or the physical structure of your housing?
+      Did you **ask** your landlord to change the rules or the physical structure of your housing?
       % else:
-      Did the tenant ask their landlord to change the rules or the physical structure of their housing?
+      Did the tenant **ask** their landlord to change the rules or the physical structure of their housing?
       % endif
     field: tenant_asked_for_accommodation
     datatype: yesnomaybe
     js show if: | 
       val("tenant_has_disability") && val("tenant_needs_accommodation")
   - label: |
-      % if person_answering == "tenant":
-      Would you like to ask your landlord to change the rules or the physical structure of your housing now?
-      % else:
-      Would the tenant like to ask their landlord to change the rules or the physical structure of their housing now?
-      % endif
+      Would you like to ask now?
     field: tenant_wants_accommodation_in_answer
     datatype: yesnoradio
     show if: 
@@ -790,9 +867,9 @@ fields:
       is: False
   - label: |
       % if person_answering == "tenant":
-      Did your landlord refuse to change the rules or the physical structure of your housing?
+      Did your landlord say **no**?
       % else:
-      Did the tenant's landlord refuse to change the rules or the physical structure of their housing?
+      Did the tenant's landlord **refuse** the request?
       % endif
     field: landlord_refused_accommodation
     datatype: yesnomaybe
@@ -864,18 +941,26 @@ question: |
 subquestion: |
   You have the right to be free from discrimination in housing.
 
+  If:
+
+  1. You are a member of a protected class, and
+  2. The reason you are being treated differently or denied housing is 
+     **because** of your protected class,
+
   Discrimination law protects you from:
 
   * Being treated differently,
   * Being denied housing, or
   * Being unfairly evicted
-
-  If:
-
-  1. You are a member of a protected class, and
-  2. The reason you are being treated differently or denied housing is 
-     **because** of your protected class.
 fields:
+  - label: |
+      % if person_answering == 'tenant':
+      I believe my landlord is discriminating against me
+      % else:
+      The landlord discriminated against the tenant
+      % endif
+    field: tenant_believes_discrimination
+    datatype: yesnoradio
   - label: |
       % if person_answering == "tenant":
       I believe my landlord is discriminating against me because of:
@@ -884,9 +969,10 @@ fields:
       % endif
     field: tenant_protected_classes
     datatype: checkboxes
+    show if: tenant_believes_discrimination
     choices:
       - Family status (for example, having children): Family status
-      - Marital status: marital status
+      - Marital status (for example, being unmarried): marital status
       - Race: race
       - Skin color: skin color
       - Religion: religion
@@ -895,12 +981,20 @@ fields:
       - Ancestry: ancestry
       - National origin (the country my family comes from): national origin
       - Disability: disability
-  - Explain: tenant_discrimination_explanation
+  - Explain (optional): tenant_discrimination_explanation
     datatype: area
-    show if: tenant_protected_classes
+    required: False
+    js show if: |
+      val("tenant_protected_classes").length > 0
 ---
+depends on:
+  - tenant_believes_discrimination
+  - tenant_protected_classes
 code: |
-  defense_discrimination = tenant_protected_classes.any_true()
+  defense_discrimination = (
+    (is_rent_subsidized or number_of_units_in_building == "fewer_than_four") and
+    tenant_believes_discrimination and tenant_protected_classes.any_true()
+  )
 ---
 id: violence against women act defenses
 question: |
@@ -935,15 +1029,22 @@ fields:
     field: tenant_is_being_evicted_because_of_dv
     datatype: yesnomaybe
     show if: tenant_is_dv_survivor
-  - Briefly explain: tenant_dv_explanation
+  - Briefly explain (optional): tenant_dv_explanation
     datatype: area
+    rows: 2
+    required: False
     show if: tenant_is_being_evicted_because_of_dv
 ---
 depends on:
+  - is_rent_subsidized
   - tenant_is_dv_survivor
   - tenant_is_being_evicted_because_of_dv
 code: |
-  defense_vawa = tenant_is_dv_survivor and tenant_is_being_evicted_because_of_dv
+  defense_vawa = (
+    is_rent_subsidized and
+    tenant_is_dv_survivor and 
+    tenant_is_being_evicted_because_of_dv
+  )
 ---
 template: dv_explanation_template
 subject: |
@@ -964,7 +1065,7 @@ use objects: True
 data:
   voucher:
     question: Mobile voucher (like Section 8)
-    document: Section 8 housing choice vouche
+    document: Section 8 housing choice voucher
   public:
     question: Public housing
     document: Public housing
@@ -1188,7 +1289,7 @@ depends on:
   - notice_to_terminate_includes_specific_day
   - termination_of_tenancy_date
 code: |
-  defense_ud_no_rental_period_notice = check_improper_notice(
+  defense_ud_no_rental_period_notice = got_notice_to_terminate and has_improper_notice(
     is_mobile_home_owner,
     rent_day,
     rent_period,

@@ -132,7 +132,7 @@ code: |
   # Eviction reasons
   case_type
   if eviction_reason.any_true("lease violation", "criminal activity"):
-    tenant_denies_reason_for_eviction
+    defense_no_breach
 
   ######## About your tenancy
   nav.set_section("section_eviction_answer_tenancy")  
@@ -143,9 +143,9 @@ code: |
   set_progress(50)
   nav.set_section("section_eviction_answer_defenses")
   signpost_claims_and_defenses
-  got_notice_to_terminate
-  if not is_rent_subsidized and kind_of_lease_agreement == "fixed_period":
-    lease_says_how_much_notice
+  if got_notice_to_terminate:
+    if not is_rent_subsidized and kind_of_lease_agreement == "fixed_period":
+      lease_says_how_much_notice
   if (
     (has_written_lease and not lease_attached) 
     or not has_written_lease
@@ -161,19 +161,20 @@ code: |
     notice_of_foreclosure
   
   set_progress(75)
-  petition_states_rent_amount
-  petition_states_rent_periods
-  
-  offer_attempts.gather()
-  was_rent_paid
-  will_offer_payment
-  if is_rent_subsidized:
-    excessive_rent
+  if eviction_reason["nonpayment"]:
+    petition_states_rent_amount
+    petition_states_rent_periods
+    offer_attempts.gather()
+    was_rent_paid
+    will_offer_payment
+    if is_rent_subsidized:
+      excessive_rent
   if late_fees_assessed:
     late_fees_penalty
     if trial_court.circuit == 21:
       petition_separates_nonrent
-  petition_states_demand_made
+  if eviction_reason["nonpayment"]:
+    petition_states_demand_made
   landlord_problems_section
 
   if landlord_agreement:
@@ -535,7 +536,7 @@ fields:
       % else:
       The tenant denies doing what the landlord says that they did
       % endif
-    field: tenant_denies_reason_for_eviction
+    field: defense_no_breach
     datatype: yesnoradio
   - label: |
       % if person_answering == "tenant":
@@ -545,9 +546,8 @@ fields:
       Even if what the landlord says happened is true, the tenant denies that the reason the landlord gave is a good enough reason
       to evict the tenant.
       % endif
-    field: tenant_agrees_reason_for_eviction
+    field: defense_breach_not_material
     datatype: yesnoradio
-    default: True
 ---
 id: defenses explanation
 continue button field: explanation_answer
@@ -1298,11 +1298,11 @@ review:
       % for item in cqe_breaches.true_values():
       % if item == "other":
       
-       - **${ other_cqe_breach }**
+       - **${ other_cqe_breach.strip() }**
       
       % else:
       
-       - **${ cqe_breaches_text[item] }**
+       - **${ cqe_breaches_text[item].strip() }**
       
       % endif
       % endfor
