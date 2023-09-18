@@ -81,7 +81,7 @@ sections:
 code: |
   motion_for_leave_to_file_intro
   petition_date
-  opposing_party_consent
+  opposing_party_consent_to_motion_for_leave_to_file
   original_hearing_date
   discovery_requested
   if reasons_unable_to_prepare_exists: 
@@ -109,7 +109,7 @@ code: |
   trial_date
   if counsel_retained:
     days_before_trial
-  opposing_party_consent 
+  opposing_party_consent_to_motion_to_shorten_time
   no_dilatory_motive 
   may_resolve_case_more_efficiently
   motions_attached
@@ -117,8 +117,7 @@ code: |
 ---
 code: |
   motion_to_elevate_security_intro
-  elevate_security_intro
-  opposing_party_consent 
+  opposing_party_consent_to_motion_to_elevate_security
   rental_address.address
   eviction_outcome
   reason_for_elevated_security
@@ -160,7 +159,7 @@ subquestion: |
     * Motion to Elevate Security
 ---
 id: Motion to Dismiss or More Definite Statement intro
-continue_button_field: motion_to_dismiss_intro
+continue button field: motion_to_dismiss_intro
 question: |
   Motion to Dismiss or More Definite Statement
 subquestion: |
@@ -169,7 +168,7 @@ subquestion: |
   You have answered all the questions needed for this motion already. You will have a chance to review it on the next screen. 
 ---
 id: Motion to Shorten Time intro
-continue_button_field: motion_to_shorten_time_intro
+continue button field: motion_to_shorten_time_intro
 question: |
   Motion to Shorten Time
 subquestion: |
@@ -178,7 +177,7 @@ subquestion: |
   We have some more questions to ask you about this motion. You will have a chance to review the motion after you answer the following questions.
 ---
 id: Motion to Set Aside Judgment intro
-continue_button_field: motion_to_set_aside_intro
+continue button field: motion_to_set_aside_intro
 question: |
   Motion to Set Aside Judgment
 subquestion: |
@@ -187,7 +186,7 @@ subquestion: |
   We have some more questions to ask you about this motion. You will have a chance to review the motion after you answer the following questions.
 ---
 id: Motion for Leave to File intro
-continue_button_field: motion_for_leave_to_file_intro
+continue button field: motion_for_leave_to_file_intro
 question: |
   Motion for Leave to File
 subquestion: |
@@ -196,7 +195,7 @@ subquestion: |
   We have some more questions to ask you about this motion. You will have a chance to review the motion after you answer the following questions.
 ---
 id: Motion to Elevate Security intro
-continue_button_field: motion_to_elevate_security_intro
+continue button field: motion_to_elevate_security_intro
 question: |
   Motion to Elevate Security
 subquestion: |
@@ -416,7 +415,7 @@ list collect: True
 ---
 id: reasons_unable_to_prepare_exists
 question: |
-  Is there any reason you were unable to prepare the and file the responsive pleading on time?
+  Is there any reason you were unable to prepare and file the responsive pleading on time?
 fields:
   - Reasons exist: reasons_unable_to_prepare_exists
     datatype: yesnoradio
@@ -501,11 +500,25 @@ fields:
   - Efficiency possible: may_resolve_case_more_efficiently
     datatype: yesnoradio
 ---
-id: opposing_party_consent
+id: opposing_party_consent_to_motion_to_elevate_security
 question: |
-  Does the landlord consent to this motion?
+  Does the landlord consent to this Motion to Elevate Security?
 fields:
-  - Does the landlord consent to this motion?: opposing_party_consent
+  - Does the landlord consent to this motion?: opposing_party_consent_to_motion_to_elevate_security
+    datatype: yesnoradio
+---
+id: opposing_party_consent_to_motion_for_leave_to_file
+question: |
+  Does the landlord consent to this Motion for Leave to File?
+fields:
+  - Does the landlord consent to this motion?: opposing_party_consent_to_motion_for_leave_to_file
+    datatype: yesnoradio
+---
+id: opposing_party_consent_to_motion_to_shorten_time
+question: |
+  Does the landlord consent to this Motion to Shorten Time?
+fields:
+  - Does the landlord consent to this motion?: opposing_party_consent_to_motion_to_shorten_time
     datatype: yesnoradio
 ---
 code: |
@@ -628,15 +641,17 @@ review:
   - note: | 
       ##About your court case##
   - Edit:
-      - trial_court_name
+      - trial_court.name
     button: |
-      Trial Court Name:
-      **${ trial_court_name }**
+      **Trial Court Name**
+      
+      ${ trial_court.name }
   - Edit:
       - docket_number
     button: |
-      Docket number:
-      **${ docket_number }**
+      **Docket number**
+      
+      ${ docket_number }
   - note: | 
       ##Your Motions##
   - Edit: |-
@@ -644,28 +659,30 @@ review:
     button: |
       **Which motions do you need?**
 
-      Motions: ${ showifdef('motion_list') }
+      % for item in motion_list.true_values():
+      - ${ item }
+      % endfor
   - note: | 
       ##Motion to Dismiss or More Definite Statement##
   - note: | 
       ##Motion to Shorten Time##
   - Edit: |-
-      opposing_party_consent
+      opposing_party_consent_to_motion_to_shorten_time
     button: |
-      **Does the landlord consent to this motion?**
-
-      Does the landlord consent to this motion?: ${ word(yesno(opposing_party_consent)) }
+      **Landlord consent**
+      
+      ${ word(yesno(opposing_party_consent_to_motion_to_shorten_time)) }
   - Edit: |-
       trial_date
     button: |
-      **Trial** 
-      Date: ${ showifdef('trial_date') }
-      Time: ${ showifdef('trial_time') }
+      **Trial Date**
+      
+      ${ showifdef('trial_date') } ${ showifdef('trial_time') }
   - note: | 
       ##Motion to Set Aside Judgment##
   - Edit: |-
       statements.revisit
-    button: |-
+    button: |
       **Statements**
 
       % for item in statements:
@@ -686,38 +703,39 @@ review:
   - Edit: |-
       counsel_retained
     button: |
+      **Counsel**
+      
       Has counsel: ${ word(yesno(counsel_retained)) }
+      
       Date counsel retained: ${ date_counsel_retained }
   - Edit: |-
       no_dilatory_motive
     button: |
-      **Unfair motive**
+      **Any unfair motive?**
 
-      Any unfair motive?: ${ word(yesno(no_dilatory_motive)) }
+      ${ word(yesno(no_dilatory_motive)) }
   - Edit: |-
       may_resolve_case_more_efficiently
     button: |
       **Is it possible that the case will be resolved more efficiently if the judge grants this motion?**
 
-      Efficiency possible: ${ word(yesno(may_resolve_case_more_efficiently)) }
+      ${ word(yesno(may_resolve_case_more_efficiently)) }
   - note: | 
       ##Motion for Leave to File##
   - Edit: |-
-      opposing_party_consent
+      opposing_party_consent_to_motion_for_leave_to_file
     button: |
-      **Does the landlord consent to this motion?**
-
-      Does the landlord consent to this motion?: ${ word(yesno(opposing_party_consent)) }
+      **Landlord consent**
+      
+      ${ word(yesno(opposing_party_consent_to_motion_for_leave_to_file)) }
   - Edit:
       - original_hearing_date
     button: |
-      Date of hearing:
-      **${ original_hearing_date }**
-  - Edit:
-      - original_hearing_time
-    button: |
-      Time of hearing:
-      **${ original_hearing_time }**
+      **Original hearing**
+      
+      Date: ${ original_hearing_date } 
+      
+      Time: ${ original_hearing_time }
   - Edit: |-
       petition_date
     button: |
@@ -735,12 +753,12 @@ review:
   - Edit: |-
       reasons_unable_to_prepare_exists
     button: |
-      **Is there any reason you were unable to prepare the and file the responsive pleading on time?**
+      **Is there any reason you were unable to prepare and file the responsive pleading on time?**
 
-      Reasons exist: ${ word(yesno(reasons_unable_to_prepare_exists)) }
+      ${ word(yesno(reasons_unable_to_prepare_exists)) }
   - Edit: |-
       reasons.revisit
-    button: |-
+    button: |
       **Reasons**
 
       % for item in reasons:
@@ -769,19 +787,17 @@ review:
   - note: | 
       ##Motion to Elevate Security##
   - Edit: |-
-      opposing_party_consent
+      opposing_party_consent_to_motion_to_elevate_security
     button: |
-      **Does the landlord consent to this motion?**
-
-      Does the landlord consent to this motion?: ${ word(yesno(opposing_party_consent)) }
+      **Landlord consent**
+      
+      ${ word(yesno(opposing_party_consent_to_motion_to_elevate_security)) }
   - Edit: |-
       rental_address.revisit
-    button: |-
+    button: |
       **Rental Address**
 
-      % for item in rental_address:
-      - ${ item }
-      % endfor
+      Address: ${ rental_address.on_one_line() }
   - Edit: |-
       eviction_outcome
     button: |
@@ -791,8 +807,10 @@ review:
   - Edit: |-
       reason_for_elevated_security
     button: |
-      **Reasons:** ${ showifdef('reason_for_elevated_security') }
-      **Other:** ${ showifdef('reason_for_elevated_security_other') }
+      **Reasons for Elevated Security** 
+      
+      ${ reason_for_elevated_security.true_values() }
+      ${ showifdef('reason_for_elevated_security_other') }
   - Edit: |-
       tenant_exposed_to_threats
     button: |
