@@ -82,7 +82,7 @@ data from code:
       "Service method"
   - Your Motions:
     - section_motion_to_dismiss: |
-        "Motion to Dismiss or More Definite Statement"
+        "Motion to Dismiss or For a More Definite Statement"
       hidden: |
         not showifdef("motion_list['motion_to_dismiss']")
     - section_motion_to_shorten_time: |
@@ -94,7 +94,7 @@ data from code:
       hidden: |
         not showifdef("motion_list['motion_to_set_aside_judgment']")
     - section_motion_for_leave_to_file: |
-        "Motion for Leave to File"
+        "Motion for Leave to File Responsive Pleadings"
       hidden: |
         not showifdef("motion_list['motion_for_leave_to_file']")
     - section_motion_to_elevate_security: |
@@ -178,22 +178,22 @@ question: |
 subquestion: |
   This form can help you prepare the following motions: 
   
-    * Motion to Dismiss or More Definite Statement
+    * Motion to Dismiss or For a More Definite Statement
     
     * Motion to Shorten Time
     
     * Motion to Set Aside Judgment
     
-    * Motion for Leave to File
+    * Motion for Leave to File Responsive Pleadings
     
     * Motion to Elevate Security
 ---
-id: Motion to Dismiss or More Definite Statement intro
+id: Motion to Dismiss or For a More Definite Statement intro
 continue button field: motion_to_dismiss_intro
 question: |
-  Motion to Dismiss or More Definite Statement
+  Motion to Dismiss or For a More Definite Statement
 subquestion: |
-  You said you want to make a Motion to Dismiss or More Definite Statement in your case. 
+  You said you want to make a Motion to Dismiss or For a More Definite Statement in your case. 
   
   You have answered all the questions needed for this motion already. You will have a chance to review it on the next screen. 
 ---
@@ -215,12 +215,12 @@ subquestion: |
   
   We have some more questions to ask you about this motion. You will have a chance to review the motion after you answer the following questions.
 ---
-id: Motion for Leave to File intro
+id: Motion for Leave to File Responsive Pleadings intro
 continue button field: motion_for_leave_to_file_intro
 question: |
-  Motion for Leave to File
+  Motion for Leave to File Responsive Pleadings
 subquestion: |
-  You said you want to make a Motion for Leave to File in your case. 
+  You said you want to make a Motion for Leave to File Responsive Pleadings in your case. 
   
   We have some more questions to ask you about this motion. You will have a chance to review the motion after you answer the following questions.
 ---
@@ -284,8 +284,8 @@ fields:
       motion_checkboxes
 ---
 code: |
-  motion_checkboxes = {'motion_for_leave_to_file': 'Motion for Leave to File',
-      'motion_to_dismiss': 'Motion to Dismiss or More Definite Statement',
+  motion_checkboxes = {'motion_for_leave_to_file': 'Motion for Leave to File Responsive Pleadings',
+      'motion_to_dismiss': 'Motion to Dismiss or For a More Definite Statement',
       'motion_to_set_aside_judgment': 'Motion to Set Aside Judgment',
       'motion_to_shorten_time': 'Motion to Shorten Time',
       'motion_to_elevate_security': 'Motion to Elevate Security'}
@@ -321,21 +321,49 @@ objects:
 ---
 id: rental address
 question: |
-  Rental property address
-subquestion: |
-  What was the address of the rental property in this case?
+  % if person_answering == "tenant":
+  What is the address of your rental property?
+  % else:
+  What is the address of the tenant's rental property?
+  % endif
 fields:
+  - Rental property address: rental_address
+    datatype: object_radio
+    default: 
+      - users[0].address if defined(users[0].address.attr_name("address")) else None
+    choices:
+      - users[0].address if defined(users[0].address.attr_name("address")) else None
+      - users[0].mailing_address if defined(users[0].mailing_address.attr_name("address")) else None
+    object labeler: |
+      lambda y: y.on_one_line()      
+    none of the above: |
+      Somewhere else   
   - Address: rental_address.address
     address autocomplete: True
+    show if:
+      variable: rental_address
+      is: null
   - Unit: rental_address.unit
     required: False
+    show if:
+      variable: rental_address
+      is: null
   - City: rental_address.city
+    show if:
+      variable: rental_address
+      is: null
   - State: rental_address.state
     code: |
       states_list(country_code=AL_DEFAULT_COUNTRY)
     default: ${ AL_DEFAULT_STATE }
+    show if:
+      variable: rental_address
+      is: null 
   - Zip: rental_address.zip
-    required: False      
+    required: False 
+    show if:
+      variable: rental_address
+      is: null
 ---
 id: outcome
 question: |
@@ -423,10 +451,9 @@ fields:
       variable: trial_date_set
       is: True
 ---
-## needs plain language
 id: trial date 
 question: |
-  Are affirmative defenses being asserted?
+  Do you want to answer and assert defenses?
 fields:
   - no label: wishes_to_assert_affirmative_defenses
     datatype: yesnoradio
@@ -539,7 +566,7 @@ fields:
 ---
 id: opposing_party_consent_to_motion_for_leave_to_file
 question: |
-  Does the landlord consent to this Motion for Leave to File?
+  Does the landlord consent to this Motion for Leave to File Responsive Pleadings?
 fields:
   - Does the landlord consent to this motion?: opposing_party_consent_to_motion_for_leave_to_file
     datatype: yesnoradio
@@ -597,7 +624,7 @@ objects:
   - motion_to_set_aside_attachment: ALDocument.using(title="File a Motion to Set Aside", filename="motion_to_set_aside.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
   - motion_to_shorten_time_attachment: ALDocument.using(title="File a Motion to Shorten Time", filename="motion_to_shorten_time.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
   - motion_to_dismiss_attachment: ALDocument.using(title="File a Motion to Dismiss", filename="motion_to_dismiss.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
-  - motion_for_leave_to_file_attachment: ALDocument.using(title="File a Motion for Leave to File Answer", filename="motion_for_leave_to_file_answer.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+  - motion_for_leave_to_file_attachment: ALDocument.using(title="File a Motion for Leave to File Responsive Pleadings", filename="motion_for_leave_to_file_answer.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
   - motion_to_elevate_security_attachment: ALDocument.using(title="File a Motion to Elevate Security", filename="motion_to_elevate_security.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
 ---
 objects:
@@ -636,9 +663,9 @@ subquestion: |
 id: motion_for_leave_to_file_preview
 continue button field: motion_for_leave_to_file_preview
 question: |
-  Preview your Motion for Leave to File
+  Preview your Motion for Leave to File Responsive Pleadings
 subquestion: |
-  Here is a preview of your Motion for Leave to File.
+  Here is a preview of your Motion for Leave to File Responsive Pleadings.
   
   ${ motion_for_leave_to_file_attachment.as_pdf(key='preview') }
 
@@ -704,6 +731,8 @@ question: |
 subquestion: |
   Look over your answers below. If you need to make any changes, click the "Edit" button
   next to the answer that you want to change.
+  
+  **Note:** If you edit information about you, the other party, or your court case, that information will update on all of your motions.
 review:
   - note: | 
       % if person_answering == "tenant":
@@ -759,7 +788,7 @@ review:
   - Edit:
       - docket_number
     button: |
-      **Docket number**
+      **Case number**
       
       ${ docket_number }
   - note: | 
@@ -773,7 +802,7 @@ review:
       - ${ item }
       % endfor
   #- note: | 
-  #    ##Motion to Dismiss or More Definite Statement##
+  #    ##Motion to Dismiss or For a More Definite Statement##
   #  show if: motion_list['motion_to_dismiss']
   - note: | 
       ##Motion to Shorten Time##
@@ -835,7 +864,7 @@ review:
 
       ${ word(yesno(may_resolve_case_more_efficiently)) }
   - note: | 
-      ##Motion for Leave to File##
+      ##Motion for Leave to File Responsive Pleadings##
     show if: motion_list['motion_for_leave_to_file']
   - Edit: |-
       opposing_party_consent_to_motion_for_leave_to_file
@@ -883,7 +912,7 @@ review:
   - Edit: |-
       wishes_to_assert_affirmative_defenses
     button: |
-      **Are affirmative defenses being asserted?**
+      **Do you want to answer and assert defenses?**
 
       ${ word(yesno(wishes_to_assert_affirmative_defenses)) }
   - Edit: |-
