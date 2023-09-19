@@ -4,7 +4,7 @@ include:
 ---
 mandatory: True
 code: |
-  nav.set_section("Getting started")
+  nav.set_section("section_intro")
   al_intro_screen
   motions_intro_screen
   
@@ -15,22 +15,22 @@ code: |
   tenant_doc_name
   landlord_doc_name
   
-  nav.set_section("About you")
+  nav.set_section("section_about")
   person_answering
   for user in users:
     user.name.first
     user.address.address
     
-  nav.set_section("About your landlord")
+  nav.set_section("section_about_ll")
   for party in other_parties:
     party.address.address
     party.attorney.gather()
   
-  nav.set_section("About your court case")
+  nav.set_section("section_about_court")
   trial_court.name
   docket_number
   
-  nav.set_section("Service method")
+  nav.set_section("section_service_method")
   other_parties[0].service_method
   if other_parties[0].service_method == "email":
     other_parties[0].service_email
@@ -39,69 +39,88 @@ code: |
       other_parties[0].attorney[0].address.address
     other_parties[0].service_address.address
   
-  nav.set_section("Your Motions")
+  nav.set_section("section_motions_choice")
+  
   if motion_list['motion_to_dismiss']:
-    nav.set_section("Motion to Dismiss or More Definite Statement")
+    nav.set_section("section_motion_to_dismiss")
     motion_to_dismiss_order
   if motion_list['motion_to_shorten_time']:
-    nav.set_section("Motion to Shorten Time")
+    nav.set_section("section_motion_to_shorten_time")
     motion_to_shorten_time_order
   if motion_list['motion_to_set_aside_judgment']:
-    nav.set_section("Motion to Set Aside Judgment")
+    nav.set_section("section_motion_to_set_aside_judgment")
     motion_to_set_aside_judgment_order
   if motion_list['motion_for_leave_to_file']:
-    nav.set_section("Motion for Leave to File")
+    nav.set_section("section_motion_for_leave_to_file")
     motion_for_leave_to_file_order
   if motion_list['motion_to_elevate_security']:
-    nav.set_section("Motion to Elevate Security")
+    nav.set_section("section_motion_to_elevate_security")
     motion_to_elevate_security_order
 
-  nav.set_section("Review your answers")
+  nav.set_section("section_review")
   review_motions
   
-  nav.set_section("Download, print, and file")
+  nav.set_section("section_download")
   signature_date
   motions_download
 ---
-#code: |
-#  enable_al_nav_sections = True
-#---
-#reconsider: True
-#variable name: al_nav_sections
-#data from code:
+code: |
+  enable_al_nav_sections = True
+---
+reconsider: True
+variable name: al_nav_sections
+data from code:
+  - section_intro: |
+      "Getting started"
+  - section_about: |
+      "About you"
+  - section_about_ll: |
+      "About your landlord"
+  - section_about_court: |
+      "About your court case"
+  - section_service_method: |
+      "Service method"
+  - section_motions_choice: |
+      "Select your Motions"
+  - section_motion_to_dismiss: |
+      "Motion to Dismiss or More Definite Statement"
+    hidden: |
+      not showifdef("motion_list['motion_to_dismiss']")
+  - section_motion_to_shorten_time: |
+      "Motion to Shorten Time"
+    hidden: |
+      not showifdef("motion_list['motion_to_shorten_time']")
+  - section_motion_to_set_aside_judgment: |
+      "Motion to Set Aside Judgment"
+    hidden: |
+      not showifdef("motion_list['motion_to_set_aside_judgment']")
+  - section_motion_for_leave_to_file: |
+      "Motion for Leave to File"
+    hidden: |
+      not showifdef("motion_list['motion_for_leave_to_file']")
+  - section_motion_to_elevate_security: |
+      "Motion to Elevate Security"
+    hidden: |
+      not showifdef("motion_list['motion_to_elevate_security']")
+  - section_review: |
+      "Review your answers"
+  - section_download: |
+      "Download, print, and file"
+---
+#sections: 
 #  - Getting started
 #  - About you
 #  - About your landlord
 #  - About your court case
+#  - Service method
 #  - Your Motions:
 #    - Motion to Dismiss or More Definite Statement
-#      hidden: not motion_list['motion_to_dismiss']
 #    - Motion to Shorten Time
-#      hidden: not motion_list['motion_to_shorten_time']
 #    - Motion to Set Aside Judgment
-#      hidden: not motion_list['motion_to_set_aside_judgment']
 #    - Motion for Leave to File
-#      hidden: not motion_list['motion_for_leave_to_file']
 #    - Motion to Elevate Security
-#      hidden: not motion_list['motion_to_elevate_security']
-#  - Service method
 #  - Review your answers
 #  - Download, print, and file
----
-sections: 
-  - Getting started
-  - About you
-  - About your landlord
-  - About your court case
-  - Service method
-  - Your Motions:
-    - Motion to Dismiss or More Definite Statement
-    - Motion to Shorten Time
-    - Motion to Set Aside Judgment
-    - Motion for Leave to File
-    - Motion to Elevate Security
-  - Review your answers
-  - Download, print, and file
 ---
 code: |
   motion_for_leave_to_file_intro
