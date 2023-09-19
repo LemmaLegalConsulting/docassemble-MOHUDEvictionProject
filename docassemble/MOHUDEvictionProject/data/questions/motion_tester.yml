@@ -39,7 +39,7 @@ code: |
       other_parties[0].attorney[0].address.address
     other_parties[0].service_address.address
   
-  nav.set_section("section_motions_choice")
+  nav.set_section("Your Motions")
   
   if motion_list['motion_to_dismiss']:
     nav.set_section("section_motion_to_dismiss")
@@ -80,47 +80,31 @@ data from code:
       "About your court case"
   - section_service_method: |
       "Service method"
-  - section_motions_choice: |
-      "Select your Motions"
-  - section_motion_to_dismiss: |
-      "Motion to Dismiss or More Definite Statement"
-    hidden: |
-      not showifdef("motion_list['motion_to_dismiss']")
-  - section_motion_to_shorten_time: |
-      "Motion to Shorten Time"
-    hidden: |
-      not showifdef("motion_list['motion_to_shorten_time']")
-  - section_motion_to_set_aside_judgment: |
-      "Motion to Set Aside Judgment"
-    hidden: |
-      not showifdef("motion_list['motion_to_set_aside_judgment']")
-  - section_motion_for_leave_to_file: |
-      "Motion for Leave to File"
-    hidden: |
-      not showifdef("motion_list['motion_for_leave_to_file']")
-  - section_motion_to_elevate_security: |
-      "Motion to Elevate Security"
-    hidden: |
-      not showifdef("motion_list['motion_to_elevate_security']")
+  - Your Motions:
+    - section_motion_to_dismiss: |
+        "Motion to Dismiss or More Definite Statement"
+      hidden: |
+        not showifdef("motion_list['motion_to_dismiss']")
+    - section_motion_to_shorten_time: |
+        "Motion to Shorten Time"
+      hidden: |
+        not showifdef("motion_list['motion_to_shorten_time']")
+    - section_motion_to_set_aside_judgment: |
+        "Motion to Set Aside Judgment"
+      hidden: |
+        not showifdef("motion_list['motion_to_set_aside_judgment']")
+    - section_motion_for_leave_to_file: |
+        "Motion for Leave to File"
+      hidden: |
+        not showifdef("motion_list['motion_for_leave_to_file']")
+    - section_motion_to_elevate_security: |
+        "Motion to Elevate Security"
+      hidden: |
+        not showifdef("motion_list['motion_to_elevate_security']")
   - section_review: |
       "Review your answers"
   - section_download: |
       "Download, print, and file"
----
-#sections: 
-#  - Getting started
-#  - About you
-#  - About your landlord
-#  - About your court case
-#  - Service method
-#  - Your Motions:
-#    - Motion to Dismiss or More Definite Statement
-#    - Motion to Shorten Time
-#    - Motion to Set Aside Judgment
-#    - Motion for Leave to File
-#    - Motion to Elevate Security
-#  - Review your answers
-#  - Download, print, and file
 ---
 code: |
   motion_for_leave_to_file_intro
