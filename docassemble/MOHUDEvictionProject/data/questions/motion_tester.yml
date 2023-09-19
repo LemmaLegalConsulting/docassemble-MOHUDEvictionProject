@@ -30,6 +30,15 @@ code: |
   trial_court.name
   docket_number
   
+  nav.set_section("Service method")
+  other_parties[0].service_method
+  if other_parties[0].service_method == "email":
+    other_parties[0].service_email
+  elif other_parties[0].service_method in ["mail", "hand"]:
+    if other_parties[0].attorney.there_are_any:
+      other_parties[0].attorney[0].address.address
+    other_parties[0].service_address.address
+  
   nav.set_section("Your Motions")
   if motion_list['motion_to_dismiss']:
     nav.set_section("Motion to Dismiss or More Definite Statement")
@@ -46,15 +55,6 @@ code: |
   if motion_list['motion_to_elevate_security']:
     nav.set_section("Motion to Elevate Security")
     motion_to_elevate_security_order
-  
-  nav.set_section("Service method")
-  other_parties[0].service_method
-  if other_parties[0].service_method == "email":
-    other_parties[0].service_email
-  elif other_parties[0].service_method in ["mail", "hand"]:
-    if other_parties[0].attorney.there_are_any:
-      other_parties[0].attorney[0].address.address
-    other_parties[0].service_address.address
 
   nav.set_section("Review your answers")
   review_motions
@@ -63,9 +63,9 @@ code: |
   signature_date
   motions_download
 ---
-code: |
-  enable_al_nav_sections = True
----
+#code: |
+#  enable_al_nav_sections = True
+#---
 #reconsider: True
 #variable name: al_nav_sections
 #data from code:
@@ -93,13 +93,13 @@ sections:
   - About you
   - About your landlord
   - About your court case
+  - Service method
   - Your Motions:
     - Motion to Dismiss or More Definite Statement
     - Motion to Shorten Time
     - Motion to Set Aside Judgment
     - Motion for Leave to File
     - Motion to Elevate Security
-  - Service method
   - Review your answers
   - Download, print, and file
 ---
@@ -113,13 +113,13 @@ code: |
     reasons[0]
   if trial_date_set:
     trial_date
-  
   wishes_to_assert_affirmative_defenses 
-  
+  motion_for_leave_to_file_preview
   motion_for_leave_to_file_order = True
 ---
 code: |
   motion_to_dismiss_intro
+  motion_to_dismiss_preview
   motion_to_dismiss_order = True
 ---
 code: |
@@ -127,6 +127,7 @@ code: |
   petition_date 
   judgment_date
   statements[0]
+  motion_to_set_aside_preview
   motion_to_set_aside_judgment_order = True
 ---
 code: |
@@ -138,6 +139,7 @@ code: |
   no_dilatory_motive 
   may_resolve_case_more_efficiently
   motions_attached
+  motion_to_shorten_time_preview
   motion_to_shorten_time_order = True
 ---
 code: |
@@ -148,7 +150,7 @@ code: |
   reason_for_elevated_security
   tenant_exposed_to_threats
   tenant_believes_landlords_wont_rent 
-  
+  motion_to_elevate_security_preview
   motion_to_elevate_security_order = True
 ---
 code: |
@@ -611,6 +613,86 @@ subquestion: |
   ${ al_user_bundle.send_button_html(show_editable_checkbox=True) }
 
 progress: 100
+---
+id: motion_to_elevate_security_preview
+continue button field: motion_to_elevate_security_preview
+question: |
+  Preview your Motion to Elevate Security
+subquestion: |
+  Here is a preview of your Motion to Elevate Security.
+  
+  ${ motion_to_elevate_security_attachment.as_pdf(key='preview') }
+
+  Click the image to open it in a new tab. Click the "Edit answers" button
+  to edit your answers.
+
+  ${ action_button_html(url_action('review_motions'), label='Edit answers', color='info') }
+  
+  Remember to come back to this window to continue.
+---
+id: motion_for_leave_to_file_preview
+continue button field: motion_for_leave_to_file_preview
+question: |
+  Preview your Motion for Leave to File
+subquestion: |
+  Here is a preview of your Motion for Leave to File.
+  
+  ${ motion_for_leave_to_file_attachment.as_pdf(key='preview') }
+
+  Click the image to open it in a new tab. Click the "Edit answers" button
+  to edit your answers.
+
+  ${ action_button_html(url_action('review_motions'), label='Edit answers', color='info') }
+  
+  Remember to come back to this window to continue.
+---
+id: motion_to_dismiss_preview
+continue button field: motion_to_dismiss_preview
+question: |
+  Preview your Motion to Dismiss
+subquestion: |
+  Here is a preview of your Motion to Dismiss.
+  
+  ${ motion_to_dismiss_attachment.as_pdf(key='preview') }
+
+  Click the image to open it in a new tab. Click the "Edit answers" button
+  to edit your answers.
+
+  ${ action_button_html(url_action('review_motions'), label='Edit answers', color='info') }
+  
+  Remember to come back to this window to continue.
+---
+id: motion_to_shorten_time_preview
+continue button field: motion_to_shorten_time_preview
+question: |
+  Preview your Motion to Shorten Time
+subquestion: |
+  Here is a preview of your Motion to Shorten Time.
+  
+  ${ motion_to_shorten_time_attachment.as_pdf(key='preview') }
+
+  Click the image to open it in a new tab. Click the "Edit answers" button
+  to edit your answers.
+
+  ${ action_button_html(url_action('review_motions'), label='Edit answers', color='info') }
+  
+  Remember to come back to this window to continue.
+---
+id: motion_to_set_aside_preview
+continue button field: motion_to_set_aside_preview
+question: |
+  Preview your Motion to Set Aside
+subquestion: |
+  Here is a preview of your Motion to Set Aside.
+  
+  ${ motion_to_set_aside_attachment.as_pdf(key='preview') }
+
+  Click the image to open it in a new tab. Click the "Edit answers" button
+  to edit your answers.
+
+  ${ action_button_html(url_action('review_motions'), label='Edit answers', color='info') }
+  
+  Remember to come back to this window to continue.
 ---
 id: review_motions
 continue button field: review_motions
