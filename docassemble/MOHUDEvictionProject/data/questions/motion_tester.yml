@@ -57,12 +57,37 @@ code: |
     other_parties[0].service_address.address
 
   nav.set_section("Review your answers")
-  review_motion
+  review_motions
   
   nav.set_section("Download, print, and file")
   signature_date
   motions_download
---- 
+---
+code: |
+  enable_al_nav_sections = True
+---
+#reconsider: True
+#variable name: al_nav_sections
+#data from code:
+#  - Getting started
+#  - About you
+#  - About your landlord
+#  - About your court case
+#  - Your Motions:
+#    - Motion to Dismiss or More Definite Statement
+#      hidden: not motion_list['motion_to_dismiss']
+#    - Motion to Shorten Time
+#      hidden: not motion_list['motion_to_shorten_time']
+#    - Motion to Set Aside Judgment
+#      hidden: not motion_list['motion_to_set_aside_judgment']
+#    - Motion for Leave to File
+#      hidden: not motion_list['motion_for_leave_to_file']
+#    - Motion to Elevate Security
+#      hidden: not motion_list['motion_to_elevate_security']
+#  - Service method
+#  - Review your answers
+#  - Download, print, and file
+---
 sections: 
   - Getting started
   - About you
@@ -587,8 +612,8 @@ subquestion: |
 
 progress: 100
 ---
-id: motion review screen
-continue button field: review_motion
+id: review_motions
+continue button field: review_motions
 question: |
   Review your answers
 subquestion: |
@@ -662,10 +687,12 @@ review:
       % for item in motion_list.true_values():
       - ${ item }
       % endfor
-  - note: | 
-      ##Motion to Dismiss or More Definite Statement##
+  #- note: | 
+  #    ##Motion to Dismiss or More Definite Statement##
+  #  show if: motion_list['motion_to_dismiss']
   - note: | 
       ##Motion to Shorten Time##
+    show if: motion_list['motion_to_shorten_time']
   - Edit: |-
       opposing_party_consent_to_motion_to_shorten_time
     button: |
@@ -680,6 +707,7 @@ review:
       ${ showifdef('trial_date') } ${ showifdef('trial_time') }
   - note: | 
       ##Motion to Set Aside Judgment##
+    show if: motion_list['motion_to_set_aside_judgment']
   - Edit: |-
       statements.revisit
     button: |
@@ -700,6 +728,7 @@ review:
       **When did the Plaintiff file their petition in this case?**
 
       Date: ${ showifdef('petition_date') }
+    show if: motion_list['motion_to_set_aside_judgment']
   - Edit: |-
       counsel_retained
     button: |
@@ -722,6 +751,7 @@ review:
       ${ word(yesno(may_resolve_case_more_efficiently)) }
   - note: | 
       ##Motion for Leave to File##
+    show if: motion_list['motion_for_leave_to_file']
   - Edit: |-
       opposing_party_consent_to_motion_for_leave_to_file
     button: |
@@ -742,6 +772,7 @@ review:
       **When did the Plaintiff file their petition in this case?**
 
       Date: ${ showifdef('petition_date') }
+    show if: motion_list['motion_for_leave_to_file']
   - Edit: |-
       trial_date_set
     button: |
@@ -786,6 +817,7 @@ review:
       Do you plan to object to the landlord's objections to discovery?: ${ word(yesno(discovery_objections_planned)) }
   - note: | 
       ##Motion to Elevate Security##
+    show if: motion_list['motion_to_elevate_security']
   - Edit: |-
       opposing_party_consent_to_motion_to_elevate_security
     button: |
