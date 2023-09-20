@@ -10,16 +10,16 @@ code: |
   defense_reasonable_accommodation
   defense_discrimination
   defense_ll_refused_section_8
-  if eviction_reason["nonpayment"]:
+  if eviction_reason["nonpayment of rent"]:
     defense_rent_pleading_requirement
   defense_lease_not_attached
-  if eviction_reason["nonpayment"]:
+  if eviction_reason["nonpayment of rent"]:
     defense_tender_refused
     defense_rent_payment
   defense_settlement
   defense_lease_signed_under_duress
   defense_fraud_lease
-  if eviction_reason["nonpayment"]:
+  if eviction_reason["nonpayment of rent"]:
     defense_liquidated_damages_late_fees
   defense_breach_of_habitability
   defense_breach_of_cqe
@@ -760,6 +760,7 @@ fields:
   - label: |
       **How often** is rent due?
     field: rent_period
+    datatype: integer
     input type: radio
     code: |
       times_per_year_list
@@ -803,22 +804,23 @@ subquestion: |
   If the change would help you stay in your housing or solve the problem that
   the landlord is complaining about, it may be a defense (stop your eviction).
 
+  The disability can be yours or it can be a disability of someone in your
+  household.
+
   ${ collapse_template(what_is_disability_template) }
+
+  ${ collapse_template(disability_defense_example_template) }
 fields:
   - label: |
       % if person_answering == "tenant":
-      Do you have a disability?
+      Do you or does someone who lives with you have a disability?
       % else:
-      Does the tenant have a disability?
+      Does the tenant or a household member have a disability?
       % endif
     field: tenant_has_disability
     datatype: yesnomaybe
   - label: |
-      % if person_answering == "tenant":
-      What is your disability?
-      % else:
-      What is the tenant's disability?
-      % endif
+      What is the disability?
       (optional)
     field: tenant_disability
     show if: tenant_has_disability
@@ -840,7 +842,7 @@ fields:
     required: False
     datatype: area
     help: |
-      Explain the connection between your disability, the change you need,
+      Explain the connection between the disability, the change you need,
       and how the change could prevent the need for the eviction.
   - Is the change "reasonable"?: tenant_accommodation_reasonable
     show if: tenant_needs_accommodation
@@ -874,6 +876,36 @@ fields:
     field: landlord_refused_accommodation
     datatype: yesnomaybe
     show if: tenant_asked_for_accommodation
+---
+template: disability_defense_example_template
+subject: |
+  Can you give me an example?
+content: |
+  <h2 class="h4">Example 1: Child making noise</h2>
+  A tenant had a child with autism. The child sometimes was loud
+  and made noise.
+  
+  The landlord tried to evict the tenant because of the noise.
+
+  The tenant's child was about to start a new therapy that might help
+  calm the child down. The tenant asked the landlord to give the new
+  therapy a try. The tenant also said they would try putting down
+  more rugs on the floors.
+
+  A judge ordered the landlord to accept the tenant's request for
+  an accommodation to the rules because it was reasonable and it was 
+  related to the child's disability.
+
+  <h2 class="h4">Example 2: late payment of rent</h2>
+  A tenant's only source of income is their monthly check from Social Security. Sometimes
+  the check comes after the first of the month. The landlord wants to evict them for 
+  late payment of rent.
+
+  The tenant asks the landlord to allow them to pay rent on the 10th of each month
+  instead of on the 1st.
+
+  A judge orders the landlord to accept the accommodation because the landlord
+  is not harmed by waiting several days to get the rent payment.
 ---
 depends on:
   - tenant_has_disability
@@ -1291,8 +1323,8 @@ depends on:
 code: |
   defense_ud_no_rental_period_notice = got_notice_to_terminate and has_improper_notice(
     is_mobile_home_owner,
-    rent_day,
-    rent_period,
+    int(rent_day),
+    int(rent_period),
     received_notice_date,
     notice_to_terminate_includes_specific_day,
     termination_of_tenancy_date
@@ -1669,8 +1701,6 @@ fields:
   - Check any statement that is true: estoppel_breaches
     datatype: checkboxes
     choices:
-      - ${ estoppel_breaches_text['not_up_to_code'] }: not_up_to_code
-      - ${ estoppel_breaches_text['violated_law'] }: violated_law
       - ${ estoppel_breaches_text['occupancy_permit'] }: occupancy_permit
       - Other: other
   - label: |
@@ -1699,11 +1729,10 @@ template: estoppel_explanation_template
 subject: |
   What other laws does a landlord have to follow?
 content: |
-  In some areas, a landlord has to follow a "housing code" that specifies the condition of the home that the landlord must maintain.
-  
-  Other local or state laws can create requirements that a landlord must meet.
-  
-  An occupancy permit may be required for a landlord to rent a home.
+  Some cities and towns require a landlord have an occupancy permit to rent a home.
+  The occupancy permit is a document that says the home is safe to live in.
+
+  If you are not sure, it is OK to leave this question blank.
 ---
 variable name: conditions_text
 use objects: True

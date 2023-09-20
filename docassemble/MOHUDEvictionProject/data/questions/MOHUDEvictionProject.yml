@@ -161,7 +161,7 @@ code: |
     notice_of_foreclosure
   
   set_progress(75)
-  if eviction_reason["nonpayment"]:
+  if eviction_reason["nonpayment of rent"]:
     petition_states_rent_amount
     petition_states_rent_periods
     offer_attempts.gather()
@@ -173,7 +173,7 @@ code: |
     late_fees_penalty
     if trial_court.circuit == 21:
       petition_separates_nonrent
-  if eviction_reason["nonpayment"]:
+  if eviction_reason["nonpayment of rent"]:
     petition_states_demand_made
   landlord_problems_section
 
