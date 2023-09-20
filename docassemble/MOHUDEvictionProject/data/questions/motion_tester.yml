@@ -37,6 +37,8 @@ code: |
     motion_for_leave_to_file_order
   if motion_list['motion_to_elevate_security']:
     motion_to_elevate_security_order
+  if motion_list['notice_of_hearing']:
+    notice_of_hearing_order
   
   other_parties[0].service_method
   if other_parties[0].service_method == "email":
@@ -93,6 +95,12 @@ code: |
   motion_to_elevate_security_order = True
 ---
 code: |
+  new_hearing_date
+  motions_for_hearing
+  
+  notice_of_hearing_order = True
+---
+code: |
   motion_for_leave_to_file_attachment.enabled = motion_list['motion_for_leave_to_file']
 ---
 code: |
@@ -106,6 +114,9 @@ code: |
 ---
 code: |
   motion_to_elevate_security_attachment.enabled = motion_list['motion_to_elevate_security']
+---
+code: |
+  notice_of_hearing_attachment.enabled = motion_list['notice_of_hearing']
 ---
 id: motions intro
 continue button field: motions_intro_screen
@@ -123,6 +134,8 @@ subquestion: |
     * Motion for Leave to File
     
     * Motion to Elevate Security
+    
+    * Notice of Hearing
 ---
 ### not changing "you" reference language on this question because it appears before selection of person_answering
 id: basic questions intro screen
@@ -167,6 +180,8 @@ terms:
 id: motion list
 question: |
   Which motions do you need?
+subquestion: |
+  The Motion to Shorten Time and Notice of Hearing are intended to be selected with other motions, and will use the other names of the other motions in the document.
 fields:
   - Motions: motion_list
     datatype: checkboxes
@@ -176,6 +191,7 @@ fields:
       - Motion to Set Aside Judgment: motion_to_set_aside_judgment
       - Motion for Leave to File: motion_for_leave_to_file
       - Motion to Elevate Security: motion_to_elevate_security
+      - Notice of Hearing: notice_of_hearing
     none of the above: false
 ---
 id: judgment_date
@@ -425,11 +441,23 @@ code: |
   else:
     days_before_trial = nice_number(before_trial.days) + " days prior to"
 ---
+question: When is the new hearing?
+fields:
+  - Date: new_hearing_date
+    datatype: date
+  - Time: new_hearing_time
+---
 code: |
   motions_attached = list()
   for motion in motion_list.true_values():
     if not motion == "motion_to_shorten_time":
       motions_attached.append(motion_list[motion])
+---
+code: |
+  motions_for_hearing = list()
+  for motion in motion_list.true_values():
+    if not motion == "notice_of_hearing":
+      motions_for_hearing.append(motion_list[motion])
 ---
 attachments:
   - name: motion to shorten time
@@ -457,6 +485,11 @@ attachments:
     variable name: motion_to_elevate_security_attachment[i]       
     skip undefined: True
     docx template file: motion_to_elevate_security.docx
+  - name: notice_of_hearing
+    filename: notice_of_hearing.docx     
+    variable name: notice_of_hearing_attachment[i]       
+    skip undefined: True
+    docx template file: notice_of_hearing.docx
 ---
 objects:
   - motion_to_set_aside_attachment: ALDocument.using(title="File a Motion to Set Aside", filename="motion_to_set_aside.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
@@ -464,9 +497,10 @@ objects:
   - motion_to_dismiss_attachment: ALDocument.using(title="File a Motion to Dismiss", filename="motion_to_dismiss.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
   - motion_for_leave_to_file_attachment: ALDocument.using(title="File a Motion for Leave to File Answer", filename="motion_for_leave_to_file_answer.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
   - motion_to_elevate_security_attachment: ALDocument.using(title="File a Motion to Elevate Security", filename="motion_to_elevate_security.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+  - notice_of_hearing_attachment: ALDocument.using(title="Give Notice of a New Hearing Date", filename="notice_of_hearing.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
 ---
 objects:
-  - al_user_bundle: ALDocumentBundle.using(elements=[motion_to_dismiss_attachment, motion_to_shorten_time_attachment, motion_to_set_aside_attachment, motion_for_leave_to_file_attachment, motion_to_elevate_security_attachment], filename="motions.docx", title="All forms to download for your records", enabled=True)
+  - al_user_bundle: ALDocumentBundle.using(elements=[motion_to_dismiss_attachment, motion_to_shorten_time_attachment, motion_to_set_aside_attachment, motion_for_leave_to_file_attachment, motion_to_elevate_security_attachment,notice_of_hearing_attachment], filename="motions.docx", title="All forms to download for your records", enabled=True)
   - al_court_bundle: ALDocumentBundle.using(elements=attachment_list_court, filename="motions.docx", title="All forms to download for your records", enabled=True)
 ---
 id: download motions
