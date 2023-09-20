@@ -4,6 +4,7 @@ include:
 ---
 mandatory: True
 code: |
+  nav.set_section("section_intro")
   al_intro_screen
   motions_intro_screen
   
@@ -14,30 +15,22 @@ code: |
   tenant_doc_name
   landlord_doc_name
   
+  nav.set_section("section_about")
   person_answering
-  users[0].name.first
-  users[0].address.address
-  users.there_is_another
+  for user in users:
+    user.name.first
+    user.address.address
+    
+  nav.set_section("section_about_ll")
+  for party in other_parties:
+    party.address.address
+    party.attorney.gather()
   
-  other_parties[0].name.first
-  other_parties[0].address.address
-  other_parties.there_is_another
-  other_parties[0].attorney.there_are_any
-  
+  nav.set_section("section_about_court")
   trial_court.name
   docket_number
   
-  if motion_list['motion_to_dismiss']:
-    motion_to_dismiss_order
-  if motion_list['motion_to_shorten_time']:
-    motion_to_shorten_time_order
-  if motion_list['motion_to_set_aside_judgment']:
-    motion_to_set_aside_judgment_order
-  if motion_list['motion_for_leave_to_file']:
-    motion_for_leave_to_file_order
-  if motion_list['motion_to_elevate_security']:
-    motion_to_elevate_security_order
-  
+  nav.set_section("section_service_method")
   other_parties[0].service_method
   if other_parties[0].service_method == "email":
     other_parties[0].service_email
@@ -45,51 +38,122 @@ code: |
     if other_parties[0].attorney.there_are_any:
       other_parties[0].attorney[0].address.address
     other_parties[0].service_address.address
+  
+  nav.set_section("Your Motions")
+  
+  if motion_list['motion_to_dismiss']:
+    nav.set_section("section_motion_to_dismiss")
+    motion_to_dismiss_order
+  if motion_list['motion_to_shorten_time']:
+    nav.set_section("section_motion_to_shorten_time")
+    motion_to_shorten_time_order
+  if motion_list['motion_to_set_aside_judgment']:
+    nav.set_section("section_motion_to_set_aside_judgment")
+    motion_to_set_aside_judgment_order
+  if motion_list['motion_for_leave_to_file']:
+    nav.set_section("section_motion_for_leave_to_file")
+    motion_for_leave_to_file_order
+  if motion_list['motion_to_elevate_security']:
+    nav.set_section("section_motion_to_elevate_security")
+    motion_to_elevate_security_order
 
+  nav.set_section("section_review")
+  review_motions
+  
+  nav.set_section("section_download")
   signature_date
   motions_download
 ---
 code: |
+  enable_al_nav_sections = True
+---
+reconsider: True
+variable name: al_nav_sections
+data from code:
+  - section_intro: |
+      "Getting started"
+  - section_about: |
+      "About you"
+  - section_about_ll: |
+      "About your landlord"
+  - section_about_court: |
+      "About your court case"
+  - section_service_method: |
+      "Service method"
+  - Your Motions:
+    - section_motion_to_dismiss: |
+        "Motion to Dismiss or For a More Definite Statement"
+      hidden: |
+        not showifdef("motion_list['motion_to_dismiss']")
+    - section_motion_to_shorten_time: |
+        "Motion to Shorten Time"
+      hidden: |
+        not showifdef("motion_list['motion_to_shorten_time']")
+    - section_motion_to_set_aside_judgment: |
+        "Motion to Set Aside Judgment"
+      hidden: |
+        not showifdef("motion_list['motion_to_set_aside_judgment']")
+    - section_motion_for_leave_to_file: |
+        "Motion for Leave to File Responsive Pleadings"
+      hidden: |
+        not showifdef("motion_list['motion_for_leave_to_file']")
+    - section_motion_to_elevate_security: |
+        "Motion to Elevate Security"
+      hidden: |
+        not showifdef("motion_list['motion_to_elevate_security']")
+  - section_review: |
+      "Review your answers"
+  - section_download: |
+      "Download, print, and file"
+---
+code: |
+  motion_for_leave_to_file_intro
   petition_date
-  opposing_party_consent
+  opposing_party_consent_to_motion_for_leave_to_file
   original_hearing_date
   discovery_requested
   if reasons_unable_to_prepare_exists: 
     reasons[0]
   if trial_date_set:
     trial_date
-  
   wishes_to_assert_affirmative_defenses 
-  
+  motion_for_leave_to_file_preview
   motion_for_leave_to_file_order = True
 ---
 code: |
+  motion_to_dismiss_intro
+  motion_to_dismiss_preview
   motion_to_dismiss_order = True
 ---
 code: |
+  motion_to_set_aside_intro
   petition_date 
   judgment_date
   statements[0]
+  motion_to_set_aside_preview
   motion_to_set_aside_judgment_order = True
 ---
 code: |
+  motion_to_shorten_time_intro
   trial_date
-  days_before_trial
-  date_counsel_retained
-  opposing_party_consent 
+  if counsel_retained:
+    days_before_trial
+  opposing_party_consent_to_motion_to_shorten_time
   no_dilatory_motive 
   may_resolve_case_more_efficiently
   motions_attached
+  motion_to_shorten_time_preview
   motion_to_shorten_time_order = True
 ---
 code: |
-  opposing_party_consent 
+  motion_to_elevate_security_intro
+  opposing_party_consent_to_motion_to_elevate_security
   rental_address.address
   eviction_outcome
   reason_for_elevated_security
   tenant_exposed_to_threats
   tenant_believes_landlords_wont_rent 
-  
+  motion_to_elevate_security_preview
   motion_to_elevate_security_order = True
 ---
 code: |
@@ -114,15 +178,60 @@ question: |
 subquestion: |
   This form can help you prepare the following motions: 
   
-    * Motion to Dismiss or More Definite Statement
+    * Motion to Dismiss or For a More Definite Statement
     
     * Motion to Shorten Time
     
     * Motion to Set Aside Judgment
     
-    * Motion for Leave to File
+    * Motion for Leave to File Responsive Pleadings
     
     * Motion to Elevate Security
+---
+id: Motion to Dismiss or For a More Definite Statement intro
+continue button field: motion_to_dismiss_intro
+question: |
+  Motion to Dismiss or For a More Definite Statement
+subquestion: |
+  You said you want to make a Motion to Dismiss or For a More Definite Statement in your case. 
+  
+  You have answered all the questions needed for this motion already. You will have a chance to review it on the next screen. 
+---
+id: Motion to Shorten Time intro
+continue button field: motion_to_shorten_time_intro
+question: |
+  Motion to Shorten Time
+subquestion: |
+  You said you want to make a Motion to Shorten Time in your case. 
+  
+  We have some more questions to ask you about this motion. You will have a chance to review the motion after you answer the following questions.
+---
+id: Motion to Set Aside Judgment intro
+continue button field: motion_to_set_aside_intro
+question: |
+  Motion to Set Aside Judgment
+subquestion: |
+  You said you want to make a Motion to Set Aside Judgment in your case. 
+  
+  We have some more questions to ask you about this motion. You will have a chance to review the motion after you answer the following questions.
+---
+id: Motion for Leave to File Responsive Pleadings intro
+continue button field: motion_for_leave_to_file_intro
+question: |
+  Motion for Leave to File Responsive Pleadings
+subquestion: |
+  You said you want to make a Motion for Leave to File Responsive Pleadings in your case. 
+  
+  We have some more questions to ask you about this motion. You will have a chance to review the motion after you answer the following questions.
+---
+id: Motion to Elevate Security intro
+continue button field: motion_to_elevate_security_intro
+question: |
+  Motion to Elevate Security
+subquestion: |
+  You said you want to make a Motion to Elevate Security in your case. 
+  
+  We have some more questions to ask you about this motion. You will have a chance to review the motion after you answer the following questions.
 ---
 ### not changing "you" reference language on this question because it appears before selection of person_answering
 id: basic questions intro screen
@@ -170,13 +279,16 @@ question: |
 fields:
   - Motions: motion_list
     datatype: checkboxes
-    choices: 
-      - Motion to Dismiss or More Definite Statement: motion_to_dismiss
-      - Motion to Shorten Time: motion_to_shorten_time
-      - Motion to Set Aside Judgment: motion_to_set_aside_judgment
-      - Motion for Leave to File: motion_for_leave_to_file
-      - Motion to Elevate Security: motion_to_elevate_security
     none of the above: false
+    code: |
+      motion_checkboxes
+---
+code: |
+  motion_checkboxes = {'motion_for_leave_to_file': 'Motion for Leave to File Responsive Pleadings',
+      'motion_to_dismiss': 'Motion to Dismiss or For a More Definite Statement',
+      'motion_to_set_aside_judgment': 'Motion to Set Aside Judgment',
+      'motion_to_shorten_time': 'Motion to Shorten Time',
+      'motion_to_elevate_security': 'Motion to Elevate Security'}
 ---
 id: judgment_date
 question: |
@@ -209,21 +321,49 @@ objects:
 ---
 id: rental address
 question: |
-  Rental property address
-subquestion: |
-  What was the address of the rental property in this case?
+  % if person_answering == "tenant":
+  What is the address of your rental property?
+  % else:
+  What is the address of the tenant's rental property?
+  % endif
 fields:
+  - Rental property address: rental_address
+    datatype: object_radio
+    default: 
+      - users[0].address if defined(users[0].address.attr_name("address")) else None
+    choices:
+      - users[0].address if defined(users[0].address.attr_name("address")) else None
+      - users[0].mailing_address if defined(users[0].mailing_address.attr_name("address")) else None
+    object labeler: |
+      lambda y: y.on_one_line()      
+    none of the above: |
+      Somewhere else   
   - Address: rental_address.address
     address autocomplete: True
+    show if:
+      variable: rental_address
+      is: null
   - Unit: rental_address.unit
     required: False
+    show if:
+      variable: rental_address
+      is: null
   - City: rental_address.city
+    show if:
+      variable: rental_address
+      is: null
   - State: rental_address.state
     code: |
       states_list(country_code=AL_DEFAULT_COUNTRY)
     default: ${ AL_DEFAULT_STATE }
+    show if:
+      variable: rental_address
+      is: null 
   - Zip: rental_address.zip
-    required: False      
+    required: False 
+    show if:
+      variable: rental_address
+      is: null
 ---
 id: outcome
 question: |
@@ -311,10 +451,9 @@ fields:
       variable: trial_date_set
       is: True
 ---
-## needs plain language
 id: trial date 
 question: |
-  Are affirmative defenses being asserted?
+  Do you want to answer and assert defenses?
 fields:
   - no label: wishes_to_assert_affirmative_defenses
     datatype: yesnoradio
@@ -333,7 +472,7 @@ list collect: True
 ---
 id: reasons_unable_to_prepare_exists
 question: |
-  Is there any reason you were unable to prepare the and file the responsive pleading on time?
+  Is there any reason you were unable to prepare and file the responsive pleading on time?
 fields:
   - Reasons exist: reasons_unable_to_prepare_exists
     datatype: yesnoradio
@@ -380,13 +519,22 @@ fields:
 id: date_counsel_retained
 question: |
   % if person_answering == "tenant":
-  When did you get a lawyer for this case?
+  Did you get a lawyer for this case?
   % else: 
-  When did the tenant hire you for this case?
+  Did the tenant hire you for this case?
   % endif
 fields:
-  - Date: date_counsel_retained
+  - no label: counsel_retained
+    datatype: yesnoradio
+  - label: |
+      % if person_answering == "tenant":
+      When did you get a lawyer for this case?
+      % else: 
+      When did the tenant hire you for this case?
+      % endif
+    field: date_counsel_retained
     datatype: date
+    show if: counsel_retained
 ---
 ### make this question plain language
 id: no_dilatory_motive
@@ -409,11 +557,25 @@ fields:
   - Efficiency possible: may_resolve_case_more_efficiently
     datatype: yesnoradio
 ---
-id: opposing_party_consent
+id: opposing_party_consent_to_motion_to_elevate_security
 question: |
-  Does the landlord consent to this motion?
+  Does the landlord consent to this Motion to Elevate Security?
 fields:
-  - Does the landlord consent to this motion?: opposing_party_consent
+  - Does the landlord consent to this motion?: opposing_party_consent_to_motion_to_elevate_security
+    datatype: yesnoradio
+---
+id: opposing_party_consent_to_motion_for_leave_to_file
+question: |
+  Does the landlord consent to this Motion for Leave to File Responsive Pleadings?
+fields:
+  - Does the landlord consent to this motion?: opposing_party_consent_to_motion_for_leave_to_file
+    datatype: yesnoradio
+---
+id: opposing_party_consent_to_motion_to_shorten_time
+question: |
+  Does the landlord consent to this Motion to Shorten Time?
+fields:
+  - Does the landlord consent to this motion?: opposing_party_consent_to_motion_to_shorten_time
     datatype: yesnoradio
 ---
 code: |
@@ -462,7 +624,7 @@ objects:
   - motion_to_set_aside_attachment: ALDocument.using(title="File a Motion to Set Aside", filename="motion_to_set_aside.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
   - motion_to_shorten_time_attachment: ALDocument.using(title="File a Motion to Shorten Time", filename="motion_to_shorten_time.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
   - motion_to_dismiss_attachment: ALDocument.using(title="File a Motion to Dismiss", filename="motion_to_dismiss.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
-  - motion_for_leave_to_file_attachment: ALDocument.using(title="File a Motion for Leave to File Answer", filename="motion_for_leave_to_file_answer.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+  - motion_for_leave_to_file_attachment: ALDocument.using(title="File a Motion for Leave to File Responsive Pleadings", filename="motion_for_leave_to_file_answer.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
   - motion_to_elevate_security_attachment: ALDocument.using(title="File a Motion to Elevate Security", filename="motion_to_elevate_security.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
 ---
 objects:
@@ -481,3 +643,399 @@ subquestion: |
   ${ al_user_bundle.send_button_html(show_editable_checkbox=True) }
 
 progress: 100
+---
+id: motion_to_elevate_security_preview
+continue button field: motion_to_elevate_security_preview
+question: |
+  Preview your Motion to Elevate Security
+subquestion: |
+  Here is a preview of your Motion to Elevate Security.
+  
+  ${ motion_to_elevate_security_attachment.as_pdf(key='preview') }
+
+  Click the image to open it in a new tab. Click the "Edit answers" button
+  to edit your answers.
+
+  ${ action_button_html(url_action('review_motions'), label='Edit answers', color='info') }
+  
+  Remember to come back to this window to continue.
+---
+id: motion_for_leave_to_file_preview
+continue button field: motion_for_leave_to_file_preview
+question: |
+  Preview your Motion for Leave to File Responsive Pleadings
+subquestion: |
+  Here is a preview of your Motion for Leave to File Responsive Pleadings.
+  
+  ${ motion_for_leave_to_file_attachment.as_pdf(key='preview') }
+
+  Click the image to open it in a new tab. Click the "Edit answers" button
+  to edit your answers.
+
+  ${ action_button_html(url_action('review_motions'), label='Edit answers', color='info') }
+  
+  Remember to come back to this window to continue.
+---
+id: motion_to_dismiss_preview
+continue button field: motion_to_dismiss_preview
+question: |
+  Preview your Motion to Dismiss
+subquestion: |
+  Here is a preview of your Motion to Dismiss.
+  
+  ${ motion_to_dismiss_attachment.as_pdf(key='preview') }
+
+  Click the image to open it in a new tab. Click the "Edit answers" button
+  to edit your answers.
+
+  ${ action_button_html(url_action('review_motions'), label='Edit answers', color='info') }
+  
+  Remember to come back to this window to continue.
+---
+id: motion_to_shorten_time_preview
+continue button field: motion_to_shorten_time_preview
+question: |
+  Preview your Motion to Shorten Time
+subquestion: |
+  Here is a preview of your Motion to Shorten Time.
+  
+  ${ motion_to_shorten_time_attachment.as_pdf(key='preview') }
+
+  Click the image to open it in a new tab. Click the "Edit answers" button
+  to edit your answers.
+
+  ${ action_button_html(url_action('review_motions'), label='Edit answers', color='info') }
+  
+  Remember to come back to this window to continue.
+---
+id: motion_to_set_aside_preview
+continue button field: motion_to_set_aside_preview
+question: |
+  Preview your Motion to Set Aside
+subquestion: |
+  Here is a preview of your Motion to Set Aside.
+  
+  ${ motion_to_set_aside_attachment.as_pdf(key='preview') }
+
+  Click the image to open it in a new tab. Click the "Edit answers" button
+  to edit your answers.
+
+  ${ action_button_html(url_action('review_motions'), label='Edit answers', color='info') }
+  
+  Remember to come back to this window to continue.
+---
+id: review_motions
+continue button field: review_motions
+question: |
+  Review your answers
+subquestion: |
+  Look over your answers below. If you need to make any changes, click the "Edit" button
+  next to the answer that you want to change.
+  
+  **Note:** If you edit information about you, the other party, or your court case, that information will update on all of your motions.
+review:
+  - note: | 
+      % if person_answering == "tenant":
+      ##Information about you##
+      % else:
+      ##Information about the tenant##
+      % endif
+  - Edit:
+      - users.revisit
+    button: |
+      Defendants:
+      % if users.there_are_any:
+      % for item in users:
+
+         - **${ item }**
+
+      % endfor
+      % else:
+      **None**
+      % endif
+  - note: | 
+      ##Information about the other party##
+  - Edit:
+      - other_parties.revisit
+    button: |
+      Plaintiffs:
+      % if other_parties.there_are_any:
+      % for item in other_parties:
+      
+       - **${ item }**
+      
+      % if item.attorney.there_are_any:
+         - Attorney: **${ item.attorney[0] }**
+      **${ item.attorney[0].address }**
+      
+      % else:
+         - Attorney: **None**
+      
+      % endif
+         - Person or Business: **${ "Person" if item.person_type == "ALIndividual" else "Business" }**
+      % endfor
+      % else:
+      **None**
+      % endif
+  - note: | 
+      ##About your court case##
+  - Edit:
+      - trial_court.name
+    button: |
+      **Trial Court Name**
+      
+      ${ trial_court.name }
+  - Edit:
+      - docket_number
+    button: |
+      **Case number**
+      
+      ${ docket_number }
+  - note: | 
+      ##Your Motions##
+  - Edit: |-
+      motion_list
+    button: |
+      **Which motions do you need?**
+
+      % for item in motion_list.true_values():
+      - ${ item }
+      % endfor
+  #- note: | 
+  #    ##Motion to Dismiss or For a More Definite Statement##
+  #  show if: motion_list['motion_to_dismiss']
+  - note: | 
+      ##Motion to Shorten Time##
+    show if: motion_list['motion_to_shorten_time']
+  - Edit: |-
+      opposing_party_consent_to_motion_to_shorten_time
+    button: |
+      **Landlord consent**
+      
+      ${ word(yesno(opposing_party_consent_to_motion_to_shorten_time)) }
+  - Edit: |-
+      trial_date
+    button: |
+      **Trial Date**
+      
+      ${ showifdef('trial_date') } ${ showifdef('trial_time') }
+  - note: | 
+      ##Motion to Set Aside Judgment##
+    show if: motion_list['motion_to_set_aside_judgment']
+  - Edit: |-
+      statements.revisit
+    button: |
+      **Statements**
+
+      % for item in statements:
+      - ${ item }
+      % endfor
+  - Edit: |-
+      judgment_date
+    button: |
+      **When was a judgment entered in this matter?**
+
+      Date: ${ showifdef('judgment_date') }
+  - Edit: |-
+      petition_date
+    button: |
+      **When did the Plaintiff file their petition in this case?**
+
+      Date: ${ showifdef('petition_date') }
+    show if: motion_list['motion_to_set_aside_judgment']
+  - Edit: |-
+      counsel_retained
+    button: |
+      **Counsel**
+      
+      Has counsel: ${ word(yesno(counsel_retained)) }
+      
+      Date counsel retained: ${ date_counsel_retained }
+  - Edit: |-
+      no_dilatory_motive
+    button: |
+      **Any unfair motive?**
+
+      ${ word(yesno(no_dilatory_motive)) }
+  - Edit: |-
+      may_resolve_case_more_efficiently
+    button: |
+      **Is it possible that the case will be resolved more efficiently if the judge grants this motion?**
+
+      ${ word(yesno(may_resolve_case_more_efficiently)) }
+  - note: | 
+      ##Motion for Leave to File Responsive Pleadings##
+    show if: motion_list['motion_for_leave_to_file']
+  - Edit: |-
+      opposing_party_consent_to_motion_for_leave_to_file
+    button: |
+      **Landlord consent**
+      
+      ${ word(yesno(opposing_party_consent_to_motion_for_leave_to_file)) }
+  - Edit:
+      - original_hearing_date
+    button: |
+      **Original hearing**
+      
+      Date: ${ original_hearing_date } 
+      
+      Time: ${ original_hearing_time }
+  - Edit: |-
+      petition_date
+    button: |
+      **When did the Plaintiff file their petition in this case?**
+
+      Date: ${ showifdef('petition_date') }
+    show if: motion_list['motion_for_leave_to_file']
+  - Edit: |-
+      trial_date_set
+    button: |
+      **Trial**
+
+      Has the trial date been set?: ${ word(yesno(trial_date_set)) }
+
+      Trial date: ${ showifdef('trial_date') } 
+  - Edit: |-
+      reasons_unable_to_prepare_exists
+    button: |
+      **Is there any reason you were unable to prepare and file the responsive pleading on time?**
+
+      ${ word(yesno(reasons_unable_to_prepare_exists)) }
+  - Edit: |-
+      reasons.revisit
+    button: |
+      **Reasons**
+
+      % for item in reasons:
+      - ${ item }
+      % endfor
+  - Edit: |-
+      wishes_to_assert_affirmative_defenses
+    button: |
+      **Do you want to answer and assert defenses?**
+
+      ${ word(yesno(wishes_to_assert_affirmative_defenses)) }
+  - Edit: |-
+      discovery_requested
+    button: |
+      **Discovery**
+
+      Did you request discovery?: ${ word(yesno(discovery_requested)) }
+
+      Do you plan to conduct discovery?: ${ word(yesno(discovery_planned)) }
+
+      Did the landlord provide a response to discovery requests?: ${ word(yesno(discovery_produced)) }
+
+      What date did the landlord provide discovery?: ${ showifdef('discovery_provided_date') }
+
+      Do you plan to object to the landlord's objections to discovery?: ${ word(yesno(discovery_objections_planned)) }
+  - note: | 
+      ##Motion to Elevate Security##
+    show if: motion_list['motion_to_elevate_security']
+  - Edit: |-
+      opposing_party_consent_to_motion_to_elevate_security
+    button: |
+      **Landlord consent**
+      
+      ${ word(yesno(opposing_party_consent_to_motion_to_elevate_security)) }
+  - Edit: |-
+      rental_address.revisit
+    button: |
+      **Rental Address**
+
+      Address: ${ rental_address.on_one_line() }
+  - Edit: |-
+      eviction_outcome
+    button: |
+      **What was the outcome of this eviction case?**
+
+      Outcome: ${ showifdef('eviction_outcome') }
+  - Edit: |-
+      reason_for_elevated_security
+    button: |
+      **Reasons for Elevated Security** 
+      
+      ${ reason_for_elevated_security.true_values() }
+      ${ showifdef('reason_for_elevated_security_other') }
+  - Edit: |-
+      tenant_exposed_to_threats
+    button: |
+      **Prior or current costs**
+
+      Experienced costs: ${ word(yesno(tenant_exposed_to_threats)) }
+  - Edit: |-
+      tenant_believes_landlords_wont_rent
+    button: |
+      **Future costs**
+
+      Do you believe landlords will refuse to rent to you because the information about this case is public?: ${ word(yesno(tenant_believes_landlords_wont_rent)) }
+
+      Will you have to pay higher rent, or find a co-signer, or face other economic consequences if this case remains public?: ${ word(yesno(economic_consequences)) }
+
+      Will the visibility of the eviction case hinder your ability to rent housing?: ${ word(yesno(tenant_would_be_prejudiced)) }
+---
+
+event: |-
+  statements.revisit
+
+id: |-
+  revisit statements
+
+question: |-
+  Edit your answers about Statements
+
+subquestion: |-
+  ${ statements.table }
+
+---
+
+event: |-
+  rental_address.revisit
+
+id: |-
+  revisit rental_address
+
+question: |-
+  Edit your answers about Rental Address
+
+subquestion: |-
+  ${ rental_address.table }
+
+---
+
+event: |-
+  reasons.revisit
+
+id: |-
+  revisit reasons
+
+question: |-
+  Edit your answers about Reasons
+
+subquestion: |-
+  ${ reasons.table }
+
+---
+
+columns:
+  - Statement: |-
+      row_item.statements[i] if hasattr(row_item, 'statements[i]') else ''
+
+rows: |-
+  statements
+
+table: |-
+  statements.table
+
+---
+
+columns:
+  - Reason: |-
+      row_item.reasons[i] if hasattr(row_item, 'reasons[i]') else ''
+
+rows: |-
+  reasons
+
+table: |-
+  reasons.table
+---

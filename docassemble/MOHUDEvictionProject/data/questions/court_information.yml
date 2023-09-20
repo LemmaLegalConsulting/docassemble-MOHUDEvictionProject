@@ -46,7 +46,7 @@ fields:
       ${ ordinal_number(trial_court.circuit, use_word=False).capitalize() + " Judicial Circuit - " + trial_court.county }
       % endif
   - Case Number: docket_number
-    required: True
+    required: False
     help: |
       The case number helps the court clerk put your answer in the right file.
 under: |
