@@ -853,7 +853,7 @@ review:
         - defense_logic
     button: |
       Type of Subsidized Housing:
-      **${ subsidized_housing_text["subsidized_housing_type"] }**
+      **${ subsidized_housing_text[subsidized_housing_type] }**
   - Edit:
       - unfair_duress
       - recompute:
