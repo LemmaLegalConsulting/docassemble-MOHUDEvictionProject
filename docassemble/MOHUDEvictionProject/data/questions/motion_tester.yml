@@ -56,6 +56,9 @@ code: |
   if motion_list['motion_to_elevate_security']:
     nav.set_section("section_motion_to_elevate_security")
     motion_to_elevate_security_order
+  if motion_list['notice_of_hearing']:
+    nav.set_section("section_notice_of_hearing")
+    notice_of_hearing_order
 
   nav.set_section("section_review")
   review_motions
@@ -101,6 +104,10 @@ data from code:
         "Motion to Elevate Security"
       hidden: |
         not showifdef("motion_list['motion_to_elevate_security']")
+    - section_notice_of_hearing: |
+        "Notice of Hearing"
+      hidden: |
+        not showifdef("motion_list['notice_of_hearing']")
   - section_review: |
       "Review your answers"
   - section_download: |
@@ -157,6 +164,13 @@ code: |
   motion_to_elevate_security_order = True
 ---
 code: |
+  notice_of_hearing_intro
+  new_hearing_date
+  motions_for_hearing
+  notice_of_hearing_preview
+  notice_of_hearing_order = True
+---
+code: |
   motion_for_leave_to_file_attachment.enabled = motion_list['motion_for_leave_to_file']
 ---
 code: |
@@ -170,6 +184,9 @@ code: |
 ---
 code: |
   motion_to_elevate_security_attachment.enabled = motion_list['motion_to_elevate_security']
+---
+code: |
+  notice_of_hearing_attachment.enabled = motion_list['notice_of_hearing']
 ---
 id: motions intro
 continue button field: motions_intro_screen
@@ -187,6 +204,8 @@ subquestion: |
     * Motion for Leave to File Responsive Pleadings
     
     * Motion to Elevate Security
+    
+    * Notice of Hearing
 ---
 id: Motion to Dismiss or For a More Definite Statement intro
 continue button field: motion_to_dismiss_intro
@@ -230,6 +249,15 @@ question: |
   Motion to Elevate Security
 subquestion: |
   You said you want to make a Motion to Elevate Security in your case. 
+  
+  We have some more questions to ask you about this motion. You will have a chance to review the motion after you answer the following questions.
+---
+id: Notice of Hearing intro
+continue button field: notice_of_hearing_intro
+question: |
+  Notice of Hearing
+subquestion: |
+  You said you want to make a Notice of Hearing in your case. 
   
   We have some more questions to ask you about this motion. You will have a chance to review the motion after you answer the following questions.
 ---
@@ -288,7 +316,8 @@ code: |
       'motion_to_dismiss': 'Motion to Dismiss or For a More Definite Statement',
       'motion_to_set_aside_judgment': 'Motion to Set Aside Judgment',
       'motion_to_shorten_time': 'Motion to Shorten Time',
-      'motion_to_elevate_security': 'Motion to Elevate Security'}
+      'motion_to_elevate_security': 'Motion to Elevate Security',
+      'notice_of_hearing': 'Notice of Hearing'}
 ---
 id: judgment_date
 question: |
@@ -587,11 +616,24 @@ code: |
   else:
     days_before_trial = nice_number(before_trial.days) + " days prior to"
 ---
+
+question: When is the new hearing?
+fields:
+  - Date: new_hearing_date
+    datatype: date
+  - Time: new_hearing_time
+---
 code: |
   motions_attached = list()
   for motion in motion_list.true_values():
     if not motion == "motion_to_shorten_time":
       motions_attached.append(motion_list[motion])
+---
+code: |
+  motions_for_hearing = list()
+  for motion in motion_list.true_values():
+    if not motion == "notice_of_hearing":
+      motions_for_hearing.append(motion_checkboxes[motion])
 ---
 attachments:
   - name: motion to shorten time
@@ -619,6 +661,11 @@ attachments:
     variable name: motion_to_elevate_security_attachment[i]       
     skip undefined: True
     docx template file: motion_to_elevate_security.docx
+  - name: notice of hearing
+    filename: notice_of_hearing.docx     
+    variable name: notice_of_hearing_attachment[i]       
+    skip undefined: True
+    docx template file: notice_of_hearing.docx
 ---
 objects:
   - motion_to_set_aside_attachment: ALDocument.using(title="File a Motion to Set Aside", filename="motion_to_set_aside.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
@@ -626,9 +673,11 @@ objects:
   - motion_to_dismiss_attachment: ALDocument.using(title="File a Motion to Dismiss", filename="motion_to_dismiss.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
   - motion_for_leave_to_file_attachment: ALDocument.using(title="File a Motion for Leave to File Responsive Pleadings", filename="motion_for_leave_to_file_answer.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
   - motion_to_elevate_security_attachment: ALDocument.using(title="File a Motion to Elevate Security", filename="motion_to_elevate_security.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+  - notice_of_hearing_attachment: ALDocument.using(title="File a Notice of Hearing", filename="notice_of_hearing.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+  
 ---
 objects:
-  - al_user_bundle: ALDocumentBundle.using(elements=[motion_to_dismiss_attachment, motion_to_shorten_time_attachment, motion_to_set_aside_attachment, motion_for_leave_to_file_attachment, motion_to_elevate_security_attachment], filename="motions.docx", title="All forms to download for your records", enabled=True)
+  - al_user_bundle: ALDocumentBundle.using(elements=[motion_to_dismiss_attachment, motion_to_shorten_time_attachment, motion_to_set_aside_attachment, motion_for_leave_to_file_attachment, motion_to_elevate_security_attachment,notice_of_hearing_attachment], filename="motions.docx", title="All forms to download for your records", enabled=True)
   - al_court_bundle: ALDocumentBundle.using(elements=attachment_list_court, filename="motions.docx", title="All forms to download for your records", enabled=True)
 ---
 id: download motions
@@ -724,6 +773,23 @@ subquestion: |
   
   Remember to come back to this window to continue.
 ---
+id: notice_of_hearing_preview
+continue button field: notice_of_hearing_preview
+question: |
+  Preview your Notice of Hearing
+subquestion: |
+  Here is a preview of your Notice of Hearing.
+  
+  ${ notice_of_hearing_attachment.as_pdf(key='preview') }
+
+  Click the image to open it in a new tab. Click the "Edit answers" button
+  to edit your answers.
+
+  ${ action_button_html(url_action('review_motions'), label='Edit answers', color='info') }
+  
+  Remember to come back to this window to continue.
+
+---
 id: review_motions
 continue button field: review_motions
 question: |
@@ -799,7 +865,7 @@ review:
       **Which motions do you need?**
 
       % for item in motion_list.true_values():
-      - ${ item }
+      - ${ motion_checkboxes[item] }
       % endfor
   #- note: | 
   #    ##Motion to Dismiss or For a More Definite Statement##
@@ -973,6 +1039,21 @@ review:
       Will you have to pay higher rent, or find a co-signer, or face other economic consequences if this case remains public?: ${ word(yesno(economic_consequences)) }
 
       Will the visibility of the eviction case hinder your ability to rent housing?: ${ word(yesno(tenant_would_be_prejudiced)) }
+  - note: | 
+      ##Notice of Hearing##
+    show if: motion_list['notice_of_hearing']
+  - Edit: |-
+      new_hearing_date
+    button: |
+      **What date is the new hearing?**
+
+      Date: ${ showifdef('new_hearing_date') }
+  - Edit: |-
+      new_hearing_time
+    button: |
+      **What time is the new hearing?**
+
+      Date: ${ showifdef('new_hearing_time') }
 ---
 
 event: |-
