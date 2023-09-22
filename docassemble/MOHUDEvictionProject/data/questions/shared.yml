@@ -199,16 +199,16 @@ code: |
 ---
 id: any other opposing parties
 question: |
-  Is there another {Plaintiff} in this eviction case?
+  Is there another Plaintiff in this eviction case?
 subquestion:  |
   You have already told us about ${ other_parties.complete_elements() }.
 
   % if tenant_using_casenet:
-  You can find the name of each {Plaintiff} in the Parties and Attorneys tab 
+  You can find the name of each Plaintiff in the Parties and Attorneys tab 
   in the online docket.
 
   If the online docket lists a "Doing business as" but not
-  another {plaintiff} like in the example below, you can answer "no" to 
+  another plaintiff like in the example below, you can answer "no" to 
   this question:
   
   [FILE DocketDBAExample.png, 100%]
@@ -224,24 +224,24 @@ fields:
 ---
 id: Landlord representation
 question: |
-  Does ${ other_parties[i] } have an {attorney}?
+  Does ${ other_parties[i] } have an attorney?
 subquestion: |
   % if tenant_using_casenet:
-  You can find the name and address of the {attorney} in the Parties and Attorneys tab in the online docket.
+  You can find the name and address of the attorney in the Parties and Attorneys tab in the online docket.
   
   [FILE Parties.png, 100%]
 
   ${ warn_picture_is_example_template }
   % elif tenant_got_summons and petition_available:
-  If the landlord is represented by an {attorney}, then the attorney's name and address will be in the box next to the Landlord's name.
+  If the landlord is represented by an attorney, then the attorney's name and address will be in the box next to the Landlord's name.
   
   [FILE MOSummonsPlaintiffAttorney.png, 100%]
   % else:
-  If the landlord is represented by an {attorney}, then it will say "represented by" next to the 
+  If the landlord is represented by an attorney, then it will say "represented by" next to the 
   landlord's name, and the attorney's name and address will be to the right.
   % endif
 fields:
-  - Is ${ other_parties[i] } represented by an attorney?: other_parties[i].attorney.there_are_any
+  - Is ${ other_parties[i] } represented by an {attorney}?: other_parties[i].attorney.there_are_any
     datatype: yesnoradio
 ---
 id: opposing attorney name
@@ -252,19 +252,19 @@ sets:
   - other_parties[i].attorney[j].name.suffix
 question: |
   % if tenant_using_casenet: 
-  You can find the name and address of the {attorney} in the Parties and Attorneys tab in the online docket.
+  You can find the name and address of the attorney in the Parties and Attorneys tab in the online docket.
   
   [FILE Parties.png, 100%]
 
   ${ warn_picture_is_example_template }
   % elif tenant_got_summons and petition_available: 
-  If the landlord is represented by an {attorney}, then the attorney's name and address will be in the box next to the Landlord's name.
+  If the landlord is represented by an attorney, then the attorney's name and address will be in the box next to the Landlord's name.
   
   [FILE MOSummonsPlaintiffAttorney.png, 100%]
 
   ${ warn_picture_is_example_template }
   % else:
-  What is the name and address of ${ other_parties[i] }'s attorney?
+  What is the name and address of ${ other_parties[i] }'s {attorney}?
   % endif
 fields:
   - code: |
@@ -393,13 +393,13 @@ subquestion: |
     Your name should be listed next to the word "Defendant." The landlord's name should be listed
     next to the word "Plaintiff." The name may look different than it does on your lease.
     
-    Who is listed as the first {Plaintiff}? If there is more than one {Plaintiff}, you can name them later.
+    Who is listed as the first {Plaintiff}? If there is more than one Plaintiff, you can name them later.
   % else:
     Who is the ${ ordinal(i) } {Plaintiff} listed on your case?
   % endif
   % elif tenant_got_summons and petition_available:
   Look at the {Summons} and {Petition}, and write the name of the ${ ordinal(i) } "Plaintiff"
-  exactly as it is written on the {Summons} and {Petition}.
+  exactly as it is written on the Summons and Petition.
   
   [FILE ComplaintCaptionPlaintiff.png, 100%]
   % endif 
@@ -539,17 +539,17 @@ content: |
 id: Petition_introduction
 question: |
   % if person_answering == "tenant":
-  Did you get a {Summons} and {Petition}?
+  Did you get a Summons and Petition?
   % else:
-  Did the tenant get a {Summons} and {Petition}?
+  Did the tenant get a Summons and Petition?
   % endif
 subquestion: |
-  The {Summons} will look like this:
+  The Summons will look like this:
  
   [CENTER]
   [FILE MOSummons.png]
  
-  The {Petition} looks different in some counties, but it may look like this:
+  The Petition looks different in some counties, but it may look like this:
  
   [CENTER]
   [FILE ComplaintForm.png]
@@ -564,9 +564,9 @@ fields:
     datatype: yesnomaybe
   - label: |
       % if person_answering == "tenant":
-      How did you get the {Summons} and {Petition}?
+      How did you get the Summons and Petition?
       % else:
-      How did the tenant get the {Summons} and {Petition}?
+      How did the tenant get the Summons and Petition?
       % endif
     field: method_of_summons_service
     datatype: checkboxes
@@ -582,20 +582,20 @@ fields:
     show if: tenant_got_summons
   - label: |
       % if person_answering == "tenant":
-      Do you have the {Summons} next to you now?
+      Do you have the Summons next to you now?
       % else:
-      Does the tenant have the {Summons} next to them now?
+      Does the tenant have the Summons next to them now?
       % endif
     field: petition_available
     datatype: yesnoradio
     show if: tenant_got_summons
   - note: |
       % if person_answering == "tenant":
-      **You may want to stop and get the {Summons} and {Petition} now.** It can help you answer
+      **You may want to stop and get the Summons and Petition now.** It can help you answer
       the questions on this website more accurately. If you cannot easily get it,
       it is OK to keep going.
       % else: 
-      **The tenant may want to stop and get the {Summons} and {Petition} now.** It can help them answer
+      **The tenant may want to stop and get the Summons and Petition now.** It can help them answer
       the questions on this website more accurately. If they cannot easily get it,
       it is OK to keep going.
       % endif
@@ -655,9 +655,9 @@ question: |
   Is any other tenant listed on this eviction case?
 subquestion: |
   % if person_answering == "tenant":
-  In an eviction case, tenants are called {Defendant|Defendants}. {Defendant|Defendants} are listed underneath the {Plaintiff|Plaintiffs}, and your name and address should be included as a {Defendant}.
+  In an eviction case, tenants are called Defendants. Defendants are listed underneath the {Plaintiff|Plaintiffs}, and your name and address should be included as a Defendant.
   % else:
-  In an eviction case, tenants are called {Defendant|Defendants}. {Defendant|Defendants} are listed underneath the {Plaintiff|Plaintiffs}, and the tenant's name and address should be included as a {Defendant}.
+  In an eviction case, tenants are called Defendants. Defendants are listed underneath the {Plaintiff|Plaintiffs}, and the tenant's name and address should be included as a Defendant.
   % endif
   % if tenant_got_summons and petition_available and len(users)==1:
   
@@ -668,9 +668,9 @@ subquestion: |
 fields:
   - label: |
       % if person_answering == "tenant":
-      Are there any other Defendants listed besides you?
+      Are there any other {Defendant|Defendants} listed besides you?
       % else:
-      Are there any other Defendants listed besides the tenant?
+      Are there any other {Defendant|Defendants} listed besides the tenant?
       % endif
     field: users.there_is_another
     datatype: yesnoradio
@@ -773,7 +773,7 @@ question: |
   At what address will the tenant serve ${ x.attorney }?
   % endif
 subquestion: |
-  ${ x } is represented by {attorney} ${ x.attorney }. When somebody is represented by an {attorney}, the {attorney} must be served.
+  ${ x } is represented by attorney ${ x.attorney }. When somebody is represented by an {attorney}, the attorney must be served.
 fields:
   - ${ x }'s service address is: x.service_address
     datatype: object_radio

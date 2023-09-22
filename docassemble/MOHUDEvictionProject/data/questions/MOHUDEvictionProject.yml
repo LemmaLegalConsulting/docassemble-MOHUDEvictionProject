@@ -217,11 +217,11 @@ subquestion: |
   
   In order to serve a tenant personally a landlord must do one of the following things:
   
-   - Have the sheriff or a process server hand the tenant the {summons} and {petition}
-   - Send the {summons} and {petition} to the tenant through certified mail
-   - Send the {summons} and {petition} to the tenant through regular mail and post the {summons} and {petition} at the tenant's door.
+   - Have the sheriff or a process server hand the tenant the summons and petition
+   - Send the summons and petition to the tenant through certified mail
+   - Send the summons and petition to the tenant through regular mail and post the summons and petition at the tenant's door.
   
-  If your landlord did not serve you personally, the landlord cannot sue you for money damages.  If you file an {answer}, the court may order 
+  If your landlord did not serve you personally, the landlord cannot sue you for money damages.  If you file an answer, the court may order 
   you to pay money that you would not need to pay otherwise.
 
   You may still want to keep going if you:
@@ -233,11 +233,11 @@ subquestion: |
   You may want to talk to a lawyer to decide for sure.
   % else: 
   % if tenant_got_summons is None:
-  The tenant does not know if the tenant received the {Summons} and {Petition} at all.
+  The tenant does not know if the tenant received the Summons and Petition at all.
   % elif not tenant_got_summons:
-  The tenant did not receive the {Summons} and {Petition} at all.
+  The tenant did not receive the Summons and Petition at all.
   % else:
-  The tenant got the {Summons} and {Petition} in the following ways:
+  The tenant got the Summons and Petition in the following ways:
   % for method in method_of_summons_service.true_values():
    - method_of_summons_service_text[method]
     
@@ -246,11 +246,11 @@ subquestion: |
 
   In order to serve a tenant personally a landlord must do one of the following things:
   
-   - Have the sheriff or a process server hand the tenant the {summons} and {petition}
-   - Send the {summons} and {petition} to the tenant through certified mail
-   - Send the {summons} and {petition} to the tenant through regular mail and post the {summons} and {petition} at the tenant's door.
+   - Have the sheriff or a process server hand the tenant the summons and petition
+   - Send the summons and petition to the tenant through certified mail
+   - Send the summons and petition to the tenant through regular mail and post the summons and petition at the tenant's door.
   
-  If the landlord did not serve the tenant personally, the landlord cannot sue the tenant for money damages.  If the tenant files an {answer}, the court may order 
+  If the landlord did not serve the tenant personally, the landlord cannot sue the tenant for money damages.  If the tenant files an answer, the court may order 
   the tenant to pay money that the tenant would not need to pay otherwise.
 
   The tenant may still want to keep going if they:
@@ -287,12 +287,12 @@ subquestion: |
   mail and posting.
   % endif
   
-  In your situation, most tenants file an {answer}.  An {answer} is a document that you file with the court to respond to the landlord's {petition}.  You can explain why you shouldn't be evicted in an {answer}.
+  In your situation, most tenants file an answer.  An answer is a document that you file with the court to respond to the landlord's petition.  You can explain why you shouldn't be evicted in an answer.
   % else:
-  You said you do not know if you got the {Summons} and {Petition}.  You should try to find out if you received the {Summons} and {Petition} to determine whether you should file an {Answer}.  An {Answer} makes it easier to defend against an {eviction}, but if you file an {Answer} in a case where you were not served the {Summons} and {Petition}, you could end up owing the landlord money.
+  You said you do not know if you got the {Summons} and {Petition}.  You should try to find out if you received the Summons and Petition to determine whether you should file an Answer.  An Answer makes it easier to defend against an eviction, but if you file an Answer in a case where you were not served the Summons and Petition, you could end up owing the landlord money.
   % endif
 
-  Filing an {answer} may:
+  Filing an answer may:
 
   * Stop your {eviction}, or
   * Lower the amount that you need to pay your landlord,
@@ -300,7 +300,7 @@ subquestion: |
   or both.
 
   The rest of the questions on this website will complete your
-  {answer}.
+  answer.
   
   % else:
   % if tenant_got_summons:
@@ -317,9 +317,9 @@ subquestion: |
   You said the tenant does not know if they got the {Summons} and {Petition}.
   % endif
   In this situation,
-  most tenants file an {answer}.  An {answer} is a document that the tenant files with the court to respond to the landlord's {petition}.  The tenant can explain why the tenant shouldn't be evicted in an {answer}.
+  most tenants file an answer.  An answer is a document that the tenant files with the court to respond to the landlord's petition.  The tenant can explain why the tenant shouldn't be evicted in an answer.
 
-  Filing an {answer} may:
+  Filing an answer may:
 
   * Stop the tenant's {eviction}, or
   * Lower the amount that the tenant needs to pay their landlord,
@@ -327,7 +327,7 @@ subquestion: |
   or both.
 
   The rest of the questions on this website will complete the tenant's
-  {answer}.
+  answer.
   % endif
 continue button field: recommend_filing_answer
 ---
@@ -363,7 +363,7 @@ subquestion: |
   on your own.**
   % endif
   
-  This site is not a {attorney|lawyer}. If you would like a {attorney|lawyer}, find [a Missouri legal aid provider](https://www.lsmo.org/).  If you are outside Missouri, find your [your local
+  This site is not a {attorney|lawyer}. If you would like a lawyer, find [a Missouri legal aid provider](https://www.lsmo.org/).  If you are outside Missouri, find your [your local
   legal aid provider](https://www.lsc.gov/what-legal-aid/find-legal-aid).
   
   Tap the {green words} in any screen for a definition or more information.
@@ -515,7 +515,7 @@ subquestion: |
   % endif
 
   A defense is a reason why you should not be evicted.  
-  A {counterclaim} is a reason why your landlord should pay you money.
+  A counterclaim is a reason why your landlord should pay you money.
 continue button field: signpost_claims_and_defenses
 ---
 id: defenses explanation
@@ -566,7 +566,7 @@ subquestion: |
   % endif
   % if defense_settlement:
   
-  **Landlord and Tenant entered into a {settlement} agreement and Tenant has complied with the {settlement}’s terms**
+  **Landlord and Tenant entered into a {settlement} agreement and Tenant has complied with the settlement’s terms**
 
   
   % endif
@@ -623,7 +623,7 @@ subquestion: |
   
   **The premises have been foreclosed upon but the Landlord has not followed proper procedures**
 
-  There are special protections for tenants when their landlord loses the home through {foreclosure}.  The new owner of the home is required to provide notice of the {foreclosure}
+  There are special protections for tenants when their landlord loses the home through {foreclosure}.  The new owner of the home is required to provide notice of the foreclosure.
   % endif
   % if defense_new_owner_failed_to_provide_notice_of_sale:
   
@@ -686,7 +686,7 @@ subquestion: |
   
   ###{Motion} for Leave to File Responsive {Pleadings}###
   
-  Your {answer} also contains a "Motion for Leave to File Responsive Pleadings" because the original hearing date for already past.  The original hearing date is the deadline for filing an {Answer}, so you need to ask for the court's permission to file this {Answer}.
+  Your {answer} also contains a "Motion for Leave to File Responsive Pleadings" because the original hearing date for already past.  The original hearing date is the deadline for filing an Answer, so you need to ask for the court's permission to file this Answer.
   
   % endif
 ---

@@ -156,7 +156,7 @@ subquestion: |
   on your own.**
   % endif
   
-  This site is not a {attorney|lawyer}. If you would like a {attorney|lawyer}, find [a Missouri legal aid provider](https://www.lsmo.org/).  If you are outside Missouri, find your [your local
+  This site is not a {attorney|lawyer}. If you would like a lawyer, find [a Missouri legal aid provider](https://www.lsmo.org/).  If you are outside Missouri, find your [your local
   legal aid provider](https://www.lsc.gov/what-legal-aid/find-legal-aid).
   
   Tap the {green words} in any screen for a definition or more information.
@@ -185,7 +185,7 @@ question: |
   File a {Motion} To {continuance|Continue}
 subquestion: |
   <h2 class="h4">How this works</h2>
-  One the next screens you will tell us the details about your eviction case that are needed to complete a {Motion} to {continuance|Continue}.
+  One the next screens you will tell us the details about your eviction case that are needed to complete a Motion to ontinue.
 
   Your answers will complete your forms. You will need to deliver your forms to the court on your own.
 
@@ -235,11 +235,11 @@ subquestion: |
   
   In order to serve a tenant personally a landlord must do one of the following things:
   
-   - Have the sheriff or a process server hand the tenant the {summons} and {petition}
-   - Send the {summons} and {petition} to the tenant through certified mail
-   - Send the {summons} and {petition} to the tenant through regular mail and post the {summons} and {petition} at the tenant's door.
+   - Have the sheriff or a process server hand the tenant the summons and petition
+   - Send the summons and petition to the tenant through certified mail
+   - Send the summons and petition to the tenant through regular mail and post the summons and petition at the tenant's door.
 
-  If your landlord did not serve you personally, the landlord cannot sue you for money damages.  If you file anything in court, including a {motion} to {continuance|continue}, the court may order you to pay money that you would not need to pay otherwise.
+  If your landlord did not serve you personally, the landlord cannot sue you for money damages.  If you file anything in court, including a motion to continue, the court may order you to pay money that you would not need to pay otherwise.
 
   You may still want to keep going if you:
 
@@ -263,11 +263,11 @@ subquestion: |
 
   In order to serve a tenant personally a landlord must do one of the following things:
   
-   - Have the sheriff or a process server hand the tenant the {summons} and {petition}
-   - Send the {summons} and {petition} to the tenant through certified mail
-   - Send the {summons} and {petition} to the tenant through regular mail and post the summons and petition at the tenant's door.
+   - Have the sheriff or a process server hand the tenant the summons and petition
+   - Send the summons and petition to the tenant through certified mail
+   - Send the summons and petition to the tenant through regular mail and post the summons and petition at the tenant's door.
 
-  If their landlord did not serve the tenant personally, if they file a {motion} to {continuance|continue}, the court may order 
+  If their landlord did not serve the tenant personally, if they file a motion to continue, the court may order 
   the tenant to pay money that they would not need to pay otherwise.
 
   The tenant may still want to keep going if they:
@@ -306,12 +306,12 @@ subquestion: |
   % endif
   
   In your situation,
-  most tenants may be able to file a {motion} to {continuance|continue}
+  most tenants may be able to file a motion to continue
 
-  Filing a {motion} to {continuance|continue} may delay your court hearing.
+  Filing a motion to continue may delay your court hearing.
 
   The rest of the questions on this website will complete your
-  {motion} to {continuance|continue}.
+  motion to continue.
   
   % else:
   % if tenant_got_summons:
@@ -328,12 +328,12 @@ subquestion: |
   % endif
   
   In this situation,
-  most tenants can file a {motion} to {continuance|continue}.
+  most tenants can file a motion to continue.
 
-  Filing a {motion} to {continuance|continue} may delay the tenant's court hearing.
+  Filing a motion to continue may delay the tenant's court hearing.
 
   The rest of the questions on this website will complete the tenant's
-  {motion} to {continuance|continue}.
+  motion to continue.
   % endif
 continue button field: recommend_filing_answer
 ---

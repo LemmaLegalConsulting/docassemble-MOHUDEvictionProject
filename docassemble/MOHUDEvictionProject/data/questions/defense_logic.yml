@@ -89,12 +89,12 @@ depends on:
 id: made settlement
 question: |
   % if person_answering == "tenant":
-  Did you already make an {agreement} with your landlord to stop the {eviction}?
+  Did you already make an agreement with your landlord to stop the {eviction}?
   % else: 
-  Did the tenant already make an {agreement} with their landlord to stop the {eviction}?
+  Did the tenant already make an agreement with their landlord to stop the {eviction}?
   % endif
 subquestion: |
-  A landlord and tenant can agree to "settle" an eviction case, which means an {agreement} to stop the {eviction}.
+  A landlord and tenant can agree to "settle" an eviction case, which means an agreement to stop the eviction.
 fields:
   - label: |
       % if person_answering == "tenant":
@@ -392,15 +392,15 @@ fields:
   - label: |
       Is there a part of the {lease} that allows the landlord to charge the late fee?
       % if has_written_lease == False:
-      You can answer no if you don't have a written {lease}.
+      You can answer no if you don't have a written lease.
       % endif
     field: late_fees_lease_provision
     datatype: yesnomaybe
     show if: late_fees_assessed
   - label: |
-      Do the late fees charged by the landlord comply with the {lease} provision?
+      Do the late fees charged by the landlord comply with the lease provision?
       % if has_written_lease == False:
-      You can answer no if you don't have a written {lease}.
+      You can answer no if you don't have a written lease.
       % endif
     field: late_fee_doesnt_comply_with_lease
     datatype: noyesmaybe
@@ -465,7 +465,7 @@ depends on:
 ---
 id: had foreclosure
 question: |
-  Did the bank ever {foreclosure|foreclose} on this home?
+  Did the bank ever foreclose on this home?
 fields:
   - label: |
       % if person_answering == "tenant":
@@ -477,9 +477,9 @@ fields:
     datatype: yesnomaybe
   - label: |
       % if person_answering == "tenant":
-      Did you get a letter that told you about the {foreclosure}?
+      Did you get a letter that told you about the foreclosure?
       % else: 
-      Did the tenant get a letter that told them about the {foreclosure}?
+      Did the tenant get a letter that told them about the foreclosure?
       % endif
     field: notice_of_foreclosure
     datatype: yesnomaybe
@@ -670,13 +670,13 @@ question: |
   % endif
 subquestion: |
   % if tenant_got_summons:
-  Look at the {Summons} and {Petition} to answer this question.
+  Look at the Petition to answer this question.
 
   Look for a line that looks something like this:
 
   [FILE ComplaintRentAmount.png, 100%]
 
-  The landlord's {petition} may look different.
+  The landlord's petition may look different.
   % endif
 fields:
   - label: |
@@ -689,18 +689,18 @@ fields:
     datatype: yesnoradio
   - label: |
       % if person_answering == "tenant":
-      How much does the {petition|Landlord's Petition} say that you owe **in rent**?
+      How much does the Landlord's Petition say that you owe **in rent**?
       % else:
-      How much does the {petition|Landlord's Petition} say that the tenant owes **in rent**?
+      How much does the Landlord's Petition say that the tenant owes **in rent**?
       % endif 
     field: rent_amount_owed
     datatype: currency
     show if: petition_states_rent_amount
   - label: |
       % if person_answering == "tenant":
-      Does the {petition} say you owe an amount **other** than rent?  (Not including attorney fees and {court costs|costs from the eviction case}.)
+      Does the petition say you owe an amount **other** than rent?  (Not including attorney fees and {court costs|costs from the eviction case}.)
       % else:
-      Does the {petition} say the tenant owes an amount **other** than rent? (Not including attorney fees and {court costs|costs from the eviction case}.)
+      Does the petition say the tenant owes an amount **other** than rent? (Not including attorney fees and {court costs|costs from the eviction case}.)
       % endif 
     field: other_charges_alleged
     datatype: yesnomaybe
@@ -728,24 +728,24 @@ code: |
 id: petition requirements - terms of lease
 question: |
   % if person_answering == "tenant":
-  Is a copy of your {lease} attached to the {petition}?
+  Is a copy of your lease attached to the petition?
   % else: 
-  Is a copy of the tenant's {lease} attached to the {petition}? 
+  Is a copy of the tenant's lease attached to the petition? 
   % endif
 subquestion: |
   % if person_answering == "tenant":
-  With the Landlord's {Petition}, your landlord must have either:
+  With the Landlord's Petition, your landlord must have either:
   
-   1. attached a copy of the {lease}, or
+   1. attached a copy of the lease, or
    2. written a summary of your rental agreement, including the monthly rent, the kind of agreement (year to year or {month_to_month lease|month to month}), and the day rent is due.
   % else: 
-    With the Landlord's {Petition}, the tenant's landlord needs to either:
+    With the Landlord's Petition, the tenant's landlord needs to either:
   
-   1. attach a copy of the {lease}, or
+   1. attach a copy of the lease, or
    2. write a summary of the tenant's rental agreement, including the monthly rent, the kind of agreement (year to year or {month-to-month lease|month to month}), and the day rent is due.
   % endif
   
-  The {petition} looks different in different counties. But it may look like this:
+  The petition looks different in different counties. But it may look like this:
 
   [FILE ComplaintTerms.png, 100%]
 fields:
@@ -757,7 +757,7 @@ fields:
       % endif
     field: has_written_lease
     datatype: yesnoradio
-  - "Is the {lease} attached to the Landlord's Petition?": lease_attached
+  - "Is the lease attached to the {petition|Landlord's Petition}?": lease_attached
     datatype: yesnoradio
     show if:
       variable: has_written_lease
@@ -774,7 +774,7 @@ fields:
       val("lease_attached") === false
   - note: |
       <h2 class="h4">Summary of rental agreement</h2>
-      The {Petition} should include a summary of the rental agreement. It should include 
+      The Petition should include a summary of the rental agreement. It should include 
       at least:
 
       * The rent amount,
@@ -784,9 +784,9 @@ fields:
       val("has_written_lease") === false || val("lease_attached") === false
   - label: |
       % if person_answering == "tenant":
-      Does the Landlord's Petition include a summary of your rental agreement?
+      Does the {petition|Landlord's Petition} include a summary of your rental agreement?
       % else:
-      Does the Landlord's Petition include a summary of the tenant's rental agreement?
+      Does the {petition|Landlord's Petition} include a summary of the tenant's rental agreement?
       % endif 
     field: petition_states_terms_of_lease
     datatype: yesnomaybe
@@ -796,15 +796,15 @@ fields:
 id: petition requirements - periods due
 question: |
   % if person_answering == "tenant":
-  Does the {petition} say the amount you owe for each month?
+  Does the petition say the amount you owe for each month?
   % else: 
-  Does the {petition} say the amount the tenant owes for each month?
+  Does the petition say the amount the tenant owes for each month?
   % endif
 subquestion: |
   % if person_answering == "tenant":
-  The {petition|Landlord's Petition} must say what months you allegedly owe rent for.
+  The Landlord's Petition must say what months you allegedly owe rent for.
   % else: 
-  The {petition|Landlord's Petition} must say what months the tenant allegedly owes rent for.
+  The Landlord's Petition must say what months the tenant allegedly owes rent for.
   % endif
 fields:
   - label: |
@@ -823,12 +823,12 @@ code: |
 ---
 id: petition requirements - demand
 question: |
-  Does the {Petition} say that the landlord demanded rent?
+  Does the Petition say that the landlord demanded rent?
 subquestion: |
   % if person_answering == "tenant":
-  The {petition|Landlord's Petition} must say that the "landlord demanded rent", meaning that the landlord told you that you had to pay rent or leave.
+  The Landlord's Petition must say that the "landlord demanded rent", meaning that the landlord told you that you had to pay rent or leave.
   % else:
-  The {petition|Landlord's Petition} must say that the "landlord demanded rent", meaning that the landlord told the tenant that they had to pay rent or leave.
+  The Landlord's Petition must say that the "landlord demanded rent", meaning that the landlord told the tenant that they had to pay rent or leave.
   % endif
   
   The Demand may look like this, but can have different language:
@@ -836,7 +836,7 @@ subquestion: |
   [FILE ComplaintDemand.png, 100%]
  
 fields:
-  - "Does the Landlord's Petition say the landlord demanded rent?": petition_states_demand_made
+  - "Does the {petition|Landlord's Petition} say the landlord demanded rent?": petition_states_demand_made
     datatype: yesnomaybe
 ---
 id: is seeking past due rent true
@@ -1011,9 +1011,9 @@ subquestion: |
   
   * Pay the full amount you owe, and 
   % endif
-  * Pay the full {court costs}
+  * Pay the full court costs
 
-  You can stop the {eviction} and stay in your home.
+  You can stop the eviction and stay in your home.
   % else: 
   If the tenant:
   % if petition_states_rent_amount:
@@ -1023,16 +1023,16 @@ subquestion: |
   
   * Pays the full amount they owe, and 
   % endif
-  * Pays the full {court costs}
+  * Pays the full court costs
 
-  The tenant can stop the {eviction} and stay in their home.
+  The tenant can stop the eviction and stay in their home.
   % endif
 fields:
   - label: |
       % if person_answering == "tenant":
-      Will you pay the full amount your landlord says you owe, plus court costs, to stop the eviction?
+      Will you pay the full amount your landlord says you owe, plus {court costs}, to stop the {eviction}?
       % else:
-      Will the tenant pay the full amount their landlord says the tenant owes them, plus court costs, to stop their eviction?
+      Will the tenant pay the full amount their landlord says the tenant owes them, plus {court costs}, to stop their {eviction}?
       % endif 
     field: will_offer_payment
     datatype: yesnoradio
