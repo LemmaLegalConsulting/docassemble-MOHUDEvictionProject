@@ -865,7 +865,7 @@ review:
       **Which motions do you need?**
 
       % for item in motion_list.true_values():
-      - ${ item }
+      - ${ motion_checkboxes[item] }
       % endfor
   #- note: | 
   #    ##Motion to Dismiss or For a More Definite Statement##
