@@ -712,7 +712,9 @@ subquestion: |
   next to the answer that you want to change.
 review:
   - note: |
+      % if users.attorney.there_are_any:
       ##Information about you##
+      % endif
   - Edit:
       - users[0].attorney[0].name.first
     button: |
