@@ -711,6 +711,19 @@ subquestion: |
   Look over your answers below. If you need to make any changes, click the "Edit" button
   next to the answer that you want to change.
 review:
+  - note: |
+      ##Information about you##
+  - Edit:
+      - users[0].attorney[0].name.first
+    button: |
+      % for item in users:
+      % if item.attorney.there_are_any:
+         - Attorney: **${ item.attorney[0] }**
+         - Address: **${ item.attorney[0].address}**
+      % else:
+         - Attorney: **None**
+      % endif
+      % endfor
   - note: | 
       % if person_answering == "tenant":
       ##Information about you##
@@ -743,6 +756,7 @@ review:
       The tenant is able to pay rent and court costs
       % endif
       **${ "Maybe" if will_offer_payment is None else yesno(will_offer_payment) }**
+
   - note: | 
       ##Information about the other party##
   - Edit:
