@@ -1325,6 +1325,13 @@ code: |
   else:
     has_written_lease = True
 ---
+id: lease attached to petition
+question: |
+  Is a copy of the lease attached to the petition?
+fields:
+  - "Is the lease attached to the Landlord's Petition?": lease_attached
+    datatype: yesnoradio
+---
 id: petition requirements - terms of lease
 question: |
   % if person_answering == "tenant":
@@ -1345,15 +1352,12 @@ subquestion: |
    2. write a summary of the tenant's rental agreement, including the monthly rent, the kind of agreement (year to year or month to month), and the day rent is due.
   % endif
   
+  You said that a copy of the lease is not attached to the petition.
+  
   The petition looks different in different counties. But it may look like this:
 
   [FILE ComplaintTerms.png, 100%]
 fields:
-  - "Is the lease attached to the Landlord's Petition?": lease_attached
-    datatype: yesnoradio
-    show if:
-      code: |
-        has_written_lease
   - note: |
       <h2 class="h4">Summary of rental agreement</h2>
       The Petition should include a summary of the rental agreement. It should include 

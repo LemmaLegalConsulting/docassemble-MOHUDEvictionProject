@@ -560,26 +560,7 @@ template: nonpayment_defense_explanation_template
 content: |
   Based on your answers, the following defenses are included in your answer:
   % if defense_rent_pleading_requirement:
-  
-  **Landlord failed to state a claim for rent and possession**
-
-  A landlord must include specific things in the landlord's petition in order to be able to evict.  Your landlord failed to include the following things: 
-  % if petition_alleges_nonrent == True:
-  
-   - a claim that you owe rent (the petition says that you owe for other charges)
-  % endif
-  % if petition_states_rent_amount == False:
-  
-   - an exact amount of what you owe in rent
-  % endif
-  % if petition_states_rent_periods == False:
-  
-   - the months that you supposedly owe rent
-  % endif
-  % if petition_states_demand_made == False:
-  
-   - a claim that the landlord demanded rent from you
-  % endif
+  ${ collapse_template(defense_rent_pleading_requirement_template) }
   % endif
   % if defense_lease_not_attached:
   
@@ -720,6 +701,14 @@ content: |
   % if petition_states_demand_made == False:
   
    - a claim that the landlord demanded rent from you
+  % endif
+  % if trial_court.circuit == 21 and not petition_separates_nonrent:
+  
+   - rent charges that are separated from other charges
+  % endif
+  % if (not has_written_lease and not petition_states_terms_of_lease) or (has_written_lease and not lease_attached and not petition_states_terms_of_lease):
+  
+   - either the attached lease or the terms of the lease
   % endif
 ---
 template: defense_liquidated_damages_late_fees_template
