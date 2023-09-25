@@ -554,13 +554,11 @@ continue button field: explanation_answer
 question: |
   You may have defenses to the eviction
 subquestion: |
-  % if eviction_reason["nonpayment of rent"]:
   ${ nonpayment_defense_explanation_template }
-  % endif
 ---
 template: nonpayment_defense_explanation_template
 content: |
-  Based on your answers, you may have the following defenses to the eviction case:
+  Based on your answers, the following defenses are included in your answer:
   % if defense_rent_pleading_requirement:
   
   **Landlord failed to state a claim for rent and possession**
@@ -620,28 +618,7 @@ content: |
   
   % endif
   % if defense_liquidated_damages_late_fees:
-  
-  **The late fees attached to the Landlord’s Petition are** 
-  % if late_fees_penalty:
-  **an unfair penalty**
-  % if not late_fees_lease_provision or late_fee_doesnt_comply_with_lease:
-  **and** 
-  % endif
-  % endif
-  % if not late_fees_lease_provision or late_fee_doesnt_comply_with_lease:
-  **an unauthorized charge**
-  % endif  
-
-  % if late_fees_penalty:
-  Late fees must be based on what it actually costs the landlord when a tenant pays late.  
-  % endif
-  % if not late_fees_lease_provision:
-  Late fees can't be charged if the late fees are not authorized by the lease.
-  % elif late_fee_doesnt_comply_with_lease:
-  Late fees that do not comply with the lease can't be charged.
-  % endif
-
-  This defense alone may not help you avoid the eviction, but it can reduce the amount of money you owe the landlord.
+  ${ collapse_template(defense_liquidated_damages_late_fees_template) }
   % endif
   % if defense_estoppel_illegality:
   
@@ -658,9 +635,7 @@ content: |
   % endif
   % if defense_foreclosure:
   
-  **The premises have been foreclosed upon but the Landlord has not followed proper procedures**
-
-  There are special protections for tenants when their landlord loses the home through foreclosure.  The new owner of the home is required to provide notice of the foreclosure
+  ${ collapse_template(defense_foreclosure_template) }
   % endif
   % if defense_new_owner_failed_to_provide_notice_of_sale:
   
@@ -669,18 +644,9 @@ content: |
   There are special protections for tenants when their landlord loses the home through foreclosure.  The new owner of the home is required to provide notice of the foreclosure
   % endif
   % if defense_unrepresented_corporation:
-  
-  **The Landlord is required to have an attorney in this case and it must be dismissed**
-
-  A business entity, like a corporation, must have an attorney to evict a tenant in court.
+  ${ collapse_template(defense_unrepresented_corporation_template) }
   % endif
-  % if defense_no_landlord_tenant_relationship:
-  
-  **There is no landlord-tenant relationship between the parties**
 
-  This defense can be difficult to understand, if you have also said there is a lease between you and the landlord.  However, that lease may not be valid for because
-  If the lease is not valid, then the landlord should not be able to evict you in a rent and possession action.
-  % endif
   % if defense_excessive_rent_for_subsidized_housing:
   
   **Plaintiff has charged Defendant excessive rent in violation of the housing subsidy**
@@ -734,6 +700,64 @@ content: |
   
   % endif
 ---
+template: defense_rent_pleading_requirement_template
+subject: |
+  Landlord failed to state a claim for rent and possession
+content: |
+  A landlord must include specific things in the landlord's petition in order to be able to evict.  Your landlord failed to include the following things: 
+  % if petition_alleges_nonrent == True:
+  
+   - a claim that you owe rent (the petition says that you owe for other charges)
+  % endif
+  % if petition_states_rent_amount == False:
+  
+   - an exact amount of what you owe in rent
+  % endif
+  % if petition_states_rent_periods == False:
+  
+   - the months that you supposedly owe rent
+  % endif
+  % if petition_states_demand_made == False:
+  
+   - a claim that the landlord demanded rent from you
+  % endif
+---
+template: defense_liquidated_damages_late_fees_template
+subject: |
+  The late fees attached to the Landlord’s Petition are
+  % if late_fees_penalty:
+  an unfair penalty
+  % if not late_fees_lease_provision or late_fee_doesnt_comply_with_lease:
+   and 
+  % endif
+  % endif
+  % if not late_fees_lease_provision or late_fee_doesnt_comply_with_lease:
+  an unauthorized charge
+  % endif  
+content: |
+  % if late_fees_penalty:
+  Late fees must be based on what it actually costs the landlord when a tenant pays late.  
+  % endif
+  % if not late_fees_lease_provision:
+  Late fees can't be charged if the late fees are not authorized by the lease.
+  % elif late_fee_doesnt_comply_with_lease:
+  Late fees that do not comply with the lease can't be charged.
+  % endif
+
+  This defense alone may not help you avoid the eviction, but it can reduce the amount of money you owe the landlord.
+---
+template: defense_foreclosure_template
+subject: |
+  The premises have been foreclosed upon but the Landlord has not followed proper procedures
+content: |
+  There are special protections for tenants when their landlord loses the home through foreclosure.  The new owner of the home is required to provide notice of the foreclosure
+---
+template: defense_unrepresented_corporation_template
+subject: |
+  The Landlord is required to have an attorney in this case and it must be dismissed
+content: |
+  A business entity, like a corporation, must have an attorney to evict a tenant in court.
+---  
 id: next steps explanation
 question:  Print, Sign, Serve and File
 ---
