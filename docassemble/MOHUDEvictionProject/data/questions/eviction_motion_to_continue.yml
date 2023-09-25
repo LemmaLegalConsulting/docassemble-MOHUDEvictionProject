@@ -293,15 +293,17 @@ event: eviction_motion_to_continue_download
 question: |
   All done
 subquestion: |
-  Thank you ${users}. Your form is ready to download and deliver.
+  Thank you ${ users }. Your form is ready to download and deliver.
   
   View, download and send your form below. Click the "Edit answers" button to fix any mistakes.
 
   ${ action_button_html(url_action('review_eviction_motion_to_continue'), label='Edit answers', color='info') }
   
-  
-  ${ al_user_bundle.download_list_html() }
-  
+  % if device().is_mobile:
+  ${ al_user_bundle.download_list_html(format="pdf") }
+  % else:
+  ${ al_user_bundle.download_list_html(format="docx") }
+  % endif
 
   ${ al_user_bundle.send_button_html(show_editable_checkbox=True) }
 

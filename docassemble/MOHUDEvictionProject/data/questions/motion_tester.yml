@@ -686,7 +686,11 @@ question: |
   All done
 subquestion: |
   
-  ${ al_user_bundle.download_list_html() }
+  % if device().is_mobile:
+  ${ al_user_bundle.download_list_html(format="pdf") }
+  % else:
+  ${ al_user_bundle.download_list_html(format="docx") }
+  % endif
   
 
   ${ al_user_bundle.send_button_html(show_editable_checkbox=True) }

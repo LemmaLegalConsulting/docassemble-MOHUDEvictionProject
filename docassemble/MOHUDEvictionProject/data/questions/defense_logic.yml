@@ -988,7 +988,7 @@ fields:
     datatype: checkboxes
     show if: tenant_believes_discrimination
     choices:
-      - Family status (for example, having children): Family status
+      - Family status (for example, having children): family status
       - Marital status (for example, being unmarried): marital status
       - Race: race
       - Skin color: skin color
