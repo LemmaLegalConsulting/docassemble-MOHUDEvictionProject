@@ -89,18 +89,18 @@ depends on:
 id: made settlement
 question: |
   % if person_answering == "tenant":
-  Did you already make an agreement with your landlord to stop the eviction?
+  Did you already make an agreement with your landlord to stop the {eviction}?
   % else: 
-  Did the tenant already make an agreement with their landlord to stop the eviction?
+  Did the tenant already make an agreement with their landlord to stop the {eviction}?
   % endif
 subquestion: |
   A landlord and tenant can agree to "settle" an eviction case, which means an agreement to stop the eviction.
 fields:
   - label: |
       % if person_answering == "tenant":
-      Did you make a settlement agreement with your landlord?
+      Did you make a {settlement|settlement agreement} with your landlord?
       % else: 
-      Did the tenant make a settlement agreement with their landlord?
+      Did the tenant make a {settlement|settlement agreement} with their landlord?
       % endif
     field: landlord_agreement
     datatype: yesnoradio
@@ -390,7 +390,7 @@ fields:
     datatype: yesnomaybe
     show if: late_fees_assessed
   - label: |
-      Is there a part of the lease that allows the landlord to charge the late fee?
+      Is there a part of the {lease} that allows the landlord to charge the late fee?
       % if has_written_lease == False:
       You can answer no if you don't have a written lease.
       % endif
@@ -469,9 +469,9 @@ question: |
 fields:
   - label: |
       % if person_answering == "tenant":
-      As far as you know during the time that you were a tenant, did a bank foreclose on the property?
+      As far as you know during the time that you were a tenant, did a bank {foreclosure|foreclose} on the property?
       % else: 
-      As far as you know during the time that the tenant lived in the property, did a bank foreclose on the property?
+      As far as you know during the time that the tenant lived in the property, did a bank {foreclosure|foreclose} on the property?
       % endif
     field: landlord_foreclosed
     datatype: yesnomaybe
@@ -589,9 +589,9 @@ question: |
 fields:
   - label: |
       % if person_answering == "tenant":
-      Do you get a rent subsidy or do you live in public housing?
+      Do you live in subsidized housing, including getting a rent subsidy or living in public housing?
       % else: 
-      Does the tenant get a rent subsidy or do they live in public housing?
+      Does the tenant live in subsidized housing, including getting a rent subsidy or living in public housing?
       % endif
     field: is_rent_subsidized
     datatype: yesnoradio
@@ -670,7 +670,7 @@ question: |
   % endif
 subquestion: |
   % if tenant_got_summons:
-  Look at the Summons and Petition to answer this question.
+  Look at the Petition to answer this question.
 
   Look for a line that looks something like this:
 
@@ -681,9 +681,9 @@ subquestion: |
 fields:
   - label: |
       % if person_answering == "tenant":
-      Does the petition say what amount of rent you owe?
+      Does the {petition} say what amount of rent you owe?
       % else:
-      Does the petition say what amount of rent the tenant owes?
+      Does the {petition} say what amount of rent the tenant owes?
       % endif 
     field: petition_states_rent_amount
     datatype: yesnoradio
@@ -698,9 +698,9 @@ fields:
     show if: petition_states_rent_amount
   - label: |
       % if person_answering == "tenant":
-      Does the petition say you owe an amount **other** than rent?  (Not including attorney fees and costs from the eviction case.)
+      Does the petition say you owe an amount **other** than rent?  (Not including attorney fees and {court costs|costs from the eviction case}.)
       % else:
-      Does the petition say the tenant owes an amount **other** than rent? (Not including attorney fees and costs from the eviction case.)
+      Does the petition say the tenant owes an amount **other** than rent? (Not including attorney fees and {court costs|costs from the eviction case}.)
       % endif 
     field: other_charges_alleged
     datatype: yesnomaybe
@@ -710,9 +710,9 @@ fields:
 id: rent separated from other charges
 question: |
   % if person_answering == "tenant":
-  Does the petition separate the amount you owe in rent from other charges?
+  Does the {petition} separate the amount you owe in rent from other charges?
   % else:
-  Does the petition separate the amount the tenant owes in rent from other charges?
+  Does the {petition} separate the amount the tenant owes in rent from other charges?
   % endif
 fields:
   - Are rent charges separated from other charges: petition_separates_nonrent
@@ -737,12 +737,12 @@ subquestion: |
   With the Landlord's Petition, your landlord must have either:
   
    1. attached a copy of the lease, or
-   2. written a summary of your rental agreement, including the monthly rent, the kind of agreement (year to year or month to month), and the day rent is due.
+   2. written a summary of your rental agreement, including the monthly rent, the kind of agreement (year to year or {month-to-month lease|month to month}), and the day rent is due.
   % else: 
     With the Landlord's Petition, the tenant's landlord needs to either:
   
    1. attach a copy of the lease, or
-   2. write a summary of the tenant's rental agreement, including the monthly rent, the kind of agreement (year to year or month to month), and the day rent is due.
+   2. write a summary of the tenant's rental agreement, including the monthly rent, the kind of agreement (year to year or {month-to-month lease|month to month}), and the day rent is due.
   % endif
   
   The petition looks different in different counties. But it may look like this:
@@ -751,13 +751,13 @@ subquestion: |
 fields:
   - label: |
       % if person_answering == "tenant":
-      Do you have a written lease? (Some rental agreements can be oral.)
+      Do you have a written {lease}? (Some rental agreements can be oral.)
       % else:
-      Does the tenant have a written lease? (Some rental agreements can be oral.)
+      Does the tenant have a written {lease}? (Some rental agreements can be oral.)
       % endif
     field: has_written_lease
     datatype: yesnoradio
-  - "Is the lease attached to the Landlord's Petition?": lease_attached
+  - "Is the lease attached to the {petition|Landlord's Petition}?": lease_attached
     datatype: yesnoradio
     show if:
       variable: has_written_lease
@@ -779,14 +779,14 @@ fields:
 
       * The rent amount,
       * The day rent is due, and
-      * The kind of agreement (year to year or month to month).
+      * The kind of agreement (year to year or {month-to-month lease|month to month}).
     js show if: |
       val("has_written_lease") === false || val("lease_attached") === false
   - label: |
       % if person_answering == "tenant":
-      Does the Landlord's Petition include a summary of your rental agreement?
+      Does the {petition|Landlord's Petition} include a summary of your rental agreement?
       % else:
-      Does the Landlord's Petition include a summary of the tenant's rental agreement?
+      Does the {petition|Landlord's Petition} include a summary of the tenant's rental agreement?
       % endif 
     field: petition_states_terms_of_lease
     datatype: yesnomaybe
@@ -809,9 +809,9 @@ subquestion: |
 fields:
   - label: |
       % if person_answering == "tenant":
-      Does the petition say a specific amount for each month your landlord says you owe rent?
+      Does the {petition} say a specific amount for each month your landlord says you owe rent?
       % else:
-      Does the petition say a specific amount for each month the landlord says the tenant owes rent?
+      Does the {petition} say a specific amount for each month the landlord says the tenant owes rent?
       % endif 
     field: petition_states_rent_periods
     datatype: yesnomaybe
@@ -836,7 +836,7 @@ subquestion: |
   [FILE ComplaintDemand.png, 100%]
  
 fields:
-  - "Does the Landlord's Petition say the landlord demanded rent?": petition_states_demand_made
+  - "Does the {petition|Landlord's Petition} say the landlord demanded rent?": petition_states_demand_made
     datatype: yesnomaybe
 ---
 id: is seeking past due rent true
@@ -903,13 +903,12 @@ subquestion: |
   % endif
   % for offer in offer_attempts.complete_elements():
   
-   - Tried to pay ${ "the full amount" if offer.was_attempt_full else "part of the rent" } on ${ offer.attempt_date } ${ offer.attempt_method } but the landlord refused.
+   - Tried to pay ${ "the full amount" if offer.was_attempt_full else "part of the rent" } on ${ offer.attempt_date } ${ offer.attempt_method if not offer.attempt_method == "other" else "" } but the landlord refused.
    
   % endfor
   % endif
 fields:
   - When?: offer_attempts[i].attempt_date
-    datatype: date
   - label: |
       % if person_answering == "tenant":
       How did you try to give your landlord the money?
@@ -924,6 +923,10 @@ fields:
       - ${"I told my landlord in person" if person_answering == "tenant" else "Told the landlord in person"}: "in person"
       - ${"I told my landlord in a phone call" if person_answering == "tenant" else "Told the landlord in a phone call"}: "in a phone_call"
       - Other: "other"
+  - Explanation: offer_attempts[i].attempt_method_other
+    show if:
+      variable: offer_attempts[i].attempt_method
+      is: other
   - label: |
       % if person_answering == "tenant":
       How much did you offer to pay?
@@ -976,7 +979,7 @@ subquestion: |
   % endif
   % for offer in offer_attempts.complete_elements():
   
-   - tried to pay ${ "the full amount" if offer.was_attempt_full else "part of the rent" } on ${ offer.attempt_date } ${ offer.attempt_method } but the landlord refused.
+   - tried to pay ${ "the full amount" if offer.was_attempt_full else "part of the rent" } on ${ offer.attempt_date } ${ offer.attempt_method if not offer.attempt_method == "other" else "" } but the landlord refused.
    
   % endfor
   % endif
@@ -994,9 +997,9 @@ id: pay and stop eviction
 decoration: circle-info
 question: |
   % if person_answering == "tenant":
-  You may be able to pay and stop the eviction
+  You may be able to {PAY AND STAY|pay and stop the eviction}
   % else:
-  The tenant may be able to pay and stop the eviction
+  The tenant may be able to {PAY AND STAY|pay and stop the eviction}
   % endif
 subquestion: |
   % if person_answering == "tenant":
@@ -1027,9 +1030,9 @@ subquestion: |
 fields:
   - label: |
       % if person_answering == "tenant":
-      Will you pay the full amount your landlord says you owe, plus court costs, to stop the eviction?
+      Will you pay the full amount your landlord says you owe, plus {court costs}, to stop the {eviction}?
       % else:
-      Will the tenant pay the full amount their landlord says the tenant owes them, plus court costs, to stop their eviction?
+      Will the tenant pay the full amount their landlord says the tenant owes them, plus {court costs}, to stop their {eviction}?
       % endif 
     field: will_offer_payment
     datatype: yesnoradio
@@ -1256,13 +1259,13 @@ content: |
   mean you do not owe part or all of the rent your landlord says you owe.
   
   Problems in your home may give you a claim for **Breach of Warranty of Habitability** 
-  if the condition of your home affected your life, health, or safety, and made the dwelling uninhabitable in whole or in part.
+  if the condition of your home affected your life, health, or safety, and made the dwelling {uninhabitable living condition|uninhabitable} in whole or in part.
   % else: 
   The landlord may owe the tenant money if there are problems in their home. The money the landlord owes the tenant might
   mean they do not owe part or all of the rent the landlord says the tenant owes.
   
   Problems in the tenant's home may give them a claim for **Breach of Warranty of Habitability** 
-  if the condition of their home affected their life, health, or safety, and made the dwelling uninhabitable in whole or in part.  
+  if the condition of their home affected their life, health, or safety, and made the dwelling {uninhabitable living condition|uninhabitable} in whole or in part.  
   % endif
 ---
 id: covenant of quiet enjoyment
@@ -1304,13 +1307,13 @@ content: |
   reduce the amount of rent you owe or mean that you do not owe any rent to your landlord.
 
   You have a claim of **Breach of Covenant of Quiet Enjoyment** if your landlord is responsible for a substantial
-  disruption in the use and quiet enjoyment of your rental property.
+  disruption in the use and {quiet enjoyment} of your rental property.
   % else: 
   The landlord may owe the tenant money if they violated the tenant's right to live peacefully in their home. The money may
   reduce the amount of rent the tenant owes or mean that the tenant does not owe any rent to the landlord.
 
   The tenant has a claim of **Breach of Covenant of Quiet Enjoyment** if the landlord is responsible for a substantial
-  disruption in the use and quiet enjoyment of the rental property.
+  disruption in the use and {quiet enjoyment} of the rental property.
   % endif
 ---
 id: Rent paid

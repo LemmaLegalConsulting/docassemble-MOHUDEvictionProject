@@ -5,6 +5,7 @@ include:
   - al_reminders.yml
   - docassemble.ALToolbox:display_template.yml
   - court_information.yml
+  - autoterms.yml
 ---
 code: |
   feedback_form = f"{user_info().package}:feedback.yml"
@@ -160,7 +161,7 @@ sets:
   - users[0].attorney[0].name.middle
   - users[0].attorney[0].name.suffix
 question: |
-  Your name (as the attorney signing the pleading)
+  Your name (as the attorney signing the {pleadings|pleading})
 fields:
   - code: |
       users[0].attorney[0].name_fields()
@@ -175,7 +176,7 @@ sets:
 id: tenants attorney address
 generic object: ALIndividual
 question: |
-  What is your address for the pleading?
+  What is your address for the {pleadings|pleading}?
 fields:
   - code: |
       users[0].attorney[0].address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)
@@ -198,7 +199,7 @@ code: |
 ---
 id: any other opposing parties
 question: |
-  Is there another **Plaintiff** in this eviction case?
+  Is there another Plaintiff in this eviction case?
 subquestion:  |
   You have already told us about ${ other_parties.complete_elements() }.
 
@@ -214,7 +215,7 @@ subquestion:  |
 
   ${ warn_picture_is_example_template }
   % else:
-  If you have the Summons and Petition, the name of each Plaintiff is listed
+  If you have the {Summons} and {Petition}, the name of each {Plaintiff} is listed
   in the box labeled "Plaintiff". 
   % endif  
 fields:
@@ -240,7 +241,7 @@ subquestion: |
   landlord's name, and the attorney's name and address will be to the right.
   % endif
 fields:
-  - Is ${ other_parties[i] } represented by an attorney?: other_parties[i].attorney.there_are_any
+  - Is ${ other_parties[i] } represented by an {attorney}?: other_parties[i].attorney.there_are_any
     datatype: yesnoradio
 ---
 id: opposing attorney name
@@ -263,7 +264,7 @@ question: |
 
   ${ warn_picture_is_example_template }
   % else:
-  What is the name and address of ${ other_parties[i] }'s attorney?
+  What is the name and address of ${ other_parties[i] }'s {attorney}?
   % endif
 fields:
   - code: |
@@ -307,9 +308,9 @@ question: |
   % endif
 subquestion: |
   % if person_answering == "tenant":
-  The Summons will say the time and date of your original court hearing.
+  The {Summons} will say the time and date of your original court hearing.
   % else:
-  The Summons will say the time and date of the tenant's original court hearing.
+  The {Summons} will say the time and date of the tenant's original court hearing.
   % endif
   
   [FILE MOSummonsCourtDate.png, 100%]
@@ -392,12 +393,12 @@ subquestion: |
     Your name should be listed next to the word "Defendant." The landlord's name should be listed
     next to the word "Plaintiff." The name may look different than it does on your lease.
     
-    Who is listed as the first Plaintiff? If there is more than one Plaintiff, you can name them later.
+    Who is listed as the first {Plaintiff}? If there is more than one Plaintiff, you can name them later.
   % else:
-    Who is the ${ ordinal(i) } Plaintiff listed on your case?
+    Who is the ${ ordinal(i) } {Plaintiff} listed on your case?
   % endif
   % elif tenant_got_summons and petition_available:
-  Look at the Summons and Petition, and write the name of the ${ ordinal(i) } "Plaintiff"
+  Look at the {Summons} and {Petition}, and write the name of the ${ ordinal(i) } "Plaintiff"
   exactly as it is written on the Summons and Petition.
   
   [FILE ComplaintCaptionPlaintiff.png, 100%]
@@ -421,7 +422,7 @@ continue button field: signpost_case_net_for_landlord_name
 question: |
   Do you want to check your landlord's name online?
 subquestion: |
-  You said you don't have the Summons and Petition with you. If you want, 
+  You said you don't have the {Summons} and {Petition} with you. If you want, 
   you can check your landlord's name online on a free website run by the
   Missouri Court.
 
@@ -504,9 +505,9 @@ fields:
     hide if: dont_know_docket_number
   - note: |
       % if person_answering == "tenant":
-      You will need to add the case number before you file the document.  You can finish this interview, but it is recommended that you find the summons or the online docket to add the case number.
+      You will need to add the case number before you file the document.  You can finish this interview, but it is recommended that you find the {summons} or the online docket to add the case number.
       % else:
-      The tenant will need to add the case number before the tenant files the document.  You can finish this interview, but it is recommended that you find the summons or the online docket to enter the case number now.
+      The tenant will need to add the case number before the tenant files the document.  You can finish this interview, but it is recommended that you find the {summons} or the online docket to enter the case number now.
       % endif     
     show if: dont_know_docket_number
 validation code: |
@@ -518,7 +519,7 @@ template: find_case_number_docket_template
 subject: |
   Where is the case number in the online docket?
 content: |
-  The case number is at of the top of the webpage, next to the names of the Plaintiff and Defendant.
+  The case number is at of the top of the webpage, next to the names of the {Plaintiff} and {Defendant}.
   
   [FILE CaseHeaderNumber.png, 100%]
 
@@ -526,9 +527,9 @@ content: |
 ---
 template: find_case_number_summons_template
 subject: |
-  Where is the case number in the summons?
+  Where is the case number in the {summons}?
 content: |
-  The case number is at of the top of the webpage, next to the names of the Plaintiff and Defendant.
+  The case number is at of the top of the webpage, next to the names of the {Plaintiff} and {Defendant}.
   
   [FILE MOSummonsNumber.png, 100%]
 
@@ -543,12 +544,12 @@ question: |
   Did the tenant get a Summons and Petition?
   % endif
 subquestion: |
-  The {Summons} will look like this:
+  The Summons will look like this:
  
   [CENTER]
   [FILE MOSummons.png]
  
-  The {Petition} looks different in some counties, but it may look like this:
+  The Petition looks different in some counties, but it may look like this:
  
   [CENTER]
   [FILE ComplaintForm.png]
@@ -563,9 +564,9 @@ fields:
     datatype: yesnomaybe
   - label: |
       % if person_answering == "tenant":
-      How did you get the {Summons} and {Petition}?
+      How did you get the Summons and Petition?
       % else:
-      How did the tenant get the {Summons} and {Petition}?
+      How did the tenant get the Summons and Petition?
       % endif
     field: method_of_summons_service
     datatype: checkboxes
@@ -581,43 +582,26 @@ fields:
     show if: tenant_got_summons
   - label: |
       % if person_answering == "tenant":
-      Do you have the {Summons} next to you now?
+      Do you have the Summons next to you now?
       % else:
-      Does the tenant have the {Summons} next to them now?
+      Does the tenant have the Summons next to them now?
       % endif
     field: petition_available
     datatype: yesnoradio
     show if: tenant_got_summons
   - note: |
       % if person_answering == "tenant":
-      **You may want to stop and get the {Summons} and {Petition} now.** It can help you answer
+      **You may want to stop and get the Summons and Petition now.** It can help you answer
       the questions on this website more accurately. If you cannot easily get it,
       it is OK to keep going.
       % else: 
-      **The tenant may want to stop and get the {Summons} and {Petition} now.** It can help them answer
+      **The tenant may want to stop and get the Summons and Petition now.** It can help them answer
       the questions on this website more accurately. If they cannot easily get it,
       it is OK to keep going.
       % endif
     show if: 
       variable: petition_available
       is: False
-terms:
-  Summons: |
-    % if person_answering == "tenant":
-    The Summons is the form that the Court sends you to tell you 
-    to attend a court hearing.
-    % else: 
-    The Summons is the form that the Court sends the tenant to 
-    tell them to attend a court hearing.
-    % endif
-  Petition: |
-    % if person_answering == "tenant":
-    The Landlord's Petition is the form that your landlord must 
-    file with the court to start an eviction case.
-    % else: 
-    The Landlord's Petition is the form that the tenant's 
-    landlord must file with the court to start an eviction case.
-    % endif
 ---
 variable name: method_of_summons_service_text
 use objects: True
@@ -671,9 +655,9 @@ question: |
   Is any other tenant listed on this eviction case?
 subquestion: |
   % if person_answering == "tenant":
-  In an eviction case, tenants are called Defendants. Defendants are listed underneath the Plaintiffs, and your name and address should be included as a Defendant.
+  In an eviction case, tenants are called Defendants. Defendants are listed underneath the {Plaintiff|Plaintiffs}, and your name and address should be included as a Defendant.
   % else:
-  In an eviction case, tenants are called Defendants. Defendants are listed underneath the Plaintiffs, and the tenant's name and address should be included as a Defendant.
+  In an eviction case, tenants are called Defendants. Defendants are listed underneath the {Plaintiff|Plaintiffs}, and the tenant's name and address should be included as a Defendant.
   % endif
   % if tenant_got_summons and petition_available and len(users)==1:
   
@@ -684,9 +668,9 @@ subquestion: |
 fields:
   - label: |
       % if person_answering == "tenant":
-      Are there any other Defendants listed besides you?
+      Are there any other {Defendant|Defendants} listed besides you?
       % else:
-      Are there any other Defendants listed besides the tenant?
+      Are there any other {Defendant|Defendants} listed besides the tenant?
       % endif
     field: users.there_is_another
     datatype: yesnoradio
@@ -789,7 +773,7 @@ question: |
   At what address will the tenant serve ${ x.attorney }?
   % endif
 subquestion: |
-  ${ x } is represented by attorney ${ x.attorney }. When somebody is represented by an attorney, the attorney must be served.
+  ${ x } is represented by attorney ${ x.attorney }. When somebody is represented by an {attorney}, the attorney must be served.
 fields:
   - ${ x }'s service address is: x.service_address
     datatype: object_radio
