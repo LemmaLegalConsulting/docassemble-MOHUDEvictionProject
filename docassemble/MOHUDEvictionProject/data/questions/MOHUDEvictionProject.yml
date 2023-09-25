@@ -19,6 +19,9 @@ metadata:
   al_weaver_version: "1.7.0"
   generated on: "2022-09-08"
 ---
+modules:
+  - docassemble.ALToolbox.al_income
+---
 code: |
   interview_short_title = "Eviction Defender"
 ---
@@ -125,10 +128,11 @@ code: |
   if not tenant_got_summons or not petition_available:
     if not trial_court.county == None and tenant_using_casenet:
       docket_review
-  if not case_type["AC Rent and Possession"] and not case_type["AC Landlord Action (Bulk)"]:
-    if unlawful_detainer_kick_out_option:
-      motion_to_continue_order
-      interview_order_eviction_defender = True
+
+  # Eviction reasons
+  case_type
+  if eviction_reason.any_true("lease violation", "criminal activity"):
+    defense_no_breach
 
   ######## About your tenancy
   nav.set_section("section_eviction_answer_tenancy")  
@@ -139,6 +143,9 @@ code: |
   set_progress(50)
   nav.set_section("section_eviction_answer_defenses")
   signpost_claims_and_defenses
+  if got_notice_to_terminate:
+    if not is_rent_subsidized and kind_of_lease_agreement == "fixed_period":
+      lease_says_how_much_notice
   if (
     (has_written_lease and not lease_attached) 
     or not has_written_lease
@@ -154,20 +161,21 @@ code: |
     notice_of_foreclosure
   
   set_progress(75)
-  petition_states_rent_amount
-  petition_states_rent_periods
-  
-  offer_attempts.gather()
-  was_rent_paid
-  will_offer_payment
-  if is_rent_subsidized:
-    excessive_rent
+  if eviction_reason["nonpayment of rent"]:
+    petition_states_rent_amount
+    petition_states_rent_periods
+    offer_attempts.gather()
+    was_rent_paid
+    will_offer_payment
+    if is_rent_subsidized:
+      excessive_rent
+    if late_fees_assessed and trial_court.circuit == 21:
+      petition_separates_nonrent
   if late_fees_assessed:
     late_fees_penalty
-    if trial_court.circuit == 21:
-      petition_separates_nonrent
-  petition_states_demand_made
-  landlord_problems_section
+  if eviction_reason["nonpayment of rent"]:
+    petition_states_demand_made
+    landlord_problems_section
 
   if landlord_agreement:
     tenant_compliance_with_agreement
@@ -466,29 +474,6 @@ comment: |
   petition_requirements
   petition_review = True
 ---
-id: unlawful detainer kick out
-question: |
-  % if person_answering == "tenant":
-  Sorry, we can't help with your {eviction}
-  % else: 
-  Sorry, we can't help with this tenant's {eviction}
-  % endif
-subquestion: |
-  % if person_answering == "tenant":
-  **Currently, we can only help when your landlord is evicting you because you have not paid your rent.**  This type of eviction is called a {Rent and Possession} case.  If you are being evicted for another reason, contact [a Missouri legal aid provider](https://www.lsmo.org/).
-  % else: 
-  **Currently, we can only help when a landlord is evicting a tenant because they have not paid their rent.**  This type of eviction is called a {Rent and Possession} case. If a tenant is being evicted for another reason, contact [a Missouri legal aid provider](https://www.lsmo.org/).
-  % endif
-buttons:
-  - I understand, let me keep going:
-      code: |
-        unlawful_detainer_kick_out_option = False
-  - Just make a motion to continue:
-      code: |
-        unlawful_detainer_kick_out_option = True
-  - Exit: exit
-    url: https://motenanthelp.org/
----
 id: add motion to continue if hearing not in the past
 depends on: original_hearing_date_past
 code: |
@@ -496,10 +481,8 @@ code: |
 ---
 id: eviction answer determination code
 code: |
-  if (not case_type["AC Rent and Possession"] and not case_type["AC Landlord Action (Bulk)"]) and unlawful_detainer_kick_out_option:
-    eviction_answer_attachment.enabled = False
-  else:
-    eviction_answer_attachment.enabled = True
+  # We now handle unlawful detainer cases
+  eviction_answer_attachment.enabled = True
 ---
 id: signpost claims and defenses section
 decoration: user-shield
@@ -518,33 +501,63 @@ subquestion: |
   A counterclaim is a reason why your landlord should pay you money.
 continue button field: signpost_claims_and_defenses
 ---
+id: do you agree with the landlord
+question: |
+  Landlord's reason for eviction
+subquestion: |
+  % if person_answering == "tenant":
+  Your landlord says that they are evicting you because:
+  % else:
+  The landlord says that they are evicting the tenant because:
+  % endif
+
+  % for reason in eviction_reason.true_values():
+   - ${ reason }
+  % endfor
+
+  % if person_answering == "tenant":
+  Do you agree with your landlord's reason for eviction, or do you deny it?
+
+  If at least **one** of the reasons or facts that the landlord
+  claims about you is not true, you should deny the landlord's reason for eviction.
+  % else:
+  Does the tenant agree with the landlord's reason for eviction?
+
+  If at least **one** of the reasons or facts that the landlord
+  claims about the tenant is not true, you should deny the landlord's reason for eviction.
+  % endif  
+fields:
+  - label: |
+      % if person_answering == "tenant":
+      I deny doing what the landlord says that I did
+      % else:
+      The tenant denies doing what the landlord says that they did
+      % endif
+    field: defense_no_breach
+    datatype: yesnoradio
+  - label: |
+      % if person_answering == "tenant":
+      Even if what the landlord says happened is true, I deny that the reason the landlord gave is a good enough reason
+      to evict me.
+      % else:
+      Even if what the landlord says happened is true, the tenant denies that the reason the landlord gave is a good enough reason
+      to evict the tenant.
+      % endif
+    field: defense_breach_not_material
+    datatype: yesnoradio
+---
 id: defenses explanation
 continue button field: explanation_answer
 question: |
   You may have defenses to the eviction
 subquestion: |
-  Based on your answers, you may have the following defenses to the eviction case:
+  ${ nonpayment_defense_explanation_template }
+---
+template: nonpayment_defense_explanation_template
+content: |
+  Based on your answers, the following defenses are included in your answer:
   % if defense_rent_pleading_requirement:
-  
-  **Landlord failed to state a claim for {rent and possession}**
-
-  A landlord must include specific things in the landlord's {petition} in order to be able to evict.  Your landlord failed to include the following things: 
-  % if petition_alleges_nonrent == True:
-  
-   - a claim that you owe rent (the petition says that you owe for other charges)
-  % endif
-  % if petition_states_rent_amount == False:
-  
-   - an exact amount of what you owe in rent
-  % endif
-  % if petition_states_rent_periods == False:
-  
-   - the months that you supposedly owe rent
-  % endif
-  % if petition_states_demand_made == False:
-  
-   - a claim that the landlord demanded rent from you
-  % endif
+  ${ collapse_template(defense_rent_pleading_requirement_template) }
   % endif
   % if defense_lease_not_attached:
   
@@ -583,28 +596,7 @@ subquestion: |
   
   % endif
   % if defense_liquidated_damages_late_fees:
-  
-  **The late fees attached to the Landlord’s {Petition} are** 
-  % if late_fees_penalty:
-  **an unfair penalty**
-  % if not late_fees_lease_provision or late_fee_doesnt_comply_with_lease:
-  **and** 
-  % endif
-  % endif
-  % if not late_fees_lease_provision or late_fee_doesnt_comply_with_lease:
-  **an unauthorized charge**
-  % endif  
-
-  % if late_fees_penalty:
-  Late fees must be based on what it actually costs the landlord when a tenant pays late.  
-  % endif
-  % if not late_fees_lease_provision:
-  Late fees can't be charged if the late fees are not authorized by the {lease}.
-  % elif late_fee_doesnt_comply_with_lease:
-  Late fees that do not comply with the {lease} can't be charged.
-  % endif
-
-  This defense alone may not help you avoid the eviction, but it can reduce the amount of money you owe the landlord.
+  ${ collapse_template(defense_liquidated_damages_late_fees_template) }
   % endif
   % if defense_estoppel_illegality:
   
@@ -621,9 +613,7 @@ subquestion: |
   % endif
   % if defense_foreclosure:
   
-  **The premises have been foreclosed upon but the Landlord has not followed proper procedures**
-
-  There are special protections for tenants when their landlord loses the home through {foreclosure}.  The new owner of the home is required to provide notice of the foreclosure.
+  ${ collapse_template(defense_foreclosure_template) }
   % endif
   % if defense_new_owner_failed_to_provide_notice_of_sale:
   
@@ -632,11 +622,9 @@ subquestion: |
   There are special protections for tenants when their landlord sells the tenant's home.  The new owner of the home is required to provide proof of the sale.
   % endif
   % if defense_unrepresented_corporation:
-  
-  **The Landlord is required to have an attorney in this case and it must be dismissed**
-
-  A business entity, like a corporation, must have an {attorney} to evict a tenant in court.
+  ${ collapse_template(defense_unrepresented_corporation_template) }
   % endif
+
   % if defense_excessive_rent_for_subsidized_housing:
   
   **Plaintiff has charged Defendant excessive rent in violation of the housing subsidy**
@@ -690,6 +678,72 @@ subquestion: |
   
   % endif
 ---
+template: defense_rent_pleading_requirement_template
+subject: |
+  Landlord failed to state a claim for rent and possession
+content: |
+  A landlord must include specific things in the landlord's petition in order to be able to evict.  Your landlord failed to include the following things: 
+  % if petition_alleges_nonrent == True:
+  
+   - a claim that you owe rent (the petition says that you owe for other charges)
+  % endif
+  % if petition_states_rent_amount == False:
+  
+   - an exact amount of what you owe in rent
+  % endif
+  % if petition_states_rent_periods == False:
+  
+   - the months that you supposedly owe rent
+  % endif
+  % if petition_states_demand_made == False:
+  
+   - a claim that the landlord demanded rent from you
+  % endif
+  % if trial_court.circuit == 21 and not petition_separates_nonrent:
+  
+   - rent charges that are separated from other charges
+  % endif
+  % if (not has_written_lease and not petition_states_terms_of_lease) or (has_written_lease and not lease_attached and not petition_states_terms_of_lease):
+  
+   - either the attached lease or the terms of the lease
+  % endif
+---
+template: defense_liquidated_damages_late_fees_template
+subject: |
+  The late fees attached to the Landlord’s Petition are
+  % if late_fees_penalty:
+  an unfair penalty
+  % if not late_fees_lease_provision or late_fee_doesnt_comply_with_lease:
+   and 
+  % endif
+  % endif
+  % if not late_fees_lease_provision or late_fee_doesnt_comply_with_lease:
+  an unauthorized charge
+  % endif  
+content: |
+  % if late_fees_penalty:
+  Late fees must be based on what it actually costs the landlord when a tenant pays late.  
+  % endif
+  % if not late_fees_lease_provision:
+  Late fees can't be charged if the late fees are not authorized by the lease.
+  % elif late_fee_doesnt_comply_with_lease:
+  Late fees that do not comply with the lease can't be charged.
+  % endif
+
+  This defense alone may not help you avoid the eviction, but it can reduce the amount of money you owe the landlord.
+---
+template: defense_foreclosure_template
+subject: |
+  The premises have been foreclosed upon but the Landlord has not followed proper procedures
+content: |
+  There are special protections for tenants when their landlord loses the home through foreclosure.  The new owner of the home is required to provide notice of the foreclosure
+---
+template: defense_unrepresented_corporation_template
+subject: |
+  The Landlord is required to have an attorney in this case and it must be dismissed
+content: |
+  A business entity, like a corporation, must have an attorney to evict a tenant in court.
+---  
 id: next steps explanation
 question:  Print, Sign, Serve and File
 ---
@@ -815,7 +869,7 @@ review:
         - defense_logic
     button: |
       Type of Subsidized Housing:
-      **${ subsidized_housing_text["subsidized_housing_type"] }**
+      **${ subsidized_housing_text[subsidized_housing_type] }**
   - Edit:
       - unfair_duress
       - recompute:
@@ -1260,11 +1314,11 @@ review:
       % for item in cqe_breaches.true_values():
       % if item == "other":
       
-       - **${ other_cqe_breach }**
+       - **${ other_cqe_breach.strip() }**
       
       % else:
       
-       - **${ cqe_breaches_text[item] }**
+       - **${ cqe_breaches_text[item].strip() }**
       
       % endif
       % endfor

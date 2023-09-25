@@ -1,24 +1,103 @@
+---
+modules:
+  - .defenses
+---
 id:  defense logic order
 comment: |
   This can't be the best way to do this. Can a DADict act like a checkboxes dictionary?
 code: |
-  defense_rent_pleading_requirement
+  defense_vawa
+  defense_reasonable_accommodation
+  defense_discrimination
+  defense_ll_refused_section_8
+  if eviction_reason["nonpayment of rent"]:
+    defense_rent_pleading_requirement
   defense_lease_not_attached
-  defense_tender_refused
-  defense_rent_payment
+  if eviction_reason["nonpayment of rent"]:
+    defense_tender_refused
+    defense_rent_payment
+    defense_excessive_rent_for_subsidized_housing
   defense_settlement
   defense_lease_signed_under_duress
   defense_fraud_lease
-  defense_liquidated_damages_late_fees
-  defense_breach_of_habitability
-  defense_breach_of_cqe
-  defense_estoppel_illegality
+  if eviction_reason["nonpayment of rent"]:
+    defense_liquidated_damages_late_fees
+  if eviction_reason["nonpayment of rent"]:
+    defense_breach_of_habitability
+    defense_breach_of_cqe
+    defense_estoppel_illegality
   defense_foreclosure
   defense_new_owner_failed_to_provide_notice_of_sale
   defense_unrepresented_corporation
-  defense_no_landlord_tenant_relationship
-  defense_excessive_rent_for_subsidized_housing
+  
+  # UD defenses
+  
+  if got_notice_to_terminate:
+    defense_ud_no_written_notice
+    defense_ud_no_rental_period_notice
+    defense_ud_lease_requirements
+    defense_termination_notice_required_by_law
+
   defense_logic = True
+---
+depends on:
+  - defense_no_breach
+  - defense_breach_not_material
+code: |
+  defense_ud_did_not_violate_lease = (
+    defense_no_breach or
+    defense_breach_not_material
+  )
+---
+depends on:
+  - got_notice_to_terminate
+  - has_written_lease
+  - lease_says_how_much_notice
+  - landlord_gave_notice_required_by_lease
+code: |
+  defense_ud_lease_requirements = got_notice_to_terminate and (
+    has_written_lease and
+    lease_says_how_much_notice and
+    not landlord_gave_notice_required_by_lease
+  )
+---
+code: |
+  # See: 24 C.F.R. § 247.4 (c)
+  # COVID-19 emergency currently not in effect
+  is_federal_emergency = False
+---
+depends on:
+  - is_federal_emergency
+  - eviction_reason
+  - subsidized_housing_type
+  - received_notice_date
+  - notice_to_terminate_includes_specific_day
+  - termination_of_tenancy_date
+code: |
+  defense_termination_notice_required_by_law = got_notice_to_terminate and has_improper_notice_required_by_law(
+      is_federal_emergency,
+      eviction_reason,
+      is_rent_subsidized,
+      received_notice_date,
+      notice_to_terminate_includes_specific_day,
+      showifdef("rent_day", 1),
+      showifdef("rent_period", 12),
+      showifdef("termination_of_tenancy_date") or None,
+  )
+---
+depends on:
+  - got_notice_to_terminate
+  - defense_ud_no_written_notice
+  - defense_ud_no_rental_period_notice
+  - defense_ud_lease_requirements
+  - defense_termination_notice_required_by_law
+code: |
+  defense_failure_to_terminate = (not got_notice_to_terminate) or (
+    defense_ud_no_written_notice or 
+    defense_ud_no_rental_period_notice or
+    defense_ud_lease_requirements or
+    defense_termination_notice_required_by_law
+  )
 ---
 id: rent pleadings requirement logic
 depends on:
@@ -34,7 +113,7 @@ depends on:
   - petition_separates_nonrent
   - has_written_lease
 code: |
-  if tenant_got_summons and petition_available:
+  if eviction_reason["nonpayment of rent"] and tenant_got_summons and petition_available:
     if petition_alleges_nonrent or not petition_states_rent_amount or (not has_written_lease and not petition_states_terms_of_lease) or (has_written_lease and not lease_attached and not petition_states_terms_of_lease) or not petition_states_rent_periods or not petition_states_demand_made or (trial_court.circuit == 21 and not petition_separates_nonrent):
       defense_rent_pleading_requirement = True
     else:
@@ -60,20 +139,25 @@ code: |
 id: tender refused logic
 depends on: offer_attempts
 code: |
-  defense_tender_refused = False
-  if offer_attempts.there_are_any:
-    for offer in offer_attempts:
-      if offer.has_refused_payment and offer.was_attempt_full:
-        defense_tender_refused = True
+  if eviction_reason["nonpayment of rent"]:
+    defense_tender_refused = False
+    if offer_attempts.there_are_any:
+      for offer in offer_attempts:
+        if offer.has_refused_payment and offer.was_attempt_full:
+          defense_tender_refused = True
+  else:
+    defense_tender_refused = None
 comment: |
   add date requirement
 ---
 id: rent payment defense logic
 code: |
-  if was_rent_paid:
+  if eviction_reason["nonpayment of rent"] and was_rent_paid:
     defense_rent_payment = True
-  else:
+  elif eviction_reason["nonpayment of rent"] and not was_rent_paid:
     defense_rent_payment = False
+  else:
+    defense_rent_payment = None    
 depends on: was_rent_paid
 ---
 id: settlement defense logic
@@ -410,28 +494,35 @@ id: cqe breach logic
 comment: |
   Are we going to separate levels of cqe breach? E.g. (1) mere breach, (2) constructive eviction, (3) significant enough to physically deprive the tenant of possession.
 code: |
-  if cqe_breaches.any_true():
+  if eviction_reason["nonpayment of rent"] and cqe_breaches.any_true():
     defense_breach_of_cqe = True
-  else:
+  elif eviction_reason["nonpayment of rent"] and not cqe_breaches.any_true():
     defense_breach_of_cqe = False
+  else:
+    defense_breach_of_cqe = None
 depends on: cqe_breaches
 ---
 id: estoppel defense logic
 code: |
-  if estoppel_breaches.any_true() or defense_breach_of_cqe:
-    defense_estoppel_illegality = True
+  if eviction_reason["nonpayment of rent"]:
+    if estoppel_breaches.any_true() or defense_breach_of_cqe:
+      defense_estoppel_illegality = True
+    else:
+      defense_estoppel_illegality = False
   else:
-    defense_estoppel_illegality = False
+    defense_estoppel_illegality = None
 depends on:
   - estoppel_breaches
   - defense_breach_of_cqe
 ---
 id: warranty breach logic
 code: |
-  if warranty_breaches.any_true() == True:
+  if eviction_reason["nonpayment of rent"] and warranty_breaches.any_true():
     defense_breach_of_habitability = True
-  else:
+  elif eviction_reason["nonpayment of rent"] and not warranty_breaches.any_true():
     defense_breach_of_habitability = False
+  else:
+    defense_breach_of_habitability = None
 depends on:
   - warranty_breaches
   - notice_of_breach_to_landlord
@@ -487,7 +578,7 @@ fields:
 ---
 id: new owner logic for all counties
 code: |
-  if previous_landlord_sold_property and (notice_of_sale_provided_new_landlord == False or not notice_contains_sale_document == False):
+  if previous_landlord_sold_property and (notice_of_sale_provided_new_landlord == False or notice_contains_sale_document == False):
     defense_new_owner_failed_to_provide_notice_of_sale = True
   else:
     defense_new_owner_failed_to_provide_notice_of_sale = False
@@ -558,17 +649,6 @@ code: |
 depends on:
   - other_parties
 ---
-id: lease not attached defense
-code: |
-  if defense_lease_not_attached or defense_lease_signed_under_duress or defense_fraud_lease:
-    defense_no_landlord_tenant_relationship = True
-  else:
-    defense_no_landlord_tenant_relationship = False
-depends on:
-  - defense_lease_not_attached
-  - defense_lease_signed_under_duress
-  - defense_fraud_lease
----
 id: subsidized excessive rent defense
 code: |
   if is_rent_subsidized and excessive_rent:
@@ -579,6 +659,16 @@ depends on:
   - is_rent_subsidized
   - excessive_rent
 ---
+variable name: times_per_year_list
+data:
+  - [52, "Weekly"]
+  - [26, "Once every two weeks"]
+  - [24, "Twice per month"]
+  - [12, "Monthly"]
+  - [4, "Once every 3 months"]
+  - [2, "Once every 6 months"]
+  - [1, "Yearly"]  
+---
 id: subsidized housing identification
 question: |
   % if person_answering == "tenant":
@@ -586,6 +676,15 @@ question: |
   % else: 
   What kind of housing does the tenant have?
   % endif
+subquestion: |
+  % if person_answering == "tenant":
+  It may help to look at your lease to answer this question.
+  % else:
+  It may help to look at the tenant's lease to answer this question.
+  % endif
+  If you do not have it, do your best to answer from your memory.
+
+  ${ collapse_template(why_tenancy_facts_template) }
 fields:
   - label: |
       % if person_answering == "tenant":
@@ -614,13 +713,380 @@ fields:
     show if:
       variable: is_rent_subsidized
       is: True
+  - Do you live in a mobile  home that you own, and rent the land?: is_mobile_home_owner
+    datatype: yesnoradio
+    show if:
+      variable: is_rent_subsidized
+      is: False
+  - How many units are in the building or apartment complex?: number_of_units_in_building
+    input type: radio
+    show if:
+      variable: is_rent_subsidized
+      is: False
+    choices:
+      - One (single-family): one
+      - More than 1 but fewer than 4: fewer_than_four
+      - 4 or more: four_or_more
+  - label: |
+      % if person_answering == "tenant":
+      What kind of lease do you have?
+      % else:
+      What kind of lease does the tenant have?
+      % endif
+    field: kind_of_lease_agreement
+    input type: radio
+    choices:
+      - A lease for a fixed period of time (like 1 year): fixed_period
+      - A month-to-month, week-to-week or other lease that automatically renews: periodic
+      - I don't have have a written lease: no_written_lease
+      - I don't know: dont_know
+  - What day does the lease end?: fixed_period_end_date
+    datatype: date
+    show if:
+      variable: kind_of_lease_agreement
+      is: fixed_period
+  - label: |
+      **Self-extending leases.**
+
+      Some leases include a term that says the lease will automatically renew
+      or that it will turn into a month-to-month lease when the term ends.
+
+      For example: _"a new tenancy from month-to-month shall be created between Landlord and Tenant...,"_
+      or: _"This lease shall automatically renew for successive terms ... unless..."_
+
+      Does this lease include a term like that?
+    label above field: True
+    show if:
+      variable: kind_of_lease_agreement
+      is: fixed_period
+    field: is_self_extending_lease
+    datatype: yesnomaybe
+  - label: |
+      **How often** is rent due?
+    field: rent_period
+    datatype: integer
+    input type: radio
+    code: |
+      times_per_year_list
+    show if:
+      variable: kind_of_lease_agreement
+      is: periodic
+  - label: |
+      What **day** is rent due?
+      (enter a number, like **1** for the first day of the month or week)
+    help: |
+      The most common rent days are the first and the 5th of the month.
+    field: rent_day
+    datatype: integer
+    show if:
+      variable: kind_of_lease_agreement
+      is: periodic
+---
+template: why_tenancy_facts_template
+subject: |
+  Why does this matter?
+content: |
+  The questions on this page help decide:
+  
+  * what kind of notice the landlord must give you
+  * whether your landlord must follow discrimination laws
+
+  Depending on your answer you may have a defense to the eviction.
+---
+id: disability
+question: |
+  Disability and reasonable accommodation
+subquestion: |
+  If you have a disability, you have the right to use your housing in the same 
+  way as someone without a disability.
+
+  You may have the right to a change in:
+
+  * The rules of your housing, or
+  * The physical structure of your housing.
+
+  If the change would help you stay in your housing or solve the problem that
+  the landlord is complaining about, it may be a defense (stop your eviction).
+
+  The disability can be yours or it can be a disability of someone in your
+  household.
+
+  ${ collapse_template(what_is_disability_template) }
+
+  ${ collapse_template(disability_defense_example_template) }
+fields:
+  - label: |
+      % if person_answering == "tenant":
+      Do you or does someone who lives with you have a disability?
+      % else:
+      Does the tenant or a household member have a disability?
+      % endif
+    field: tenant_has_disability
+    datatype: yesnomaybe
+  - label: |
+      What is the disability?
+      (optional)
+    field: tenant_disability
+    show if: tenant_has_disability
+    required: False
+    help: |
+      You do not have to say what the disability is. But it may help the judge
+      to know.
+  - label: |
+      % if person_answering == "tenant":
+      Would a change in the rules or the physical structure of your housing help you use or stay in your housing?
+      % else:
+      Would a change in the rules or the physical structure of the tenant's housing help them use or stay in their housing?
+      % endif
+    field: tenant_needs_accommodation
+    datatype: yesnomaybe
+    show if: tenant_has_disability
+  - How? (optional): tenant_accommodation_description
+    show if: tenant_needs_accommodation
+    required: False
+    datatype: area
+    help: |
+      Explain the connection between the disability, the change you need,
+      and how the change could prevent the need for the eviction.
+  - Is the change "reasonable"?: tenant_accommodation_reasonable
+    show if: tenant_needs_accommodation
+    datatype: yesnomaybe
+    help: |
+      It is up to a judge to decide if a change is reasonable. But think about the cost
+      and impact on the landlord of making the change.
+  - label: |
+      % if person_answering == "tenant":
+      Did you **ask** your landlord to change the rules or the physical structure of your housing?
+      % else:
+      Did the tenant **ask** their landlord to change the rules or the physical structure of their housing?
+      % endif
+    field: tenant_asked_for_accommodation
+    datatype: yesnomaybe
+    js show if: | 
+      val("tenant_has_disability") && val("tenant_needs_accommodation")
+  - label: |
+      Would you like to ask now?
+    field: tenant_wants_accommodation_in_answer
+    datatype: yesnoradio
+    show if: 
+      variable: tenant_asked_for_accommodation
+      is: False
+  - label: |
+      % if person_answering == "tenant":
+      Did your landlord say **no**?
+      % else:
+      Did the tenant's landlord **refuse** the request?
+      % endif
+    field: landlord_refused_accommodation
+    datatype: yesnomaybe
+    show if: tenant_asked_for_accommodation
+---
+template: disability_defense_example_template
+subject: |
+  Can you give me an example?
+content: |
+  <h2 class="h4">Example 1: child making noise</h2>
+  A tenant's child with autism made a lot of noise.
+
+  The tenant asked the landlord to give them time to see if the child's new therapy
+  would help reduce the noise. They also offered to use rugs on more floors.
+
+  <h2 class="h4">Example 2: late payment of rent</h2>
+  A tenant's disability check often came late, making the tenant late when paying
+  their rent.
+
+  The tenant asked the landlord to move the rent due date to the 10th of each month.
+
+  <h2 class="h4">What happened</h2>
+  In both examples above, a judge ordered the landlord to accept the tenant's request
+  for a change in the rules and to stop the eviction, because:
+
+  * the request was related to the disability, and
+  * it was reasonable (something the landlord could do without too much cost or trouble).
+---
+depends on:
+  - tenant_has_disability
+  - tenant_needs_accommodation
+  - tenant_asked_for_accommodation
+code: |
+  defense_reasonable_accommodation = tenant_has_disability and tenant_needs_accommodation and tenant_asked_for_accommodation and landlord_refused_accommodation
+---
+id: st louis section 8 protection
+question: |
+  Section 8 protection for tenants in St Louis
+subquestion: |
+  If you live in St Louis, your landlord cannot refuse to accept a Section 8
+  voucher.
+fields:
+  - label: |
+      % if person_answering == "tenant":
+      Did your landlord refuse to accept your Section 8 voucher?
+      % else:
+      Did the tenant's landlord refuse to accept their Section 8 voucher?
+      % endif
+    field: landlord_refused_section_8
+    datatype: yesnoradio
+---
+depends on:
+  - users[0].address.city
+  - landlord_refused_section_8
+code: |
+  defense_ll_refused_section_8 = users[0].normalized_address().city == "St. Louis" and landlord_refused_section_8
+---
+template: what_is_disability_template
+subject: |
+  What is a disability?
+content: |
+  A disability is a physical or mental impairment that substantially limits one or more major life activities.
+
+  Major life activities include:
+
+  * Caring for yourself
+  * Seeing
+  * Hearing
+  * Communicating
+  * Working
+  * And other things you may need to do in your daily life.
+
+  You do **not** need to be disabled all the time to have a disability.
+  You do not need a doctor's diagnosis to have a disability. But a diagnosis 
+  may help to prove your case in court.
+---
+id: discrimination
+question: |
+  Discrimination
+subquestion: |
+  You have the right to be free from discrimination in housing.
+
+  If:
+
+  1. You are a member of a protected class, and
+  2. The reason you are being treated differently or denied housing is 
+     **because** of your protected class,
+
+  Discrimination law protects you from:
+
+  * Being treated differently,
+  * Being denied housing, or
+  * Being unfairly evicted
+fields:
+  - label: |
+      % if person_answering == 'tenant':
+      I believe my landlord is discriminating against me
+      % else:
+      The landlord discriminated against the tenant
+      % endif
+    field: tenant_believes_discrimination
+    datatype: yesnoradio
+  - label: |
+      % if person_answering == "tenant":
+      I believe my landlord is discriminating against me because of:
+      % else:
+      The tenant believes their landlord is discriminating against them because of:
+      % endif
+    field: tenant_protected_classes
+    datatype: checkboxes
+    show if: tenant_believes_discrimination
+    choices:
+      - Family status (for example, having children): family status
+      - Marital status (for example, being unmarried): marital status
+      - Race: race
+      - Skin color: skin color
+      - Religion: religion
+      - Sex (e.g., being born male, female or intersex): sex
+      - Sex stereotyping related to gender identity or expression: sex stereotyping related to gender identity or expression
+        help: |
+          Although Missouri does not have a law that protects people who are gay or transgender, it does
+          protect people who are being discriminated against because of how they express their gender, including
+          if it does not match the cultural expectation for their sex.
+      - Ancestry: ancestry
+      - National origin (the country my family comes from): national origin
+      - Disability: disability
+  - Explain (optional): tenant_discrimination_explanation
+    datatype: area
+    required: False
+    js show if: |
+      val("tenant_protected_classes").length > 0
+---
+depends on:
+  - tenant_believes_discrimination
+  - tenant_protected_classes
+code: |
+  defense_discrimination = (
+    (is_rent_subsidized or number_of_units_in_building == "four_or_more") and
+    tenant_believes_discrimination and tenant_protected_classes.any_true()
+  )
+---
+id: violence against women act defenses
+question: |
+  Violence Against Women Act (VAWA)
+subquestion: |
+  If you are a survivor of:
+
+  * Domestic violence,
+  * Dating violence,
+  * Sexual assault, or
+  * Stalking
+
+  And you are being evicted **because** of something related to the
+  domestic violence or abuse, you may have a defense.
+
+  ${ collapse_template(dv_explanation_template) }
+fields:
+  - label: |
+      % if person_answering == "tenant":
+      Are you a survivor of domestic violence, dating violence, sexual assault, or stalking?
+      % else:
+      Is the tenant a survivor of domestic violence, dating violence, sexual assault, or stalking?
+      % endif
+    field: tenant_is_dv_survivor
+    datatype: yesnomaybe
+  - label: |
+      % if person_answering == "tenant":
+      Are you being evicted because of something related to the domestic violence or abuse?
+      % else:
+      Is the tenant being evicted because of something related to the domestic violence or abuse?
+      % endif
+    field: tenant_is_being_evicted_because_of_dv
+    datatype: yesnomaybe
+    show if: tenant_is_dv_survivor
+  - Briefly explain (optional): tenant_dv_explanation
+    datatype: area
+    rows: 2
+    required: False
+    show if: tenant_is_being_evicted_because_of_dv
+---
+depends on:
+  - is_rent_subsidized
+  - tenant_is_dv_survivor
+  - tenant_is_being_evicted_because_of_dv
+code: |
+  defense_vawa = (
+    is_rent_subsidized and
+    tenant_is_dv_survivor and 
+    tenant_is_being_evicted_because_of_dv
+  )
+---
+template: dv_explanation_template
+subject: |
+  Can you give me an example?
+content: |
+  A landlord wants to evict a tenant because: 
+
+  * A survivor called the police to report the abuse, or
+  * The abuser frequently came onto the property or stayed overnight even though there
+    is a policy against overnight guests
+
+  In both examples above, the landlord may not be legally allowed to evict
+  the tenant, even though a tenant who was not a survivor of domestic violence
+  could be evicted for the same reasons.
 ---
 variable name: subsidized_housing_text
 use objects: True
 data:
   voucher:
     question: Mobile voucher (like Section 8)
-    document: Section 8 voucher
+    document: Section 8 housing choice voucher
   public:
     question: Public housing
     document: Public housing
@@ -631,7 +1097,7 @@ data:
     question: |
       ${ "Housing project run by a private landlord (and I pay 30% of my income for rent)" if person_answering == "tenant" else "Housing project run by a private landlord (and the tenant pays 30% of their income for rent)"}  
     document: |
-      ${ "Housing project run by a private landlord (and I pay 30% of my income for rent)" if person_answering == "tenant" else "Housing project run by a private landlord (and the tenant pays 30% of their income for rent)"}  
+      Section 8 project-based housing development
 ---
 id: rent not owed by tenant
 question: |
@@ -725,12 +1191,153 @@ code: |
   else:
     petition_alleges_nonrent = True
 ---
+id: notice to terminate
+question: |
+  Notice to terminate tenancy
+subquestion: |
+  % if person_answering == "tenant":
+  Your landlord must give you a notice to end your tenancy
+  before filing an eviction case. 
+  The amount of time that the landlord must give you depends on the kind 
+  of tenancy you have.
+  % else:
+  The tenant's landlord must give the tenant a notice to end their tenancy
+  before filing an eviction case.
+  The amount of time that the landlord must give the tenant depends on the kind
+  of tenancy the tenant has.
+  % endif
+
+  The notice might be called:
+
+  * Lease termination,
+  * Notice to Quit,
+  * Notice to Terminate Tenancy, or
+  * Notice to Vacate.
+
+  There is no standard form for the notice.
+
+  If you do not have the notice in front of you, do your best to answer
+  from memory.
+fields:
+  - label: |
+      % if person_answering == "tenant":
+      Did you get a written notice to end your tenancy?
+      % else:
+      Did the tenant get a written notice to end their tenancy?
+      % endif
+    field: got_notice_to_terminate
+    datatype: yesnomaybe
+  - About what day did you **get** the notice?: received_notice_date
+    datatype: date
+    show if: got_notice_to_terminate
+    max: ${ today().format("yyyy-MM-dd") }
+  - Did the notice include a specific day to **end** your tenancy?: notice_to_terminate_includes_specific_day
+    input type: radio
+    choices:
+      - Yes, it had a specific day: specific_day
+      - It said to move at the end of the next rental period: rental_period
+      - It did not say when to move: no_specific_day
+      - It said something else: something_else
+    show if: got_notice_to_terminate
+  - What day did the notice say it would end your tenancy?: termination_of_tenancy_date
+    datatype: date
+    max: ${ today().format("yyyy-MM-dd") }
+    show if:
+      variable: notice_to_terminate_includes_specific_day
+      is: specific_day
+---
+id: lease requirement for notice
+question: |
+  % if person_answering == "tenant":
+  Notice requirements in your lease
+  % else:
+  Notice requirements in the tenant's lease
+  % endif
+subquestion: |
+  Look at the lease to answer this question. If you do not have
+  the lease in front of you, do your best to answer from memory.
+
+  Most leases will include a specific amount of notice that the landlord
+  must give the tenant before filing an eviction case. For example:
+  it may say that you must act to fix any problem they notify you about
+  within 7, 10, or 30 days. In the lease, look for a section labeled
+  "Termination," "Notice" or "Default."
+fields:
+  - Does the lease say how much notice the landlord must give to the tenant?: lease_says_how_much_notice
+    datatype: yesnomaybe
+  - label: |
+      **Summarize the notice amount from the lease.**
+      
+      For example:
+
+      you can write "30 days" or "the end of next rental period,"
+      depending on what the lease says.
+    label above field: True
+    field: notice_required_by_lease
+    datatype: area
+    rows: 2
+    show if: lease_says_how_much_notice
+  - label: |
+      % if person_answering == "tenant":
+      **Did the landlord give you the amount of notice required by the lease?**
+
+      % if notice_to_terminate_includes_specific_day == "specific_day":
+      Earlier, you said you got ${ (termination_of_tenancy_date - received_notice_date).days } days notice.
+      % endif
+      % else:
+      **Did the landlord give the tenant the amount of notice required by the lease?**
+
+      % if notice_to_terminate_includes_specific_day == "specific_day":
+      Earlier, you said the tenant got ${ (termination_of_tenancy_date - received_notice_date).days } days notice.
+      % endif
+      % endif
+
+      Answer as well as you can.
+    field: landlord_gave_notice_required_by_lease
+    datatype: yesnomaybe
+    show if: lease_says_how_much_notice
+---
+depends on:
+  - got_notice_to_terminate
+code: |
+  defense_ud_no_written_notice = not got_notice_to_terminate
+---
+depends on:
+  - is_mobile_home_owner
+  - rent_day
+  - rent_period
+  - received_notice_date
+  - notice_to_terminate_includes_specific_day
+  - termination_of_tenancy_date
+code: |
+  defense_ud_no_rental_period_notice = got_notice_to_terminate and has_improper_notice(
+    showifdef("is_mobile_home_owner"),
+    int(showifdef("rent_day", 1)),
+    int(showifdef("rent_period",12)),
+    received_notice_date,
+    showifdef("notice_to_terminate_includes_specific_day"),
+    showifdef("termination_of_tenancy_date")
+  )  
+---
+code: |
+  if kind_of_lease_agreement == "no_written_lease":
+    has_written_lease = False
+  else:
+    has_written_lease = True
+---
+id: lease attached to petition
+question: |
+  Is a copy of the lease attached to the petition?
+fields:
+  - "Is the lease attached to the Landlord's Petition?": lease_attached
+    datatype: yesnoradio
+---
 id: petition requirements - terms of lease
 question: |
   % if person_answering == "tenant":
-  Is a copy of your lease attached to the petition?
-  % else: 
-  Is a copy of the tenant's lease attached to the petition? 
+  Does the petition say what the terms of your rental agreement are?
+  % else:
+  Does the petition say what the terms of the tenant's rental agreement are?
   % endif
 subquestion: |
   % if person_answering == "tenant":
@@ -745,33 +1352,12 @@ subquestion: |
    2. write a summary of the tenant's rental agreement, including the monthly rent, the kind of agreement (year to year or {month-to-month lease|month to month}), and the day rent is due.
   % endif
   
+  You said that a copy of the lease is not attached to the petition.
+  
   The petition looks different in different counties. But it may look like this:
 
   [FILE ComplaintTerms.png, 100%]
 fields:
-  - label: |
-      % if person_answering == "tenant":
-      Do you have a written {lease}? (Some rental agreements can be oral.)
-      % else:
-      Does the tenant have a written {lease}? (Some rental agreements can be oral.)
-      % endif
-    field: has_written_lease
-    datatype: yesnoradio
-  - "Is the lease attached to the {petition|Landlord's Petition}?": lease_attached
-    datatype: yesnoradio
-    show if:
-      variable: has_written_lease
-      is: True
-  - label: |
-      % if person_answering == "tenant":
-      Does the Landlord's Petition include a summary of your rental agreement?
-      % else:
-      Does the Landlord's Petition include a summary of the tenant's rental agreement?
-      % endif 
-    field: petition_states_terms_of_lease
-    datatype: yesnomaybe
-    js show if: |
-      val("lease_attached") === false
   - note: |
       <h2 class="h4">Summary of rental agreement</h2>
       The Petition should include a summary of the rental agreement. It should include 
@@ -781,7 +1367,7 @@ fields:
       * The day rent is due, and
       * The kind of agreement (year to year or {month-to-month lease|month to month}).
     js show if: |
-      val("has_written_lease") === false || val("lease_attached") === false
+      val("has_written_lease") === false || val("lease_attached") === false    
   - label: |
       % if person_answering == "tenant":
       Does the {petition|Landlord's Petition} include a summary of your rental agreement?
@@ -790,8 +1376,9 @@ fields:
       % endif 
     field: petition_states_terms_of_lease
     datatype: yesnomaybe
-    js show if: |
-      val("has_written_lease") === false
+    show if:
+      code: |
+        has_written_lease == False or lease_attached == False
 ---
 id: petition requirements - periods due
 question: |
@@ -1096,21 +1683,17 @@ question: |
 subquestion: |
   ${ collapse_template(estoppel_explanation_template) }
 fields:
-  - Check any statement that is true: estoppel_breaches
+  - What law did your landlord violate?: estoppel_breaches
     datatype: checkboxes
     choices:
-      - ${ estoppel_breaches_text['not_up_to_code'] }: not_up_to_code
-      - ${ estoppel_breaches_text['violated_law'] }: violated_law
       - ${ estoppel_breaches_text['occupancy_permit'] }: occupancy_permit
-      - Other: other
+      - Other law: other
   - label: |
-      % if person_answering == "tenant":
-      What other problems do you have?
-      % else:
-      What other problems does the tenant have?
-      % endif 
+      Explain
     field: other_estoppel_breaches
     show if: estoppel_breaches['other']
+    datatype: area
+    rows: 2
 ---
 variable name: estoppel_breaches_text
 use objects: True
@@ -1129,11 +1712,10 @@ template: estoppel_explanation_template
 subject: |
   What other laws does a landlord have to follow?
 content: |
-  In some areas, a landlord has to follow a "housing code" that specifies the condition of the home that the landlord must maintain.
-  
-  Other local or state laws can create requirements that a landlord must meet.
-  
-  An occupancy permit may be required for a landlord to rent a home.
+  Some cities and towns require a landlord have an occupancy permit to rent a home.
+  The occupancy permit is a document that says the home is safe to live in.
+
+  If you are not sure, it is OK to leave this question blank.
 ---
 variable name: conditions_text
 use objects: True

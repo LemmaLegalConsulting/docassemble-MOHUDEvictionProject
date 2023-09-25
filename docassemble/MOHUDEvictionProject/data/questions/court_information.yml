@@ -65,7 +65,7 @@ subquestion: |
 fields:
   - label: |
       % if person_answering == "tenant":
-      Why does your landlord says they are evicting you?:
+      Why does your landlord says they are evicting you?
       % else:
       Why does the landlord says they are evicting the tenant?
       % endif
@@ -90,13 +90,6 @@ fields:
         value: lease violation
       - label: |
           % if person_answering == "tenant":
-          My landlord says I damaged the property.
-          % else:
-          The landlord says the tenant damaged the property.
-          % endif
-        value: damaging property
-      - label: |
-          % if person_answering == "tenant":
           My landlord says I did something illegal and they are asking
           to move me out right away. For example: selling drugs
           or other criminal activity.
@@ -115,9 +108,34 @@ fields:
           renew my month to month rental agreement.
           % endif
         value: holdover tenancy
+      - label: |
+          % if person_answering == "tenant":
+          My landlord says that they have "other good cause"
+          to end my tenancy in a Section 8 or project-based tenancy.
+          % else:
+          The landlord says that they have "other good cause"
+          to end the tenant's tenancy in a Section 8 or project-based tenancy.
+          % endif
+        value: other good cause
       - Something else: other
     none of the above: | 
       I do not know
+  - What specifically did the landlord claim?: eviction_detailed_reasons
+    show if: eviction_reason['lease violation']
+    datatype: checkboxes
+    choices: 
+      - Chronic late payment of rent: chronic late payment of rent
+      - Overcrowding: overcrowding
+      - Unauthorized occupants: unauthorized occupants
+      - Excessive foot traffic: excessive foot traffic
+      - Clutter or hoarding: clutter or hoarding
+      - Destruction of property: destruction of property
+      - Assault on staff or other tenant: assault on staff or other tenant
+      - Harassment of staff or other tenant: harassment of staff or other tenant
+      - Disturbance of other tenants (like smoking, noise, or odor) coming from your apartment: disturbance of other tenants
+      - Arrest or conviction for a crime: arrest or criminal conviction
+      - Disturbing health and safety of tenants or others: health and safety
+      - Other lease violation: other lease violation
   - Is the landlord asking for an expedited (emergency) eviction?: landlord_seeking_emergency_eviction
     datatype: yesnomaybe
     help: |
@@ -164,7 +182,11 @@ subquestion: |
   % endif
 fields:
   - label: |
+      % if tenant_using_casenet:
+      Case type
+      % else:
       Nature of Suit
+      % endif
     field: case_type
     datatype: checkboxes
     required: False
@@ -179,6 +201,90 @@ fields:
     show if:
       variable: case_type['Other']
       is: True
+  - label: |
+      % if person_answering == "tenant":
+      Why does your landlord says they are evicting you?:
+      % else:
+      Why does the landlord says they are evicting the tenant?
+      % endif
+    field: eviction_reason
+    datatype: checkboxes
+    required: False
+    choices:
+      - label: |
+          % if person_answering == "tenant":
+          My landlord says I owe rent
+          % else:
+          Landlord says the tenant owes rent
+          % endif
+        value: nonpayment of rent
+      - label: |
+          % if person_answering == "tenant":
+          My landlord says I broke my lease for a reason other than owing rent.
+          For example: paying rent late too many times or making too much noise.
+          % else:
+          Tenant broke another term of the lease
+          % endif
+        value: lease violation
+      - label: |
+          % if person_answering == "tenant":
+          My landlord says I did something illegal and they are asking
+          to move me out right away. For example: selling drugs
+          or other criminal activity.
+          % else:
+          The landlord says the tenant did something illegal and they are asking
+          to move the tenant out right away. For example: selling drugs
+          or other criminal activity.
+          % endif
+        value: criminal activity
+      - label: |
+          % if person_answering == "tenant":
+          My landlord says the lease ended or that they do not want to
+          renew my month to month rental agreement.
+          % else:
+          The landlord says the lease ended or that they do not want to
+          renew my month to month rental agreement.
+          % endif
+        value: holdover tenancy
+      - label: |
+          % if person_answering == "tenant":
+          My landlord says that they have "other good cause"
+          to end my tenancy in a Section 8 or project-based tenancy.
+          % else:
+          The landlord says that they have "other good cause"
+          to end the tenant's tenancy in a Section 8 or project-based tenancy.
+          % endif
+        value: other good cause
+      - Something else: other
+    none of the above: | 
+      I do not know
+  - What specifically did the landlord claim?: eviction_detailed_reasons
+    show if: eviction_reason['lease violation']
+    datatype: checkboxes
+    choices: 
+      - Chronic late payment of rent: chronic late payment of rent
+      - Overcrowding: overcrowding
+      - Unauthorized occupants: unauthorized occupants
+      - Excessive foot traffic: excessive foot traffic
+      - Clutter or hoarding: clutter or hoarding
+      - Destruction of property: destruction of property
+      - Assault on staff or other tenant: assault on staff or other tenant
+      - Harassment of staff or other tenant: harassment of staff or other tenant
+      - Disturbance of other tenants (like smoking, noise, or odor) coming from your apartment: disturbance of other tenants
+      - Arrest or conviction for a crime: arrest or criminal conviction
+      - Disturbing health and safety of tenants or others: health and safety
+      - Other lease violation: other lease violation
+  - Is the landlord asking for an expedited (emergency) eviction?: landlord_seeking_emergency_eviction
+    datatype: yesnomaybe
+    help: |
+      An expedited eviction is faster than a normal
+      eviction. The landlord has to follow special
+      rules to ask for an expedited eviction.
+    show if: 
+      variable: eviction_reason["criminal activity"]
+      is: True
+      code: |
+        not (tenant_got_summons and petition_available)      
 ---
 template: what_if_i_disagree_template
 subject: |
