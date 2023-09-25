@@ -1,6 +1,6 @@
 continue button field: users.revisit
 question: |
-  Edit users
+  Edit Defendants
 subquestion: |
   ${ users.table }
 
@@ -13,9 +13,11 @@ columns:
       row_item.name.full() if defined("row_item.name.first") else ""
   - Address: |
       row_item.address
+  - Represented by an attorney?: |
+      "Maybe" if row_item.attorney.there_are_any is None else yesno(row_item.attorney.there_are_any)  
 edit:
   - name.first
-  - address
+  - address.address
 confirm: True
 ---
 continue button field: other_parties.revisit
@@ -25,6 +27,7 @@ subquestion: |
   ${ other_parties.table }
 
   ${ other_parties.add_action() }
+  
 ---
 table: other_parties.table
 rows: other_parties
@@ -40,19 +43,48 @@ columns:
 edit:
   - name.first
   - address.address
-  - attorney.revisit
+---
 confirm: True
----
-continue button field: other_parties[i].attorney.revisit
+continue button field: other_parties[0].attorney.revisit
 question: |
-  Attorney for ${ other_parties[i] }
+  Attorney for ${ other_parties[0] }
 subquestion: |
-  ${ other_parties[i].attorney.table }
+  ${ other_parties[0].attorney.table }
 
-  ${ other_parties[i].attorney.add_action() }
+  ${ other_parties[0].attorney.add_action() }
 ---
-table: other_parties[i].attorney.table
-rows: other_parties[i].attorney
+table: users[0].attorney.table
+rows: users[0].attorney
+columns:
+  - Name: |
+      row_item.attorney.name.full() if defined("row_item.name.first") else ""
+  - Address: |
+      row_item.attorney.address.block() if defined("row_item.address.address") else ""
+edit:
+  - name.first
+  - address.address
+---
+continue button field: users[0].attorney.revisit
+question: |
+  Attorney for ${ users[0] }
+subquestion: |
+  ${ users[0].attorney.table }
+
+  ${ users[0].attorney.add_action() }
+---
+table: users[0].attorney.table
+rows: users[0].attorney
+columns:
+  - Name: |
+      row_item.name.full() if defined("row_item.name.first") else ""
+  - Address: |
+      row_item.address.block() if defined("row_item.address.address") else ""
+edit:
+  - address.address
+  - name.first
+---
+table: other_parties[0].attorney.table
+rows: other_parties[0].attorney
 columns:
   - Name: |
       row_item.name.full() if defined("row_item.name.first") else ""

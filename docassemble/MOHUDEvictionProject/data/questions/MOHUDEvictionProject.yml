@@ -239,8 +239,8 @@ subquestion: |
   % else:
   The tenant got the Summons and Petition in the following ways:
   % for method in method_of_summons_service.true_values():
-   - method_of_summons_service_text[method]
-    
+  
+   - ${ method_of_summons_service_text[method] }  
   % endfor
   % endif
 
@@ -711,21 +711,6 @@ subquestion: |
   Look over your answers below. If you need to make any changes, click the "Edit" button
   next to the answer that you want to change.
 review:
-  - note: |
-      % if users.attorney.there_are_any:
-      ##Information about you##
-      % endif
-  - Edit:
-      - users[0].attorney[0].name.first
-    button: |
-      % for item in users:
-      % if item.attorney.there_are_any:
-         - Attorney: **${ item.attorney[0] }**
-         - Address: **${ item.attorney[0].address}**
-      % else:
-         - Attorney: **None**
-      % endif
-      % endfor
   - note: | 
       % if person_answering == "tenant":
       ##Information about you##
@@ -742,10 +727,25 @@ review:
       % for item in users:
 
          - **${ item }**
-
+         - **${ item.address }**
       % endfor
       % else:
       **None**
+      % endif
+  - Edit:
+      - users[0].attorney.revisit
+      - recompute:
+        - defense_logic
+    button: |
+      % if users[0].attorney.there_are_any:
+      
+      Attorney:
+      
+         - **${ item.attorney }**
+         - **${ item.attorney.address }**
+      % else:
+         - Attorney: **None**
+      
       % endif
   - Edit:
       - will_offer_payment
@@ -772,21 +772,30 @@ review:
       % if other_parties.there_are_any:
       % for item in other_parties:
       
-       - **${ item }**
-      
-      % if item.attorney.there_are_any:
-         - Attorney: **${ item.attorney[0] }**
-      **${ item.attorney[0].address }**
-      
-      % else:
-         - Attorney: **None**
-      
-      % endif
-         - Person or Business: **${ "Person" if item.person_type == "ALIndividual" else "Business" }**
+        - **${ item }**
+        - **${ item.address }**
+        - Person or Business: **${ "Person" if item.person_type == "ALIndividual" else "Business" }**
       % endfor
       % else:
       **None**
       % endif
+  - Edit:
+      - other_parties[0].attorney.revisit
+      - recompute:
+        - defense_logic
+    button: |
+      % for item in other_parties:
+      % if other_parties[0].attorney.there_are_any:
+      
+      Attorney:
+      
+         - **${ item.attorney }**
+         - **${ item.attorney.address }**
+      % else:
+         - Attorney: **None**
+      
+      % endif
+      % endfor
   - note: | 
       % if person_answering == "tenant":
       ##Information about your rental agreement##
