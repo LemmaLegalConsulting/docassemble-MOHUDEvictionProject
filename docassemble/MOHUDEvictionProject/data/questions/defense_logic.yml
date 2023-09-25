@@ -737,7 +737,7 @@ subquestion: |
   With the Landlord's Petition, your landlord must have either:
   
    1. attached a copy of the lease, or
-   2. written a summary of your rental agreement, including the monthly rent, the kind of agreement (year to year or {month_to_month lease|month to month}), and the day rent is due.
+   2. written a summary of your rental agreement, including the monthly rent, the kind of agreement (year to year or {month-to-month lease|month to month}), and the day rent is due.
   % else: 
     With the Landlord's Petition, the tenant's landlord needs to either:
   

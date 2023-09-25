@@ -508,10 +508,10 @@ question: |
 subquestion: |
   % if person_answering == "tenant":
   This section will ask you about both defenses to the {eviction}
-  and any **{counterclaim}** that you may have against your landlord.
+  and any {counterclaim} that you may have against your landlord.
   % else:
   This section will ask you about both defenses to the {eviction}
-  and any **{counterclaim}** that the tenant may have against their landlord.
+  and any {counterclaim} that the tenant may have against their landlord.
   % endif
 
   A defense is a reason why you should not be evicted.  
