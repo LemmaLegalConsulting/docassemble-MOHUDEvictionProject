@@ -1013,7 +1013,7 @@ depends on:
   - tenant_protected_classes
 code: |
   defense_discrimination = (
-    (is_rent_subsidized or number_of_units_in_building == "fewer_than_four") and
+    (is_rent_subsidized or number_of_units_in_building == "four_or_more") and
     tenant_believes_discrimination and tenant_protected_classes.any_true()
   )
 ---
