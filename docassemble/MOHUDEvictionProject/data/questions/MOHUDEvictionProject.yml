@@ -175,7 +175,7 @@ code: |
     late_fees_penalty
   if eviction_reason["nonpayment of rent"]:
     petition_states_demand_made
-  landlord_problems_section
+    landlord_problems_section
 
   if landlord_agreement:
     tenant_compliance_with_agreement

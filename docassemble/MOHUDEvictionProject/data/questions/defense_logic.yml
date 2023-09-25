@@ -16,19 +16,20 @@ code: |
   if eviction_reason["nonpayment of rent"]:
     defense_tender_refused
     defense_rent_payment
+    defense_excessive_rent_for_subsidized_housing
   defense_settlement
   defense_lease_signed_under_duress
   defense_fraud_lease
   if eviction_reason["nonpayment of rent"]:
     defense_liquidated_damages_late_fees
-  defense_breach_of_habitability
-  defense_breach_of_cqe
-  defense_estoppel_illegality
+  if eviction_reason["nonpayment of rent"]:
+    defense_breach_of_habitability
+    defense_breach_of_cqe
+    defense_estoppel_illegality
   defense_foreclosure
   defense_new_owner_failed_to_provide_notice_of_sale
   defense_unrepresented_corporation
-  defense_no_landlord_tenant_relationship
-  defense_excessive_rent_for_subsidized_housing
+  
   # UD defenses
   
   if got_notice_to_terminate:
@@ -112,7 +113,7 @@ depends on:
   - petition_separates_nonrent
   - has_written_lease
 code: |
-  if tenant_got_summons and petition_available:
+  if eviction_reason["nonpayment of rent"] and tenant_got_summons and petition_available:
     if petition_alleges_nonrent or not petition_states_rent_amount or (not has_written_lease and not petition_states_terms_of_lease) or (has_written_lease and not lease_attached and not petition_states_terms_of_lease) or not petition_states_rent_periods or not petition_states_demand_made or (trial_court.circuit == 21 and not petition_separates_nonrent):
       defense_rent_pleading_requirement = True
     else:
@@ -138,20 +139,25 @@ code: |
 id: tender refused logic
 depends on: offer_attempts
 code: |
-  defense_tender_refused = False
-  if offer_attempts.there_are_any:
-    for offer in offer_attempts:
-      if offer.has_refused_payment and offer.was_attempt_full:
-        defense_tender_refused = True
+  if eviction_reason["nonpayment of rent"]:
+    defense_tender_refused = False
+    if offer_attempts.there_are_any:
+      for offer in offer_attempts:
+        if offer.has_refused_payment and offer.was_attempt_full:
+          defense_tender_refused = True
+  else:
+    defense_tender_refused = None
 comment: |
   add date requirement
 ---
 id: rent payment defense logic
 code: |
-  if was_rent_paid:
+  if eviction_reason["nonpayment of rent"] and was_rent_paid:
     defense_rent_payment = True
-  else:
+  elif eviction_reason["nonpayment of rent"] and not was_rent_paid:
     defense_rent_payment = False
+  else:
+    defense_rent_payment = None    
 depends on: was_rent_paid
 ---
 id: settlement defense logic
@@ -488,28 +494,35 @@ id: cqe breach logic
 comment: |
   Are we going to separate levels of cqe breach? E.g. (1) mere breach, (2) constructive eviction, (3) significant enough to physically deprive the tenant of possession.
 code: |
-  if cqe_breaches.any_true():
+  if eviction_reason["nonpayment of rent"] and cqe_breaches.any_true():
     defense_breach_of_cqe = True
-  else:
+  elif eviction_reason["nonpayment of rent"] and not cqe_breaches.any_true():
     defense_breach_of_cqe = False
+  else:
+    defense_breach_of_cqe = None
 depends on: cqe_breaches
 ---
 id: estoppel defense logic
 code: |
-  if estoppel_breaches.any_true() or defense_breach_of_cqe:
-    defense_estoppel_illegality = True
+  if eviction_reason["nonpayment of rent"]:
+    if estoppel_breaches.any_true() or defense_breach_of_cqe:
+      defense_estoppel_illegality = True
+    else:
+      defense_estoppel_illegality = False
   else:
-    defense_estoppel_illegality = False
+    defense_estoppel_illegality = None
 depends on:
   - estoppel_breaches
   - defense_breach_of_cqe
 ---
 id: warranty breach logic
 code: |
-  if warranty_breaches.any_true() == True:
+  if eviction_reason["nonpayment of rent"] and warranty_breaches.any_true():
     defense_breach_of_habitability = True
-  else:
+  elif eviction_reason["nonpayment of rent"] and not warranty_breaches.any_true():
     defense_breach_of_habitability = False
+  else:
+    defense_breach_of_habitability = None
 depends on:
   - warranty_breaches
   - notice_of_breach_to_landlord
@@ -565,7 +578,7 @@ fields:
 ---
 id: new owner logic for all counties
 code: |
-  if previous_landlord_sold_property and (notice_of_sale_provided_new_landlord == False or not notice_contains_sale_document == False):
+  if previous_landlord_sold_property and (notice_of_sale_provided_new_landlord == False or notice_contains_sale_document == False):
     defense_new_owner_failed_to_provide_notice_of_sale = True
   else:
     defense_new_owner_failed_to_provide_notice_of_sale = False
@@ -635,17 +648,6 @@ code: |
       defense_unrepresented_corporation = False
 depends on:
   - other_parties
----
-id: lease not attached defense
-code: |
-  if defense_lease_not_attached or defense_lease_signed_under_duress or defense_fraud_lease:
-    defense_no_landlord_tenant_relationship = True
-  else:
-    defense_no_landlord_tenant_relationship = False
-depends on:
-  - defense_lease_not_attached
-  - defense_lease_signed_under_duress
-  - defense_fraud_lease
 ---
 id: subsidized excessive rent defense
 code: |
@@ -1371,19 +1373,8 @@ fields:
     field: petition_states_terms_of_lease
     datatype: yesnomaybe
     show if:
-      variable: lease_attached
-      is: False
-  - label: |
-      % if person_answering == "tenant":
-      Does the Landlord's Petition include a summary of your rental agreement?
-      % else:
-      Does the Landlord's Petition include a summary of the tenant's rental agreement?
-      % endif 
-    field: petition_states_terms_of_lease
-    datatype: yesnomaybe
-    show if:
       code: |
-        not has_written_lease
+        has_written_lease == False or lease_attached == False
 ---
 id: petition requirements - periods due
 question: |
