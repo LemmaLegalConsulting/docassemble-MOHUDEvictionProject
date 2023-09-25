@@ -65,7 +65,7 @@ subquestion: |
 fields:
   - label: |
       % if person_answering == "tenant":
-      Why does your landlord says they are evicting you?:
+      Why does your landlord says they are evicting you?
       % else:
       Why does the landlord says they are evicting the tenant?
       % endif
