@@ -204,19 +204,19 @@ id: soft exit posting eviction
 decoration: hand
 question: |
   % if person_answering == "tenant":
-  You may not want to file an answer
+  You may not want to file an {answer}
   % else: 
-  The tenant may not want to file an answer
+  The tenant may not want to file an {answer}
   % endif
 subquestion: |
   % if person_answering == "tenant":
   You said that
   % if tenant_got_summons is None:
-  you do not know if you received the Summons and Petition.
+  you do not know if you received the {Summons} and {Petition}.
   % elif not tenant_got_summons:
-  you did not receive the Summons and Petition at all.
+  you did not receive the {Summons} and {Petition} at all.
   % else:
-  you got the Summons and Petition in the following ways:
+  you got the {Summons} and {Petition} in the following ways:
   % for method in method_of_summons_service.true_values():
   
    - ${ method_of_summons_service_text[method] }  
@@ -279,14 +279,14 @@ buttons:
 id: yep file an answer
 question: |
   % if person_answering == "tenant":
-  Tenants in your situation usually file an answer
+  Tenants in your situation usually file an {answer}
   % else: 
-  Tenants in this situation usually file an answer
+  Tenants in this situation usually file an {answer}
   % endif
 subquestion: |
   % if person_answering == "tenant":
   % if tenant_got_summons:
-  You said that you got the Summons and Petition by 
+  You said that you got the {Summons} and {Petition} by 
   % if method_of_summons_service['sheriff']:
   personal delivery.
   % elif method_of_summons_service['certified_mail']:
@@ -297,12 +297,12 @@ subquestion: |
   
   In your situation, most tenants file an answer.  An answer is a document that you file with the court to respond to the landlord's petition.  You can explain why you shouldn't be evicted in an answer.
   % else:
-  You said you do not know if you got the Summons and Petition.  You should try to find out if you received the Summons and Petition to determine whether you should file an Answer.  An Answer makes it easier to defend against an eviction, but if you file an Answer in a case where you were not served the Summons and Petition, you could end up owing the landlord money.
+  You said you do not know if you got the {Summons} and {Petition}.  You should try to find out if you received the Summons and Petition to determine whether you should file an Answer.  An Answer makes it easier to defend against an eviction, but if you file an Answer in a case where you were not served the Summons and Petition, you could end up owing the landlord money.
   % endif
 
   Filing an answer may:
 
-  * Stop your eviction, or
+  * Stop your {eviction}, or
   * Lower the amount that you need to pay your landlord,
 
   or both.
@@ -312,7 +312,7 @@ subquestion: |
   
   % else:
   % if tenant_got_summons:
-  You said that the tenant got the Summons and Petition by
+  You said that the tenant got the {Summons} and {Petition} by
   % if method_of_summons_service['sheriff']:
   personal delivery.
   % elif method_of_summons_service['certified_mail']:
@@ -322,14 +322,14 @@ subquestion: |
   % endif
   
   % else:
-  You said the tenant does not know if they got the Summons and Petition.
+  You said the tenant does not know if they got the {Summons} and {Petition}.
   % endif
   In this situation,
   most tenants file an answer.  An answer is a document that the tenant files with the court to respond to the landlord's petition.  The tenant can explain why the tenant shouldn't be evicted in an answer.
 
   Filing an answer may:
 
-  * Stop the tenant's eviction, or
+  * Stop the tenant's {eviction}, or
   * Lower the amount that the tenant needs to pay their landlord,
 
   or both.
@@ -351,7 +351,7 @@ code: |
 id: basic questions intro screen
 decoration: form-lineal
 question: |
-  Answer and defend against an eviction: Missouri Tenant Help
+  Answer and defend against an {eviction}: Missouri Tenant Help
 subquestion: |
   Missouri Tenant Help can help you complete and download forms in 3 steps:
 
@@ -371,7 +371,7 @@ subquestion: |
   on your own.**
   % endif
   
-  This site is not a lawyer. If you would like a lawyer, find [a Missouri legal aid provider](https://www.lsmo.org/).  If you are outside Missouri, find your [your local
+  This site is not a {attorney|lawyer}. If you would like a lawyer, find [a Missouri legal aid provider](https://www.lsmo.org/).  If you are outside Missouri, find your [your local
   legal aid provider](https://www.lsc.gov/what-legal-aid/find-legal-aid).
   
   Tap the {green words} in any screen for a definition or more information.
@@ -393,9 +393,6 @@ fields:
       minlength: |
         You cannot continue unless you agree to the terms of use.
 continue button field: al_intro_screen
-terms:
-  green words: |
-    Green words are legal terms or a short way of referring to something that needs more explanation. The definition or explanation pops up when you tap the green words.
 ---
 id: you can do it affirmation
 question: |
@@ -418,7 +415,7 @@ subquestion: |
   **What's this about?**: This is a place to tell your side of the story about you, 
   your landlord, and why they want to evict you.
 
-  Your answers complete your **Eviction Answer** form and any other forms that you need.
+  Your answers complete your **{answer|Eviction Answer}** form and any other forms that you need.
   You will need to **print** and **deliver**
   the forms to the court on your own.
 
@@ -438,10 +435,10 @@ subquestion: |
 
   Before you start, try to find these documents from the court and your landlord:
 
-  1. The Summons from the court
-  1. The Landlord's petition
-  1. The eviction notice
-  1. Your lease
+  1. The {Summons} from the court
+  1. The Landlord's {petition}
+  1. The eviction {notice}
+  1. Your {lease}
 
   If you can't find a document, it is okay to keep going. Just do your best to answer
   the questions from what you remember.
@@ -493,11 +490,11 @@ question: |
   Claims and defenses
 subquestion: |
   % if person_answering == "tenant":
-  This section will ask you about both defenses to the eviction
-  and any **counterclaim** that you may have against your landlord.
+  This section will ask you about both defenses to the {eviction}
+  and any {counterclaim} that you may have against your landlord.
   % else:
-  This section will ask you about both defenses to the eviction
-  and any **counterclaim** that the tenant may have against their landlord.
+  This section will ask you about both defenses to the {eviction}
+  and any {counterclaim} that the tenant may have against their landlord.
   % endif
 
   A defense is a reason why you should not be evicted.  
@@ -566,13 +563,13 @@ content: |
   
   **Landlord has failed to comply with M.R.C.P. § 55.22**
 
-  A landlord must attach the written lease to the landlord's petition to be able to evict.  
+  A landlord must attach the written {lease} to the landlord's petition to be able to evict.  
   % endif
   % if defense_tender_refused:
   
   **Landlord refused Tenant’s tender of rent**
 
-  Landlord refused payment before the lawsuit was filed: For example, you presented the landlord the full amount of money you owed prior to the lawsuit but the landlord refused to accept the money. You should ask the judge to dismiss the case because you offered to pay the landlord the money you owed and the landlord refused to accept the money. You will need proof such as a letter from the landlord refusing to accept the money, a written check or money order or a witness to the landlord’s refusal. If you have no proof, you can offer to pay the amount claimed plus court costs in front of the judge. Make sure you have a certified check, money order or cash for the full amount with you. Full payment of rent owed plus court costs is your best defense. 	
+  Landlord refused payment before the lawsuit was filed: For example, you presented the landlord the full amount of money you owed prior to the lawsuit but the landlord refused to accept the money. You should ask the judge to dismiss the case because you offered to pay the landlord the money you owed and the landlord refused to accept the money. You will need proof such as a letter from the landlord refusing to accept the money, a written check or money order or a witness to the landlord’s refusal. If you have no proof, you can offer to pay the amount claimed plus court costs in front of the judge. Make sure you have a certified check, money order or cash for the full amount with you. Full payment of rent owed plus {court costs} is your best defense. 	
   % endif
   % if defense_rent_payment:
   
@@ -582,13 +579,13 @@ content: |
   % endif
   % if defense_settlement:
   
-  **Landlord and Tenant entered into a settlement agreement and Tenant has complied with the settlement’s terms**
+  **Landlord and Tenant entered into a {settlement} agreement and Tenant has complied with the settlement’s terms**
 
   
   % endif
   % if defense_lease_signed_under_duress:
   
-  **The lease is invalid because unfair duress by Landlord caused Tenant to enter the lease**
+  **The lease is invalid because unfair duress by Landlord caused Tenant to enter the {lease}**
 
   
   % endif
@@ -603,13 +600,13 @@ content: |
   % endif
   % if defense_estoppel_illegality:
   
-  **Landlord is estopped from enforcement of the lease because it has violated Missouri law**
+  **Landlord is estopped from enforcement of the {lease} because it has violated Missouri law**
 
   "Estopped" means that the landlord should be prevented from benefiting from a lease if the landlord already violated the law.
   % endif
   % if defense_breach_of_habitability:
   
-  **Landlord has breached the implied warranty of habitability**
+  **Landlord has breached the {implied warranty of habitability}**
 
   For example, your landlord has let the building run down and has not fixed major problems such as lack of running water, even after being notified of such problems. You should ask the judge to let you stay and either continue to pay a lower rent, make the landlord pay you for damages caused by the landlord’s failure to make needed repairs or excuse you from paying all, or part of, the back rent owed. You will need proof such as photos, letters to your landlord asking for repairs, copies of code violation reports or witnesses such as the building inspector. In some cases, the court may ask for proof that you have set aside the money you did not pay.
   
@@ -622,7 +619,7 @@ content: |
   
   **The premises have been sold but the prior Landlord has not provided Tenant the required notices and therefore no rent is owed**
 
-  There are special protections for tenants when their landlord loses the home through foreclosure.  The new owner of the home is required to provide notice of the foreclosure
+  There are special protections for tenants when their landlord sells the tenant's home.  The new owner of the home is required to provide proof of the sale.
   % endif
   % if defense_unrepresented_corporation:
   ${ collapse_template(defense_unrepresented_corporation_template) }
@@ -662,7 +659,7 @@ content: |
 
   % if defense_settlement:
 
-   1. A copy of the settlement agreement you made with the landlord
+   1. A copy of the {settlement} agreement you made with the landlord
    1. Evidence that you complied with the settlement agreement  
   % endif
 
@@ -675,9 +672,9 @@ content: |
 
   % if original_hearing_date_past:
   
-  ###Motion for Leave to File Responsive Pleadings###
+  ###{Motion} for Leave to File Responsive {Pleadings}###
   
-  Your answer also contains a "Motion for Leave to File Responsive Pleadings" because the original hearing date for already past.  The original hearing date is the deadline for filing an Answer, so you need to ask for the court's permission to file this Answer.
+  Your {answer} also contains a "Motion for Leave to File Responsive Pleadings" because the original hearing date for already past.  The original hearing date is the deadline for filing an Answer, so you need to ask for the court's permission to file this Answer.
   
   % endif
 ---
@@ -785,9 +782,9 @@ review:
         - defense_logic
     button: |
       % if person_answering == "tenant":
-      You are able to pay rent and court costs
+      You are able to pay rent and {court costs}
       % else:
-      The tenant is able to pay rent and court costs
+      The tenant is able to pay rent and {court costs}
       % endif
       **${ "Maybe" if will_offer_payment is None else yesno(will_offer_payment) }**
   - note: | 
