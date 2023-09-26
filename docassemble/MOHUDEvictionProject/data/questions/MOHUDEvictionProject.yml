@@ -161,7 +161,7 @@ code: |
     notice_of_foreclosure
   
   set_progress(75)
-  if eviction_reason["nonpayment of rent"]:
+  if case_type["AC Rent and Possession"]:
     petition_states_rent_amount
     petition_states_rent_periods
     offer_attempts.gather()
@@ -173,7 +173,7 @@ code: |
       petition_separates_nonrent
   if late_fees_assessed:
     late_fees_penalty
-  if eviction_reason["nonpayment of rent"]:
+  if case_type["AC Rent and Possession"]:
     petition_states_demand_made
     landlord_problems_section
 
@@ -556,6 +556,21 @@ subquestion: |
 template: nonpayment_defense_explanation_template
 content: |
   Based on your answers, the following defenses are included in your answer:
+  % if case_type["AC Unlawful Detainer"] and defense_failure_to_terminate:
+  ${ collapse_template(defense_failure_to_terminate_template) }
+  % endif
+  % if case_type["AC Unlawful Detainer"] and defense_ud_did_not_violate_lease:
+  ${ collapse_template(defense_ud_did_not_violate_lease_template) }
+  % endif
+  % if defense_discrimination:
+  ${ collapse_template(defense_discrimination_template) }
+  % endif
+  % if defense_reasonable_accommodation:
+  ${ collapse_template(defense_reasonable_accommodation_template) }
+  % endif
+  % if defense_vawa:
+  ${ collapse_template(defense_vawa_template) }
+  % endif
   % if defense_rent_pleading_requirement:
   ${ collapse_template(defense_rent_pleading_requirement_template) }
   % endif
@@ -642,8 +657,40 @@ content: |
   ###{Motion} for Leave to File Responsive {Pleadings}###
   
   Your {answer} also contains a "Motion for Leave to File Responsive Pleadings" because the original hearing date for already past.  The original hearing date is the deadline for filing an Answer, so you need to ask for the court's permission to file this Answer.
-  
+  % else:
+  ###{Motion} for Continuance###
+  You will also be able to download a Motion for Continuance, which will allow you to ask the court to delay the initial hearing.
   % endif
+---
+template: defense_failure_to_terminate_template
+subject: |
+  Landlord did not properly terminate my tenancy in accordance with RSMo § 441.060
+content: |
+  A landlord must give proper notice to terminate a lease.
+---
+template: defense_ud_did_not_violate_lease_template
+subject: |
+  I deny that I violated the terms of my lease or that the claimed violation is a material breach
+content: |
+  A landlord should have to prove that the tenant committed a violation serious enough to evict for.
+---
+template: defense_discrimination_template
+subject: |
+  Landlord discriminated against me in violation of state and federal law
+content: |
+  Civil rights laws protect tenants from a landlord discriminating against them because of their race, gender, or other protected status.
+---
+template: defense_reasonable_accommodation_template
+subject: |
+  Landlord failed to reasonably accommodate my disability
+content: |
+  A landlord must make reasonable accommodations for a tenant's disability.  If the landlord fails to make a reasonable accommodation, the landlord should not be able to evict the tenant for problems caused by that failure.
+---
+template: defense_vawa_template
+subject: |
+  I have a defense under the provisions of the Violence Against Women Act, 34 U.S.C. § 12491, et seq.
+content: |
+  Residents of subsidized housing cannot be evicted because they are victims of domestic violence.
 ---
 template: defense_rent_pleading_requirement_template
 subject: |

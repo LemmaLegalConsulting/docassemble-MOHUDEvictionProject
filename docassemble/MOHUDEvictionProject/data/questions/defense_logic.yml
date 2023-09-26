@@ -10,19 +10,19 @@ code: |
   defense_reasonable_accommodation
   defense_discrimination
   defense_ll_refused_section_8
-  if eviction_reason["nonpayment of rent"]:
+  if case_type["AC Rent and Possession"]:
     defense_rent_pleading_requirement
   defense_lease_not_attached
-  if eviction_reason["nonpayment of rent"]:
+  if case_type["AC Rent and Possession"]:
     defense_tender_refused
     defense_rent_payment
     defense_excessive_rent_for_subsidized_housing
   defense_settlement
   defense_lease_signed_under_duress
   defense_fraud_lease
-  if eviction_reason["nonpayment of rent"]:
+  if case_type["AC Rent and Possession"]:
     defense_liquidated_damages_late_fees
-  if eviction_reason["nonpayment of rent"]:
+  if case_type["AC Rent and Possession"]:
     defense_breach_of_habitability
     defense_breach_of_cqe
     defense_estoppel_illegality
@@ -101,6 +101,7 @@ code: |
 ---
 id: rent pleadings requirement logic
 depends on:
+  - case_type
   - tenant_got_summons
   - petition_available
   - petition_alleges_nonrent
@@ -113,7 +114,7 @@ depends on:
   - petition_separates_nonrent
   - has_written_lease
 code: |
-  if eviction_reason["nonpayment of rent"] and tenant_got_summons and petition_available:
+  if case_type["AC Rent and Possession"] and tenant_got_summons and petition_available:
     if petition_alleges_nonrent or not petition_states_rent_amount or (not has_written_lease and not petition_states_terms_of_lease) or (has_written_lease and not lease_attached and not petition_states_terms_of_lease) or not petition_states_rent_periods or not petition_states_demand_made or (trial_court.circuit == 21 and not petition_separates_nonrent):
       defense_rent_pleading_requirement = True
     else:
@@ -137,9 +138,11 @@ code: |
       defense_lease_not_attached = None
 ---
 id: tender refused logic
-depends on: offer_attempts
+depends on:
+  - case_type
+  - offer_attempts
 code: |
-  if eviction_reason["nonpayment of rent"]:
+  if case_type["AC Rent and Possession"]:
     defense_tender_refused = False
     if offer_attempts.there_are_any:
       for offer in offer_attempts:
@@ -152,13 +155,15 @@ comment: |
 ---
 id: rent payment defense logic
 code: |
-  if eviction_reason["nonpayment of rent"] and was_rent_paid:
+  if case_type["AC Rent and Possession"] and was_rent_paid:
     defense_rent_payment = True
-  elif eviction_reason["nonpayment of rent"] and not was_rent_paid:
+  elif case_type["AC Rent and Possession"] and not was_rent_paid:
     defense_rent_payment = False
   else:
     defense_rent_payment = None    
-depends on: was_rent_paid
+depends on:
+  - case_type
+  - was_rent_paid
 ---
 id: settlement defense logic
 code: |
@@ -494,17 +499,19 @@ id: cqe breach logic
 comment: |
   Are we going to separate levels of cqe breach? E.g. (1) mere breach, (2) constructive eviction, (3) significant enough to physically deprive the tenant of possession.
 code: |
-  if eviction_reason["nonpayment of rent"] and cqe_breaches.any_true():
+  if case_type["AC Rent and Possession"] and cqe_breaches.any_true():
     defense_breach_of_cqe = True
-  elif eviction_reason["nonpayment of rent"] and not cqe_breaches.any_true():
+  elif case_type["AC Rent and Possession"] and not cqe_breaches.any_true():
     defense_breach_of_cqe = False
   else:
     defense_breach_of_cqe = None
-depends on: cqe_breaches
+depends on:
+  - case_type
+  - cqe_breaches
 ---
 id: estoppel defense logic
 code: |
-  if eviction_reason["nonpayment of rent"]:
+  if case_type["AC Rent and Possession"]:
     if estoppel_breaches.any_true() or defense_breach_of_cqe:
       defense_estoppel_illegality = True
     else:
@@ -512,18 +519,20 @@ code: |
   else:
     defense_estoppel_illegality = None
 depends on:
+  - case_type
   - estoppel_breaches
   - defense_breach_of_cqe
 ---
 id: warranty breach logic
 code: |
-  if eviction_reason["nonpayment of rent"] and warranty_breaches.any_true():
+  if case_type["AC Rent and Possession"] and warranty_breaches.any_true():
     defense_breach_of_habitability = True
-  elif eviction_reason["nonpayment of rent"] and not warranty_breaches.any_true():
+  elif case_type["AC Rent and Possession"] and not warranty_breaches.any_true():
     defense_breach_of_habitability = False
   else:
     defense_breach_of_habitability = None
 depends on:
+  - case_type
   - warranty_breaches
   - notice_of_breach_to_landlord
 ---
