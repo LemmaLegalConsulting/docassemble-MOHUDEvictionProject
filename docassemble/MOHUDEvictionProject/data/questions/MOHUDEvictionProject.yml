@@ -560,76 +560,43 @@ content: |
   ${ collapse_template(defense_rent_pleading_requirement_template) }
   % endif
   % if defense_lease_not_attached:
-  
-  **Landlord has failed to comply with M.R.C.P. § 55.22**
-
-  A landlord must attach the written {lease} to the landlord's petition to be able to evict.  
+  ${ collapse_template(defense_lease_not_attached_template) }
   % endif
   % if defense_tender_refused:
-  
-  **Landlord refused Tenant’s tender of rent**
-
-  Landlord refused payment before the lawsuit was filed: For example, you presented the landlord the full amount of money you owed prior to the lawsuit but the landlord refused to accept the money. You should ask the judge to dismiss the case because you offered to pay the landlord the money you owed and the landlord refused to accept the money. You will need proof such as a letter from the landlord refusing to accept the money, a written check or money order or a witness to the landlord’s refusal. If you have no proof, you can offer to pay the amount claimed plus court costs in front of the judge. Make sure you have a certified check, money order or cash for the full amount with you. Full payment of rent owed plus {court costs} is your best defense. 	
+  ${ collapse_template(defense_tender_refused_template) } 	
   % endif
   % if defense_rent_payment:
-  
-  **Tenant has paid the rent allegedly owed**
-
-  A landlord also needs to allege that you didn't make the payment that you were obligated to make.
+  ${ collapse_template(defense_rent_payment_template) } 
   % endif
   % if defense_settlement:
-  
-  **Landlord and Tenant entered into a {settlement} agreement and Tenant has complied with the settlement’s terms**
-
-  
+  ${ collapse_template(defense_settlement_template) }
   % endif
   % if defense_lease_signed_under_duress:
-  
-  **The lease is invalid because unfair duress by Landlord caused Tenant to enter the {lease}**
-
-  
+  ${ collapse_template(defense_lease_signed_under_duress_template) }
   % endif
   % if defense_fraud_lease:
-  
-  **Landlord’s fraudulent promises induced Tenant to enter the lease**
-
-  
+  ${ collapse_template(defense_fraud_lease_template) }  
   % endif
   % if defense_liquidated_damages_late_fees:
   ${ collapse_template(defense_liquidated_damages_late_fees_template) }
   % endif
   % if defense_estoppel_illegality:
-  
-  **Landlord is estopped from enforcement of the {lease} because it has violated Missouri law**
-
-  "Estopped" means that the landlord should be prevented from benefiting from a lease if the landlord already violated the law.
+  ${ collapse_template(defense_estoppel_illegality_template) }
   % endif
   % if defense_breach_of_habitability:
-  
-  **Landlord has breached the {implied warranty of habitability}**
-
-  For example, your landlord has let the building run down and has not fixed major problems such as lack of running water, even after being notified of such problems. You should ask the judge to let you stay and either continue to pay a lower rent, make the landlord pay you for damages caused by the landlord’s failure to make needed repairs or excuse you from paying all, or part of, the back rent owed. You will need proof such as photos, letters to your landlord asking for repairs, copies of code violation reports or witnesses such as the building inspector. In some cases, the court may ask for proof that you have set aside the money you did not pay.
-  
+  ${ collapse_template(defense_breach_of_habitability_template) }
   % endif
   % if defense_foreclosure:
-  
   ${ collapse_template(defense_foreclosure_template) }
   % endif
   % if defense_new_owner_failed_to_provide_notice_of_sale:
-  
-  **The premises have been sold but the prior Landlord has not provided Tenant the required notices and therefore no rent is owed**
-
-  There are special protections for tenants when their landlord sells the tenant's home.  The new owner of the home is required to provide proof of the sale.
+  ${ collapse_template(defense_new_owner_failed_to_provide_notice_of_sale_template) }
   % endif
   % if defense_unrepresented_corporation:
   ${ collapse_template(defense_unrepresented_corporation_template) }
   % endif
-
   % if defense_excessive_rent_for_subsidized_housing:
-  
-  **Plaintiff has charged Defendant excessive rent in violation of the housing subsidy**
-
-  
+  ${ collapse_template(defense_excessive_rent_for_subsidized_housing_template) }
   % endif
   % if defense_tender_refused or defense_rent_payment or defense_settlement or defense_breach_of_habitability:
 
@@ -743,7 +710,73 @@ subject: |
   The Landlord is required to have an attorney in this case and it must be dismissed
 content: |
   A business entity, like a corporation, must have an attorney to evict a tenant in court.
----  
+---
+template: defense_lease_not_attached_template
+subject: | 
+  Plaintiff did not provide a copy or description of the lease
+  in the Petition and therefore failed to comply with
+  M.R.C.P. § 55.22
+content: |
+  A landlord must attach the written {lease} to the landlord's petition to be able to evict.  
+---
+template: defense_tender_refused_template
+subject: | 
+  Landlord refused Tenant’s tender of rent
+content: |
+  Landlord refused payment before the lawsuit was filed: 
+  
+  For example, you presented the landlord the full amount of money you owed prior to the lawsuit but the landlord refused to accept the money. You should ask the judge to dismiss the case because you offered to pay the landlord the money you owed and the landlord refused to accept the money. 
+  
+  You will need proof such as a letter from the landlord refusing to accept the money, a written check or money order or a witness to the landlord’s refusal. If you have no proof, you can offer to pay the amount claimed plus court costs in front of the judge. Make sure you have a certified check, money order or cash for the full amount with you. Full payment of rent owed plus {court costs} is your best defense.
+---
+template: defense_rent_payment_template
+subject: | 
+  Tenant has paid the rent allegedly owed
+content: |
+  A landlord also needs to allege that you didn't make the payment that you were obligated to make
+---
+template: defense_settlement_template
+subject: | 
+  Landlord and Tenant entered into a settlement agreement and Tenant has complied with the settlement’s terms
+content: |
+  You can enforce an agreement you made with the landlord to avoid an eviction. You will need to prove that you made an agreement and that you did what you were required to do under the agreement.
+---
+template: defense_lease_signed_under_duress_template
+subject: | 
+  The lease is invalid because unfair duress by Landlord caused Tenant to enter the lease
+content: |
+  A landlord who forced you or coerced you into signing a lease should not be able to hold you responsible to charges under that lease.
+---
+template: defense_fraud_lease_template
+subject: | 
+  Landlord’s fraudulent promises induced Tenant to enter the lease
+content: |
+  A landlord who tricked you into signing a lease should not be able to hold you responsible to charges under that lease.
+---
+template: defense_estoppel_illegality_template
+subject: | 
+  Landlord is estopped from enforcement of the lease because it has violated Missouri law
+content: |
+  "Estopped" means that the landlord should be prevented from benefiting from a lease if the landlord already violated the law.
+---
+template: defense_breach_of_habitability_template
+subject: | 
+  Landlord has breached the implied warranty of habitability
+content: |
+  For example, your landlord has let the building run down and has not fixed major problems such as lack of running water, even after being notified of such problems. You should ask the judge to let you stay and either continue to pay a lower rent, make the landlord pay you for damages caused by the landlord’s failure to make needed repairs or excuse you from paying all, or part of, the back rent owed. You will need proof such as photos, letters to your landlord asking for repairs, copies of code violation reports or witnesses such as the building inspector. In some cases, the court may ask for proof that you have set aside the money you did not pay.
+---
+template: defense_new_owner_failed_to_provide_notice_of_sale_template
+subject: | 
+  The premises have been sold but the prior Landlord has not provided Tenant the required notices and therefore no rent is owed
+content: |
+  There are special protections for tenants when their landlord sells the tenant's home.  The new owner of the home is required to provide proof of the sale.
+---
+template: defense_excessive_rent_for_subsidized_housing_template
+subject: | 
+  Plaintiff has charged Defendant excessive rent in violation of the housing subsidy
+content: |
+  A tenant in subsidized housing should not be evicted if they paid their portion of the rent.
+---
 id: next steps explanation
 question:  Print, Sign, Serve and File
 ---
