@@ -130,7 +130,8 @@ code: |
       docket_review
 
   # Eviction reasons
-  case_type
+  eviction_reason
+  check_case_type
   if eviction_reason.any_true("lease violation", "criminal activity"):
     defense_no_breach
 

@@ -159,6 +159,11 @@ code: |
       "Other": False
     })
 ---
+id: code to make eviction reason from case type
+code: |
+  eviction_reason["nonpayment of rent"] = eviction_reason["nonpayment of rent"] or case_type["AC Rent and Possession"]
+  check_case_type = True
+---
 id: case type from summons
 question: |
   What kind of {eviction} did your landlord file?
@@ -209,7 +214,7 @@ fields:
       % endif
     field: eviction_reason
     datatype: checkboxes
-    required: False
+    required: True
     choices:
       - label: |
           % if person_answering == "tenant":
