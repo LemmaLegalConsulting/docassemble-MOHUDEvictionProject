@@ -316,7 +316,7 @@ subquestion: |
   The {Summons} will say the time and date of the tenant's original court hearing.
   % endif
   
-  [FILE MOSummonsCourtDate.png, 100%]
+  [FILE MOSummonsHearingDate.png, 100%]
 fields:
   - "Date of original hearing": original_hearing_date
     datatype: date
