@@ -1439,6 +1439,7 @@ fields:
       - ${"I told my landlord in a phone call" if person_answering == "tenant" else "Told the landlord in a phone call"}: "in a phone_call"
       - Other: "other"
   - Explanation: offer_attempts[i].attempt_method_other
+    datatype: area
     show if:
       variable: offer_attempts[i].attempt_method
       is: other
@@ -1599,6 +1600,7 @@ fields:
       What other problems does the tenant have?
       % endif 
     field: warranty_breach_other
+    datatype: area
     show if: warranty_breaches['other']
 ---
 id: estoppel breaches
