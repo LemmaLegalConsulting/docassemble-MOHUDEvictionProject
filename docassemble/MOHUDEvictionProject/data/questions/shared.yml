@@ -217,6 +217,9 @@ subquestion:  |
   % else:
   If you have the {Summons} and {Petition}, the name of each {Plaintiff} is listed
   in the box labeled "Plaintiff". 
+  
+  [FILE MOSummonsPlaintiffAttorney.png, 100%]
+  
   % endif  
 fields:
   - Is there another Plaintiff?: other_parties.there_is_another

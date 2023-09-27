@@ -162,7 +162,7 @@ code: |
     notice_of_foreclosure
   
   set_progress(75)
-  if case_type["AC Rent and Possession"]:
+  if eviction_reason["nonpayment of rent"]:
     petition_states_rent_amount
     petition_states_rent_periods
     offer_attempts.gather()
@@ -174,7 +174,7 @@ code: |
       petition_separates_nonrent
   if late_fees_assessed:
     late_fees_penalty
-  if case_type["AC Rent and Possession"]:
+  if eviction_reason["nonpayment of rent"]:
     petition_states_demand_made
     landlord_problems_section
 
@@ -557,10 +557,10 @@ subquestion: |
 template: nonpayment_defense_explanation_template
 content: |
   Based on your answers, the following defenses are included in your answer:
-  % if case_type["AC Unlawful Detainer"] and defense_failure_to_terminate:
+  % if eviction_reason["holdover tenancy"] and defense_failure_to_terminate:
   ${ collapse_template(defense_failure_to_terminate_template) }
   % endif
-  % if case_type["AC Unlawful Detainer"] and defense_ud_did_not_violate_lease:
+  % if eviction_reason["lease violation"] and defense_ud_did_not_violate_lease:
   ${ collapse_template(defense_ud_did_not_violate_lease_template) }
   % endif
   % if defense_discrimination:
