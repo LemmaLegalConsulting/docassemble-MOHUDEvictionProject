@@ -152,7 +152,7 @@ code: |
     or not has_written_lease
   ):
     petition_states_terms_of_lease
-  if len(false_promises):
+  if false_promises_exists:
     relied_on_false_promises
   unfair_duress
 
@@ -965,19 +965,15 @@ review:
       % endif
       **${ "Maybe" if unfair_duress is None else yesno(unfair_duress) }**
   - Edit:
-      - false_promises.revisit
+      - false_promises_exists
       - recompute:
         - defense_fraud_lease
         - defense_logic
       - explanation_answer
     button: |
       False Promises Made By The Landlord:
-      % if false_promises.there_are_any:
-      % for item in false_promises:
-
-         - **${ item }**
-
-      % endfor
+      % if false_promises_exists:
+      {{ false_promises }}
       % else:
       **None**
       % endif

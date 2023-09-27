@@ -244,16 +244,13 @@ content: |
 ---
 id: false promises defense logic
 code: |
-  if len(false_promises) > 0 and relied_on_false_promises:
+  if false_promises_exists and relied_on_false_promises:
     defense_fraud_lease = True
   else:
     defense_fraud_lease = False
 depends on:
-  - false_promises
+  - false_promises_exists
   - relied_on_false_promises
----
-objects:
-  - false_promises: DAList
 ---
 id: landlord lied
 question: |
@@ -274,16 +271,17 @@ fields:
       % else: 
       Did the landlord make any false promises to the tenant before the tenant signed the lease?
       % endif
-    field: false_promises.there_are_any
+    field: false_promises_exists
     datatype: yesnoradio
   - label: |
       % if person_answering == "tenant":
-      What was the **first** false promise your landlord made to you?
+      What false promises did your landlord make to you?
       % else: 
-      What was the **first** false promise the landlord made to the tenant?
+      What false promises did your landlord make  to the tenant?
       % endif
-    field: false_promises[0]
-    show if: false_promises.there_are_any
+    field: false_promises
+    datatype: area
+    show if: false_promises_exists
 ---
 template: false_promise_example_template
 subject: |
@@ -320,53 +318,6 @@ content: |
   
   A false promise can also be a written promise, or a promise in an advertisement.
 ---
-id: promises i
-question: |
-  % if person_answering == "tenant":
-  What was the **${ ordinal(i) }** false promise your landlord made?
-  % else: 
-  What was the **${ ordinal(i) }** false promise the landlord made?
-  % endif
-subquestion: |
-  % if person_answering == "tenant":
-  You already told us about:
-  % else:
-  The tenant already told us about:
-  % endif
-
-  % for promise in false_promises:
-  * ${ promise }
-  % endfor
-fields:
-  - Describe the landlord's false promise: false_promises[i]
----
-id: false promises there is another
-question: |
-  % if person_answering == "tenant":
-  Did your landlord promise anything else that was not true?
-  % else:  
-  Did the landlord promise anything else that was not true?
-  % endif
-subquestion: |
-  % if person_answering == "tenant":
-  You already told us about:
-  % else:
-  The tenant already told us about:
-  % endif
-
-  % for promise in false_promises:
-  * ${ promise }
-  % endfor
-fields:
-  - label: |
-      % if person_answering == "tenant":
-      Did your landlord promise anything else that was not true? 
-      % else: 
-      Did the landlord promise anything else that was not true? 
-      % endif
-    field: false_promises.there_is_another
-    datatype: yesnoradio
----
 id: relied on promise
 question: |
   % if person_answering == "tenant":
@@ -375,56 +326,24 @@ question: |
   Did the landlord's promise get the tenant to sign the lease?
   % endif
 subquestion: |
-  % if person_answering == "tenant":
-  % if false_promises.number() == 1:
-  You told us the landlord made 1 false promise:
-  % else:
-  You told us the landlord made ${ false_promises.number() } false promises:
-  % endif
-  % else: 
-  % if false_promises.number() == 1:
-  The tenant told us the landlord made 1 false promise:
-  % else:
-  The tenant told us the landlord made ${ false_promises.number() } false 
-  promises:
-  % endif
-  % endif
-
-  % for promise in false_promises:
-  * ${ promise }
-  % endfor
+  You told us the landlord made the false promise:
+  
+  - ${ false_promises }
+  
 fields:
   - note: |
       % if person_answering == "tenant":
-      % if false_promises.number() == 1:
-      If you were more likely to sign the lease **because** of 
-      your landlord's promise, answer yes.
-      % else:
       If you were more likely to sign the lease **because** of 
       your landlord's promises, answer yes.
-      % endif
       % else: 
-      % if false_promises.number() == 1:
-      If the tenant was more likely to sign the lease **because** of 
-      the landlord's promise, answer yes.
-      % else:
       If the tenant was more likely to sign the lease **because** of 
       the landlord's promises, answer yes.
       % endif
-      % endif
   - label: |
       % if person_answering == "tenant":
-      % if false_promises.number() == 1:
-      Did your landlord's promise get you to sign the lease?
-      % else:
       Did your landlord's promises get you to sign the lease?
-      % endif
       % else: 
-      % if false_promises.number() == 1:
-      Did the landlord's promise get the tenant to sign the lease?
-      % else:
       Did the landlord's promises get the tenant to sign the lease?
-      % endif
       % endif
     field: relied_on_false_promises
     datatype: yesnoradio
