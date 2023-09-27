@@ -63,8 +63,6 @@ code: |
   if other_parties[0].service_method == "email":
     other_parties[0].service_email
   elif other_parties[0].service_method in ["mail", "hand"]:
-    if other_parties[0].attorney.there_are_any:
-      other_parties[0].attorney[0].address.address
     other_parties[0].service_address.address
 
   al_user_wants_reminders
@@ -189,14 +187,11 @@ code: |
 code: | 
   other_parties[i].name.first
   other_parties[i].attorney.gather()
-  if len(other_parties[i].attorney) == 0:
-    other_parties[i].address.address
   other_parties[i].complete = True
 ---
 ## other party's attorneys
 code: |
   other_parties[i].attorney[0].name.first
-  other_parties[i].attorney[0].address.address
   other_parties[i].attorney.complete = True
 ---
 sets: posting_warning
