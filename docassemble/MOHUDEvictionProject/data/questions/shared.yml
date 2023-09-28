@@ -678,6 +678,13 @@ fields:
     field: users.there_is_another
     datatype: yesnoradio
 ---
+id: petition_date 
+question: |
+  When did the Plaintiff file their petition in this case?
+fields:
+  - Date: petition_date
+    datatype: date
+---
 generic object: ALIndividual
 id: service method
 question: |
@@ -845,6 +852,11 @@ attachments:
     variable name: eviction_answer_attachment[i]        
     skip undefined: True
     docx template file: answer_defenses.docx
+  - name: motion for leave to file
+    filename: motion_for_leave_to_file.docx     
+    variable name: eviction_motion_for_leave_attachment[i]        
+    skip undefined: True
+    docx template file: motion_for_leave_to_file.docx
 ---
 id: preview eviction_defender
 question: |
@@ -930,9 +942,10 @@ objects:
   - eviction_defender_post_interview_instructions: ALDocument.using(title="Instructions", filename="eviction_helper_next_steps.docx", enabled=True, has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
   - eviction_motion_to_continue_attachment: ALDocument.using(title="Postpone your eviction hearing", filename="eviction_motion_to_continue.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
   - eviction_answer_attachment: ALDocument.using(title="Answer and Affirmative Defenses", filename="answer_defenses.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+  - eviction_motion_for_leave_attachment: ALDocument.using(title="File Pleadings After Your Hearing", filename="motion_for_leave_to_file.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
 ---
 objects:
-  - al_user_bundle: ALDocumentBundle.using(elements=[eviction_defender_post_interview_instructions,eviction_motion_to_continue_attachment,eviction_answer_attachment], filename="eviction_helper.docx_package.pdf", title="All forms to download for your records", enabled=True)
+  - al_user_bundle: ALDocumentBundle.using(elements=[eviction_defender_post_interview_instructions,eviction_motion_to_continue_attachment,eviction_answer_attachment,eviction_motion_for_leave_attachment], filename="eviction_helper.docx_package.pdf", title="All forms to download for your records", enabled=True)
   - al_court_bundle: ALDocumentBundle.using(elements=attachment_list_court, filename="eviction_helper.docx_package.pdf", title="All forms to download for your records", enabled=True)
 ---
 template: about_page_contents

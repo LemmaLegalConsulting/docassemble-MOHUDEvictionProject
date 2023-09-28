@@ -455,7 +455,6 @@ id: docket review order
 code: |
   casenet_login_instructions
   nav.set_section("section_eviction_answer_case")  
-  case_type_kickout
   nav.set_section("section_eviction_answer_other") 
   for party in other_parties:
     party.attorney.gather()
