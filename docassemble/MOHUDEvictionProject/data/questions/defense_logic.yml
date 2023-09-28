@@ -404,7 +404,9 @@ fields:
       % endif
     field: late_fees_lease_provision
     datatype: yesnomaybe
-    show if: late_fees_assessed
+    show if: 
+      variable: late_fees_assessed
+      is: True
   - label: |
       Do the late fees charged by the landlord comply with the lease provision?
       % if has_written_lease == False:
