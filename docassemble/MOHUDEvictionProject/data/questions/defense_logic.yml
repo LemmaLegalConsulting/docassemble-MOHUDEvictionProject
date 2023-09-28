@@ -1611,7 +1611,12 @@ question: |
   Did the landlord violate other laws?
   % endif
 subquestion: |
-  ${ collapse_template(estoppel_explanation_template) }
+  Answer this question if there are other violations that you know about.  The previous questions asked about the most important violations, but this question is intended to allow you to add any other legal violations that you know about.
+  
+  For example, some cities and towns require a landlord have an occupancy permit to rent a home.
+  The occupancy permit is a document that says the home is safe to live in.
+
+  If you are not sure, it is OK to leave this question blank.
 fields:
   - What law did your landlord violate?: estoppel_breaches
     datatype: checkboxes
