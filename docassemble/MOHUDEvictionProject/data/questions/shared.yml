@@ -919,30 +919,79 @@ include:
 id: download eviction_defender
 event: eviction_defender_download
 question: |
-  All done
+  % if person_answering == "tenant":
+  Download, print, deliver, and file your form
+  % else:
+  Download, print, deliver, and file the form
+  % endif
 subquestion: |
   % if person_answering == "tenant":
-  Thank you ${users}. Your form is ready to download and deliver.
+  Thank you ${users}. Your form is ready to download, print, deliver, and file.
   
-  View and download your form below. Click the "Edit answers" button to fix any mistakes.
+  **1. View and download your form below.** Click the "Edit answers" button to fix any mistakes.
   
-  Print the forms.  You may be able to use a printer at a library or your county law library.
+  **2. Print the form.** You may be able to use a printer at a public library or your county law library.
   
-  Sign and complete the forms.  You will need to fill in the date in the Certificate of Service box at the end of the document.  Use the date you deliver the document to the other party using the method you chose.
+  **3. Deliver the form to:**
   
+  % if other_parties[0].attorney.there_are_any: 
+  Plaintiff's attorney: ${ other_parties[0].attorney[0].name }
   
-  File the document at the clerk of court.
   % else:
-  Thank you ${users}. The tenant's form is ready to download and deliver.
+  Plaintiff: ${ other_parties[0].name }
   
-  View, download, and send the tenant's form below. Click the "Edit answers" button to fix any mistakes.
+  % endif
+  % if other_parties[0].service_method == "email":
+  Email: ${ other_parties[0].service_email }
+  % else:
+  ${ other_parties[0].service_address.block() }
+  % endif
   
-  Print the forms.  You may be able to use a printer at a library or your county law library.
+  **4. Complete and file the form:**
   
-  Sign and complete the forms.  The tenant will need to fill in the date in the Certificate of Service box at the end of the document.  The tenant should use the date the tenant delivers a copy of the document to the other party using the method you chose.
+    * Fill in the date you deliver the form to the other party in the "Certificate of Service" box at the end of the document. 
+    
+    % if not docket_number: 
+    * Add your case number.
+    
+    % endif
+    * Go to the court and file your form at the clerk's office.
   
-  File the document at the clerk of court.
-  % endif 
+  ${ county_dictionary[trial_court.county]['court_address_and_operating_hours'] }
+  % else:
+  Thank you ${users}. The tenant's form is ready to download, print, deliver, and file.
+  
+  **1. View and download the tenant's form below.** Click the "Edit answers" button to fix any mistakes.
+  
+  **2. Print the form.** The tenant may be able to use a printer at a public library or your county law library.
+  
+  **3. Deliver the form to:**
+  
+  % if other_parties[0].attorney.there_are_any: 
+  Plaintiff's attorney: ${ other_parties[0].attorney[0].name }
+  
+  % else:
+  Plaintiff: ${ other_parties[0].name }
+  
+  % endif
+  % if other_parties[0].service_method == "email":
+  Email: ${ other_parties[0].service_email }
+  % else:
+  ${ other_parties[0].service_address.block() }
+  % endif
+  
+  **4. Complete and file the form:**
+  
+    * Fill in the date the tenant delivers the form to the other party in the "Certificate of Service" box at the end of the document. 
+    
+    % if not docket_number: 
+    * Add the tenant's case number.
+    
+    % endif
+    * Go to the court and file the form at the clerk's office.
+  
+  ${ county_dictionary[trial_court.county]['court_address_and_operating_hours'] }
+  % endif
 
   ${ action_button_html(url_action('review_eviction_answer'), label='Edit answers', color='info') }
     
