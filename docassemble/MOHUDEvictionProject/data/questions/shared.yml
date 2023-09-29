@@ -254,6 +254,8 @@ sets:
   - other_parties[i].attorney[j].name.middle
   - other_parties[i].attorney[j].name.suffix
 question: |
+  What is the name of ${ other_parties[i] }'s {attorney}?
+subquestion: |
   % if tenant_using_casenet: 
   You can find the name and address of the attorney in the Parties and Attorneys tab in the online docket.
   
@@ -266,14 +268,33 @@ question: |
   [FILE MOSummonsPlaintiffAttorney.png, 100%]
 
   ${ warn_picture_is_example_template }
-  % else:
-  What is the name and address of ${ other_parties[i] }'s {attorney}?
   % endif
 fields:
   - code: |
       other_parties[i].attorney[j].name_fields()
-  - code: |
-      x.address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)
+---
+#id: opposing attorney address
+#sets:
+#  - other_parties[i].attorney[j].address.address
+#question: |
+#  What is the address of ${ other_parties[i] }'s {attorney}?
+#subquestion: |
+#  % if tenant_using_casenet: 
+#  You can find the address of the attorney in the Parties and Attorneys tab in the online docket.
+#  
+#  [FILE Parties.png, 100%]
+#
+#  ${ warn_picture_is_example_template }
+#  % elif tenant_got_summons and petition_available: 
+#  If the landlord is represented by an attorney, then the attorney's address will be in the box next to the Landlord's name.
+#  
+#  [FILE MOSummonsPlaintiffAttorney.png, 100%]
+#
+#  ${ warn_picture_is_example_template }
+#  % endif
+#fields:
+#  - code: |
+      #other_parties[i].attorney[j].address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)
 ---
 id: your address
 sets:
@@ -407,8 +428,36 @@ subquestion: |
   [FILE ComplaintCaptionPlaintiff.png, 100%]
   % endif 
 fields:
-  - code: |
-      other_parties[i].name_fields(person_or_business='unsure')
+  - label: |
+      % if person_answering == "tenant":
+      Is your landlord a person or a business?
+      % else:
+      Is the tenant's landlord a person or a business?
+      % endif
+    field: other_parties[i].person_type
+    input type: radio
+    choices:
+      - Person: individual
+      - Business: business
+  - Landlord's first name: other_parties[i].name.first
+    show if:
+      variable: other_parties[i].person_type
+      is: "individual"
+  - Last name: other_parties[i].name.last
+    show if:
+      variable: other_parties[i].person_type      
+      is: "individual"
+  - Suffix: other_parties[i].name.suffix
+    code: |
+      name_suffix()
+    show if:
+      variable: other_parties[i].person_type      
+      is: "individual"
+    required: False      
+  - Landlord's name: other_parties[i].name.first
+    show if:
+      variable: other_parties[i].person_type
+      is: "business"
 ---
 template: warn_picture_is_example_template
 content: |
@@ -688,17 +737,33 @@ fields:
 generic object: ALIndividual
 id: service method
 question: |
+  % if other_parties[0].attorney.there_are_any:
+  % if person_answering == "tenant":
+  ${ x } is represented by attorney ${ x.attorney }. When somebody is represented by an {attorney}, the attorney must be served.
+  % else:
+  ${ x } is represented by attorney ${ x.attorney }. When somebody is represented by an {attorney}, the attorney must be served.
+  % endif
+  % else:
   % if person_answering == "tenant":
   How will you get a copy of the documents to ${ x }?
   % else:
   How will the tenant get a copy of the documents to ${ x }?
   % endif
+  % endif
 fields:
   - label: |
+      % if other_parties[0].attorney.there_are_any:
+      % if person_answering == "tenant":
+      I will serve ${ x.attorney } by
+      % else:
+      The tenant will serve ${ x.attorney } by
+      % endif
+      % else:
       % if person_answering == "tenant":
       I will serve ${ x } by
       % else:
       The tenant will serve ${ x } by
+      % endif
       % endif
     field: x.service_method
     input type: radio
@@ -723,111 +788,79 @@ data:
 generic object: ALIndividual
 id: any service address
 question: |
-  % if person_answering == "tenant":
-  At what address will you serve ${ x }?
-  % else:
-  At what address will the tenant serve ${ x }?
-  % endif
-fields:
-  - ${ x }'s service address is: x.service_address
-    datatype: object_radio
-    default: 
-      - x.address if defined(x.address.attr_name("address")) else None
-    choices:
-      - x.address if defined(x.address.attr_name("address")) else None
-      - x.mailing_address if defined(x.mailing_address.attr_name("address")) else None
-    object labeler: |
-      lambda y: y.on_one_line()      
-    none of the above: |
-      Somewhere else   
-  - ${ x.service_address.address_label }: x.service_address.address
-    address autocomplete: True
-    show if:
-      variable: x.service_address
-      is: null
-  - ${ x.service_address.unit_label }: x.service_address.unit
-    required: False
-    show if:
-      variable: x.service_address
-      is: null
-  - ${ x.service_address.city_label }: x.service_address.city
-    show if:
-      variable: x.service_address
-      is: null
-  - ${ x.service_address.state_label }: x.service_address.state
-    code: |
-      states_list(country_code=AL_DEFAULT_COUNTRY)
-    default: ${ AL_DEFAULT_STATE }
-    show if:
-      variable: x.service_address
-      is: null
-  - ${ x.service_address.zip_label }: x.service_address.zip
-    required: False      
-    show if:
-      variable: x.service_address
-      is: null
-  - ${ x.service_address.country_label }: x.service_address.country
-    code: countries_list()
-    default: ${ AL_DEFAULT_COUNTRY }
-    show if:
-      variable: x.service_address
-      is: null
----
-if: x.attorney.there_are_any
-generic object: ALIndividual
-id: any service address - attorney
-question: |
+  % if x.attorney.there_are_any:
   % if person_answering == "tenant":
   At what address will you serve ${ x.attorney }?
   % else:
   At what address will the tenant serve ${ x.attorney }?
   % endif
-subquestion: |
-  ${ x } is represented by attorney ${ x.attorney }. When somebody is represented by an {attorney}, the attorney must be served.
+  % else:
+  % if person_answering == "tenant":
+  At what address will you serve ${ x }?
+  % else:
+  At what address will the tenant serve ${ x }?
+  % endif
+  % endif
 fields:
-  - ${ x }'s service address is: x.service_address
-    datatype: object_radio
-    default: 
-      - x.attorney[0].address if defined(x.attorney[0].address.attr_name("address")) else None
-    choices:
-      - x.attorney[0].address if defined(x.attorney[0].address.attr_name("address")) else None
-      - x.attorney[0].mailing_address if defined(x.attorney[0].mailing_address.attr_name("address")) else None
-    object labeler: |
-      lambda y: y.on_one_line()      
-    none of the above: |
-      Somewhere else   
   - ${ x.service_address.address_label }: x.service_address.address
     address autocomplete: True
-    show if:
-      variable: x.service_address
-      is: None
   - ${ x.service_address.unit_label }: x.service_address.unit
     required: False
-    show if:
-      variable: x.service_address
-      is: None
   - ${ x.service_address.city_label }: x.service_address.city
-    show if:
-      variable: x.service_address
-      is: None
   - ${ x.service_address.state_label }: x.service_address.state
     code: |
       states_list(country_code=AL_DEFAULT_COUNTRY)
     default: ${ AL_DEFAULT_STATE }
-    show if:
-      variable: x.service_address
-      is: None
   - ${ x.service_address.zip_label }: x.service_address.zip
     required: False      
-    show if:
-      variable: x.service_address
-      is: None
   - ${ x.service_address.country_label }: x.service_address.country
     code: countries_list()
     default: ${ AL_DEFAULT_COUNTRY }
-    show if:
-      variable: x.service_address
-      is: None
+---
+#if: x.attorney.there_are_any
+#generic object: ALIndividual
+#id: any service address - attorney
+#question: |
+#  % if person_answering == "tenant":
+#  At what address will you serve ${ x.attorney }?
+#  % else:
+#  At what address will the tenant serve ${ x.attorney }?
+#  % endif
+#subquestion: |
+#  ${ x } is represented by attorney ${ x.attorney }. When somebody is represented by an {attorney}, the attorney must be served.
+#fields:
+#  - ${ x.service_address.address_label }: x.service_address.address
+#    address autocomplete: True
+#    show if:
+#      variable: x.service_address
+#      is: None
+#  - ${ x.service_address.unit_label }: x.service_address.unit
+#    required: False
+#    show if:
+#      variable: x.service_address
+#      is: None
+#  - ${ x.service_address.city_label }: x.service_address.city
+#    show if:
+#      variable: x.service_address
+#      is: None
+#  - ${ x.service_address.state_label }: x.service_address.state
+#    code: |
+#      states_list(country_code=AL_DEFAULT_COUNTRY)
+#    default: ${ AL_DEFAULT_STATE }
+#    show if:
+#      variable: x.service_address
+#      is: None
+#  - ${ x.service_address.zip_label }: x.service_address.zip
+#    required: False      
+#    show if:
+#      variable: x.service_address
+#      is: None
+#  - ${ x.service_address.country_label }: x.service_address.country
+#    code: countries_list()
+#    default: ${ AL_DEFAULT_COUNTRY }
+#    show if:
+#      variable: x.service_address
+#      is: None
 ---
 generic object: ALIndividual
 code: |
@@ -901,30 +934,79 @@ include:
 id: download eviction_defender
 event: eviction_defender_download
 question: |
-  All done
+  % if person_answering == "tenant":
+  Download, print, deliver, and file your form
+  % else:
+  Download, print, deliver, and file the form
+  % endif
 subquestion: |
   % if person_answering == "tenant":
-  Thank you ${users}. Your form is ready to download and deliver.
+  Thank you ${users}. Your form is ready to download, print, deliver, and file.
   
-  View and download your form below. Click the "Edit answers" button to fix any mistakes.
+  **1. View and download your form below.** Click the "Edit answers" button to fix any mistakes.
   
-  Print the forms.  You may be able to use a printer at a library or your county law library.
+  **2. Print the form.** You may be able to use a printer at a public library or your county law library.
   
-  Sign and complete the forms.  You will need to fill in the date in the Certificate of Service box at the end of the document.  Use the date you deliver the document to the other party using the method you chose.
+  **3. Deliver the form to:**
   
+  % if other_parties[0].attorney.there_are_any: 
+  Plaintiff's attorney: ${ other_parties[0].attorney[0].name }
   
-  File the document at the clerk of court.
   % else:
-  Thank you ${users}. The tenant's form is ready to download and deliver.
+  Plaintiff: ${ other_parties[0].name }
   
-  View, download, and send the tenant's form below. Click the "Edit answers" button to fix any mistakes.
+  % endif
+  % if other_parties[0].service_method == "email":
+  Email: ${ other_parties[0].service_email }
+  % else:
+  ${ other_parties[0].service_address.block() }
+  % endif
   
-  Print the forms.  You may be able to use a printer at a library or your county law library.
+  **4. Complete and file the form:**
   
-  Sign and complete the forms.  The tenant will need to fill in the date in the Certificate of Service box at the end of the document.  The tenant should use the date the tenant delivers a copy of the document to the other party using the method you chose.
+    * Fill in the date you deliver the form to the other party in the "Certificate of Service" box at the end of the document. 
+    
+    % if not docket_number: 
+    * Add your case number.
+    
+    % endif
+    * Go to the court and file your form at the clerk's office.
   
-  File the document at the clerk of court.
-  % endif 
+  ${ county_dictionary[trial_court.county]['court_address_and_operating_hours'] }
+  % else:
+  Thank you ${users}. The tenant's form is ready to download, print, deliver, and file.
+  
+  **1. View and download the tenant's form below.** Click the "Edit answers" button to fix any mistakes.
+  
+  **2. Print the form.** The tenant may be able to use a printer at a public library or your county law library.
+  
+  **3. Deliver the form to:**
+  
+  % if other_parties[0].attorney.there_are_any: 
+  Plaintiff's attorney: ${ other_parties[0].attorney[0].name }
+  
+  % else:
+  Plaintiff: ${ other_parties[0].name }
+  
+  % endif
+  % if other_parties[0].service_method == "email":
+  Email: ${ other_parties[0].service_email }
+  % else:
+  ${ other_parties[0].service_address.block() }
+  % endif
+  
+  **4. Complete and file the form:**
+  
+    * Fill in the date the tenant delivers the form to the other party in the "Certificate of Service" box at the end of the document. 
+    
+    % if not docket_number: 
+    * Add the tenant's case number.
+    
+    % endif
+    * Go to the court and file the form at the clerk's office.
+  
+  ${ county_dictionary[trial_court.county]['court_address_and_operating_hours'] }
+  % endif
 
   ${ action_button_html(url_action('review_eviction_answer'), label='Edit answers', color='info') }
     
