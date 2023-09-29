@@ -34,7 +34,7 @@ subquestion: |
   - Name of the court and
   - Case number
   
-  at the top of the Summons.
+  at the top of the {Summons}.
   
   [FILE MOSummonsCourtDate.png, 100%]
       
@@ -57,7 +57,7 @@ id: reason for eviction
 question: |
   Why does your landlord say they are evicting you?
 subquestion: |
-  It helps to look at the Summons and Landlord Petition when you answer this question.
+  It helps to look at the {Summons} and {petition|Landlord Petition} when you answer this question.
   If you do not have it in front of you, do your best to answer from what you remember.
 
 
@@ -65,7 +65,7 @@ subquestion: |
 fields:
   - label: |
       % if person_answering == "tenant":
-      Why does your landlord says they are evicting you?:
+      Why does your landlord says they are evicting you?
       % else:
       Why does the landlord says they are evicting the tenant?
       % endif
@@ -90,13 +90,6 @@ fields:
         value: lease violation
       - label: |
           % if person_answering == "tenant":
-          My landlord says I damaged the property.
-          % else:
-          The landlord says the tenant damaged the property.
-          % endif
-        value: damaging property
-      - label: |
-          % if person_answering == "tenant":
           My landlord says I did something illegal and they are asking
           to move me out right away. For example: selling drugs
           or other criminal activity.
@@ -115,9 +108,34 @@ fields:
           renew my month to month rental agreement.
           % endif
         value: holdover tenancy
+      - label: |
+          % if person_answering == "tenant":
+          My landlord says that they have "other good cause"
+          to end my tenancy in a Section 8 or project-based tenancy.
+          % else:
+          The landlord says that they have "other good cause"
+          to end the tenant's tenancy in a Section 8 or project-based tenancy.
+          % endif
+        value: other good cause
       - Something else: other
     none of the above: | 
       I do not know
+  - What specifically did the landlord claim?: eviction_detailed_reasons
+    show if: eviction_reason['lease violation']
+    datatype: checkboxes
+    choices: 
+      - Chronic late payment of rent: chronic late payment of rent
+      - Overcrowding: overcrowding
+      - Unauthorized occupants: unauthorized occupants
+      - Excessive foot traffic: excessive foot traffic
+      - Clutter or hoarding: clutter or hoarding
+      - Destruction of property: destruction of property
+      - Assault on staff or other tenant: assault on staff or other tenant
+      - Harassment of staff or other tenant: harassment of staff or other tenant
+      - Disturbance of other tenants (like smoking, noise, or odor) coming from your apartment: disturbance of other tenants
+      - Arrest or conviction for a crime: arrest or criminal conviction
+      - Disturbing health and safety of tenants or others: health and safety
+      - Other lease violation: other lease violation
   - Is the landlord asking for an expedited (emergency) eviction?: landlord_seeking_emergency_eviction
     datatype: yesnomaybe
     help: |
@@ -143,7 +161,7 @@ code: |
 ---
 id: case type from summons
 question: |
-  What kind of eviction did your landlord file?
+  What kind of {eviction} did your landlord file?
 subquestion: |
   % if tenant_using_casenet: 
   Look at the Case Header Tab on the Online Docket to answer this question.
@@ -156,7 +174,7 @@ subquestion: |
 
   ${ warn_picture_is_example_template }
   % elif tenant_got_summons and petition_available: 
-  Look at **your summons and petition** to answer this question. Find
+  Look at **your {summons} and {petition}** to answer this question. Find
   the information labeled "Nature of Suit."
   
   Example:
@@ -164,7 +182,11 @@ subquestion: |
   % endif
 fields:
   - label: |
+      % if tenant_using_casenet:
+      Case type
+      % else:
       Nature of Suit
+      % endif
     field: case_type
     datatype: checkboxes
     required: False
@@ -179,6 +201,90 @@ fields:
     show if:
       variable: case_type['Other']
       is: True
+  - label: |
+      % if person_answering == "tenant":
+      Why does your landlord say they are evicting you?
+      % else:
+      Why does the landlord say they are evicting the tenant?
+      % endif
+    field: eviction_reason
+    datatype: checkboxes
+    required: False
+    choices:
+      - label: |
+          % if person_answering == "tenant":
+          My landlord says I owe rent
+          % else:
+          Landlord says the tenant owes rent
+          % endif
+        value: nonpayment of rent
+      - label: |
+          % if person_answering == "tenant":
+          My landlord says I broke my lease for a reason other than owing rent.
+          For example: paying rent late too many times or making too much noise.
+          % else:
+          Tenant broke another term of the lease
+          % endif
+        value: lease violation
+      - label: |
+          % if person_answering == "tenant":
+          My landlord says I did something illegal and they are asking
+          to move me out right away. For example: selling drugs
+          or other criminal activity.
+          % else:
+          The landlord says the tenant did something illegal and they are asking
+          to move the tenant out right away. For example: selling drugs
+          or other criminal activity.
+          % endif
+        value: criminal activity
+      - label: |
+          % if person_answering == "tenant":
+          My landlord says the lease ended or that they do not want to
+          renew my month to month rental agreement.
+          % else:
+          The landlord says the lease ended or that they do not want to
+          renew my month to month rental agreement.
+          % endif
+        value: holdover tenancy
+      - label: |
+          % if person_answering == "tenant":
+          My landlord says that they have "other good cause"
+          to end my tenancy in a Section 8 or project-based tenancy.
+          % else:
+          The landlord says that they have "other good cause"
+          to end the tenant's tenancy in a Section 8 or project-based tenancy.
+          % endif
+        value: other good cause
+      - Something else: other
+    none of the above: | 
+      I do not know
+  - What specifically did the landlord claim?: eviction_detailed_reasons
+    show if: eviction_reason['lease violation']
+    datatype: checkboxes
+    choices: 
+      - Chronic late payment of rent: chronic late payment of rent
+      - Overcrowding: overcrowding
+      - Unauthorized occupants: unauthorized occupants
+      - Excessive foot traffic: excessive foot traffic
+      - Clutter or hoarding: clutter or hoarding
+      - Destruction of property: destruction of property
+      - Assault on staff or other tenant: assault on staff or other tenant
+      - Harassment of staff or other tenant: harassment of staff or other tenant
+      - Disturbance of other tenants (like smoking, noise, or odor) coming from your apartment: disturbance of other tenants
+      - Arrest or conviction for a crime: arrest or criminal conviction
+      - Disturbing health and safety of tenants or others: health and safety
+      - Other lease violation: other lease violation
+  - Is the landlord asking for an expedited (emergency) eviction?: landlord_seeking_emergency_eviction
+    datatype: yesnomaybe
+    help: |
+      An expedited eviction is faster than a normal
+      eviction. The landlord has to follow special
+      rules to ask for an expedited eviction.
+    show if: 
+      variable: eviction_reason["criminal activity"]
+      is: True
+      code: |
+        not (tenant_got_summons and petition_available)      
 ---
 template: what_if_i_disagree_template
 subject: |
@@ -314,8 +420,8 @@ subquestion: |
   to make sure you do not miss anything. You can use it to find:
 
   * Hearings that are scheduled
-  * If the judge made a decision (judgment) in your case
-  * If your landlord got a garnishment or execution to make you pay back rent
+  * If the judge made a decision ({judgment}) in your case
+  * If your landlord got a garnishment or {writ of execution|execution} to make you pay back rent
   * If your landlord got permission to move you from your home
 
   If you have an email address or cell phone, click the "Track this case" button to get
@@ -328,8 +434,8 @@ subquestion: |
   to make sure they do not miss anything. The tenant can use it to find:
 
   * Hearings that are scheduled
-  * If the judge made a decision (judgment) in their case
-  * If their landlord got a garnishment or execution to make them pay back rent
+  * If the judge made a decision ({judgment}) in their case
+  * If their landlord got a garnishment or {writ of execution|execution} to make them pay back rent
   * If their landlord got permission to move them from their home
 
   If the tenant has an email address or cell phone, click the "Track this case" button to get

@@ -52,8 +52,7 @@ comment: |
   Controls order and branching logic for the motion to continue, which may be used in a standalone interview and may be used in other interviews with other forms.
 id: interview_order_eviction_motion_to_continue
 code: |
-  # Set the allowed courts for this interview
-  allowed_courts = interview_metadata["eviction_defender"]["allowed courts"]
+  # Set the allowed courts for this interview REMOVED
   nav.set_section('section_eviction_answer_intro')
   user_role = 'defendant'
   landlord_doc_name
@@ -137,7 +136,7 @@ code: |
 id: basic questions intro screen
 decoration: form-lineal
 question: |
-  File a Motion to Continue in an Eviction Case: Missouri Tenant Help
+  File a {Motion} to {continuance|Continue} in an {Eviction|Eviction Case}: Missouri Tenant Help
 subquestion: |
   Missouri Tenant Help can help you complete and download forms  in 3 steps:
 
@@ -157,7 +156,7 @@ subquestion: |
   on your own.**
   % endif
   
-  This site is not a lawyer. If you would like a lawyer, find [a Missouri legal aid provider](https://www.lsmo.org/).  If you are outside Missouri, find your [your local
+  This site is not a {attorney|lawyer}. If you would like a lawyer, find [a Missouri legal aid provider](https://www.lsmo.org/).  If you are outside Missouri, find your [your local
   legal aid provider](https://www.lsc.gov/what-legal-aid/find-legal-aid).
   
   Tap the {green words} in any screen for a definition or more information.
@@ -166,6 +165,8 @@ subquestion: |
   Live help is currently available in this interview. Click the speech bubble
   (:comment-alt:) in the navigation bar to connect to a live advocate for help.
   % endif
+  
+  ${ display_template(about_page_contents, scrollable=True, collapse=True) }  
 fields:
   - To continue, you must accept our [terms of use](https://www.lsmo.org/node/15/web-site-privacy-policy): acknowledged_information_use
     datatype: checkboxes
@@ -177,24 +178,21 @@ fields:
       minlength: |
         You cannot continue unless you agree to the terms of use.        
 continue button field: al_intro_screen
-terms:
-  green words: |
-    Green words are legal terms or a short way of referring to something that needs more explanation. The definition or explanation pops up when you tap the green words. 
 ---
 id: eviction_defender_introduction motion to continue
 continue button field: eviction_defender_intro
 question: |
-  File a Motion To Continue
+  File a {Motion} To {continuance|Continue}
 subquestion: |
   <h2 class="h4">How this works</h2>
-  One the next screens you will tell us the details about your eviction case that are needed to complete a Motion to Continue.
+  One the next screens you will tell us the details about your eviction case that are needed to complete a Motion to ontinue.
 
   Your answers will complete your forms. You will need to deliver your forms to the court on your own.
 
   <h2 class="h4">Before you start</h2>
   1. Get ready to download, print, and deliver your forms to the court. This tool will help you fill in your forms, but you need to deliver them to the court on your own.
   1. Do your best to find the needed information, which you can find in:
-      - The Summons from the court
+      - The {Summons} from the court
       - The Online Docket for your case
 
 ---
@@ -216,19 +214,19 @@ id: soft exit posting for motion for continuance
 decoration: hand
 question: |
   % if person_answering == "tenant":
-  You may not want to file a motion to continue
+  You may not want to file a {motion} to {continuance|continue}
   % else: 
-  The tenant may not want to file a motion to continue
+  The tenant may not want to file a {motion} to {continuance|continue}
   % endif
 subquestion: |
   % if person_answering == "tenant":
   You said that
   % if tenant_got_summons is None:
-  you do not know if you received the Summons and Petition.
+  you do not know if you received the {Summons} and {Petition}.
   % elif not tenant_got_summons:
-  you did not receive the Summons and Petition at all.
+  you did not receive the {Summons} and {Petition} at all.
   % else:
-  you got the Summons and Petition in the following ways:
+  you got the {Summons} and {Petition} in the following ways:
   % for method in method_of_summons_service.true_values():
   
    - ${ method_of_summons_service_text[method] }  
@@ -245,18 +243,18 @@ subquestion: |
 
   You may still want to keep going if you:
 
-  * Want to find out if you have a defense that can stop the eviction, or
+  * Want to find out if you have a defense that can stop the {eviction}, or
   * Think your landlord will owe you more money than you owe them.
 
   You do not need to decide now. If you keep going, we will remind you about your choices at the end.
-  You may want to talk to a lawyer to decide for sure.
+  You may want to talk to a {attorney|lawyer} to decide for sure.
   % else: 
   % if tenant_got_summons is None:
-  The tenant does not know if the tenant received the Summons and Petition at all.
+  The tenant does not know if the tenant received the {Summons} and {Petition} at all.
   % elif not tenant_got_summons:
   The tenant did not receive the Summons and Petition at all.
   % else:
-  The tenant got the Summons and Petition in the following ways:
+  The tenant got the {Summons} and {Petition} in the following ways:
   % for method in method_of_summons_service.true_values():
    - method_of_summons_service_text[method]
     
@@ -270,7 +268,7 @@ subquestion: |
    - Send the summons and petition to the tenant through regular mail and post the summons and petition at the tenant's door.
 
   If their landlord did not serve the tenant personally, if they file a motion to continue, the court may order 
-  them to pay money that they would not need to pay otherwise.
+  the tenant to pay money that they would not need to pay otherwise.
 
   The tenant may still want to keep going if they:
 
@@ -278,7 +276,7 @@ subquestion: |
   * Think their landlord will owe them more money then they owe the landlord.
 
   The tenant does not need to decide now. If they keep going, we will remind them about their choices at the end.
-  The tenant may want to talk to a lawyer to decide for sure.
+  The tenant may want to talk to a {attorney|lawyer} to decide for sure.
   % endif
 buttons:
   - ${"I understand, let me keep going" if person_answering == "tenant" else "The tenant understands, let them keep going"}:
@@ -290,14 +288,14 @@ buttons:
 id: yep motion for continuance
 question: |
   % if person_answering == "tenant":
-  Tenants in your situation may be able to file a motion to continue
+  Tenants in your situation may be able to file a {motion} to {continuance|continue}
   % else: 
-  Tenants in this situation may be able to file a motion to continue
+  Tenants in this situation may be able to file a {motion} to {continuance|continue}
   % endif
 subquestion: |
   % if person_answering == "tenant":
   % if tenant_got_summons:
-  You said that you got the Summons and Petition by 
+  You said that you got the {Summons} and {Petition} by 
   % if method_of_summons_service['sheriff']:
   personal delivery.
   % elif method_of_summons_service['certified_mail']:
@@ -313,11 +311,11 @@ subquestion: |
   Filing a motion to continue may delay your court hearing.
 
   The rest of the questions on this website will complete your
-  answer.
+  motion to continue.
   
   % else:
   % if tenant_got_summons:
-  You said that the tenant got the Summons and Petition by
+  You said that the tenant got the {Summons} and {Petition} by
   % if method_of_summons_service['sheriff']:
   personal delivery.
   % elif method_of_summons_service['certified_mail']:
@@ -377,9 +375,9 @@ review:
       - will_offer_payment
     button: |
       % if person_answering == "tenant":
-      You are able to pay rent and court costs
+      You are able to pay rent and {court costs}
       % else:
-      The tenant is able to pay rent and court costs
+      The tenant is able to pay rent and {court costs}
       % endif
       **${ "Maybe" if will_offer_payment is None else yesno(will_offer_payment) }**
   - note: | 
@@ -448,9 +446,9 @@ review:
       - tenant_got_summons
     button: |
       % if person_answering == "tenant":
-      Did you receive the summons?
+      Did you receive the {summons}?
       % else:
-      Did the tenant receive a copy of the Summons and Landlord's Petition?
+      Did the tenant receive a copy of the {Summons} and {petition|Landlord's Petition}?
       % endif
       **${ "Maybe" if tenant_got_summons is None else yesno(tenant_got_summons) }**
   - Edit:
