@@ -1056,7 +1056,7 @@ review:
     button: |
       False Promises Made By The Landlord:
       % if false_promises_exists:
-      {{ false_promises }}
+      **${ false_promises }**
       % else:
       **None**
       % endif
