@@ -36,7 +36,7 @@ subquestion: |
   
   at the top of the {Summons}.
   
-  [FILE MOSummonsCourtDate.png, 100%]
+  [FILE MOSummonsCourtNameCaseNumber.png, 100%]
       
   % endif
 fields:
@@ -159,6 +159,11 @@ code: |
       "Other": False
     })
 ---
+id: code to make eviction reason from case type
+code: |
+  eviction_reason["nonpayment of rent"] = eviction_reason["nonpayment of rent"] or case_type["AC Rent and Possession"]
+  check_case_type = True
+---
 id: case type from summons
 question: |
   What kind of {eviction} did your landlord file?
@@ -209,7 +214,7 @@ fields:
       % endif
     field: eviction_reason
     datatype: checkboxes
-    required: False
+    required: True
     choices:
       - label: |
           % if person_answering == "tenant":
@@ -450,7 +455,6 @@ id: docket review order
 code: |
   casenet_login_instructions
   nav.set_section("section_eviction_answer_case")  
-  case_type_kickout
   nav.set_section("section_eviction_answer_other") 
   for party in other_parties:
     party.attorney.gather()

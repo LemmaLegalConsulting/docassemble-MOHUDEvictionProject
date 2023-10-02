@@ -121,6 +121,9 @@ code: |
     docket_review
 
   original_hearing_date
+  if original_hearing_date_past:
+    petition_date
+    
   docket_number
 
   if not tenant_got_summons or not petition_available:
@@ -128,7 +131,8 @@ code: |
       docket_review
 
   # Eviction reasons
-  case_type
+  eviction_reason
+  check_case_type
   if eviction_reason.any_true("lease violation", "criminal activity"):
     defense_no_breach
 
@@ -149,8 +153,7 @@ code: |
     or not has_written_lease
   ):
     petition_states_terms_of_lease
-  if len(false_promises):
-    relied_on_false_promises
+  false_promises_exists
   unfair_duress
 
   if previous_landlord_sold_property:
@@ -474,6 +477,11 @@ depends on: original_hearing_date_past
 code: |
   eviction_motion_to_continue_attachment.enabled = not original_hearing_date_past
 ---
+id: add motion for leave to file if hearing is in the past
+depends on: original_hearing_date_past
+code: |
+  eviction_motion_for_leave_attachment.enabled = original_hearing_date_past
+---
 id: eviction answer determination code
 code: |
   # We now handle unlawful detainer cases
@@ -550,118 +558,111 @@ subquestion: |
 ---
 template: nonpayment_defense_explanation_template
 content: |
-  Based on your answers, the following defenses are included in your answer:
+  Based on your answers, the following defenses are included in 
+  % if person_answering == "tenant":
+  your
+  % else:
+  the tenant's
+  % endif
+  Answer:
+  % if eviction_reason["holdover tenancy"] and defense_failure_to_terminate:
+  ${ collapse_template(defense_failure_to_terminate_template) }
+  % endif
+  % if eviction_reason["lease violation"] and defense_ud_did_not_violate_lease:
+  ${ collapse_template(defense_ud_did_not_violate_lease_template) }
+  % endif
+  % if defense_discrimination:
+  ${ collapse_template(defense_discrimination_template) }
+  % endif
+  % if defense_reasonable_accommodation:
+  ${ collapse_template(defense_reasonable_accommodation_template) }
+  % endif
+  % if defense_vawa:
+  ${ collapse_template(defense_vawa_template) }
+  % endif
   % if defense_rent_pleading_requirement:
   ${ collapse_template(defense_rent_pleading_requirement_template) }
   % endif
   % if defense_lease_not_attached:
-  
-  **Landlord has failed to comply with M.R.C.P. § 55.22**
-
-  A landlord must attach the written {lease} to the landlord's petition to be able to evict.  
+  ${ collapse_template(defense_lease_not_attached_template) }
   % endif
   % if defense_tender_refused:
-  
-  **Landlord refused Tenant’s tender of rent**
-
-  Landlord refused payment before the lawsuit was filed: For example, you presented the landlord the full amount of money you owed prior to the lawsuit but the landlord refused to accept the money. You should ask the judge to dismiss the case because you offered to pay the landlord the money you owed and the landlord refused to accept the money. You will need proof such as a letter from the landlord refusing to accept the money, a written check or money order or a witness to the landlord’s refusal. If you have no proof, you can offer to pay the amount claimed plus court costs in front of the judge. Make sure you have a certified check, money order or cash for the full amount with you. Full payment of rent owed plus {court costs} is your best defense. 	
+  ${ collapse_template(defense_tender_refused_template) } 	
   % endif
   % if defense_rent_payment:
-  
-  **Tenant has paid the rent allegedly owed**
-
-  A landlord also needs to allege that you didn't make the payment that you were obligated to make.
+  ${ collapse_template(defense_rent_payment_template) } 
   % endif
   % if defense_settlement:
-  
-  **Landlord and Tenant entered into a {settlement} agreement and Tenant has complied with the settlement’s terms**
-
-  
+  ${ collapse_template(defense_settlement_template) }
   % endif
   % if defense_lease_signed_under_duress:
-  
-  **The lease is invalid because unfair duress by Landlord caused Tenant to enter the {lease}**
-
-  
+  ${ collapse_template(defense_lease_signed_under_duress_template) }
   % endif
   % if defense_fraud_lease:
-  
-  **Landlord’s fraudulent promises induced Tenant to enter the lease**
-
-  
+  ${ collapse_template(defense_fraud_lease_template) }  
   % endif
   % if defense_liquidated_damages_late_fees:
   ${ collapse_template(defense_liquidated_damages_late_fees_template) }
   % endif
   % if defense_estoppel_illegality:
-  
-  **Landlord is estopped from enforcement of the {lease} because it has violated Missouri law**
-
-  "Estopped" means that the landlord should be prevented from benefiting from a lease if the landlord already violated the law.
+  ${ collapse_template(defense_estoppel_illegality_template) }
   % endif
   % if defense_breach_of_habitability:
-  
-  **Landlord has breached the {implied warranty of habitability}**
-
-  For example, your landlord has let the building run down and has not fixed major problems such as lack of running water, even after being notified of such problems. You should ask the judge to let you stay and either continue to pay a lower rent, make the landlord pay you for damages caused by the landlord’s failure to make needed repairs or excuse you from paying all, or part of, the back rent owed. You will need proof such as photos, letters to your landlord asking for repairs, copies of code violation reports or witnesses such as the building inspector. In some cases, the court may ask for proof that you have set aside the money you did not pay.
-  
+  ${ collapse_template(defense_breach_of_habitability_template) }
   % endif
   % if defense_foreclosure:
-  
   ${ collapse_template(defense_foreclosure_template) }
   % endif
   % if defense_new_owner_failed_to_provide_notice_of_sale:
-  
-  **The premises have been sold but the prior Landlord has not provided Tenant the required notices and therefore no rent is owed**
-
-  There are special protections for tenants when their landlord sells the tenant's home.  The new owner of the home is required to provide proof of the sale.
+  ${ collapse_template(defense_new_owner_failed_to_provide_notice_of_sale_template) }
   % endif
   % if defense_unrepresented_corporation:
   ${ collapse_template(defense_unrepresented_corporation_template) }
   % endif
-
   % if defense_excessive_rent_for_subsidized_housing:
-  
-  **Plaintiff has charged Defendant excessive rent in violation of the housing subsidy**
-
-  
+  ${ collapse_template(defense_excessive_rent_for_subsidized_housing_template) }
   % endif
   % if defense_tender_refused or defense_rent_payment or defense_settlement or defense_breach_of_habitability:
 
   ###Evidence###
-  
-  You need to show the court evidence that 
+  % if person_answering == "tenant":
+  You need 
+  % else:
+  The tenant needs
+  % endif
+  to show the court the following evidence:
   
   % if defense_tender_refused:
 
-   1. Evidence that you attempted to pay the rent on 
+  % if person_answering == "tenant":
+   1. Evidence that you attempted to pay the rent on: 
+  % else:
+   1. Evidence that the tenant attempted to pay the rent on:
+  % endif
    % for offer in offer_attempts:
-   ${ offer.attempt_date }
-   % if loop.last:
-   .
-   % elif loop.reverse_index == 1:
-   , and 
-   % else:
-   , 
-   % endif
+      - ${ offer.attempt_date }
    % endfor
   % endif
 
   % if defense_rent_payment:
 
-   1. Payment records or a cancelled check showing that you paid the rent
+   1. Payment records or a cancelled check showing that the rent was paid
   % endif
 
   % if defense_settlement:
 
-   1. A copy of the {settlement} agreement you made with the landlord
+   1. A copy of the {settlement} agreement made with the landlord
+  % if person_answering == "tenant":
    1. Evidence that you complied with the settlement agreement  
+  % else:
+   1. Evidence that the tenant complied with the settlement agreement   
+  % endif
   % endif
 
   % if defense_breach_of_habitability:
 
    1. Photographs or other evidence of the problems in the home
-   1. A copy of the notice that you sent to the landlord about the problem that needs repaired.
+   1. A copy of the notice that was sent to the landlord about the problem that needs repaired.
   % endif
   % endif
 
@@ -669,14 +670,57 @@ content: |
   
   ###{Motion} for Leave to File Responsive {Pleadings}###
   
-  Your {answer} also contains a "Motion for Leave to File Responsive Pleadings" because the original hearing date for already past.  The original hearing date is the deadline for filing an Answer, so you need to ask for the court's permission to file this Answer.
-  
+  The {answer} also contains a "Motion for Leave to File Responsive Pleadings" because the original hearing date for already past.  The original hearing date is the deadline for filing an Answer, so
+  % if person_answering == "tenant":
+  you need
+  % else:
+  the tenant needs
   % endif
+   to ask for the court's permission to file this Answer.
+  % else:
+  ###{Motion} for Continuance###
+  % if person_answering == "tenant":
+  You will also be able to download a Motion for Continuance, which will allow you to ask the court to delay the initial hearing.
+  % else:
+  The tenant will also be able to download a Motion for Continuance, which will allow the tenant to ask the court to delay the initial hearing.
+  % endif
+  % endif
+---
+template: defense_failure_to_terminate_template
+subject: |
+  Landlord did not properly terminate the tenancy in accordance with RSMo § 441.060
+content: |
+  A landlord must give proper notice to terminate a lease.
+---
+template: defense_ud_did_not_violate_lease_template
+subject: |
+  Tenant denies that Tenant violated the terms of Tenant's lease or that the claimed violation is a material breach
+content: |
+  A landlord should have to prove that the tenant committed a violation serious enough to evict for.
+---
+template: defense_discrimination_template
+subject: |
+  Landlord discriminated against Tenant in violation of state and federal law
+content: |
+  Civil rights laws protect tenants from a landlord discriminating against them because of their race, gender, or other protected status.
+---
+template: defense_reasonable_accommodation_template
+subject: |
+  Landlord failed to reasonably accommodate Tenant's disability
+content: |
+  A landlord must make reasonable accommodations for a tenant's disability.  If the landlord fails to make a reasonable accommodation, the landlord should not be able to evict the tenant for problems caused by that failure.
+---
+template: defense_vawa_template
+subject: |
+  Tenant has a defense under the provisions of the Violence Against Women Act, 34 U.S.C. § 12491, et seq.
+content: |
+  Residents of subsidized housing cannot be evicted because they are victims of domestic violence.
 ---
 template: defense_rent_pleading_requirement_template
 subject: |
   Landlord failed to state a claim for rent and possession
 content: |
+  % if person_answering == "tenant":
   A landlord must include specific things in the landlord's petition in order to be able to evict.  Your landlord failed to include the following things: 
   % if petition_alleges_nonrent == True:
   
@@ -702,6 +746,33 @@ content: |
   
    - either the attached lease or the terms of the lease
   % endif
+  % else:
+  A landlord must include specific things in the landlord's petition in order to be able to evict.  The tenant's landlord failed to include the following things: 
+  % if petition_alleges_nonrent == True:
+  
+   - a claim that the tenant owes rent (the petition says that the tenant owes for other charges)
+  % endif
+  % if petition_states_rent_amount == False:
+  
+   - an exact amount of what the tenant owes in rent
+  % endif
+  % if petition_states_rent_periods == False:
+  
+   - the months that the tenant supposedly owes rent
+  % endif
+  % if petition_states_demand_made == False:
+  
+   - a claim that the landlord demanded rent from the tenant
+  % endif
+  % if trial_court.circuit == 21 and not petition_separates_nonrent:
+  
+   - rent charges that are separated from other charges
+  % endif
+  % if (not has_written_lease and not petition_states_terms_of_lease) or (has_written_lease and not lease_attached and not petition_states_terms_of_lease):
+  
+   - either the attached lease or the terms of the lease
+  % endif
+  % endif
 ---
 template: defense_liquidated_damages_late_fees_template
 subject: |
@@ -725,7 +796,11 @@ content: |
   Late fees that do not comply with the lease can't be charged.
   % endif
 
+  % if person_answering == "tenant":
   This defense alone may not help you avoid the eviction, but it can reduce the amount of money you owe the landlord.
+  % else:
+  This defense alone may not help the tenant avoid the eviction, but it can reduce the amount of money the tenant owes the landlord.
+  % endif
 ---
 template: defense_foreclosure_template
 subject: |
@@ -738,7 +813,95 @@ subject: |
   The Landlord is required to have an attorney in this case and it must be dismissed
 content: |
   A business entity, like a corporation, must have an attorney to evict a tenant in court.
----  
+---
+template: defense_lease_not_attached_template
+subject: | 
+  Plaintiff did not provide a copy or description of the lease
+  in the Petition and therefore failed to comply with
+  M.R.C.P. § 55.22
+content: |
+  A landlord must attach the written {lease} to the landlord's petition to be able to evict.  
+---
+template: defense_tender_refused_template
+subject: | 
+  Landlord refused Tenant’s tender of rent
+content: |
+  Landlord refused payment before the lawsuit was filed: 
+  
+  % if person_answering == "tenant":
+  For example, you presented the landlord the full amount of money you owed prior to the lawsuit but the landlord refused to accept the money. You should ask the judge to dismiss the case because you offered to pay the landlord the money you owed and the landlord refused to accept the money. 
+  
+  You will need proof such as a letter from the landlord refusing to accept the money, a written check or money order or a witness to the landlord’s refusal. If you have no proof, you can offer to pay the amount claimed plus court costs in front of the judge. Make sure you have a certified check, money order or cash for the full amount with you. Full payment of rent owed plus {court costs} is your best defense.
+  % else:
+  For example, the tenant presented the landlord the full amount of money the tenant owed prior to the lawsuit but the landlord refused to accept the money. The tenant should ask the judge to dismiss the case because the tenant offered to pay the landlord the money the tenant owed and the landlord refused to accept the money. 
+  
+  The tenant will need proof such as a letter from the landlord refusing to accept the money, a written check or money order or a witness to the landlord’s refusal. If the tenant has no proof, the tenant can offer to pay the amount claimed plus court costs in front of the judge. Make sure the tenant has a certified check, money order or cash for the full amount with the tenant. Full payment of rent owed plus {court costs} is the tenant's best defense.
+  % endif
+---
+template: defense_rent_payment_template
+subject: | 
+  Tenant has paid the rent allegedly owed
+content: |
+  A landlord also needs to allege that a tenant didn't make the payment that a tenant is obligated to make.
+---
+template: defense_settlement_template
+subject: | 
+  Landlord and Tenant entered into a settlement agreement and Tenant has complied with the settlement’s terms
+content: |
+  % if person_answering == "tenant":
+  You can enforce an agreement you made with the landlord to avoid an eviction. You will need to prove that you made an agreement and that you did what you were required to do under the agreement.
+  % else:
+  The tenant can enforce an agreement the tenant made with the landlord to avoid an eviction. The tenant will need to prove that the tenant made an agreement and that the tenant did what the tenant was required to do under the agreement.
+  % endif
+---
+template: defense_lease_signed_under_duress_template
+subject: | 
+  The lease is invalid because unfair duress by Landlord caused Tenant to enter the lease
+content: |
+  % if person_answering == "tenant":
+  A landlord who forced you or coerced you into signing a lease should not be able to hold you responsible to charges under that lease.
+  % else:
+  A landlord who forced the tenant or coerced the tenant into signing a lease should not be able to hold the tenant responsible to charges under that lease.
+  % endif
+---
+template: defense_fraud_lease_template
+subject: | 
+  Landlord’s fraudulent promises induced Tenant to enter the lease
+content: |
+  % if person_answering == "tenant":
+  A landlord who tricks you into signing a lease should not be able to hold you responsible to charges under that lease.
+  % else:
+  A landlord who tricks the tenant into signing a lease should not be able to hold the tenant responsible to charges under that lease.
+  % endif
+---
+template: defense_estoppel_illegality_template
+subject: | 
+  Landlord is estopped from enforcement of the lease because it has violated Missouri law
+content: |
+  "Estopped" means that a landlord should be prevented from benefiting from a lease if a landlord already violated the law.
+---
+template: defense_breach_of_habitability_template
+subject: | 
+  Landlord has breached the implied warranty of habitability
+content: |
+  % if person_answering == "tenant":
+  For example, your landlord has let the building run down and has not fixed major problems such as lack of running water, even after being notified of such problems. You should ask the judge to let you stay and either continue to pay a lower rent, make the landlord pay you for damages caused by the landlord’s failure to make needed repairs or excuse you from paying all, or part of, the back rent owed. You will need proof such as photos, letters to your landlord asking for repairs, copies of code violation reports or witnesses such as the building inspector. In some cases, the court may ask for proof that you have set aside the money you did not pay.
+  % else:
+  For example, the landlord has let the building run down and has not fixed major problems such as lack of running water, even after being notified of such problems. The tenant should ask the judge to let the tenant stay and either continue to pay a lower rent, make the landlord pay the tenant for damages caused by the landlord’s failure to make needed repairs or excuse the tenant from paying all, or part of, the back rent owed. The tenant will need proof such as photos, letters to the tenant's landlord asking for repairs, copies of code violation reports or witnesses such as the building inspector. In some cases, the court may ask for proof that the tenant has set aside the money the tenant did not pay.
+  % endif
+---
+template: defense_new_owner_failed_to_provide_notice_of_sale_template
+subject: | 
+  The premises have been sold but the prior Landlord has not provided Tenant the required notices and therefore no rent is owed
+content: |
+  There are special protections for tenants when their landlord sells the tenant's home.  The new owner of the home is required to provide proof of the sale.
+---
+template: defense_excessive_rent_for_subsidized_housing_template
+subject: | 
+  Plaintiff has charged Defendant excessive rent in violation of the housing subsidy
+content: |
+  A tenant in subsidized housing should not be evicted if they paid their portion of the rent.
+---
 id: next steps explanation
 question:  Print, Sign, Serve and File
 ---
@@ -879,35 +1042,18 @@ review:
       % endif
       **${ "Maybe" if unfair_duress is None else yesno(unfair_duress) }**
   - Edit:
-      - false_promises.revisit
+      - false_promises_exists
       - recompute:
         - defense_fraud_lease
         - defense_logic
       - explanation_answer
     button: |
       False Promises Made By The Landlord:
-      % if false_promises.there_are_any:
-      % for item in false_promises:
-
-         - **${ item }**
-
-      % endfor
+      % if false_promises_exists:
+      **${ false_promises }**
       % else:
       **None**
       % endif
-  - Edit:
-      - relied_on_false_promises
-      - recompute:
-        - defense_fraud_lease
-        - defense_logic
-      - explanation_answer
-    button: |
-      % if person_answering == "tenant":
-      Did the landlord's promise get you to sign the lease?
-      % else:
-       Did the landlord's promise get the tenant to sign the lease?
-      % endif
-      **${ "Maybe" if relied_on_false_promises is None else yesno(relied_on_false_promises) }**
   - Edit:
       - landlord_foreclosed
       - recompute:
@@ -985,7 +1131,7 @@ review:
       - recompute:
         - defense_logic
     button: |
-      Docket number:
+      Case number:
       **${ docket_number }**
   - Edit:
       - original_hearing_date
