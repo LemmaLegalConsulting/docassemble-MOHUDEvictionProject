@@ -244,13 +244,17 @@ content: |
 ---
 id: false promises defense logic
 code: |
-  if false_promises_exists and relied_on_false_promises:
+  if false_promises_exists:
     defense_fraud_lease = True
-  else:
-    defense_fraud_lease = False
-depends on:
-  - false_promises_exists
-  - relied_on_false_promises
+---
+#code: |
+#  if false_promises_exists and relied_on_false_promises:
+#    defense_fraud_lease = True
+#  else:
+#    defense_fraud_lease = False
+#depends on:
+#  - false_promises_exists
+#  - relied_on_false_promises
 ---
 id: landlord lied
 question: |
@@ -267,9 +271,9 @@ subquestion: |
 fields:
   - label: |
       % if person_answering == "tenant":
-      Did your landlord make any false promises to you before you signed the lease?
+      Did your landlord make any false promises to you to get you to sign the lease?
       % else: 
-      Did the landlord make any false promises to the tenant before the tenant signed the lease?
+      Did the landlord make any false promises to the tenant to get the tenant to sign the lease?
       % endif
     field: false_promises_exists
     datatype: yesnoradio
@@ -277,7 +281,7 @@ fields:
       % if person_answering == "tenant":
       What false promises did your landlord make to you?
       % else: 
-      What false promises did your landlord make  to the tenant?
+      What false promises did the landlord make to the tenant?
       % endif
     field: false_promises
     datatype: area
@@ -318,35 +322,35 @@ content: |
   
   A false promise can also be a written promise, or a promise in an advertisement.
 ---
-id: relied on promise
-question: |
-  % if person_answering == "tenant":
-  Did your landlord's promise get you to sign the lease?
-  % else: 
-  Did the landlord's promise get the tenant to sign the lease?
-  % endif
-subquestion: |
-  You told us the landlord made the false promise:
-  
-  - ${ false_promises }
-  
-fields:
-  - note: |
-      % if person_answering == "tenant":
-      If you were more likely to sign the lease **because** of 
-      your landlord's promises, answer yes.
-      % else: 
-      If the tenant was more likely to sign the lease **because** of 
-      the landlord's promises, answer yes.
-      % endif
-  - label: |
-      % if person_answering == "tenant":
-      Did your landlord's promises get you to sign the lease?
-      % else: 
-      Did the landlord's promises get the tenant to sign the lease?
-      % endif
-    field: relied_on_false_promises
-    datatype: yesnoradio
+#id: relied on promise
+#question: |
+#  % if person_answering == "tenant":
+#  Did your landlord's promise get you to sign the lease?
+#  % else: 
+#  Did the landlord's promise get the tenant to sign the lease?
+#  % endif
+#subquestion: |
+#  You told us the landlord made the false promise:
+#  
+#  - ${ false_promises }
+#  
+#fields:
+#  - note: |
+#      % if person_answering == "tenant":
+#      If you were more likely to sign the lease **because** of 
+#      your landlord's promises, answer yes.
+#      % else: 
+#      If the tenant was more likely to sign the lease **because** of 
+#      the landlord's promises, answer yes.
+#      % endif
+#  - label: |
+#      % if person_answering == "tenant":
+#      Did your landlord's promises get you to sign the lease?
+#      % else: 
+#      Did the landlord's promises get the tenant to sign the lease?
+#      % endif
+#    field: relied_on_false_promises
+#    datatype: yesnoradio
 ---
 id: late fees defense logic
 code: |

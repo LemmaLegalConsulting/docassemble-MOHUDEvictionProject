@@ -153,8 +153,7 @@ code: |
     or not has_written_lease
   ):
     petition_states_terms_of_lease
-  if false_promises_exists:
-    relied_on_false_promises
+  false_promises_exists
   unfair_duress
 
   if previous_landlord_sold_property:
@@ -1056,19 +1055,6 @@ review:
       **None**
       % endif
   - Edit:
-      - relied_on_false_promises
-      - recompute:
-        - defense_fraud_lease
-        - defense_logic
-      - explanation_answer
-    button: |
-      % if person_answering == "tenant":
-      Did the landlord's promise get you to sign the lease?
-      % else:
-       Did the landlord's promise get the tenant to sign the lease?
-      % endif
-      **${ "Maybe" if relied_on_false_promises is None else yesno(relied_on_false_promises) }**
-  - Edit:
       - landlord_foreclosed
       - recompute:
         - defense_foreclosure
@@ -1145,7 +1131,7 @@ review:
       - recompute:
         - defense_logic
     button: |
-      Docket number:
+      Case number:
       **${ docket_number }**
   - Edit:
       - original_hearing_date
