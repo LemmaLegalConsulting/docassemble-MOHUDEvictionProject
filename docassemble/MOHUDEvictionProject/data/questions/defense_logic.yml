@@ -647,7 +647,13 @@ fields:
     show if:
       variable: is_rent_subsidized
       is: True
-  - Do you live in a mobile  home that you own, and rent the land?: is_mobile_home_owner
+  - label: |
+      % if person_answering == "tenant":
+      Do you live in a mobile  home that you own, and rent the land?
+      % else:
+      Does the tenant live in a mobile  home that the tenant owns, and rents the land?
+      % endif
+    field: is_mobile_home_owner
     datatype: yesnoradio
     show if:
       variable: is_rent_subsidized
@@ -1161,11 +1167,23 @@ fields:
       % endif
     field: got_notice_to_terminate
     datatype: yesnomaybe
-  - About what day did you **get** the notice?: received_notice_date
+  - label: |
+      % if person_answering == "tenant":
+      About what day did you **get** the notice?
+      % else:
+      About what day did the tenant **get** the notice?
+      % endif
+    field: received_notice_date
     datatype: date
     show if: got_notice_to_terminate
     max: ${ today().format("yyyy-MM-dd") }
-  - Did the notice include a specific day to **end** your tenancy?: notice_to_terminate_includes_specific_day
+  - label: |
+      % if person_answering == "tenant":
+      Did the notice include a specific day to **end** your tenancy?
+      % else:
+      Did the notice include a specific day to **end** the tenancy?
+      % endif
+    field: notice_to_terminate_includes_specific_day
     input type: radio
     choices:
       - Yes, it had a specific day: specific_day
@@ -1173,7 +1191,13 @@ fields:
       - It did not say when to move: no_specific_day
       - It said something else: something_else
     show if: got_notice_to_terminate
-  - What day did the notice say it would end your tenancy?: termination_of_tenancy_date
+  - label: |
+      % if person_answering == "tenant":
+      What day did the notice say it would end your tenancy?
+      % else:
+      What day did the notice say it would end the tenancy?
+      % endif
+    field: termination_of_tenancy_date
     datatype: date
     max: ${ today().format("yyyy-MM-dd") }
     show if:
