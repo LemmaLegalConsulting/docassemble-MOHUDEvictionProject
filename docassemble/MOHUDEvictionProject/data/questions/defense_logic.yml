@@ -613,10 +613,14 @@ question: |
 subquestion: |
   % if person_answering == "tenant":
   It may help to look at your lease to answer this question.
+  
+  If you do not have it, do your best to answer from your memory.
   % else:
   It may help to look at the tenant's lease to answer this question.
+  
+  If the tenant does not have it, they should do their best to answer from their memory.
   % endif
-  If you do not have it, do your best to answer from your memory.
+  
 
   ${ collapse_template(why_tenancy_facts_template) }
 fields:
@@ -647,12 +651,20 @@ fields:
     show if:
       variable: is_rent_subsidized
       is: True
-  - Do you live in a mobile  home that you own, and rent the land?: is_mobile_home_owner
+  - label: |
+      % if person_answering == "tenant":
+      Do you live in a mobile  home that you own, and rent the land?
+      % else: 
+      Does the tenant live in a mobile home that they own, and rent the land?
+      % endif
+    field: is_mobile_home_owner
     datatype: yesnoradio
     show if:
       variable: is_rent_subsidized
       is: False
-  - How many units are in the building or apartment complex?: number_of_units_in_building
+  - label: |
+      How many units are in the building or apartment complex?
+    field: number_of_units_in_building
     input type: radio
     show if:
       variable: is_rent_subsidized
@@ -672,8 +684,8 @@ fields:
     choices:
       - A lease for a fixed period of time (like 1 year): fixed_period
       - A month-to-month, week-to-week or other lease that automatically renews: periodic
-      - I don't have have a written lease: no_written_lease
-      - I don't know: dont_know
+      - ${ "I don't have have a written lease" if person_answering == "tenant" else "The tenant does not have a written lease"}: no_written_lease
+      - ${ "I don't know" if person_answering == "tenant" else "The tenant does not know"}: dont_know
   - What day does the lease end?: fixed_period_end_date
     datatype: date
     show if:
@@ -721,11 +733,20 @@ subject: |
   Why does this matter?
 content: |
   The questions on this page help decide:
-  
+  % if person_answering == "tenant":
   * what kind of notice the landlord must give you
   * whether your landlord must follow discrimination laws
 
   Depending on your answer you may have a defense to the eviction.
+  
+  % else:
+  
+  * what kind of notice the landlord must give the tenant
+  * whether the landlord must follow discrimination laws
+
+  Depending on the tenant's answer they may have a defense to the eviction.
+  
+  % endif
 ---
 id: disability
 question: |
