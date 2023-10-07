@@ -762,6 +762,7 @@ id: disability
 question: |
   Disability and reasonable accommodation
 subquestion: |
+  % if person_answering == "tenant":
   If you have a disability, you have the right to use your housing in the same 
   way as someone without a disability.
 
@@ -769,13 +770,28 @@ subquestion: |
 
   * The rules of your housing, or
   * The physical structure of your housing.
-
+  
   If the change would help you stay in your housing or solve the problem that
   the landlord is complaining about, it may be a defense (stop your eviction).
 
   The disability can be yours or it can be a disability of someone in your
   household.
+  % else:
+  If the tenant has a disability, they have the right to use their housing in the same 
+  way as someone without a disability.
 
+  The tenant may have the right to a change in:
+
+  * The rules of your housing, or
+  * The physical structure of their housing.
+  
+  If the change would help them stay in their housing or solve the problem that
+  the landlord is complaining about, it may be a defense (stop the tenant's eviction).
+
+  The disability can be the tenant's or it can be a disability of someone in their
+  household.
+  % endif
+  
   ${ collapse_template(what_is_disability_template) }
 
   ${ collapse_template(disability_defense_example_template) }
@@ -911,11 +927,19 @@ content: |
   * Hearing
   * Communicating
   * Working
+  % if person_answering == "tenant":
   * And other things you may need to do in your daily life.
 
   You do **not** need to be disabled all the time to have a disability.
   You do not need a doctor's diagnosis to have a disability. But a diagnosis 
   may help to prove your case in court.
+  % else:
+  * And other things the tenant may need to do in their daily life.
+
+  The tenant does **not** need to be disabled all the time to have a disability.
+  They do not need a doctor's diagnosis to have a disability. But a diagnosis 
+  may help to prove their case in court.
+  % endif
 ---
 id: discrimination
 question: |
