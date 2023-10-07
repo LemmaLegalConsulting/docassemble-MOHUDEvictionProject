@@ -1170,9 +1170,14 @@ subquestion: |
   * Notice to Vacate.
 
   There is no standard form for the notice.
-
+  % if person_answering == "tenant":
   If you do not have the notice in front of you, do your best to answer
   from memory.
+  % else:
+  
+  If the tenant does not have the notice in front of them, they should do their best to 
+  answer from memory.
+  % endif
 fields:
   - label: |
       % if person_answering == "tenant":
@@ -1182,11 +1187,11 @@ fields:
       % endif
     field: got_notice_to_terminate
     datatype: yesnomaybe
-  - About what day did you **get** the notice?: received_notice_date
+  - ${"About what day did you **get** the notice?" if person_answering == "tenant" else "About what day did the tenant **get** the notice?"}: received_notice_date
     datatype: date
     show if: got_notice_to_terminate
     max: ${ today().format("yyyy-MM-dd") }
-  - Did the notice include a specific day to **end** your tenancy?: notice_to_terminate_includes_specific_day
+  - ${"Did the notice include a specific day to **end** your tenancy?" if person_answering == "tenant" else "Did the notice include a specific day to **end** the tenant's tenancy?"}: notice_to_terminate_includes_specific_day
     input type: radio
     choices:
       - Yes, it had a specific day: specific_day
@@ -1194,7 +1199,7 @@ fields:
       - It did not say when to move: no_specific_day
       - It said something else: something_else
     show if: got_notice_to_terminate
-  - What day did the notice say it would end your tenancy?: termination_of_tenancy_date
+  - ${"What day did the notice say it would end your tenancy?" if person_answering == "tenant" else "What day did the notice say it would end the tenant's tenancy"}: termination_of_tenancy_date
     datatype: date
     max: ${ today().format("yyyy-MM-dd") }
     show if:
@@ -1209,8 +1214,15 @@ question: |
   Notice requirements in the tenant's lease
   % endif
 subquestion: |
+  % if person_answering == "tenant": 
   Look at the lease to answer this question. If you do not have
   the lease in front of you, do your best to answer from memory.
+  % else:
+  
+  The tenant should look at the lease to answer this question. 
+  If they do not have the lease in front of them, they should 
+  do their best to answer from memory.
+  %endif
 
   Most leases will include a specific amount of notice that the landlord
   must give the tenant before filing an eviction case. For example:
