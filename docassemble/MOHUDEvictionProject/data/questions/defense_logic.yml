@@ -264,9 +264,14 @@ question: |
   Did the landlord tell the tenant something that was not true to get the tenant to sign the lease?
   % endif
 subquestion: |
+  % if person_answering == "tenant":
   If your landlord tricked you into signing the lease by telling you
   something that was not true, you may have a defense.
-
+  % else:
+  If the tenant's landlord tricked them into signing the lease by telling them
+  something that was not true, they may have a defense.
+  % endif
+  
   ${ collapse_template(false_promise_example_template) }
 fields:
   - label: |
@@ -527,11 +532,16 @@ if: |
   trial_court.classification.strip() != "Class 1"
 id: new owner facts for non-class 1 counties
 question: |
+  % if person_answering == "tenant":
   Did your landlord ever sell the house while you were a tenant at this address?
+  % else:
+  Did the tenant's landlord ever sell the house while they were a tenant at this address?
+  % endif
+  
 fields:
-  - Was your house sold to a new landlord while you lived in it?: previous_landlord_sold_property
+  - ${"Was your house sold to a new landlord while you lived in it?" if person_answering == "tenant" else "Was the tenant's house sold to a new landlord while they lived in it?"}: previous_landlord_sold_property
     datatype: yesnomaybe
-  - Did your new landlord give you a letter that told you about the sale?: notice_of_sale_provided_new_landlord
+  - ${"Did your new landlord give you a letter that told you about the sale?" if person_answering == "tenant" else "Did the tenant's new landlord give them a letter that told them about the sale?"}: notice_of_sale_provided_new_landlord
     datatype: yesnomaybe
     show if: previous_landlord_sold_property
   - Did that letter have a copy of the deed?: notice_contains_sale_document
@@ -1258,8 +1268,11 @@ fields:
       Earlier, you said the tenant got ${ (termination_of_tenancy_date - received_notice_date).days } days notice.
       % endif
       % endif
-
+      % if person_answering == "tenant":
       Answer as well as you can.
+      % else:
+      The tenant should answer as well as they can.
+      % endif
     field: landlord_gave_notice_required_by_lease
     datatype: yesnomaybe
     show if: lease_says_how_much_notice
@@ -1650,14 +1663,22 @@ question: |
   Did the landlord violate other laws?
   % endif
 subquestion: |
+  % if person_answering == "tenant":
   Answer this question if there are other violations that you know about.  The previous questions asked about the most important violations, but this question is intended to allow you to add any other legal violations that you know about.
+  % else:
+  Answer this question if there are other violations that the tenant knows about. The previous questions asked about the most important violations, but this question is intended to allow the tenant to add any other legal violations that they know about.
+  % endif
   
   For example, some cities and towns require a landlord have an occupancy permit to rent a home.
   The occupancy permit is a document that says the home is safe to live in.
-
+  
+  % if person_answering == "tenant":
   If you are not sure, it is OK to leave this question blank.
+  % else:
+  If the tenant is not sure, it is OK to leave this question blank.
+  % endif
 fields:
-  - What law did your landlord violate?: estoppel_breaches
+  - ${"What law did your landlord violate?" if person_answering == "tenant" else "What law did the tenant's landlord violate?"}: estoppel_breaches
     datatype: checkboxes
     choices:
       - ${ estoppel_breaches_text['occupancy_permit'] }: occupancy_permit
