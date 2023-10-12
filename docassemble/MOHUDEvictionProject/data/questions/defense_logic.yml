@@ -246,6 +246,8 @@ id: false promises defense logic
 code: |
   if false_promises_exists:
     defense_fraud_lease = True
+  else:
+    defense_fraud_lease = False
 ---
 #code: |
 #  if false_promises_exists and relied_on_false_promises:
