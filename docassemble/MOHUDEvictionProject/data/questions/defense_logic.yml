@@ -848,7 +848,11 @@ fields:
     js show if: | 
       val("tenant_has_disability") && val("tenant_needs_accommodation")
   - label: |
+      % if person_answering == "tenant":
       Would you like to ask now?
+      % else:
+      Would the tenant like to ask now?
+      % endif
     field: tenant_wants_accommodation_in_answer
     datatype: yesnoradio
     show if: 
@@ -1690,7 +1694,7 @@ question: |
   % endif
 subquestion: |
   % if person_answering == "tenant":
-  Answer this question if there are other violations that you know about.  The previous questions asked about the most important violations, but this question is intended to allow you to add any other legal violations that you know about.
+  Answer this question if there are other violations that you know about. The previous questions asked about the most important violations, but this question is intended to allow you to add any other legal violations that you know about.
   % else:
   Answer this question if there are other violations that the tenant knows about. The previous questions asked about the most important violations, but this question is intended to allow the tenant to add any other legal violations that they know about.
   % endif
