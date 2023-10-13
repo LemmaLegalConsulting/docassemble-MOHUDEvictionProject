@@ -1078,6 +1078,11 @@ decoration: clipboard-check
 question: |
   You are almost done!
 subquestion: |
+  % if person_answering == "tenant":
   The last few questions are about getting a copy
   of your documents to your landlord.
+  % else:
+  The last few questions are about getting a copy of 
+  the tenant's documents to their landlord. 
+  % endif
 continue button field: signpost_service_of_process      
