@@ -541,10 +541,23 @@ question: |
   % endif
   
 fields:
-  - ${"Was your house sold to a new landlord while you lived in it?" if person_answering == "tenant" else "Was the tenant's house sold to a new landlord while they lived in it?"}: previous_landlord_sold_property
+  - label: |
+      % if person_answering == "tenant":
+      Was your house sold to a new landlord while you lived in it?
+      % else:
+      Was the tenant's house sold to a new landlord while they lived in it?
+      % endif
     datatype: yesnomaybe
-  - ${"Did your new landlord give you a letter that told you about the sale?" if person_answering == "tenant" else "Did the tenant's new landlord give them a letter that told them about the sale?"}: notice_of_sale_provided_new_landlord
+    field: previous_landlord_sold_property
+    
+  - label: |
+      % if person_answering == "tenant":
+      Did your new landlord give you a letter that told you about the sale?
+      % else: 
+      Did the tenant's new landlord give them a letter that told them about the sale?
+      % endif
     datatype: yesnomaybe
+    field: notice_of_sale_provided_new_landlord
     show if: previous_landlord_sold_property
   - Did that letter have a copy of the deed?: notice_contains_sale_document
     datatype: yesnomaybe
@@ -696,8 +709,20 @@ fields:
     choices:
       - A lease for a fixed period of time (like 1 year): fixed_period
       - A month-to-month, week-to-week or other lease that automatically renews: periodic
-      - ${ "I don't have have a written lease" if person_answering == "tenant" else "The tenant does not have a written lease"}: no_written_lease
-      - ${ "I don't know" if person_answering == "tenant" else "The tenant does not know"}: dont_know
+      - label: |
+          % if person_answering == "tenant":
+          I don't have have a written lease"  
+          % else:
+          The tenant does not have a written lease
+          % endif
+        field: no_written_lease
+      - label: |
+          % if person_answering == "tenant":
+          I don't know 
+          % else:
+          The tenant does not know
+          % endif
+        field: dont_know
   - What day does the lease end?: fixed_period_end_date
     datatype: date
     show if:
