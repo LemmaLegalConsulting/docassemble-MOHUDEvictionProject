@@ -495,13 +495,17 @@ subquestion: |
   % if person_answering == "tenant":
   This section will ask you about both defenses to the {eviction}
   and any {counterclaim} that you may have against your landlord.
+  
+  A defense is a reason why you should not be evicted.  
+  A counterclaim is a reason why your landlord should pay you money.
   % else:
   This section will ask you about both defenses to the {eviction}
   and any {counterclaim} that the tenant may have against their landlord.
+  
+  A defense is a reason why the tenant should not be evicted.  
+  A counterclaim is a reason why the landlord should pay the tenant money.
   % endif
 
-  A defense is a reason why you should not be evicted.  
-  A counterclaim is a reason why your landlord should pay you money.
 continue button field: signpost_claims_and_defenses
 ---
 id: do you agree with the landlord
@@ -552,7 +556,11 @@ fields:
 id: defenses explanation
 continue button field: explanation_answer
 question: |
+  % if person_answering == "tenant":
   You may have defenses to the eviction
+  % else:
+  The tenant may have defenses to the eviction
+  % endif
 subquestion: |
   ${ nonpayment_defense_explanation_template }
 ---
