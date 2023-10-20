@@ -197,7 +197,7 @@ fields:
       % if person_answering == "tenant":
       Did you follow the terms of the agreement?
       % else: 
-      Did the tenant follow the terms of the agreement?:
+      Did the tenant follow the terms of the agreement?
       % endif
     field: tenant_compliance_with_agreement
     datatype: yesnoradio
@@ -263,15 +263,15 @@ question: |
   % if person_answering == "tenant":
   Did your landlord tell you something that was not true to get you to sign the lease?
   % else:
-  Did the landlord tell the tenant something that was not true to get the tenant to sign the lease?
+  Did the landlord tell the tenant something that was not true to get them to sign the lease?
   % endif
 subquestion: |
   % if person_answering == "tenant":
   If your landlord tricked you into signing the lease by telling you
-  something that was not true, you may have a defense.
+  something that was not true, you may have a {defense}.
   % else:
   If the tenant's landlord tricked them into signing the lease by telling them
-  something that was not true, they may have a defense.
+  something that was not true, they may have a {defense}.
   % endif
   
   ${ collapse_template(false_promise_example_template) }
@@ -280,7 +280,7 @@ fields:
       % if person_answering == "tenant":
       Did your landlord make any false promises to you to get you to sign the lease?
       % else: 
-      Did the landlord make any false promises to the tenant to get the tenant to sign the lease?
+      Did the landlord make any false promises to the tenant to get them to sign the lease?
       % endif
     field: false_promises_exists
     datatype: yesnoradio
@@ -537,7 +537,7 @@ question: |
   % if person_answering == "tenant":
   Did your landlord ever sell the house while you were a tenant at this address?
   % else:
-  Did the tenant's landlord ever sell the house while they were a tenant at this address?
+  Did the landlord ever sell the house while the tenant lived at this address?
   % endif
   
 fields:
@@ -642,8 +642,6 @@ subquestion: |
   If you do not have it, do your best to answer from your memory.
   % else:
   It may help to look at the tenant's lease to answer this question.
-  
-  If the tenant does not have it, they should do their best to answer from their memory.
   % endif
   
 
@@ -678,9 +676,9 @@ fields:
       is: True
   - label: |
       % if person_answering == "tenant":
-      Do you live in a mobile  home that you own, and rent the land?
+      Do you live in a mobile home that you own and rent the land?
       % else: 
-      Does the tenant live in a mobile home that they own, and rent the land?
+      Does the tenant live in a mobile home that they own and rent the land?
       % endif
     field: is_mobile_home_owner
     datatype: yesnoradio
@@ -709,20 +707,8 @@ fields:
     choices:
       - A lease for a fixed period of time (like 1 year): fixed_period
       - A month-to-month, week-to-week or other lease that automatically renews: periodic
-      - label: |
-          % if person_answering == "tenant":
-          I don't have have a written lease"  
-          % else:
-          The tenant does not have a written lease
-          % endif
-        field: no_written_lease
-      - label: |
-          % if person_answering == "tenant":
-          I don't know 
-          % else:
-          The tenant does not know
-          % endif
-        field: dont_know
+      - No written lease: no_written_lease
+      - Unknown: dont_know
   - What day does the lease end?: fixed_period_end_date
     datatype: date
     show if:
@@ -770,20 +756,11 @@ subject: |
   Why does this matter?
 content: |
   The questions on this page help decide:
-  % if person_answering == "tenant":
-  * what kind of notice the landlord must give you
+
+  * what kind of notice the landlord must give
   * whether your landlord must follow discrimination laws
 
-  Depending on your answer you may have a defense to the eviction.
-  
-  % else:
-  
-  * what kind of notice the landlord must give the tenant
-  * whether the landlord must follow discrimination laws
-
-  Depending on the tenant's answer they may have a defense to the eviction.
-  
-  % endif
+  Depending on your answer, there may be a {defense} to the eviction.
 ---
 id: disability
 question: |
@@ -976,6 +953,7 @@ id: discrimination
 question: |
   Discrimination
 subquestion: |
+  % if person_answering == 'tenant':
   You have the right to be free from discrimination in housing.
 
   If:
@@ -985,7 +963,18 @@ subquestion: |
      **because** of your protected class,
 
   Discrimination law protects you from:
+  % else:
+  The tenant has the right to be free from discrimination in housing.
 
+  If:
+
+  1. The tenant is a member of a protected class, and
+  2. The reason the tenant is being treated differently or denied housing is 
+     **because** of their protected class,
+
+  Discrimination law protects the tenant from:
+  % endif
+  
   * Being treated differently,
   * Being denied housing, or
   * Being unfairly evicted
@@ -1000,9 +989,9 @@ fields:
     datatype: yesnoradio
   - label: |
       % if person_answering == "tenant":
-      I believe my landlord is discriminating against me because of:
+      I believe my landlord is discriminating against me because of
       % else:
-      The tenant believes their landlord is discriminating against them because of:
+      The tenant believes their landlord is discriminating against them because of
       % endif
     field: tenant_protected_classes
     datatype: checkboxes
@@ -1022,6 +1011,7 @@ fields:
       - Ancestry: ancestry
       - National origin (the country my family comes from): national origin
       - Disability: disability
+    none of the above: False
   - Explain (optional): tenant_discrimination_explanation
     datatype: area
     required: False
@@ -1041,16 +1031,25 @@ id: violence against women act defenses
 question: |
   Violence Against Women Act (VAWA)
 subquestion: |
+  % if person_answering == "tenant":
   If you are a survivor of:
-
+  % else:
+  If the tenant is a survivor of:
+  % endif
+  
   * Domestic violence,
   * Dating violence,
   * Sexual assault, or
   * Stalking
 
+  % if person_answering == "tenant":
   And you are being evicted **because** of something related to the
   domestic violence or abuse, you may have a defense.
-
+  % else:
+  And they are being evicted **because** of something related to the
+  domestic violence or abuse, they may have a defense.
+  % endif
+  
   ${ collapse_template(dv_explanation_template) }
 fields:
   - label: |
@@ -1238,10 +1237,6 @@ subquestion: |
   % if person_answering == "tenant":
   If you do not have the notice in front of you, do your best to answer
   from memory.
-  % else:
-  
-  If the tenant does not have the notice in front of them, they should do their best to 
-  answer from memory.
   % endif
 fields:
   - label: |
@@ -1300,11 +1295,6 @@ subquestion: |
   % if person_answering == "tenant": 
   Look at the lease to answer this question. If you do not have
   the lease in front of you, do your best to answer from memory.
-  % else:
-  
-  The tenant should look at the lease to answer this question. 
-  If they do not have the lease in front of them, they should 
-  do their best to answer from memory.
   %endif
 
   Most leases will include a specific amount of notice that the landlord
@@ -1736,20 +1726,11 @@ question: |
   Did the landlord violate other laws?
   % endif
 subquestion: |
-  % if person_answering == "tenant":
   Answer this question if there are other violations that you know about. The previous questions asked about the most important violations, but this question is intended to allow you to add any other legal violations that you know about.
-  % else:
-  Answer this question if there are other violations that the tenant knows about. The previous questions asked about the most important violations, but this question is intended to allow the tenant to add any other legal violations that they know about.
-  % endif
   
-  For example, some cities and towns require a landlord have an occupancy permit to rent a home.
-  The occupancy permit is a document that says the home is safe to live in.
+  For example, some cities and towns require a landlord have an occupancy permit to rent a home. The occupancy permit is a document that says the home is safe to live in.
   
-  % if person_answering == "tenant":
-  If you are not sure, it is OK to leave this question blank.
-  % else:
-  If the tenant is not sure, it is OK to leave this question blank.
-  % endif
+  It is OK to answer "None of the above".
 fields:
   - label: |
       % if person_answering == "tenant":
