@@ -1255,7 +1255,7 @@ fields:
   - label: |
       % if person_answering == "tenant":
       About what day did you **get** the notice?
-      % else: 
+      % else:
       About what day did the tenant **get** the notice?
       % endif
     field: received_notice_date
@@ -1280,7 +1280,7 @@ fields:
       % if person_answering == "tenant":
       What day did the notice say it would end your tenancy?
       % else:
-      What day did the notice say it would end the tenant's tenancy
+      What day did the notice say it would end the tenant's tenancy?
       % endif
     field: termination_of_tenancy_date
     datatype: date
