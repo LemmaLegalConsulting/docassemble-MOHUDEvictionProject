@@ -1252,11 +1252,23 @@ fields:
       % endif
     field: got_notice_to_terminate
     datatype: yesnomaybe
-  - ${"About what day did you **get** the notice?" if person_answering == "tenant" else "About what day did the tenant **get** the notice?"}: received_notice_date
+  - label: |
+      % if person_answering == "tenant":
+      About what day did you **get** the notice?
+      % else: 
+      About what day did the tenant **get** the notice?
+      % endif
+    field: received_notice_date
     datatype: date
     show if: got_notice_to_terminate
     max: ${ today().format("yyyy-MM-dd") }
-  - ${"Did the notice include a specific day to **end** your tenancy?" if person_answering == "tenant" else "Did the notice include a specific day to **end** the tenant's tenancy?"}: notice_to_terminate_includes_specific_day
+  - label: |
+      % if person_answering == "tenant":
+      Did the notice include a specific day to **end** your tenancy?
+      % else:
+      Did the notice include a specific day to **end** the tenant's tenancy?
+      % endif
+    field: notice_to_terminate_includes_specific_day
     input type: radio
     choices:
       - Yes, it had a specific day: specific_day
@@ -1264,7 +1276,13 @@ fields:
       - It did not say when to move: no_specific_day
       - It said something else: something_else
     show if: got_notice_to_terminate
-  - ${"What day did the notice say it would end your tenancy?" if person_answering == "tenant" else "What day did the notice say it would end the tenant's tenancy"}: termination_of_tenancy_date
+  - label: |
+      % if person_answering == "tenant":
+      What day did the notice say it would end your tenancy?
+      % else:
+      What day did the notice say it would end the tenant's tenancy
+      % endif
+    field: termination_of_tenancy_date
     datatype: date
     max: ${ today().format("yyyy-MM-dd") }
     show if:
@@ -1733,7 +1751,13 @@ subquestion: |
   If the tenant is not sure, it is OK to leave this question blank.
   % endif
 fields:
-  - ${"What law did your landlord violate?" if person_answering == "tenant" else "What law did the tenant's landlord violate?"}: estoppel_breaches
+  - label: |
+      % if person_answering == "tenant":
+      What law did your landlord violate?
+      % else:
+      What law did the tenant's landlord violate?
+      % endif
+    field: estoppel_breaches
     datatype: checkboxes
     choices:
       - ${ estoppel_breaches_text['occupancy_permit'] }: occupancy_permit
