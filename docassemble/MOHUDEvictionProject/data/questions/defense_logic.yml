@@ -31,12 +31,11 @@ code: |
   defense_unrepresented_corporation
   
   # UD defenses
-  
-  if got_notice_to_terminate:
-    defense_ud_no_written_notice
-    defense_ud_no_rental_period_notice
-    defense_ud_lease_requirements
-    defense_termination_notice_required_by_law
+  defense_ud_no_written_notice
+  defense_ud_no_rental_period_notice
+  defense_ud_lease_requirements
+  defense_termination_notice_required_by_law
+  defense_failure_to_terminate
 
   defense_logic = True
 ---
