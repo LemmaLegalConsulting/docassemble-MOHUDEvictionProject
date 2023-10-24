@@ -196,7 +196,7 @@ fields:
       % if person_answering == "tenant":
       Did you follow the terms of the agreement?
       % else: 
-      Did the tenant follow the terms of the agreement?:
+      Did the tenant follow the terms of the agreement?
       % endif
     field: tenant_compliance_with_agreement
     datatype: yesnoradio
@@ -262,19 +262,24 @@ question: |
   % if person_answering == "tenant":
   Did your landlord tell you something that was not true to get you to sign the lease?
   % else:
-  Did the landlord tell the tenant something that was not true to get the tenant to sign the lease?
+  Did the landlord tell the tenant something that was not true to get them to sign the lease?
   % endif
 subquestion: |
+  % if person_answering == "tenant":
   If your landlord tricked you into signing the lease by telling you
-  something that was not true, you may have a defense.
-
+  something that was not true, you may have a {defense}.
+  % else:
+  If the tenant's landlord tricked them into signing the lease by telling them
+  something that was not true, they may have a {defense}.
+  % endif
+  
   ${ collapse_template(false_promise_example_template) }
 fields:
   - label: |
       % if person_answering == "tenant":
       Did your landlord make any false promises to you to get you to sign the lease?
       % else: 
-      Did the landlord make any false promises to the tenant to get the tenant to sign the lease?
+      Did the landlord make any false promises to the tenant to get them to sign the lease?
       % endif
     field: false_promises_exists
     datatype: yesnoradio
@@ -528,12 +533,30 @@ if: |
   trial_court.classification.strip() != "Class 1"
 id: new owner facts for non-class 1 counties
 question: |
+  % if person_answering == "tenant":
   Did your landlord ever sell the house while you were a tenant at this address?
+  % else:
+  Did the landlord ever sell the house while the tenant lived at this address?
+  % endif
+  
 fields:
-  - Was your house sold to a new landlord while you lived in it?: previous_landlord_sold_property
+  - label: |
+      % if person_answering == "tenant":
+      Was your house sold to a new landlord while you lived in it?
+      % else:
+      Was the tenant's house sold to a new landlord while they lived in it?
+      % endif
     datatype: yesnomaybe
-  - Did your new landlord give you a letter that told you about the sale?: notice_of_sale_provided_new_landlord
+    field: previous_landlord_sold_property
+    
+  - label: |
+      % if person_answering == "tenant":
+      Did your new landlord give you a letter that told you about the sale?
+      % else: 
+      Did the tenant's new landlord give them a letter that told them about the sale?
+      % endif
     datatype: yesnomaybe
+    field: notice_of_sale_provided_new_landlord
     show if: previous_landlord_sold_property
   - Did that letter have a copy of the deed?: notice_contains_sale_document
     datatype: yesnomaybe
@@ -614,10 +637,12 @@ question: |
 subquestion: |
   % if person_answering == "tenant":
   It may help to look at your lease to answer this question.
+  
+  If you do not have it, do your best to answer from your memory.
   % else:
   It may help to look at the tenant's lease to answer this question.
   % endif
-  If you do not have it, do your best to answer from your memory.
+  
 
   ${ collapse_template(why_tenancy_facts_template) }
 fields:
@@ -648,12 +673,20 @@ fields:
     show if:
       variable: is_rent_subsidized
       is: True
-  - Do you live in a mobile  home that you own, and rent the land?: is_mobile_home_owner
+  - label: |
+      % if person_answering == "tenant":
+      Do you live in a mobile home that you own and rent the land?
+      % else: 
+      Does the tenant live in a mobile home that they own and rent the land?
+      % endif
+    field: is_mobile_home_owner
     datatype: yesnoradio
     show if:
       variable: is_rent_subsidized
       is: False
-  - How many units are in the building or apartment complex?: number_of_units_in_building
+  - label: |
+      How many units are in the building or apartment complex?
+    field: number_of_units_in_building
     input type: radio
     show if:
       variable: is_rent_subsidized
@@ -673,8 +706,8 @@ fields:
     choices:
       - A lease for a fixed period of time (like 1 year): fixed_period
       - A month-to-month, week-to-week or other lease that automatically renews: periodic
-      - I don't have have a written lease: no_written_lease
-      - I don't know: dont_know
+      - No written lease: no_written_lease
+      - Unknown: dont_know
   - What day does the lease end?: fixed_period_end_date
     datatype: date
     show if:
@@ -722,16 +755,17 @@ subject: |
   Why does this matter?
 content: |
   The questions on this page help decide:
-  
-  * what kind of notice the landlord must give you
+
+  * what kind of notice the landlord must give
   * whether your landlord must follow discrimination laws
 
-  Depending on your answer you may have a defense to the eviction.
+  Depending on your answer, there may be a {defense} to the eviction.
 ---
 id: disability
 question: |
   Disability and reasonable accommodation
 subquestion: |
+  % if person_answering == "tenant":
   If you have a disability, you have the right to use your housing in the same 
   way as someone without a disability.
 
@@ -739,13 +773,28 @@ subquestion: |
 
   * The rules of your housing, or
   * The physical structure of your housing.
-
+  
   If the change would help you stay in your housing or solve the problem that
   the landlord is complaining about, it may be a defense (stop your eviction).
 
   The disability can be yours or it can be a disability of someone in your
   household.
+  % else:
+  If the tenant has a disability, they have the right to use their housing in the same 
+  way as someone without a disability.
 
+  The tenant may have the right to a change in:
+
+  * The rules of your housing, or
+  * The physical structure of their housing.
+  
+  If the change would help them stay in their housing or solve the problem that
+  the landlord is complaining about, it may be a defense (stop the tenant's eviction).
+
+  The disability can be the tenant's or it can be a disability of someone in their
+  household.
+  % endif
+  
   ${ collapse_template(what_is_disability_template) }
 
   ${ collapse_template(disability_defense_example_template) }
@@ -800,7 +849,11 @@ fields:
     js show if: | 
       val("tenant_has_disability") && val("tenant_needs_accommodation")
   - label: |
+      % if person_answering == "tenant":
       Would you like to ask now?
+      % else:
+      Would the tenant like to ask now?
+      % endif
     field: tenant_wants_accommodation_in_answer
     datatype: yesnoradio
     show if: 
@@ -881,16 +934,25 @@ content: |
   * Hearing
   * Communicating
   * Working
+  % if person_answering == "tenant":
   * And other things you may need to do in your daily life.
 
   You do **not** need to be disabled all the time to have a disability.
   You do not need a doctor's diagnosis to have a disability. But a diagnosis 
   may help to prove your case in court.
+  % else:
+  * And other things the tenant may need to do in their daily life.
+
+  The tenant does **not** need to be disabled all the time to have a disability.
+  They do not need a doctor's diagnosis to have a disability. But a diagnosis 
+  may help to prove their case in court.
+  % endif
 ---
 id: discrimination
 question: |
   Discrimination
 subquestion: |
+  % if person_answering == 'tenant':
   You have the right to be free from discrimination in housing.
 
   If:
@@ -900,7 +962,18 @@ subquestion: |
      **because** of your protected class,
 
   Discrimination law protects you from:
+  % else:
+  The tenant has the right to be free from discrimination in housing.
 
+  If:
+
+  1. The tenant is a member of a protected class, and
+  2. The reason the tenant is being treated differently or denied housing is 
+     **because** of their protected class,
+
+  Discrimination law protects the tenant from:
+  % endif
+  
   * Being treated differently,
   * Being denied housing, or
   * Being unfairly evicted
@@ -915,9 +988,9 @@ fields:
     datatype: yesnoradio
   - label: |
       % if person_answering == "tenant":
-      I believe my landlord is discriminating against me because of:
+      I believe my landlord is discriminating against me because of
       % else:
-      The tenant believes their landlord is discriminating against them because of:
+      The tenant believes their landlord is discriminating against them because of
       % endif
     field: tenant_protected_classes
     datatype: checkboxes
@@ -937,6 +1010,7 @@ fields:
       - Ancestry: ancestry
       - National origin (the country my family comes from): national origin
       - Disability: disability
+    none of the above: False
   - Explain (optional): tenant_discrimination_explanation
     datatype: area
     required: False
@@ -956,16 +1030,25 @@ id: violence against women act defenses
 question: |
   Violence Against Women Act (VAWA)
 subquestion: |
+  % if person_answering == "tenant":
   If you are a survivor of:
-
+  % else:
+  If the tenant is a survivor of:
+  % endif
+  
   * Domestic violence,
   * Dating violence,
   * Sexual assault, or
   * Stalking
 
+  % if person_answering == "tenant":
   And you are being evicted **because** of something related to the
   domestic violence or abuse, you may have a defense.
-
+  % else:
+  And they are being evicted **because** of something related to the
+  domestic violence or abuse, they may have a defense.
+  % endif
+  
   ${ collapse_template(dv_explanation_template) }
 fields:
   - label: |
@@ -1150,9 +1233,10 @@ subquestion: |
   * Notice to Vacate.
 
   There is no standard form for the notice.
-
+  % if person_answering == "tenant":
   If you do not have the notice in front of you, do your best to answer
   from memory.
+  % endif
 fields:
   - label: |
       % if person_answering == "tenant":
@@ -1162,11 +1246,23 @@ fields:
       % endif
     field: got_notice_to_terminate
     datatype: yesnomaybe
-  - About what day did you **get** the notice?: received_notice_date
+  - label: |
+      % if person_answering == "tenant":
+      About what day did you **get** the notice?
+      % else:
+      About what day did the tenant **get** the notice?
+      % endif
+    field: received_notice_date
     datatype: date
     show if: got_notice_to_terminate
     max: ${ today().format("yyyy-MM-dd") }
-  - Did the notice include a specific day to **end** your tenancy?: notice_to_terminate_includes_specific_day
+  - label: |
+      % if person_answering == "tenant":
+      Did the notice include a specific day to **end** your tenancy?
+      % else:
+      Did the notice include a specific day to **end** the tenant's tenancy?
+      % endif
+    field: notice_to_terminate_includes_specific_day
     input type: radio
     choices:
       - Yes, it had a specific day: specific_day
@@ -1174,7 +1270,13 @@ fields:
       - It did not say when to move: no_specific_day
       - It said something else: something_else
     show if: got_notice_to_terminate
-  - What day did the notice say it would end your tenancy?: termination_of_tenancy_date
+  - label: |
+      % if person_answering == "tenant":
+      What day did the notice say it would end your tenancy?
+      % else:
+      What day did the notice say it would end the tenant's tenancy?
+      % endif
+    field: termination_of_tenancy_date
     datatype: date
     max: ${ today().format("yyyy-MM-dd") }
     show if:
@@ -1189,8 +1291,10 @@ question: |
   Notice requirements in the tenant's lease
   % endif
 subquestion: |
+  % if person_answering == "tenant": 
   Look at the lease to answer this question. If you do not have
   the lease in front of you, do your best to answer from memory.
+  %endif
 
   Most leases will include a specific amount of notice that the landlord
   must give the tenant before filing an eviction case. For example:
@@ -1226,8 +1330,11 @@ fields:
       Earlier, you said the tenant got ${ (termination_of_tenancy_date - received_notice_date).days } days notice.
       % endif
       % endif
-
+      % if person_answering == "tenant":
       Answer as well as you can.
+      % else:
+      The tenant should answer as well as they can.
+      % endif
     field: landlord_gave_notice_required_by_lease
     datatype: yesnomaybe
     show if: lease_says_how_much_notice
@@ -1618,14 +1725,19 @@ question: |
   Did the landlord violate other laws?
   % endif
 subquestion: |
-  Answer this question if there are other violations that you know about.  The previous questions asked about the most important violations, but this question is intended to allow you to add any other legal violations that you know about.
+  Answer this question if there are other violations that you know about. The previous questions asked about the most important violations, but this question is intended to allow you to add any other legal violations that you know about.
   
-  For example, some cities and towns require a landlord have an occupancy permit to rent a home.
-  The occupancy permit is a document that says the home is safe to live in.
-
-  If you are not sure, it is OK to leave this question blank.
+  For example, some cities and towns require a landlord have an occupancy permit to rent a home. The occupancy permit is a document that says the home is safe to live in.
+  
+  It is OK to answer "None of the above".
 fields:
-  - What law did your landlord violate?: estoppel_breaches
+  - label: |
+      % if person_answering == "tenant":
+      What law did your landlord violate?
+      % else:
+      What law did the tenant's landlord violate?
+      % endif
+    field: estoppel_breaches
     datatype: checkboxes
     choices:
       - ${ estoppel_breaches_text['occupancy_permit'] }: occupancy_permit

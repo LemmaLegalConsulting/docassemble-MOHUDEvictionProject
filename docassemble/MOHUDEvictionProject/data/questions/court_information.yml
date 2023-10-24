@@ -166,7 +166,7 @@ code: |
 ---
 id: case type from summons
 question: |
-  What kind of {eviction} did your landlord file?
+  What kind of {eviction} did the landlord file?
 subquestion: |
   % if tenant_using_casenet: 
   Look at the Case Header Tab on the Online Docket to answer this question.
@@ -295,16 +295,22 @@ template: what_if_i_disagree_template
 subject: |
   What if the reason the landlord says is not true?
 content: |
-  On this screen select the same reason that your landlord
+  % if person_answering == "tenant":
+  Select the same reason that your landlord
   says they are evicting you.
-
+  % else:
+  Select the same reason that the landlord
+  says they are evicting the tenant.
+  % endif
+  
   You will be able to explain why the reason is not true
   later.
 ---
 id: what court are you in
 question: |
-  What county is your court in?
+  What county is the court in?
 subquestion: |
+  % if person_answering == "tenant":
   Most counties have just one court, the same as the county you live in.
   We couldn't tell what your county is from the address you gave us. Please
   pick your county from the list.
@@ -313,7 +319,17 @@ subquestion: |
 
   If you live in the City of St Louis, pick "City of St Louis" as your
   county.
+  % else:
+  Most counties have just one court, the same as the county the tenant lives in.
+  We couldn't tell what the tenant's county is from the address you gave us. Please
+  pick the tenant's county from the list.
 
+  We will use the county to find the court the tenant needs to file their answer in.
+
+  If the tenant lives in the City of St Louis, pick "City of St Louis" as the
+  county.
+  % endif
+  
   ${ collapse_template(find_county_name_template) }
 fields:
   - Trial Court County: trial_court_county_selected
