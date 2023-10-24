@@ -983,25 +983,6 @@ review:
       Does a lease exist?
       **${ "Maybe" if has_written_lease is None else yesno(has_written_lease) }**
   - Edit:
-      - lease_attached
-      - recompute:
-        - defense_lease_not_attached
-        - defense_rent_pleading_requirement
-        - defense_logic
-      - explanation_answer
-    button: |
-      Does the summons and petition packet have the lease attached as an exhibit?
-      **${ "Maybe" if lease_attached is None else yesno(lease_attached) }**
-  - Edit:
-      - petition_states_terms_of_lease
-      - recompute:
-        - defense_rent_pleading_requirement
-        - defense_logic
-      - explanation_answer
-    button: |
-      Does the petition have a summary of the terms of the rental agreement?
-      **${ "Maybe" if petition_states_terms_of_lease is None else yesno(petition_states_terms_of_lease) }**
-  - Edit:
       - is_rent_subsidized
       - recompute:
         - defense_excessive_rent_for_subsidized_housing
@@ -1021,95 +1002,11 @@ review:
     button: |
       Type of Subsidized Housing:
       **${ subsidized_housing_text[subsidized_housing_type] }**
-  - Edit:
-      - unfair_duress
-      - recompute:
-        - defense_lease_signed_under_duress
-        - defense_logic
-      - explanation_answer
-    button: |
-      % if person_answering == "tenant":
-      Did the landlord unfairly pressure you to sign the lease?
-      % else:
-      Did the landlord unfairly pressure the tenant to sign the lease?
-      % endif
-      **${ "Maybe" if unfair_duress is None else yesno(unfair_duress) }**
-  - Edit:
-      - false_promises_exists
-      - recompute:
-        - defense_fraud_lease
-        - defense_logic
-      - explanation_answer
-    button: |
-      False Promises Made By The Landlord:
-      % if false_promises_exists:
-      **${ false_promises }**
-      % else:
-      **None**
-      % endif
-  - Edit:
-      - landlord_foreclosed
-      - recompute:
-        - defense_foreclosure
-        - defense_logic
-      - explanation_answer
-    button: |
-      % if person_answering == "tenant":
-      Did the bank foreclose on this property while you lived there?
-      % else:
-      Did the bank foreclose on this property while the tenant lived there?
-      % endif
-      **${ "Maybe" if landlord_foreclosed is None else yesno(landlord_foreclosed) }**
-  - Edit:
-      - notice_of_foreclosure
-      - recompute:
-        - defense_foreclosure
-        - defense_logic
-      - explanation_answer
-    button: |
-      % if person_answering == "tenant":
-      Did you get a letter that told you about the foreclosure?
-      % else:
-      Did the tenant get a letter that told the tenant about the foreclosure?
-      % endif
-      **${ "Maybe" if notice_of_foreclosure is None else yesno(notice_of_foreclosure) }**
-  - Edit:
-      - previous_landlord_sold_property
-      - recompute:
-        - defense_new_owner_failed_to_provide_notice_of_sale
-        - defense_logic
-      - explanation_answer
-    button: |
-      % if person_answering == "tenant":
-      Did your previous landlord sell the property to the new landlord?
-      % else:
-      Did the tenant's previous landlord sell the property to the new landlord?
-      % endif
-      **${ "Maybe" if previous_landlord_sold_property is None else yesno(previous_landlord_sold_property) }**
-  - Edit:
-      - notice_of_sale_provided_new_landlord
-      - recompute:
-        - defense_logic
-      - explanation_answer
-    button: |
-      % if person_answering == "tenant":
-      Did the landlord provide you notice of the sale?
-      % else:
-      Did the new landlord provide the tenant notice of the sale?
-      % endif
-      **${ "Maybe" if notice_of_sale_provided is None else yesno(notice_of_sale_provided) }**
-  - Edit:
-      - notice_contains_sale_document
-      - recompute:
-        - defense_logic
-      - explanation_answer
-    button: |
-      % if trial_court.classification.strip() == "Class 1":
-      Did that letter have a copy of the deed, or a notarized document signed both by the original landlord and the new landlord?
-      % else:
-      Did that letter have a copy of the deed?
-      % endif
-      **${ "Maybe" if notice_contains_sale_document is None else yesno(notice_contains_sale_document) }**
+
+
+
+
+
   - note: | 
       ##Information about the eviction##
   - Edit:
@@ -1143,11 +1040,88 @@ review:
   - Edit:
       - case_type
       - recompute:
+        - defense_failure_to_terminate
+        - defense_ud_no_written_notice
+        - defense_ud_no_rental_period_notice
+        - defense_ud_lease_requirements
+        - defense_termination_notice_required_by_law
+        - defense_ud_did_not_violate_lease
+        - defense_no_breach
+        - defense_breach_not_material
+        - defense_discrimination
+        - defense_reasonable_accommodation
+        - defense_vawa
+        - defense_rent_pleading_requirement
+        - defense_lease_not_attached
+        - defense_tender_refused
+        - defense_rent_payment
+        - defense_settlement
+        - defense_lease_signed_under_duress
+        - defense_fraud_lease
+        - defense_liquidated_damages_late_fees
+        - defense_estoppel_illegality
+        - defense_breach_of_habitability
+        - defense_foreclosure
+        - defense_new_owner_failed_to_provide_notice_of_sale
+        - defense_unrepresented_corporation
+        - defense_excessive_rent_for_subsidized_housing
+        - defense_logic
         - document_order
     button: |
       Case Type:
       % if case_type.any_true():
       % for item in case_type.true_values():
+        **${ item }**
+      % endfor
+      % else:
+      **None**
+      % endif
+  - Edit:
+      - eviction_reason
+      - recompute:
+        - defense_failure_to_terminate
+        - defense_ud_no_written_notice
+        - defense_ud_no_rental_period_notice
+        - defense_ud_lease_requirements
+        - defense_termination_notice_required_by_law
+        - defense_ud_did_not_violate_lease
+        - defense_no_breach
+        - defense_breach_not_material
+        - defense_discrimination
+        - defense_reasonable_accommodation
+        - defense_vawa
+        - defense_rent_pleading_requirement
+        - defense_lease_not_attached
+        - defense_tender_refused
+        - defense_rent_payment
+        - defense_settlement
+        - defense_lease_signed_under_duress
+        - defense_fraud_lease
+        - defense_liquidated_damages_late_fees
+        - defense_estoppel_illegality
+        - defense_breach_of_habitability
+        - defense_foreclosure
+        - defense_new_owner_failed_to_provide_notice_of_sale
+        - defense_unrepresented_corporation
+        - defense_excessive_rent_for_subsidized_housing
+        - defense_logic
+        - document_order
+      - explanation_answer
+    button: |
+      Eviction Reason:
+      % if eviction_reason.any_true():
+      % for item in eviction_reason.true_values():
+        **${ item }**
+      % endfor
+      % else:
+      **None**
+      % endif
+  - Edit:
+    - eviction_detailed_reasons
+    button: |
+      Specific Reasons for Eviction:
+      % if eviction_detailed_reasons.any_true():
+      % for item in eviction_detailed_reasons.true_values():
         **${ item }**
       % endfor
       % else:
@@ -1201,147 +1175,228 @@ review:
       Do you have a copy of the Landlord's Petition available?
       **${ yesno(petition_available) }**
   - note: | 
-      ##Your claims and defenses##
+      ##Eviction Defenses##
+      
+      The defenses listed can apply in all evictions.
+  - note: |
+      **Landlord discriminated against the Tenant in violation of state and federal law**
+
+      % if defense_discrimination == True:
+      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> INCLUDED IN ANSWER
+      % elif defense_discrimination == False:
+      <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Not Included in Answer
+      % else:
+      Not Applicable
+      % endif
   - Edit:
-      - petition_states_rent_amount
+      - is_rent_subsidized
       - recompute:
-        - petition_alleges_nonrent
-        - defense_rent_pleading_requirement
+        - defense_excessive_rent_for_subsidized_housing
+        - defense_discrimination
+        - defense_vawa
         - defense_logic
       - explanation_answer
     button: |
       % if person_answering == "tenant":
-      Does the petition say what amount of rent you owe?
+      Do you get a rent subsidy or do you live in public housing?
       % else:
-      Does the petition say what amount of rent the tenant owes?
+      Does the tenant get a rent subsidy or do they live in public housing?
       % endif
-      **${ "Maybe" if petition_states_rent_amount is None else yesno(petition_states_rent_amount) }**
+      **${ "Maybe" if is_rent_subsidized is None else yesno(is_rent_subsidized) }**
   - Edit:
-      - petition_states_rent_periods
+      - number_of_units_in_building
       - recompute:
-        - defense_rent_pleading_requirement
+        - defense_discrimination
         - defense_logic
-      - explanation_answer
+        - explanation_answer
     button: |
-      Does the petition list each month that the landlord claims you owe rent?
-      **${ "Maybe" if petition_states_rent_periods is None else yesno(petition_states_rent_periods) }**
+      How many units are in the building or apartment complex?:
+      **${ number_of_units_in_building }**
   - Edit:
-      - was_rent_paid
+      - tenant_believes_discrimination
       - recompute:
-        - defense_rent_payment
+        - defense_discrimination
         - defense_logic
-      - explanation_answer
+        - explanation_answer
     button: |
       % if person_answering == "tenant":
-      Did you pay at least part of the rent?
+      I believe my landlord is discriminating against me
       % else:
-      Did the tenant pay the rent that was allegedly owed?
+      The landlord discriminated against the tenant
       % endif
-      **${ "Maybe" if was_rent_paid is None else yesno(was_rent_paid) }**
+      **${ yesno(tenant_believes_discrimination) }**
   - Edit:
-      - rent_amount_paid
+      - tenant_protected_classes
       - recompute:
-        - defense_rent_payment
+        - defense_discrimination
         - defense_logic
-      - explanation_answer
+        - explanation_answer
     button: |
       % if person_answering == "tenant":
-      How much did you pay?
+      I believe my landlord is discriminating against me because of:
       % else:
-      How much did the tenant pay?
+      The tenant believes their landlord is discriminating against them because of:
       % endif
-      **${ rent_amount_paid_text["rent_amount_paid"] }**
-  - Edit:
-      - offer_attempts.revisit
-      - recompute:
-        - defense_tender_refused
-        - defense_logic
-      - explanation_answer
-    button: |
-      Attempts to Pay Rent:
-      % if len(offer_attempts) == 1:
-      **1 Attempt**
-      % elif len(offer_attempts) > 1:
-      **${ len(offer_attempts) } Attempts**
+      % if tenant_protected_classes.any_true():
+      % for item in tenant_protected_classes.true_values():
+        **${ item }**
+      % endfor
       % else:
       **None**
       % endif
+  - note: |
+      **Landlord failed to reasonably accommodate Tenant's disability**
+
+      % if defense_reasonable_accommodation == True:
+      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> INCLUDED IN ANSWER
+      % elif defense_reasonable_accommodation == False:
+      <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Not Included in Answer
+      % else:
+      Not Applicable
+      % endif
   - Edit:
-      - excessive_rent
+      - tenant_has_disability
+      - recompute:
+        - defense_reasonable_accommodation
+        - defense_logic
+      - explanation_answer
+    button: |
+      % if person_answering == "tenant":
+      Do you or does someone who lives with you have a disability?
+      % else:
+      Does the tenant or a household member have a disability?
+      % endif
+      **${ "Maybe" if tenant_has_disability is None else yesno(tenant_has_disability) }**
+  - Edit:
+      - tenant_needs_accommodation
+      - recompute:
+        - defense_reasonable_accommodation
+        - defense_logic
+        - explanation_answer
+    button: |
+      % if person_answering == "tenant":
+      Would a change in the rules or the physical structure of your housing help you use or stay in your housing?
+      % else:
+      Would a change in the rules or the physical structure of the tenant's housing help them use or stay in their housing?
+      % endif
+      **${ "Maybe" if tenant_needs_accommodation is None else yesno(tenant_needs_accommodation) }**
+  - Edit:
+      - tenant_asked_for_accommodation
+      - recompute:
+        - defense_reasonable_accommodation
+        - defense_logic
+        - explanation_answer
+    button: |
+      % if person_answering == "tenant":
+      Did you **ask** your landlord to change the rules or the physical structure of your housing?
+      % else:
+      Did the tenant **ask** their landlord to change the rules or the physical structure of their housing?
+      % endif
+      **${ "Maybe" if tenant_asked_for_accommodation is None else yesno(tenant_asked_for_accommodation) }**
+  - Edit:
+      - landlord_refused_accommodation
+      - recompute:
+        - defense_reasonable_accommodation
+        - defense_logic
+      - explanation_answer
+    button: |
+      % if person_answering == "tenant":
+      Did your landlord say **no**?
+      % else:
+      Did the tenant's landlord **refuse** the request?
+      % endif
+      **${ "Maybe" if landlord_refused_accommodation is None else yesno(landlord_refused_accommodation) }**
+  - note: |
+      **Tenant has a defense under the provisions of the Violence Against Women Act, 34 U.S.C. § 12491, et seq.**
+
+      % if defense_vawa == True:
+      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> INCLUDED IN ANSWER
+      % elif defense_vawa == False:
+      <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Not Included in Answer
+      % else:
+      Not Applicable
+      % endif
+  - Edit:
+      - is_rent_subsidized
       - recompute:
         - defense_excessive_rent_for_subsidized_housing
+        - defense_discrimination
+        - defense_vawa
         - defense_logic
       - explanation_answer
     button: |
       % if person_answering == "tenant":
-      Is your landlord asking you to pay an amount that is more than your tenant rent share?
+      Do you get a rent subsidy or do you live in public housing?
       % else:
-      Is your landlord asking the tenant to pay an amount that is more than the tenant rent share?
+      Does the tenant get a rent subsidy or do they live in public housing?
       % endif
-      **${ "Maybe" if excessive_rent is None else yesno(excessive_rent) }**
+      **${ "Maybe" if is_rent_subsidized is None else yesno(is_rent_subsidized) }**
   - Edit:
-      - late_fees_assessed
+      - tenant_is_dv_survivor
       - recompute:
-        - defense_liquidated_damages_late_fees
+        - defense_vawa
         - defense_logic
-      - explanation_answer
+        - explanation_answer
     button: |
       % if person_answering == "tenant":
-      Is the landlord claiming that you owe late fees?
+      Are you a survivor of domestic violence, dating violence, sexual assault, or stalking?
       % else:
-      Is the landlord claiming that the tenant owes late fees?
+      Is the tenant a survivor of domestic violence, dating violence, sexual assault, or stalking?
       % endif
-      **${ "Maybe" if late_fees_assessed is None else yesno(late_fees_assessed) }**
+      **${ "Maybe" if tenant_is_dv_survivor is None else yesno(tenant_is_dv_survivor) }**
   - Edit:
-      - late_fees_penalty
+      - tenant_is_being_evicted_because_of_dv
       - recompute:
-        - defense_liquidated_damages_late_fees
+        - defense_vawa
         - defense_logic
-      - explanation_answer
-    button: |
-      Are the late fees more than any actual costs the landlord would have to pay because of late rent?
-      **${ "Maybe" if late_fees_penalty is None else yesno(late_fees_penalty) }**
-  - Edit:
-      - late_fees_lease_provision
-      - recompute:
-        - defense_liquidated_damages_late_fees
-        - defense_logic
-      - explanation_answer
-    button: |
-      Does the lease say that they landlord can charge late fees?
-      **${ "Maybe" if late_fees_lease_provision is None else yesno(late_fees_lease_provision) }**
-  - Edit:
-      - late_fee_doesnt_comply_with_lease
-      - recompute:
-        - defense_liquidated_damages_late_fees
-        - defense_logic
-      - explanation_answer
-    button: |
-      Do the late fees charged by the landlord comply with the lease provision?
-      **${ "Maybe" if late_fee_doesnt_comply_with_lease is None else noyes(late_fee_doesnt_comply_with_lease) }**
-  - Edit:
-      - petition_separates_nonrent
-      - recompute:
-        - defense_logic
-      - explanation_answer
+        - explanation_answer
     button: |
       % if person_answering == "tenant":
-      Does the petition separate the amount you owe in rent from other charges?
+      Are you being evicted because of something related to the domestic violence or abuse?
       % else:
-      Does the petition separate the amount the tenant owes in rent from other charges?
+      Is the tenant being evicted because of something related to the domestic violence or abuse?
       % endif
-      **${ "Maybe" if petition_separates_nonrent is None else yesno(petition_separates_nonrent) }**
+      **${ "Maybe" if tenant_is_being_evicted_because_of_dv is None else yesno(tenant_is_being_evicted_because_of_dv) }**
+  - note: |
+      **Landlord has failed to comply with M.R.C.P. § 55.22**
+
+      % if defense_lease_not_attached == True:
+      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> INCLUDED IN ANSWER
+      % elif defense_lease_not_attached == False:
+      <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Not Included in Answer
+      % else:
+      Not Applicable
+      % endif
   - Edit:
-      - petition_states_demand_made
+      - has_written_lease
       - recompute:
+        - defense_lease_not_attached
         - defense_rent_pleading_requirement
         - defense_logic
       - explanation_answer
     button: |
-      Does the Petition say that the landlord demanded rent?
-      **${ "Maybe" if petition_states_demand_made is None else yesno(petition_states_demand_made) }**
-  - note: | 
-      ##Landlord Agreement##
+      Does a lease exist?
+      **${ "Maybe" if has_written_lease is None else yesno(has_written_lease) }**
+  - Edit:
+      - lease_attached
+      - recompute:
+        - defense_lease_not_attached
+        - defense_rent_pleading_requirement
+        - defense_logic
+      - explanation_answer
+    button: |
+      Does the summons and petition packet have the lease attached as an exhibit?
+      **${ "Maybe" if lease_attached is None else yesno(lease_attached) }**
+  - note: |
+      **Landlord and Tenant entered into a settlement agreement and Tenant has complied with the settlement’s terms**
+
+      % if defense_settlement == True:
+      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> INCLUDED IN ANSWER
+      % elif defense_settlement == False:
+      <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Not Included in Answer
+      % else:
+      Not Applicable
+      % endif
   - Edit:
       - landlord_agreement
       - recompute:
@@ -1396,8 +1451,435 @@ review:
       Does the tenant have proof that the tenant complied with the agreement?
       % endif
       **${ "Maybe" if tenant_compliance_with_agreement_proof is None else yesno(tenant_compliance_with_agreement_proof) }**
+
+
+
+  - note: |
+      **The lease is invalid because unfair duress by Landlord caused Tenant to enter the lease**
+
+      % if defense_lease_signed_under_duress == True:
+      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> INCLUDED IN ANSWER
+      % elif defense_lease_signed_under_duress == False:
+      <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Not Included in Answer
+      % else:
+      Not Applicable
+      % endif
+  - Edit:
+      - unfair_duress
+      - recompute:
+        - defense_lease_signed_under_duress
+        - defense_logic
+      - explanation_answer
+    button: |
+      % if person_answering == "tenant":
+      Did the landlord unfairly pressure you to sign the lease?
+      % else:
+      Did the landlord unfairly pressure the tenant to sign the lease?
+      % endif
+      **${ "Maybe" if unfair_duress is None else yesno(unfair_duress) }**
+  - note: |
+      **Landlord’s fraudulent promises induced Tenant to enter the lease**
+
+      % if defense_fraud_lease == True:
+      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> INCLUDED IN ANSWER
+      % elif defense_fraud_lease == False:
+      <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Not Included in Answer
+      % else:
+      Not Applicable
+      % endif
+  - Edit:
+      - false_promises_exists
+      - recompute:
+        - defense_fraud_lease
+        - defense_logic
+      - explanation_answer
+    button: |
+      False Promises Made By The Landlord:
+      % if false_promises_exists:
+      **${ false_promises }**
+      % else:
+      **None**
+      % endif
+  - note: |
+      **The late fees attached to the Landlord’s Petition are an unfair penalty**
+
+      % if defense_liquidated_damages_late_fees == True:
+      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> INCLUDED IN ANSWER
+      % elif defense_liquidated_damages_late_fees == False:
+      <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Not Included in Answer
+      % else:
+      Not Applicable
+      % endif
+  - Edit:
+      - late_fees_assessed
+      - recompute:
+        - defense_liquidated_damages_late_fees
+        - defense_logic
+      - explanation_answer
+    button: |
+      % if person_answering == "tenant":
+      Is the landlord claiming that you owe late fees?
+      % else:
+      Is the landlord claiming that the tenant owes late fees?
+      % endif
+      **${ "Maybe" if late_fees_assessed is None else yesno(late_fees_assessed) }**
+  - Edit:
+      - late_fees_penalty
+      - recompute:
+        - defense_liquidated_damages_late_fees
+        - defense_logic
+      - explanation_answer
+    button: |
+      Are the late fees more than any actual costs the landlord would have to pay because of late rent?
+      **${ "Maybe" if late_fees_penalty is None else yesno(late_fees_penalty) }**
+  - Edit:
+      - late_fees_lease_provision
+      - recompute:
+        - defense_liquidated_damages_late_fees
+        - defense_logic
+      - explanation_answer
+    button: |
+      Does the lease say that they landlord can charge late fees?
+      **${ "Maybe" if late_fees_lease_provision is None else yesno(late_fees_lease_provision) }**
+  - Edit:
+      - late_fee_doesnt_comply_with_lease
+      - recompute:
+        - defense_liquidated_damages_late_fees
+        - defense_logic
+      - explanation_answer
+    button: |
+      Do the late fees charged by the landlord comply with the lease provision?
+      **${ "Maybe" if late_fee_doesnt_comply_with_lease is None else noyes(late_fee_doesnt_comply_with_lease) }**
+
+  - note: |
+      **The premises have been foreclosed upon but the Landlord has not followed proper procedures**
+
+      % if defense_foreclosure == True:
+      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> INCLUDED IN ANSWER
+      % elif defense_foreclosure == False:
+      <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Not Included in Answer
+      % else:
+      Not Applicable
+      % endif
+  - Edit:
+      - landlord_foreclosed
+      - recompute:
+        - defense_foreclosure
+        - defense_logic
+      - explanation_answer
+    button: |
+      % if person_answering == "tenant":
+      Did the bank foreclose on this property while you lived there?
+      % else:
+      Did the bank foreclose on this property while the tenant lived there?
+      % endif
+      **${ "Maybe" if landlord_foreclosed is None else yesno(landlord_foreclosed) }**
+  - Edit:
+      - notice_of_foreclosure
+      - recompute:
+        - defense_foreclosure
+        - defense_logic
+      - explanation_answer
+    button: |
+      % if person_answering == "tenant":
+      Did you get a letter that told you about the foreclosure?
+      % else:
+      Did the tenant get a letter that told the tenant about the foreclosure?
+      % endif
+      **${ "Maybe" if notice_of_foreclosure is None else yesno(notice_of_foreclosure) }**
+  - note: |
+      **The premises have been sold but the prior Landlord has not provided Tenant the required notices and therefore no rent is owed**
+
+      % if defense_new_owner_failed_to_provide_notice_of_sale == True:
+      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> INCLUDED IN ANSWER
+      % elif defense_new_owner_failed_to_provide_notice_of_sale == False:
+      <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Not Included in Answer
+      % else:
+      Not Applicable
+      % endif
+  - Edit:
+      - previous_landlord_sold_property
+      - recompute:
+        - defense_new_owner_failed_to_provide_notice_of_sale
+        - defense_logic
+      - explanation_answer
+    button: |
+      % if person_answering == "tenant":
+      Did your previous landlord sell the property to the new landlord?
+      % else:
+      Did the tenant's previous landlord sell the property to the new landlord?
+      % endif
+      **${ "Maybe" if previous_landlord_sold_property is None else yesno(previous_landlord_sold_property) }**
+  - Edit:
+      - notice_of_sale_provided_new_landlord
+      - recompute:
+        - defense_logic
+      - explanation_answer
+    button: |
+      % if person_answering == "tenant":
+      Did the landlord provide you notice of the sale?
+      % else:
+      Did the new landlord provide the tenant notice of the sale?
+      % endif
+      **${ "Maybe" if notice_of_sale_provided is None else yesno(notice_of_sale_provided) }**
+  - Edit:
+      - notice_contains_sale_document
+      - recompute:
+        - defense_logic
+      - explanation_answer
+    button: |
+      % if trial_court.classification.strip() == "Class 1":
+      Did that letter have a copy of the deed, or a notarized document signed both by the original landlord and the new landlord?
+      % else:
+      Did that letter have a copy of the deed?
+      % endif
+      **${ "Maybe" if notice_contains_sale_document is None else yesno(notice_contains_sale_document) }**
+  - note: |
+      **The Landlord is required to have an attorney in this case and it must be dismissed**
+
+      % if defense_unrepresented_corporation == True:
+      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> INCLUDED IN ANSWER
+      % elif defense_unrepresented_corporation == False:
+      <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Not Included in Answer
+      % else:
+      Not Applicable
+      % endif
+  - Edit:
+      - other_parties.revisit
+      - recompute:
+        - defense_unrepresented_corporation
+        - defense_logic
+      - explanation_answer
+    button: |
+      Plaintiffs:
+      % if other_parties.there_are_any:
+      % for item in other_parties:
+      
+       - **${ item }**
+      
+      % if item.attorney.there_are_any:
+         - Attorney: **${ item.attorney[0] }**
+      **${ item.attorney[0].address }**
+      
+      % else:
+         - Attorney: **None**
+      
+      % endif
+         - Person or Business: **${ "Person" if item.person_type == "ALIndividual" else "Business" }**
+      % endfor
+      % else:
+      **None**
+      % endif
+  - note: |
+      **The Landlord has charged the Tenant rent that is not owed according to the Housing Choice Voucher Program contract entered into by the Landlord and the Tenant**
+
+      % if defense_excessive_rent_for_subsidized_housing == True:
+      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> INCLUDED IN ANSWER
+      % elif defense_excessive_rent_for_subsidized_housing == False:
+      <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Not Included in Answer
+      % else:
+      Not Applicable
+      % endif
+  - Edit:
+      - is_rent_subsidized
+      - recompute:
+        - defense_excessive_rent_for_subsidized_housing
+        - defense_discrimination
+        - defense_vawa
+        - defense_logic
+      - explanation_answer
+    button: |
+      % if person_answering == "tenant":
+      Do you get a rent subsidy or do you live in public housing?
+      % else:
+      Does the tenant get a rent subsidy or do they live in public housing?
+      % endif
+      **${ "Maybe" if is_rent_subsidized is None else yesno(is_rent_subsidized) }**
+  - Edit:
+      - excessive_rent
+      - recompute:
+        - defense_excessive_rent_for_subsidized_housing
+        - defense_logic
+      - explanation_answer
+    button: |
+      % if person_answering == "tenant":
+      Is your landlord asking you to pay an amount that is more than your tenant rent share?
+      % else:
+      Is your landlord asking the tenant to pay an amount that is more than the tenant rent share?
+      % endif
+      **${ "Maybe" if excessive_rent is None else yesno(excessive_rent) }** 
+
+
   - note: | 
-      ##Landlord Problems##
+      ##Rent and Possession Defenses##
+      
+      The defenses listed below only apply to evictions for nonpayment of rent.
+  - Edit:
+      - eviction_reason
+      - recompute:
+        - defense_rent_pleading_requirement
+        - defense_lease_not_attached
+        - defense_logic
+      - explanation_answer
+    button: |
+      % if eviction_reason["nonpayment of rent"]:
+      % if person_answering == "tenant":
+      You are being evicted for nonpayment of rent.
+      % else:
+      The tenant is being evicted for nonpayment of rent.
+      % endif
+      % else:
+      % if person_answering == "tenant":
+      You are **NOT** being evicted for nonpayment of rent.
+      % else:
+      The tenant is ##NOT## being evicted for nonpayment of rent.
+      % endif      
+      % endif
+  - note: |
+      **Landlord failed to state a claim for rent and possession**
+
+      % if defense_rent_pleading_requirement == True:
+      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> INCLUDED IN ANSWER
+      % elif defense_rent_pleading_requirement == False:
+      <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Not Included in Answer
+      % else:
+      Not Applicable
+      % endif
+  - Edit:
+      - lease_attached
+      - recompute:
+        - defense_lease_not_attached
+        - defense_rent_pleading_requirement
+        - defense_logic
+      - explanation_answer
+    button: |
+      Does the summons and petition packet have the lease attached as an exhibit?
+      **${ "Maybe" if lease_attached is None else yesno(lease_attached) }**
+  - Edit:
+      - petition_states_terms_of_lease
+      - recompute:
+        - defense_rent_pleading_requirement
+        - defense_logic
+      - explanation_answer
+    button: |
+      Does the petition have a summary of the terms of the rental agreement?
+      **${ "Maybe" if petition_states_terms_of_lease is None else yesno(petition_states_terms_of_lease) }**
+  - Edit:
+      - petition_states_rent_amount
+      - recompute:
+        - petition_alleges_nonrent
+        - defense_rent_pleading_requirement
+        - defense_logic
+      - explanation_answer
+    button: |
+      % if person_answering == "tenant":
+      Does the petition say what amount of rent you owe?
+      % else:
+      Does the petition say what amount of rent the tenant owes?
+      % endif
+      **${ "Maybe" if petition_states_rent_amount is None else yesno(petition_states_rent_amount) }**
+  - Edit:
+      - petition_states_rent_periods
+      - recompute:
+        - defense_rent_pleading_requirement
+        - defense_logic
+      - explanation_answer
+    button: |
+      Does the petition list each month that the landlord claims you owe rent?
+      **${ "Maybe" if petition_states_rent_periods is None else yesno(petition_states_rent_periods) }**
+  - Edit:
+      - petition_separates_nonrent
+      - recompute:
+        - defense_logic
+      - explanation_answer
+    button: |
+      % if person_answering == "tenant":
+      Does the petition separate the amount you owe in rent from other charges?
+      % else:
+      Does the petition separate the amount the tenant owes in rent from other charges?
+      % endif
+      **${ "Maybe" if petition_separates_nonrent is None else yesno(petition_separates_nonrent) }**
+  - Edit:
+      - petition_states_demand_made
+      - recompute:
+        - defense_rent_pleading_requirement
+        - defense_logic
+      - explanation_answer
+    button: |
+      Does the Petition say that the landlord demanded rent?
+      **${ "Maybe" if petition_states_demand_made is None else yesno(petition_states_demand_made) }**
+
+  - note: |
+      **Landlord refused Tenant’s tender of rent**
+
+      % if defense_tender_refused == True:
+      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> INCLUDED IN ANSWER
+      % elif defense_tender_refused == False:
+      <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Not Included in Answer
+      % else:
+      Not Applicable
+      % endif
+  - Edit:
+      - offer_attempts.revisit
+      - recompute:
+        - defense_tender_refused
+        - defense_logic
+      - explanation_answer
+    button: |
+      Attempts to Pay Rent:
+      % if len(offer_attempts) == 1:
+      **1 Attempt**
+      % elif len(offer_attempts) > 1:
+      **${ len(offer_attempts) } Attempts**
+      % else:
+      **None**
+      % endif      
+  - note: |
+      **Tenant has paid the rent allegedly owed**
+
+      % if defense_rent_payment == True:
+      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> INCLUDED IN ANSWER
+      % elif defense_rent_payment == False:
+      <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Not Included in Answer
+      % else:
+      Not Applicable
+      % endif  
+  - Edit:
+      - was_rent_paid
+      - recompute:
+        - defense_rent_payment
+        - defense_logic
+      - explanation_answer
+    button: |
+      % if person_answering == "tenant":
+      Did you pay at least part of the rent?
+      % else:
+      Did the tenant pay the rent that was allegedly owed?
+      % endif
+      **${ "Maybe" if was_rent_paid is None else yesno(was_rent_paid) }**
+  - Edit:
+      - rent_amount_paid
+      - recompute:
+        - defense_rent_payment
+        - defense_logic
+      - explanation_answer
+    button: |
+      % if person_answering == "tenant":
+      How much did you pay?
+      % else:
+      How much did the tenant pay?
+      % endif
+      **${ rent_amount_paid_text["rent_amount_paid"] }**
+  - note: |
+      **Landlord has breached the implied warranty of habitability**
+
+      % if defense_breach_of_habitability == True:
+      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> INCLUDED IN ANSWER
+      % elif defense_breach_of_habitability == False:
+      <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Not Included in Answer
+      % else:
+      Not Applicable
+      % endif
   - Edit:
       - warranty_breaches
       - recompute:
@@ -1435,10 +1917,19 @@ review:
       Did the tenant tell the landlord about these problems?
       % endif
       **${ "Maybe" if notice_of_breach_to_landlord is None else yesno(notice_of_breach_to_landlord) }**
+  - note: |
+      **Landlord is estopped from enforcement of the lease because it has violated Missouri law**
+
+      % if defense_estoppel_illegality == True:
+      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> INCLUDED IN ANSWER
+      % elif defense_estoppel_illegality == False:
+      <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Not Included in Answer
+      % else:
+      Not Applicable
+      % endif      
   - Edit:
       - cqe_breaches
       - recompute:
-        - defense_breach_of_cqe
         - defense_estoppel_illegality
         - defense_logic
       - explanation_answer
@@ -1448,11 +1939,11 @@ review:
       % for item in cqe_breaches.true_values():
       % if item == "other":
       
-       - **${ other_cqe_breach.strip() }**
+       - **${ other_cqe_breach }**
       
       % else:
       
-       - **${ cqe_breaches_text[item].strip() }**
+       - **${ cqe_breaches_text[item] }**
       
       % endif
       % endfor
@@ -1482,4 +1973,239 @@ review:
       % else:
       **None**
       % endif
+
+
+
+
+
+  - note: |
+      ##Unlawful Detainer Defenses##
+      
+      The following defenses only apply in Unlawful Detainer cases,
+  - Edit:
+      - eviction_reason
+      - recompute:
+        - defense_rent_pleading_requirement
+        - defense_lease_not_attached
+        - defense_logic
+      - explanation_answer
+    button: |
+      % if case_type["AC Unlawful Detainer"]:
+      % if person_answering == "tenant":
+      You are being evicted in an Unlawful Detainer case.
+      % else:
+      The tenant is being evicted in an Unlawful Detainer case.
+      % endif
+      % else:
+      % if person_answering == "tenant":
+      You are **NOT** being evicted in an Unlawful Detainer case.
+      % else:
+      The tenant is ##NOT## being evicted in an Unlawful Detainer case.
+      % endif      
+      % endif
+  - note: |
+      **Landlord did not properly terminate the tenancy in accordance with RSMo § 441.060**
+
+      % if defense_failure_to_terminate == True:
+      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> INCLUDED IN ANSWER
+      % elif defense_failure_to_terminate == False:
+      <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Not Included in Answer
+      % else:
+      Not Applicable
+      % endif
+  - note: |
+      ****
+      % if defense_ud_no_written_notice == True:
+      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> No Written Notice
+      % elif defense_ud_no_written_notice == False:
+      <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> No Written Notice
+      % else:
+      No Written Notice: Not Applicable
+      % endif
+
+  - Edit:
+      - got_notice_to_terminate
+      - recompute:
+        - defense_failure_to_terminate
+        - defense_ud_no_written_notice
+        - defense_ud_no_rental_period_notice
+        - defense_ud_lease_requirements
+        - defense_logic
+        - explanation_answer
+    button: |
+      % if person_answering == "tenant":
+      Did you get a written notice to end your tenancy?
+      % else:
+      Did the tenant get a written notice to end their tenancy?
+      % endif
+      **${ "Maybe" if got_notice_to_terminate is None else yesno(got_notice_to_terminate) }**
+  - note: |
+      ****
+      % if defense_ud_no_rental_period_notice == True:
+      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> Premature Notice 
+      % elif defense_ud_no_rental_period_notice == False:
+      <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Premature Notice
+      % else:
+      Premature Notice: Not Applicable
+      % endif      
+  - Edit:
+      - is_mobile_home_owner
+      - recompute:
+        - defense_ud_no_rental_period_notice
+        - defense_logic
+        - explanation_answer
+    button: |
+      % if person_answering == "tenant":
+      Do you live in a mobile  home that you own, and rent the land?
+      % else:
+      Does the tenant live in a mobile  home that the tenant owns, and rents the land?
+      % endif
+      **${ yesno(is_mobile_home_owner) }**
+  - Edit:
+      - rent_day
+      - recompute:
+        - defense_ud_no_rental_period_notice
+        - defense_logic
+        - explanation_answer
+    button: |
+      What day is rent due?:
+      **${ rent_day }**      
+  - Edit:
+      - rent_period
+      - recompute:
+        - defense_ud_no_rental_period_notice
+        - defense_logic
+    button: |
+      **How often** is rent due?:
+      **${ rent_period }**
+  - Edit:
+      - notice_to_terminate_includes_specific_day
+      - recompute:
+        - defense_ud_no_rental_period_notice
+        - defense_logic
+    button: |
+      Did the notice include a specific day to **end** your tenancy?:
+      **${ yesno(notice_to_terminate_includes_specific_day) }**
+
+  - Edit:
+      - received_notice_date
+      - recompute:
+        - defense_ud_no_rental_period_notice
+        - defense_logic
+    button: |
+      About what day did you **get** the notice?:
+      **${ received_notice_date }**
+  - Edit:
+      - termination_of_tenancy_date
+      - recompute:
+        - defense_logic
+        - defense_termination_notice_required_by_law
+    button: |
+      What day did the notice say it would end your tenancy?:
+      **${ termination_of_tenancy_date }**
+  - note: |
+      ****
+      % if defense_ud_lease_requirements == True:
+      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> Notice Violates Lease 
+      % elif defense_ud_lease_requirements == False:
+      <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Notice Violates Lease 
+      % else:
+      Notice Violates Lease : Not Applicable
+      % endif      
+  - Edit:
+      - has_written_lease
+      - recompute:
+        - defense_logic
+        - defense_rent_pleading_requirement
+        - defense_lease_not_attached
+        - defense_ud_lease_requirements
+    button: |
+      % if person_answering == "tenant":
+      Do you have a written lease? (Some leases can be oral.)
+      % else:
+      Does the tenant have a written lease? (Some leases can be oral.)
+      % endif
+      **${ "Maybe" if has_written_lease is None else yesno(has_written_lease) }**      
+  - Edit:
+      - lease_says_how_much_notice
+      - recompute:
+        - defense_logic
+        - defense_ud_lease_requirements
+    button: |
+      Does the lease say how much notice the landlord must give to the tenant?:
+      **${ "Maybe" if lease_says_how_much_notice is None else yesno(lease_says_how_much_notice) }**
+  - Edit:
+      - landlord_gave_notice_required_by_lease
+      - recompute:
+        - defense_logic
+        - defense_ud_lease_requirements
+    button: |
+      % if person_answering == "tenant":
+      Did the landlord give you the amount of notice required by the lease?
+      % else:
+      Did the landlord give the tenant the amount of notice required by the lease?
+      % endif
+      **${ yesno(landlord_gave_notice_required_by_lease) }**
+  - note: |
+      ****
+      % if defense_termination_notice_required_by_law == True:
+      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> Notice Violates Law
+      % elif defense_termination_notice_required_by_law == False:
+      <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Notice Violates Law
+      % else:
+      Notice Violates Law : Not Applicable
+      % endif      
+
+  - Edit:
+      - is_rent_subsidized
+      - recompute:
+        - defense_logic
+        - defense_excessive_rent_for_subsidized_housing
+        - defense_termination_notice_required_by_law
+        - defense_vawa
+    button: |
+      % if person_answering == "tenant":
+      Do you live in subsidized housing, including getting a rent subsidy or living in public housing?
+      % else:
+      Does the tenant live in subsidized housing, including getting a rent subsidy or living in public housing?
+      % endif
+      **${ yesno(is_rent_subsidized) }**      
+  - note: |
+      **Tenant denies that Tenant violated the terms of the lease or that the claimed violation is a material breach**
+
+      % if defense_ud_did_not_violate_lease == True:
+      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> INCLUDED IN ANSWER
+      % elif defense_ud_did_not_violate_lease == False:
+      <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Not Included in Answer
+      % else:
+      Not Applicable
+      % endif
+  - Edit:
+      - defense_no_breach
+      - recompute:
+        - defense_ud_did_not_violate_lease
+        - defense_logic
+        - explanation_answer
+    button: |
+      % if person_answering == "tenant":
+      I deny doing what the landlord says that I did
+      % else:
+      The tenant denies doing what the landlord says that they did
+      % endif
+      **${ "Maybe" if defense_no_breach is None else yesno(defense_no_breach) }**
+  - Edit:
+      - defense_breach_not_material
+      - recompute:
+        - defense_ud_did_not_violate_lease
+        - defense_logic
+        - explanation_answer
+    button: |      
+      % if person_answering == "tenant":
+      Even if what the landlord says happened is true, I deny that the reason the landlord gave is a good enough reason
+      to evict me.
+      % else:
+      Even if what the landlord says happened is true, the tenant denies that the reason the landlord gave is a good enough reason
+      to evict the tenant.
+      % endif
+      **${ "Maybe" if defense_breach_not_material is None else yesno(defense_breach_not_material) }**
 ---
