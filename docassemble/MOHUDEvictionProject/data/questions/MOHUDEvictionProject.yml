@@ -1180,10 +1180,11 @@ review:
       The defenses listed can apply in all evictions.
   - note: |
       **Landlord discriminated against the Tenant in violation of state and federal law**
+
       % if defense_discrimination == True:
-      INCLUDED IN ANSWER
+      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> INCLUDED IN ANSWER
       % elif defense_discrimination == False:
-      Not Included in Answer
+      <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Not Included in Answer
       % else:
       Not Applicable
       % endif
@@ -1245,10 +1246,11 @@ review:
       % endif
   - note: |
       **Landlord failed to reasonably accommodate Tenant's disability**
+
       % if defense_reasonable_accommodation == True:
-      INCLUDED IN ANSWER
+      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> INCLUDED IN ANSWER
       % elif defense_reasonable_accommodation == False:
-      Not Included in Answer
+      <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Not Included in Answer
       % else:
       Not Applicable
       % endif
@@ -1306,10 +1308,11 @@ review:
       **${ "Maybe" if landlord_refused_accommodation is None else yesno(landlord_refused_accommodation) }**
   - note: |
       **Tenant has a defense under the provisions of the Violence Against Women Act, 34 U.S.C. § 12491, et seq.**
+
       % if defense_vawa == True:
-      INCLUDED IN ANSWER
+      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> INCLUDED IN ANSWER
       % elif defense_vawa == False:
-      Not Included in Answer
+      <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Not Included in Answer
       % else:
       Not Applicable
       % endif
@@ -1356,10 +1359,11 @@ review:
       **${ "Maybe" if tenant_is_being_evicted_because_of_dv is None else yesno(tenant_is_being_evicted_because_of_dv) }**
   - note: |
       **Landlord has failed to comply with M.R.C.P. § 55.22**
+
       % if defense_lease_not_attached == True:
-      INCLUDED IN ANSWER
+      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> INCLUDED IN ANSWER
       % elif defense_lease_not_attached == False:
-      Not Included in Answer
+      <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Not Included in Answer
       % else:
       Not Applicable
       % endif
@@ -1382,12 +1386,14 @@ review:
       - explanation_answer
     button: |
       Does the summons and petition packet have the lease attached as an exhibit?
-      **${ "Maybe" if lease_attached is None else yesno(lease_attached) }**       - note: |
+      **${ "Maybe" if lease_attached is None else yesno(lease_attached) }**
+  - note: |
       **Landlord and Tenant entered into a settlement agreement and Tenant has complied with the settlement’s terms**
+
       % if defense_settlement == True:
-      INCLUDED IN ANSWER
+      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> INCLUDED IN ANSWER
       % elif defense_settlement == False:
-      Not Included in Answer
+      <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Not Included in Answer
       % else:
       Not Applicable
       % endif
@@ -1450,10 +1456,11 @@ review:
 
   - note: |
       **The lease is invalid because unfair duress by Landlord caused Tenant to enter the lease**
+
       % if defense_lease_signed_under_duress == True:
-      INCLUDED IN ANSWER
+      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> INCLUDED IN ANSWER
       % elif defense_lease_signed_under_duress == False:
-      Not Included in Answer
+      <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Not Included in Answer
       % else:
       Not Applicable
       % endif
@@ -1472,10 +1479,11 @@ review:
       **${ "Maybe" if unfair_duress is None else yesno(unfair_duress) }**
   - note: |
       **Landlord’s fraudulent promises induced Tenant to enter the lease**
+
       % if defense_fraud_lease == True:
-      INCLUDED IN ANSWER
+      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> INCLUDED IN ANSWER
       % elif defense_fraud_lease == False:
-      Not Included in Answer
+      <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Not Included in Answer
       % else:
       Not Applicable
       % endif
@@ -1494,10 +1502,11 @@ review:
       % endif
   - note: |
       **The late fees attached to the Landlord’s Petition are an unfair penalty**
+
       % if defense_liquidated_damages_late_fees == True:
-      INCLUDED IN ANSWER
+      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> INCLUDED IN ANSWER
       % elif defense_liquidated_damages_late_fees == False:
-      Not Included in Answer
+      <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Not Included in Answer
       % else:
       Not Applicable
       % endif
@@ -1544,10 +1553,11 @@ review:
 
   - note: |
       **The premises have been foreclosed upon but the Landlord has not followed proper procedures**
+
       % if defense_foreclosure == True:
-      INCLUDED IN ANSWER
+      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> INCLUDED IN ANSWER
       % elif defense_foreclosure == False:
-      Not Included in Answer
+      <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Not Included in Answer
       % else:
       Not Applicable
       % endif
@@ -1579,10 +1589,11 @@ review:
       **${ "Maybe" if notice_of_foreclosure is None else yesno(notice_of_foreclosure) }**
   - note: |
       **The premises have been sold but the prior Landlord has not provided Tenant the required notices and therefore no rent is owed**
+
       % if defense_new_owner_failed_to_provide_notice_of_sale == True:
-      INCLUDED IN ANSWER
+      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> INCLUDED IN ANSWER
       % elif defense_new_owner_failed_to_provide_notice_of_sale == False:
-      Not Included in Answer
+      <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Not Included in Answer
       % else:
       Not Applicable
       % endif
@@ -1625,10 +1636,11 @@ review:
       **${ "Maybe" if notice_contains_sale_document is None else yesno(notice_contains_sale_document) }**
   - note: |
       **The Landlord is required to have an attorney in this case and it must be dismissed**
+
       % if defense_unrepresented_corporation == True:
-      INCLUDED IN ANSWER
+      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> INCLUDED IN ANSWER
       % elif defense_unrepresented_corporation == False:
-      Not Included in Answer
+      <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Not Included in Answer
       % else:
       Not Applicable
       % endif
@@ -1660,10 +1672,11 @@ review:
       % endif
   - note: |
       **The Landlord has charged the Tenant rent that is not owed according to the Housing Choice Voucher Program contract entered into by the Landlord and the Tenant**
+
       % if defense_excessive_rent_for_subsidized_housing == True:
-      INCLUDED IN ANSWER
+      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> INCLUDED IN ANSWER
       % elif defense_excessive_rent_for_subsidized_housing == False:
-      Not Included in Answer
+      <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Not Included in Answer
       % else:
       Not Applicable
       % endif
@@ -1724,10 +1737,11 @@ review:
       % endif
   - note: |
       **Landlord failed to state a claim for rent and possession**
+
       % if defense_rent_pleading_requirement == True:
-      INCLUDED IN ANSWER
+      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> INCLUDED IN ANSWER
       % elif defense_rent_pleading_requirement == False:
-      Not Included in Answer
+      <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Not Included in Answer
       % else:
       Not Applicable
       % endif
@@ -1797,10 +1811,11 @@ review:
 
   - note: |
       **Landlord refused Tenant’s tender of rent**
+
       % if defense_tender_refused == True:
-      INCLUDED IN ANSWER
+      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> INCLUDED IN ANSWER
       % elif defense_tender_refused == False:
-      Not Included in Answer
+      <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Not Included in Answer
       % else:
       Not Applicable
       % endif
@@ -1821,10 +1836,11 @@ review:
       % endif      
   - note: |
       **Tenant has paid the rent allegedly owed**
+
       % if defense_rent_payment == True:
-      INCLUDED IN ANSWER
+      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> INCLUDED IN ANSWER
       % elif defense_rent_payment == False:
-      Not Included in Answer
+      <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Not Included in Answer
       % else:
       Not Applicable
       % endif  
@@ -1856,10 +1872,11 @@ review:
       **${ rent_amount_paid_text["rent_amount_paid"] }**
   - note: |
       **Landlord has breached the implied warranty of habitability**
+
       % if defense_breach_of_habitability == True:
-      INCLUDED IN ANSWER
+      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> INCLUDED IN ANSWER
       % elif defense_breach_of_habitability == False:
-      Not Included in Answer
+      <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Not Included in Answer
       % else:
       Not Applicable
       % endif
@@ -1902,17 +1919,17 @@ review:
       **${ "Maybe" if notice_of_breach_to_landlord is None else yesno(notice_of_breach_to_landlord) }**
   - note: |
       **Landlord is estopped from enforcement of the lease because it has violated Missouri law**
+
       % if defense_estoppel_illegality == True:
-      INCLUDED IN ANSWER
+      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> INCLUDED IN ANSWER
       % elif defense_estoppel_illegality == False:
-      Not Included in Answer
+      <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Not Included in Answer
       % else:
       Not Applicable
       % endif      
   - Edit:
       - cqe_breaches
       - recompute:
-        - defense_breach_of_cqe
         - defense_estoppel_illegality
         - defense_logic
       - explanation_answer
@@ -1922,11 +1939,11 @@ review:
       % for item in cqe_breaches.true_values():
       % if item == "other":
       
-       - **${ other_cqe_breach.strip() }**
+       - **${ other_cqe_breach }**
       
       % else:
       
-       - **${ cqe_breaches_text[item].strip() }**
+       - **${ cqe_breaches_text[item] }**
       
       % endif
       % endfor
@@ -1988,21 +2005,178 @@ review:
       % endif
   - note: |
       **Landlord did not properly terminate the tenancy in accordance with RSMo § 441.060**
+
       % if defense_failure_to_terminate == True:
-      INCLUDED IN ANSWER
+      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> INCLUDED IN ANSWER
       % elif defense_failure_to_terminate == False:
-      Not Included in Answer
+      <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Not Included in Answer
       % else:
       Not Applicable
       % endif
-      
-      
+  - note: |
+      ****
+      % if defense_ud_no_written_notice == True:
+      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> No Written Notice
+      % elif defense_ud_no_written_notice == False:
+      <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> No Written Notice
+      % else:
+      No Written Notice: Not Applicable
+      % endif
+
+  - Edit:
+      - got_notice_to_terminate
+      - recompute:
+        - defense_failure_to_terminate
+        - defense_ud_no_written_notice
+        - defense_ud_no_rental_period_notice
+        - defense_ud_lease_requirements
+        - defense_logic
+        - explanation_answer
+    button: |
+      % if person_answering == "tenant":
+      Did you get a written notice to end your tenancy?
+      % else:
+      Did the tenant get a written notice to end their tenancy?
+      % endif
+      **${ "Maybe" if got_notice_to_terminate is None else yesno(got_notice_to_terminate) }**
+  - note: |
+      ****
+      % if defense_ud_no_rental_period_notice == True:
+      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> Premature Notice 
+      % elif defense_ud_no_rental_period_notice == False:
+      <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Premature Notice
+      % else:
+      Premature Notice: Not Applicable
+      % endif      
+  - Edit:
+      - is_mobile_home_owner
+      - recompute:
+        - defense_ud_no_rental_period_notice
+        - defense_logic
+        - explanation_answer
+    button: |
+      % if person_answering == "tenant":
+      Do you live in a mobile  home that you own, and rent the land?
+      % else:
+      Does the tenant live in a mobile  home that the tenant owns, and rents the land?
+      % endif
+      **${ yesno(is_mobile_home_owner) }**
+  - Edit:
+      - rent_day
+      - recompute:
+        - defense_ud_no_rental_period_notice
+        - defense_logic
+        - explanation_answer
+    button: |
+      What day is rent due?:
+      **${ rent_day }**      
+  - Edit:
+      - rent_period
+      - recompute:
+        - defense_ud_no_rental_period_notice
+        - defense_logic
+    button: |
+      **How often** is rent due?:
+      **${ rent_period }**
+  - Edit:
+      - notice_to_terminate_includes_specific_day
+      - recompute:
+        - defense_ud_no_rental_period_notice
+        - defense_logic
+    button: |
+      Did the notice include a specific day to **end** your tenancy?:
+      **${ yesno(notice_to_terminate_includes_specific_day) }**
+
+  - Edit:
+      - received_notice_date
+      - recompute:
+        - defense_ud_no_rental_period_notice
+        - defense_logic
+    button: |
+      About what day did you **get** the notice?:
+      **${ received_notice_date }**
+  - Edit:
+      - termination_of_tenancy_date
+      - recompute:
+        - defense_logic
+        - defense_termination_notice_required_by_law
+    button: |
+      What day did the notice say it would end your tenancy?:
+      **${ termination_of_tenancy_date }**
+  - note: |
+      ****
+      % if defense_ud_lease_requirements == True:
+      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> Notice Violates Lease 
+      % elif defense_ud_lease_requirements == False:
+      <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Notice Violates Lease 
+      % else:
+      Notice Violates Lease : Not Applicable
+      % endif      
+  - Edit:
+      - has_written_lease
+      - recompute:
+        - defense_logic
+        - defense_rent_pleading_requirement
+        - defense_lease_not_attached
+        - defense_ud_lease_requirements
+    button: |
+      % if person_answering == "tenant":
+      Do you have a written lease? (Some leases can be oral.)
+      % else:
+      Does the tenant have a written lease? (Some leases can be oral.)
+      % endif
+      **${ "Maybe" if has_written_lease is None else yesno(has_written_lease) }**      
+  - Edit:
+      - lease_says_how_much_notice
+      - recompute:
+        - defense_logic
+        - defense_ud_lease_requirements
+    button: |
+      Does the lease say how much notice the landlord must give to the tenant?:
+      **${ "Maybe" if lease_says_how_much_notice is None else yesno(lease_says_how_much_notice) }**
+  - Edit:
+      - landlord_gave_notice_required_by_lease
+      - recompute:
+        - defense_logic
+        - defense_ud_lease_requirements
+    button: |
+      % if person_answering == "tenant":
+      Did the landlord give you the amount of notice required by the lease?
+      % else:
+      Did the landlord give the tenant the amount of notice required by the lease?
+      % endif
+      **${ yesno(landlord_gave_notice_required_by_lease) }**
+  - note: |
+      ****
+      % if defense_termination_notice_required_by_law == True:
+      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> Notice Violates Law
+      % elif defense_termination_notice_required_by_law == False:
+      <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Notice Violates Law
+      % else:
+      Notice Violates Law : Not Applicable
+      % endif      
+
+  - Edit:
+      - is_rent_subsidized
+      - recompute:
+        - defense_logic
+        - defense_excessive_rent_for_subsidized_housing
+        - defense_termination_notice_required_by_law
+        - defense_vawa
+    button: |
+      % if person_answering == "tenant":
+      Do you live in subsidized housing, including getting a rent subsidy or living in public housing?
+      % else:
+      Does the tenant live in subsidized housing, including getting a rent subsidy or living in public housing?
+      % endif
+      **${ yesno(is_rent_subsidized) }**      
   - note: |
       **Tenant denies that Tenant violated the terms of the lease or that the claimed violation is a material breach**
+
       % if defense_ud_did_not_violate_lease == True:
-      INCLUDED IN ANSWER
+      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> INCLUDED IN ANSWER
       % elif defense_ud_did_not_violate_lease == False:
-      Not Included in Answer
+      <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Not Included in Answer
       % else:
       Not Applicable
       % endif
