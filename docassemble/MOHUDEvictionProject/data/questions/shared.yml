@@ -934,20 +934,15 @@ include:
 id: download eviction_defender
 event: eviction_defender_download
 question: |
-  % if person_answering == "tenant":
-  Download, print, deliver, and file your form
-  % else:
-  Download, print, deliver, and file the form
-  % endif
+  Download, print, deliver, and file the forms
 subquestion: |
-  % if person_answering == "tenant":
-  Thank you ${users}. Your form is ready to download, print, deliver, and file.
+  Thank you, ${users}. The forms are ready to download, print, deliver, and file.
   
-  **1. View and download your form below.** Click the "Edit answers" button to fix any mistakes.
+  **1. View and download the forms below.** Click the "Edit answers" button to fix any mistakes.
   
-  **2. Print the form.** You may be able to use a printer at a public library or your county law library.
+  **2. Print the forms.** You may be able to use a printer at a public library or the county law library.
   
-  **3. Deliver the form to:**
+  **3. Deliver the forms to:**
   
   % if other_parties[0].attorney.there_are_any: 
   Plaintiff's attorney: ${ other_parties[0].attorney[0].name }
@@ -962,50 +957,25 @@ subquestion: |
   ${ other_parties[0].service_address.block() }
   % endif
   
-  **4. Complete and file the form:**
+  **4. Complete and file the forms:**
   
     * Fill in the date you deliver the form to the other party in the "Certificate of Service" box at the end of the document. 
     
     % if not docket_number: 
-    * Add your case number.
+    * Add the case number.
     
     % endif
-    * Go to the court and file your form at the clerk's office.
+    * Go to the court and file the forms at the clerk's office.
   
   ${ county_dictionary[trial_court.county]['court_address_and_operating_hours'] }
+  
+  ###Deadline to deliver and file the forms###
+  
+  Deliver and file these forms **as soon as possible**. 
+  % if original_hearing_date_past: 
+  The original hearing date on ${ original_hearing_date } was the deadline to file the answer. Ask the court for more time to file the answer by delivering and filing the **Motion for Leave to File Responsive Pleadings**.
   % else:
-  Thank you ${users}. The tenant's form is ready to download, print, deliver, and file.
-  
-  **1. View and download the tenant's form below.** Click the "Edit answers" button to fix any mistakes.
-  
-  **2. Print the form.** The tenant may be able to use a printer at a public library or your county law library.
-  
-  **3. Deliver the form to:**
-  
-  % if other_parties[0].attorney.there_are_any: 
-  Plaintiff's attorney: ${ other_parties[0].attorney[0].name }
-  
-  % else:
-  Plaintiff: ${ other_parties[0].name }
-  
-  % endif
-  % if other_parties[0].service_method == "email":
-  Email: ${ other_parties[0].service_email }
-  % else:
-  ${ other_parties[0].service_address.block() }
-  % endif
-  
-  **4. Complete and file the form:**
-  
-    * Fill in the date the tenant delivers the form to the other party in the "Certificate of Service" box at the end of the document. 
-    
-    % if not docket_number: 
-    * Add the tenant's case number.
-    
-    % endif
-    * Go to the court and file the form at the clerk's office.
-  
-  ${ county_dictionary[trial_court.county]['court_address_and_operating_hours'] }
+  The forms must be delivered and filed by **${ original_hearing_date }**. Bring copies with you to court for the hearing.
   % endif
 
   ${ action_button_html(url_action('review_eviction_answer'), label='Edit answers', color='info') }
@@ -1024,7 +994,7 @@ objects:
   - eviction_defender_post_interview_instructions: ALDocument.using(title="Instructions", filename="eviction_helper_next_steps.docx", enabled=True, has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
   - eviction_motion_to_continue_attachment: ALDocument.using(title="Postpone your eviction hearing", filename="eviction_motion_to_continue.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
   - eviction_answer_attachment: ALDocument.using(title="Answer and Affirmative Defenses", filename="answer_defenses.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
-  - eviction_motion_for_leave_attachment: ALDocument.using(title="File Pleadings After Your Hearing", filename="motion_for_leave_to_file.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+  - eviction_motion_for_leave_attachment: ALDocument.using(title="Motion for Leave to File Responsive Pleadings", filename="motion_for_leave_to_file.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
 ---
 objects:
   - al_user_bundle: ALDocumentBundle.using(elements=[eviction_defender_post_interview_instructions,eviction_motion_to_continue_attachment,eviction_answer_attachment,eviction_motion_for_leave_attachment], filename="eviction_helper.docx_package.pdf", title="All forms to download for your records", enabled=True)
