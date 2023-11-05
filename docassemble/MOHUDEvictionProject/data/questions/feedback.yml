@@ -32,3 +32,51 @@ metadata:
   exit url: |
     https://motenanthelp.org/
 ---
+id: intro
+decoration: opinion
+question: |
+  ${ al_feedback_form_title } - Tell us how we're doing
+subquestion: |
+  The information you type here will be publicly available. That means anyone
+  will be able to see it. Use this form to tell us about problems that do not
+  include any personal information.
+  
+  ${ collapse_template(al_how_to_get_legal_help) }
+
+  Thank you for telling us about your experience with this website.
+  
+fields:
+  - no label: reason
+    input type: radio
+    choices:
+      - I'd like to tell you something: something
+      - I'm looking for more help: help
+  - "**What would you like to tell us?**": details
+    rows: 4
+    input type: area
+    show if:
+      variable: reason
+      is: something
+  - note: |
+      If you ran into a bug, you can share your answers with
+      an administrator (they will not be made public) to help us
+      track down the problem.
+      [BR]
+      We will not contact you either way.
+    show if:
+      code: |
+        server_share_answers and not get_config('debug')
+      variable: reason
+      is: something
+  - label: |
+      Share my answers with an administrator
+    label above field: False
+    field: share_interview_answers
+    datatype: yesno
+    show if:
+      code: |
+        server_share_answers and not get_config('debug')
+      variable: reason
+      is: something
+continue button field: intro
+---
