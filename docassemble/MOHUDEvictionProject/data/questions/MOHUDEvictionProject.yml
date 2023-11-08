@@ -660,14 +660,8 @@ content: |
   % if original_hearing_date_past:
   
   ###{Motion} for Leave to File Responsive {Pleadings}###
-  
-  The {answer} also contains a "Motion for Leave to File Responsive Pleadings" because the original hearing date for already past.  The original hearing date is the deadline for filing an Answer, so
-  % if person_answering == "tenant":
-  you need
-  % else:
-  the tenant needs
-  % endif
-   to ask for the court's permission to file this Answer.
+
+  The original hearing date on ${ original_hearing_date } was the deadline to file the answer. Ask the court for more time to file the answer by delivering and filing the Motion for Leave to File Responsive Pleadings.
   % else:
   ###{Motion} for Continuance###
   % if person_answering == "tenant":
