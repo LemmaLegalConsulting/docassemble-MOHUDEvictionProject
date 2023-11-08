@@ -2,6 +2,21 @@
 include:
   - shared.yml
 ---
+metadata:
+  title: |
+    DIY Motions
+  short title: |
+    DIY Motions
+  title url: |
+    https://motenanthelp.org/
+  tags:
+    - HO-02-00-00-00
+  authors:
+    - Quinten Steenhuis
+    - Toby Fey
+    - Ian Eisaman
+    - Mia Bonardi
+---
 mandatory: True
 code: |
   nav.set_section("section_intro")
