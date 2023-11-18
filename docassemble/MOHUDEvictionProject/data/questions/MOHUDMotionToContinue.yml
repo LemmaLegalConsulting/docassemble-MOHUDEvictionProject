@@ -343,6 +343,12 @@ code: |
 code: |
   eviction_answer_attachment.enabled = False
 ---
+code: |
+  eviction_defender_post_interview_instructions.enabled  = False
+---
+code: |
+  eviction_motion_for_leave_attachment.enabled = False
+---
 id: eviction motion to continue review screen
 continue button field: review_eviction_answer
 question: |
