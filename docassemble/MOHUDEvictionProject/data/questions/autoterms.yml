@@ -25,6 +25,8 @@ terms:
     A person licensed to practice law. In Missouri, attorneys must be licensed by the Supreme Court of Missouri.
   BUSINESS ENTITY: |
     An organization, such as a company or partnership, that can rent or own property.
+  CASE NUMBER: |
+    The case number is at of the top of the webpage, next to the names of the {Plaintiff} and {Defendant}.
   CERTIFIED MAIL: |
     A special way to send important letters that require a signature when the recipient gets it, proving they received the letter.
   CLAIM: |
@@ -121,6 +123,9 @@ terms:
     An agreement to rent a unit for one month at a time that renews unless either party notfies the other in writing. The lease cannot end before 30 days after the next rent payment is due.
   MOTION: |
     A request asking a judge to make a decision or take action in a case.
+  NAME OF COUNTY: |
+    You can use [data.mo.gov](https://data.mo.gov/Demographics/Missouri-County-Boundaries-Map/n34b-fwqr)
+    to look at a map of county boundaries.
   NORMAL WEAR AND TEAR: |
     Regular wearing out or damage that happens from living in a rental unit, not the tenant's fault.
   NOTICE: |

@@ -50,7 +50,7 @@ fields:
     help: |
       The case number helps the court clerk put your answer in the right file.
 under: |
-  ${ collapse_template(find_case_number_docket_template) }
+  {CASE NUMBER|Where is the case number in the online docket?}
 ---
 
 id: reason for eviction
@@ -330,7 +330,7 @@ subquestion: |
   county.
   % endif
   
-  ${ collapse_template(find_county_name_template) }
+  {NAME OF COUNTY|What if I don’t know the name of my county?}
 fields:
   - Trial Court County: trial_court_county_selected
     datatype: dropdown
