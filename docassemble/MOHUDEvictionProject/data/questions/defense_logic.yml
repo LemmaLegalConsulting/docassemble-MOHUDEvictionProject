@@ -699,7 +699,7 @@ fields:
       For example: _"a new tenancy from month-to-month shall be created between Landlord and Tenant...,"_
       or: _"This lease shall automatically renew for successive terms ... unless..."_
 
-      Does this lease include a term like that?
+      Does this lease include a {term} like that?
     label above field: True
     show if:
       variable: kind_of_lease_agreement
@@ -1871,13 +1871,13 @@ content: |
   Your landlord may owe you money if there are problems in your home. The money your landlord owes you might
   mean you do not owe part or all of the rent your landlord says you owe.
   
-  Problems in your home may give you a claim for **Breach of Warranty of Habitability** 
+  Problems in your home may give you a claim for **Breach of {Implied Warranty of Habitability}** 
   if the condition of your home affected your life, health, or safety, and made the dwelling {uninhabitable living condition|uninhabitable} in whole or in part.
   % else: 
   The landlord may owe the tenant money if there are problems in their home. The money the landlord owes the tenant might
   mean they do not owe part or all of the rent the landlord says the tenant owes.
   
-  Problems in the tenant's home may give them a claim for **Breach of Warranty of Habitability** 
+  Problems in the tenant's home may give them a claim for **Breach of {Implied Warranty of Habitability}** 
   if the condition of their home affected their life, health, or safety, and made the dwelling {uninhabitable living condition|uninhabitable} in whole or in part.  
   % endif
 ---

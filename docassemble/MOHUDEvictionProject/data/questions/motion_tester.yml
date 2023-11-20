@@ -208,7 +208,7 @@ continue button field: motions_intro_screen
 question: | 
   DIY Motions
 subquestion: |
-  This form can help you prepare the following motions: 
+  This form can help you prepare the following {motion|motions}: 
   
     * Motion to Dismiss or For a More Definite Statement
     
@@ -318,7 +318,7 @@ terms:
 ---
 id: motion list
 question: |
-  Which motions do you need?
+  Which {motion|motions} do you need?
 fields:
   - Motions: motion_list
     datatype: checkboxes
@@ -336,14 +336,14 @@ code: |
 ---
 id: judgment_date
 question: |
-  When was a judgment entered in this matter?
+  When was a {judgment} entered in this matter?
 fields:
   - Date: judgment_date
     datatype: date
 ---
 id: petition_date 
 question: |
-  When did the {Plaintiff} file their {petition} in this case?
+  When did the {Plaintiff} {file} their {petition} in this case?
 fields:
   - Date: petition_date
     datatype: date
@@ -353,7 +353,7 @@ objects:
 ---
 id: statements
 question: |
-  Add any supporting statements to your motion. 
+  Add any supporting statements to your {motion}. 
 fields: 
   - Statement: statements[i]
     input type: area
