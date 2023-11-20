@@ -215,14 +215,14 @@ subquestion:  |
 
   ${ warn_picture_is_example_template }
   % else:
-  If you have the {Summons} and {Petition}, the name of each {Plaintiff} is listed
+  If you have the {Summons} and {Petition}, the name of each Plaintiff is listed
   in the box labeled "Plaintiff". 
   
   [FILE MOSummonsPlaintiffAttorney.png, 100%]
   
   % endif  
 fields:
-  - Is there another Plaintiff?: other_parties.there_is_another
+  - Is there another {Plaintiff}?: other_parties.there_is_another
     datatype: yesnomaybe
 ---
 id: Landlord representation
@@ -326,9 +326,9 @@ validation code: |
 id: original hearing
 question: |
   % if person_answering == "tenant":
-  When is your court hearing?
+  When is your court {hearing}?
   % else:
-  When is the tenant's court hearing?
+  When is the tenant's court {hearing}?
   % endif
 subquestion: |
   % if person_answering == "tenant":
@@ -375,9 +375,9 @@ subquestion: |
 fields:
   - label: |
       % if person_answering == "tenant":
-      Has the court already had a hearing on your case?
+      Has the court already had a {hearing} on your case?
       % else:
-      Has the court already had a hearing on the tenant's case?
+      Has the court already had a {hearing} on the tenant's case?
       % endif
     field: past_hearings
     datatype: yesnomaybe
@@ -503,9 +503,9 @@ id: eviction hearing date if docket available
 if: tenant_using_casenet
 question: |
   % if person_answering == "tenant":
-  When is your eviction hearing?
+  When is your eviction {hearing}?
   % else:
-  When is the tenant's eviction hearing?
+  When is the tenant's eviction {hearing}?
   % endif
 subquestion: |
   % if person_answering == "tenant":
@@ -704,18 +704,20 @@ data:
 ---
 id: other tenants
 question: |
-  Is any other tenant listed on this eviction case?
+  Is any other {tenant} listed on this eviction case?
 subquestion: |
+  In an eviction case, tenants are called Defendants. Defendants are listed underneath the {Plaintiff|Plaintiffs}.
   % if person_answering == "tenant":
-  In an eviction case, tenants are called Defendants. Defendants are listed underneath the {Plaintiff|Plaintiffs}, and your name and address should be included as a Defendant.
+  Your name and address should be included as a Defendant.
   % else:
-  In an eviction case, tenants are called Defendants. Defendants are listed underneath the {Plaintiff|Plaintiffs}, and the tenant's name and address should be included as a Defendant.
+  The tenant's name and address should be included as a Defendant.
   % endif
   % if tenant_got_summons and petition_available and len(users)==1:
   
   [FILE ComplaintCaptionDefendant.png, 100%]
   
   % endif
+
   Sometimes a landlord will add "John Doe" or "Jane Doe" as a party.  You do not need to include these additional parties.
 fields:
   - label: |
@@ -729,7 +731,7 @@ fields:
 ---
 id: petition_date 
 question: |
-  When did the Plaintiff file their petition in this case?
+  When did the {Plaintiff} {file} their {petition} in this case?
 fields:
   - Date: petition_date
     datatype: date
@@ -957,7 +959,7 @@ subquestion: |
   ${ other_parties[0].service_address.block() }
   % endif
   
-  **4. Complete and file the forms:**
+  **4. Complete and {file} the forms:**
   
     * Fill in the date you deliver the form to the other party in the "Certificate of Service" box at the end of the document. 
     

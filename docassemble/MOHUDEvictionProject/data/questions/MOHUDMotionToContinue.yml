@@ -206,7 +206,7 @@ subquestion: |
   Just answer the questions on each screen as well as you can. Make sure
   to tell the truth.
 
-  At the end you will have customized documents, ready to file in court.
+  At the end you will have customized documents, ready to {file} in court.
 continue button field: greet_user
 ---
 sets: posting_warning
@@ -214,9 +214,9 @@ id: soft exit posting for motion for continuance
 decoration: hand
 question: |
   % if person_answering == "tenant":
-  You may not want to file a {motion} to {continuance|continue}
+  You may not want to {file} a {motion} to {continuance|continue}
   % else: 
-  The tenant may not want to file a {motion} to {continuance|continue}
+  The tenant may not want to {file} a {motion} to {continuance|continue}
   % endif
 subquestion: |
   % if person_answering == "tenant":
@@ -288,9 +288,9 @@ buttons:
 id: yep motion for continuance
 question: |
   % if person_answering == "tenant":
-  Tenants in your situation may be able to file a {motion} to {continuance|continue}
+  Tenants in your situation may be able to {file} a {motion} to {continuance|continue}
   % else: 
-  Tenants in this situation may be able to file a {motion} to {continuance|continue}
+  Tenants in this situation may be able to {file} a {motion} to {continuance|continue}
   % endif
 subquestion: |
   % if person_answering == "tenant":
@@ -308,7 +308,7 @@ subquestion: |
   In your situation,
   most tenants may be able to file a motion to continue
 
-  Filing a motion to continue may delay your court hearing.
+  Filing a motion to continue may delay your court {hearing}.
 
   The rest of the questions on this website will complete your
   motion to continue.
@@ -330,7 +330,7 @@ subquestion: |
   In this situation,
   most tenants can file a motion to continue.
 
-  Filing a motion to continue may delay the tenant's court hearing.
+  Filing a motion to continue may delay the tenant's court {hearing}.
 
   The rest of the questions on this website will complete the tenant's
   motion to continue.

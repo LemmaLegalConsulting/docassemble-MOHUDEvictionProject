@@ -625,9 +625,9 @@ subquestion: |
 fields:
   - label: |
       % if person_answering == "tenant":
-      Do you live in subsidized housing, including getting a rent subsidy or living in public housing?
+      Do you live in subsidized housing, including getting a rent {subsidy} or living in public housing?
       % else: 
-      Does the tenant live in subsidized housing, including getting a rent subsidy or living in public housing?
+      Does the tenant live in subsidized housing, including getting a rent {subsidy} or living in public housing?
       % endif
     field: is_rent_subsidized
     datatype: yesnoradio
@@ -699,7 +699,7 @@ fields:
       For example: _"a new tenancy from month-to-month shall be created between Landlord and Tenant...,"_
       or: _"This lease shall automatically renew for successive terms ... unless..."_
 
-      Does this lease include a term like that?
+      Does this lease include a {term} like that?
     label above field: True
     show if:
       variable: kind_of_lease_agreement
@@ -733,7 +733,7 @@ subject: |
 content: |
   The questions on this page help decide:
 
-  * what kind of notice the landlord must give
+  * what kind of {notice} the landlord must give
   * whether your landlord must follow discrimination laws
 
   Depending on your answer, there may be a {defense} to the eviction.
@@ -1217,9 +1217,9 @@ subquestion: |
 fields:
   - label: |
       % if person_answering == "tenant":
-      Did you get a written notice to end your tenancy?
+      Did you get a written {notice} to end your tenancy?
       % else:
-      Did the tenant get a written notice to end their tenancy?
+      Did the tenant get a written {notice} to end their tenancy?
       % endif
     field: got_notice_to_terminate
     datatype: yesnomaybe
@@ -1279,7 +1279,7 @@ subquestion: |
   within 7, 10, or 30 days. In the lease, look for a section labeled
   "Termination," "Notice" or "Default."
 fields:
-  - Does the lease say how much notice the landlord must give to the tenant?: lease_says_how_much_notice
+  - Does the lease say how much {notice} the landlord must give to the tenant?: lease_says_how_much_notice
     datatype: yesnomaybe
   - label: |
       **Summarize the notice amount from the lease.**
@@ -1871,13 +1871,13 @@ content: |
   Your landlord may owe you money if there are problems in your home. The money your landlord owes you might
   mean you do not owe part or all of the rent your landlord says you owe.
   
-  Problems in your home may give you a claim for **Breach of Warranty of Habitability** 
+  Problems in your home may give you a claim for **Breach of {Implied Warranty of Habitability}** 
   if the condition of your home affected your life, health, or safety, and made the dwelling {uninhabitable living condition|uninhabitable} in whole or in part.
   % else: 
   The landlord may owe the tenant money if there are problems in their home. The money the landlord owes the tenant might
   mean they do not owe part or all of the rent the landlord says the tenant owes.
   
-  Problems in the tenant's home may give them a claim for **Breach of Warranty of Habitability** 
+  Problems in the tenant's home may give them a claim for **Breach of {Implied Warranty of Habitability}** 
   if the condition of their home affected their life, health, or safety, and made the dwelling {uninhabitable living condition|uninhabitable} in whole or in part.  
   % endif
 ---

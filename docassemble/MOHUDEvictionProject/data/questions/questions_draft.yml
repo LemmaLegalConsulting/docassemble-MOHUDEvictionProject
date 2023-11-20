@@ -14,7 +14,7 @@ question: |
   % endif 
 subquestion: |
   % if person_answering == "tenant":
-  Only your landlord may file a case to evict you. Your landlord is the person you made your lease agreement with.
+  Only your landlord may {file} a case to evict you. Your landlord is the person you made your lease agreement with.
   
   If the person filing to evict you is not your landlord, the court may dismiss the case.
   % else:

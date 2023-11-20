@@ -124,7 +124,7 @@ subquestion: |
 ---
 id: Information about the original hearing
 question: |
-  Information about the original hearing
+  Information about the original {hearing}
 fields:
   - "Date of original hearing": original_hearing_date
     datatype: date
