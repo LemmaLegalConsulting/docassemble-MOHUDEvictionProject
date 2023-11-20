@@ -212,18 +212,18 @@ depends on:
 id: duress
 question: |
   % if person_answering == "tenant":
-  Did the landlord unfairly make or pressure you to sign the lease?
+  Did the landlord unfairly pressure you to enter this lease?
   % else: 
-  Did the landlord unfairly make or pressure the tenant to sign the lease?
+  Did the landlord unfairly pressure the tenant to enter this lease?
   % endif
 subquestion: |
   ${ collapse_template(unfair_duress_explanation_template) }
 fields:
   - label: |
       % if person_answering == "tenant":
-      Did the landlord unfairly make or pressure you to sign the lease?
+      Did the landlord unfairly pressure you to enter this lease?
       % else: 
-      Did the landlord unfairly make or pressure the tenant to sign the lease?
+      Did the landlord unfairly pressure the tenant to enter this lease?
       % endif
     field: unfair_duress
     datatype: yesnoradio
@@ -234,11 +234,7 @@ subject: |
 content: |
   Only a judge can decide. But unfair pressure may include:
   
-  % if person_answering == "tenant":
   * A threat to hurt you or someone else,
-  % else:
-  * A threat to hurt the tenant or someone else,
-  % endif
   * An **implied** threat to hurt you or someone else, or
   * Extreme psychological pressure.
 ---
@@ -261,16 +257,16 @@ code: |
 id: landlord lied
 question: |
   % if person_answering == "tenant":
-  Did your landlord tell you something that was not true to get you to sign the lease?
+  Did your landlord tell you something that was not true to get you to enter this lease?
   % else:
-  Did the landlord tell the tenant something that was not true to get them to sign the lease?
+  Did the landlord tell the tenant something that was not true to get them to enter this lease?
   % endif
 subquestion: |
   % if person_answering == "tenant":
-  If your landlord tricked you into signing the lease by telling you
+  If your landlord tricked you into this lease by telling you
   something that was not true, you may have a {defense}.
   % else:
-  If the tenant's landlord tricked them into signing the lease by telling them
+  If the tenant's landlord tricked them into this lease by telling them
   something that was not true, they may have a {defense}.
   % endif
   
@@ -278,9 +274,9 @@ subquestion: |
 fields:
   - label: |
       % if person_answering == "tenant":
-      Did your landlord make any false promises to you to get you to sign the lease?
+      Did your landlord make any false promises to you to get you to enter this lease?
       % else: 
-      Did the landlord make any false promises to the tenant to get them to sign the lease?
+      Did the landlord make any false promises to the tenant to get them to enter this lease?
       % endif
     field: false_promises_exists
     datatype: yesnoradio
@@ -298,35 +294,15 @@ template: false_promise_example_template
 subject: |
   What counts as a false promise?
 content: |
-  % if person_answering == "tenant":
-  If your landlord told you something that got you to sign the lease and
-  that turned out not to be true, it may be a false promise.
+  If your landlord told you something that got you to enter the lease and
+  what they said was not true, it may be a false promise.
 
   For example:
 
   * Promising to paint a room,
   * Promising to replace a carpet, or
-  * Promising that an old appliance would get replaced before you moved in.
+  * Promising that an old appliance would be replaced before you moved in.
 
-  Those may count as false promises. What matters is that you would not
-  have signed the lease if your landlord had not told you something that
-  turned out not to be true.
-  % else: 
-  If the landlord told the tenant something that got the tenant to sign the 
-  lease and that turned out not to be true, it may be a false promise.
-
-  For example:
-
-  * Promising to paint a room,
-  * Promising to replace a carpet, or
-  * Promising that an old appliance would get replaced before the tenant moved 
-  in.
-
-  Those may count as false promises. What matters is that the tenant would not
-  have signed the lease if the landlord had not told the tenant something that
-  turned out not to be true.
-  % endif
-  
   A false promise can also be a written promise, or a promise in an advertisement.
 ---
 #id: relied on promise
