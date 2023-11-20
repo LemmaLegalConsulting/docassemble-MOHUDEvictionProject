@@ -343,7 +343,7 @@ fields:
 ---
 id: petition_date 
 question: |
-  When did the Plaintiff file their petition in this case?
+  When did the {Plaintiff} file their {petition} in this case?
 fields:
   - Date: petition_date
     datatype: date
@@ -474,9 +474,9 @@ fields:
 id: hearing date time
 question: |
   % if person_answering == "tenant":
-  When and where is your original hearing planned?
+  When and where is your original {hearing} planned?
   % else: 
-  When and where is the tenant's original hearing planned?
+  When and where is the tenant's original {hearing} planned?
   % endif
 fields:
   - Date: original_hearing_date
@@ -516,7 +516,7 @@ list collect: True
 ---
 id: reasons_unable_to_prepare_exists
 question: |
-  Is there any reason you were unable to prepare and file the responsive pleading on time?
+  Is there any reason you were unable to prepare and {file} the responsive pleading on time?
 fields:
   - Reasons exist: reasons_unable_to_prepare_exists
     datatype: yesnoradio
@@ -632,7 +632,7 @@ code: |
     days_before_trial = nice_number(before_trial.days) + " days prior to"
 ---
 
-question: When is the new hearing?
+question: When is the new {hearing}?
 fields:
   - Date: new_hearing_date
     datatype: date

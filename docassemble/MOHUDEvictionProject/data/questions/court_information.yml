@@ -315,7 +315,7 @@ subquestion: |
   We couldn't tell what your county is from the address you gave us. Please
   pick your county from the list.
 
-  We will use your county to find the court you need to file your answer in.
+  We will use your county to find the court you need to {file} your answer in.
 
   If you live in the City of St Louis, pick "City of St Louis" as your
   county.
@@ -324,7 +324,7 @@ subquestion: |
   We couldn't tell what the tenant's county is from the address you gave us. Please
   pick the tenant's county from the list.
 
-  We will use the county to find the court the tenant needs to file their answer in.
+  We will use the county to find the court the tenant needs to {file} their answer in.
 
   If the tenant lives in the City of St Louis, pick "City of St Louis" as the
   county.
