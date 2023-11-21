@@ -229,7 +229,7 @@ question: |
 subquestion: |
   You said you want to make a Motion to Dismiss or For a More Definite Statement in your case. 
   
-  You have answered all the questions needed for this motion already. You will have a chance to review it on the next screen. 
+  You have answered all the questions needed for this motion already. You will have a chance to review it on the next screen. It may take a second to load.
 ---
 id: Motion to Shorten Time intro
 continue button field: motion_to_shorten_time_intro
@@ -340,6 +340,7 @@ question: |
 fields:
   - Date: judgment_date
     datatype: date
+    max: ${ today() }
 ---
 id: petition_date 
 question: |
@@ -347,6 +348,7 @@ question: |
 fields:
   - Date: petition_date
     datatype: date
+    max: ${ today() }
 ---
 objects: 
   - statements: DAList
@@ -474,14 +476,22 @@ fields:
 id: hearing date time
 question: |
   % if person_answering == "tenant":
-  When and where is your original {hearing} planned?
+  When is your original {hearing} planned?
   % else: 
-  When and where is the tenant's original {hearing} planned?
+  When is the tenant's original {hearing} planned?
   % endif
 fields:
   - Date: original_hearing_date
     datatype: date
   - Time: original_hearing_time
+    datatype: radio
+    choices: 
+      - 9:00 AM
+      - Other
+    default: 9:00 AM
+  - Other time: other_time
+    js show if: |
+      val("original_hearing_time") == "Other"
 ---
 id: trial date 
 question: |
@@ -551,13 +561,14 @@ fields:
 id: trial_date
 question: |
   % if person_answering == "tenant":
-  When and where is your trial date planned?
+  When is your trial date planned?
   % else: 
-  When and where is the tenant's trial date planned?
+  When iis the tenant's trial date planned?
   % endif
 fields:
   - Date: trial_date
     datatype: date
+    min: ${ today() }
   - Time: trial_time
 ---
 id: date_counsel_retained
@@ -578,6 +589,7 @@ fields:
       % endif
     field: date_counsel_retained
     datatype: date
+    max: ${ today() }
     show if: counsel_retained
 ---
 ### make this question plain language
@@ -631,12 +643,21 @@ code: |
   else:
     days_before_trial = nice_number(before_trial.days) + " days prior to"
 ---
-
+id: new hearing date time
 question: When is the new {hearing}?
 fields:
   - Date: new_hearing_date
     datatype: date
-  - Time: new_hearing_time
+    min: ${ today() }
+  - "New hearing time": new_hearing_time
+    datatype: radio
+    choices: 
+      - 9:00 AM
+      - Other
+    default: 9:00 AM
+  - Other time: new_other_time
+    js show if: |
+      val("new_hearing_time") == "Other"
 ---
 code: |
   motions_attached = list()
@@ -683,7 +704,7 @@ attachments:
     docx template file: notice_of_hearing.docx
 ---
 objects:
-  - motion_to_set_aside_attachment: ALDocument.using(title="File a Motion to Set Aside", filename="motion_to_set_aside.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+  - motion_to_set_aside_attachment: ALDocument.using(title="File a Motion to Set Aside Judgment", filename="motion_to_set_aside.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
   - motion_to_shorten_time_attachment: ALDocument.using(title="File a Motion to Shorten Time", filename="motion_to_shorten_time.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
   - motion_to_dismiss_attachment: ALDocument.using(title="File a Motion to Dismiss", filename="motion_to_dismiss.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
   - motion_for_leave_to_file_attachment: ALDocument.using(title="File a Motion for Leave to File Responsive Pleadings", filename="motion_for_leave_to_file_answer.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
@@ -779,9 +800,9 @@ subquestion: |
 id: motion_to_set_aside_preview
 continue button field: motion_to_set_aside_preview
 question: |
-  Preview your Motion to Set Aside
+  Preview your Motion to Set Aside Judgment
 subquestion: |
-  Here is a preview of your Motion to Set Aside.
+  Here is a preview of your Motion to Set Aside Judgment.
   
   ${ motion_to_set_aside_attachment.as_pdf(key='preview') }
 
