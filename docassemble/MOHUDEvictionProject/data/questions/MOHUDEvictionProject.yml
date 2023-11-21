@@ -202,9 +202,9 @@ id: soft exit posting eviction
 decoration: hand
 question: |
   % if person_answering == "tenant":
-  You may not want to file an {answer}
+  You may not want to {file} an {answer}
   % else: 
-  The tenant may not want to file an {answer}
+  The tenant may not want to {file} an {answer}
   % endif
 subquestion: |
   % if person_answering == "tenant":
@@ -275,9 +275,9 @@ buttons:
 id: yep file an answer
 question: |
   % if person_answering == "tenant":
-  Tenants in your situation usually file an {answer}
+  Tenants in your situation usually {file} an {answer}
   % else: 
-  Tenants in this situation usually file an {answer}
+  Tenants in this situation usually {file} an {answer}
   % endif
 subquestion: |
   % if person_answering == "tenant":
@@ -400,7 +400,7 @@ subquestion: |
   Just answer the questions on each screen as well as you can. Make sure
   to tell the truth.
 
-  At the end you will have customized documents, ready to file in court.
+  At the end you will have customized documents, ready to {file} in court.
 continue button field: greet_user
 ---
 id: how to answer
@@ -642,7 +642,7 @@ content: |
 
   % if defense_settlement:
 
-   1. A copy of the {settlement} agreement made with the landlord
+   1. A copy of the {settlement|settlement agreement} made with the landlord
   % if person_answering == "tenant":
    1. Evidence that you complied with the settlement agreement  
   % else:
@@ -653,27 +653,21 @@ content: |
   % if defense_breach_of_habitability:
 
    1. Photographs or other evidence of the problems in the home
-   1. A copy of the notice that was sent to the landlord about the problem that needs repaired.
+   1. A copy of the notice that was sent to the landlord about the problem that needs to be repaired.
   % endif
   % endif
 
   % if original_hearing_date_past:
   
   ###{Motion} for Leave to File Responsive {Pleadings}###
-  
-  The {answer} also contains a "Motion for Leave to File Responsive Pleadings" because the original hearing date for already past.  The original hearing date is the deadline for filing an Answer, so
-  % if person_answering == "tenant":
-  you need
-  % else:
-  the tenant needs
-  % endif
-   to ask for the court's permission to file this Answer.
+
+  The original {hearing} date on ${ original_hearing_date } was the deadline to {file} the {answer}. Ask the court for more time to file the answer by delivering and filing the Motion for Leave to File Responsive Pleadings.
   % else:
   ###{Motion} for Continuance###
   % if person_answering == "tenant":
-  You will also be able to download a Motion for Continuance, which will allow you to ask the court to delay the initial hearing.
+  You will also be able to download a Motion for Continuance, which will allow you to ask the court to delay the initial {hearing}.
   % else:
-  The tenant will also be able to download a Motion for Continuance, which will allow the tenant to ask the court to delay the initial hearing.
+  The tenant will also be able to download a Motion for Continuance, which will allow the tenant to ask the court to delay the initial {hearing}.
   % endif
   % endif
 ---
@@ -840,9 +834,9 @@ subject: |
   Landlord and Tenant entered into a settlement agreement and Tenant has complied with the settlement’s terms
 content: |
   % if person_answering == "tenant":
-  You can enforce an agreement you made with the landlord to avoid an eviction. You will need to prove that you made an agreement and that you did what you were required to do under the agreement.
+  You can enforce a {settlement|settlement agreement} you made with the landlord to avoid an eviction. You will need to prove that you made an agreement and that you did what you were required to do under the agreement.
   % else:
-  The tenant can enforce an agreement the tenant made with the landlord to avoid an eviction. The tenant will need to prove that the tenant made an agreement and that the tenant did what the tenant was required to do under the agreement.
+  The tenant can enforce a {settlement|settlement agreement} the tenant made with the landlord to avoid an eviction. The tenant will need to prove that the tenant made an agreement and that the tenant did what the tenant was required to do under the agreement.
   % endif
 ---
 template: defense_lease_signed_under_duress_template
