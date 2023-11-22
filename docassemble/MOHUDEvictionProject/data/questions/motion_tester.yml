@@ -339,16 +339,16 @@ question: |
   When was a {judgment} entered in this matter?
 fields:
   - Date: judgment_date
-    datatype: date
-    max: ${ today() }
+    datatype: ThreePartsDate
+    alMax: ${ today() }
 ---
 id: petition_date 
 question: |
   When did the {Plaintiff} {file} their {petition} in this case?
 fields:
   - Date: petition_date
-    datatype: date
-    max: ${ today() }
+    datatype: ThreePartsDate
+    alMax: ${ today() }
 ---
 objects: 
   - statements: DAList
@@ -567,8 +567,8 @@ question: |
   % endif
 fields:
   - Date: trial_date
-    datatype: date
-    min: ${ today() }
+    datatype: ThreePartsDate
+    alMin: ${ today() }
   - Time: trial_time
 ---
 id: date_counsel_retained
@@ -588,8 +588,8 @@ fields:
       When did the tenant hire you for this case?
       % endif
     field: date_counsel_retained
-    datatype: date
-    max: ${ today() }
+    datatype: ThreePartsDate
+    alMax: ${ today() }
     show if: counsel_retained
 ---
 ### make this question plain language
@@ -647,8 +647,8 @@ id: new hearing date time
 question: When is the new {hearing}?
 fields:
   - Date: new_hearing_date
-    datatype: date
-    min: ${ today() }
+    datatype: ThreePartsDate
+    alMin: ${ today() }
   - "New hearing time": new_hearing_time
     datatype: radio
     choices: 
