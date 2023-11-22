@@ -331,6 +331,23 @@ question: |
   When is the tenant's court {hearing}?
   % endif
 subquestion: |
+  % if tenant_using_casenet:
+  % if person_answering == "tenant":
+  Click the "Scheduled Hearings and Trials" tab and find the
+  date scheduled for your case.
+  
+  Your results may look like this:
+  % else:
+  Click the "Scheduled Hearings and Trials" tab and find the
+  date scheduled for the tenant's case.
+  
+  The tenant's results may look like this:
+  % endif
+
+  [FILE ScheduledEvents.png, 100%]
+
+  ${ warn_picture_is_example_template }
+  % else:
   % if person_answering == "tenant":
   The {Summons} will say the time and date of your original court hearing.
   % else:
@@ -338,10 +355,19 @@ subquestion: |
   % endif
   
   [FILE MOSummonsHearingDate.png, 100%]
+  % endif
 fields:
   - "Date of original hearing": original_hearing_date
     datatype: date
   - "Original hearing time": original_hearing_time
+    datatype: radio
+    choices: 
+      - 9:00 AM
+      - Other
+    default: 9:00 AM
+  - Time: other_time
+    js show if: |
+      val("original_hearing_time") == "Other"
 ---
 id: any hearings
 question: |
@@ -498,37 +524,6 @@ fields:
       % endif
     field: tenant_using_casenet
     datatype: yesnoradio
----
-id: eviction hearing date if docket available
-if: tenant_using_casenet
-question: |
-  % if person_answering == "tenant":
-  When is your eviction {hearing}?
-  % else:
-  When is the tenant's eviction {hearing}?
-  % endif
-subquestion: |
-  % if person_answering == "tenant":
-  Click the "Scheduled Hearings and Trials" tab and find the
-  date scheduled for your case.
-  
-  Your results may look like this:
-  % else:
-  Click the "Scheduled Hearings and Trials" tab and find the
-  date scheduled for the tenant's case.
-  
-  The tenant's results may look like this:
-  % endif
-
-  [FILE ScheduledEvents.png, 100%]
-
-  ${ warn_picture_is_example_template }
-fields:
-  - "Date of hearing": original_hearing_date
-    datatype: date
-  - "Original hearing time": original_hearing_time
-    validate: |
-      lambda y: ":" in y or validation_error("Write out a time, like 9:00 AM", field="original_hearing_time")
 ---
 comment: |
   This block is not used because of another block that sets docket number underneath.

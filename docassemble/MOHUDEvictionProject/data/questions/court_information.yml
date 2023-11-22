@@ -119,7 +119,7 @@ fields:
         value: other good cause
       - Something else: other
     none of the above: | 
-      I do not know
+      I don't know
   - What specifically did the landlord claim?: eviction_detailed_reasons
     show if: eviction_reason['lease violation']
     datatype: checkboxes
@@ -175,15 +175,19 @@ subquestion: |
   listed.
 
   Example:
+  
   [FILE CaseHeaderType.png, 100%]
 
   ${ warn_picture_is_example_template }
+  
   % elif tenant_got_summons and petition_available: 
   Look at **your {summons} and {petition}** to answer this question. Find
   the information labeled "Nature of Suit."
   
   Example:
+  
   [FILE MOSummonsType.png, 100%]
+  
   % endif
 fields:
   - label: |
@@ -262,7 +266,7 @@ fields:
         value: other good cause
       - Something else: other
     none of the above: | 
-      I do not know
+      I don't know
   - What specifically did the landlord claim?: eviction_detailed_reasons
     show if: eviction_reason['lease violation']
     datatype: checkboxes
