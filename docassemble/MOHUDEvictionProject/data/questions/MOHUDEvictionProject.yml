@@ -2,6 +2,7 @@
 features: 
   bootstrap theme: motenanthelp.bootstrap.css
   css: buttons.css
+  javascript: buttonFunction.js
 ---
 include:
   - shared.yml
@@ -380,22 +381,26 @@ subquestion: |
   Live help is currently available in this interview. Click the speech bubble
   (:comment-alt:) in the navigation bar to connect to a live advocate for help.
   % endif
-    
+  
   <link rel="stylesheet" href="buttons.css">
+  <script defer src="buttonFunction.js"></script>
   <div class="terms">
-    <button class="link-button js-trigger" type="button">
-      Terms of Use and Privacy Policy
-      <svg viewBox="0 0 512 512" aria-hidden="true" fill="currentColor" width="1em" height="1em">
-        <path d="M60 99.333l196 196 196-196 60 60-256 256-256-256z"></path>
-      </svg>
-    </button>
-    
-    <div class="panel js-panel">
-      <article class="panel__inner js-panel__inner">
-        <p>Here's some terms and conditions...</p>
-      </article>
-    </div>
+  <button class="link-button js-trigger" type="button" hidden>
+    See the terms & conditions
+    <svg viewBox="0 0 512 512" aria-hidden="true" fill="currentColor" width="1em" height="1em">
+      <path d="M60 99.333l196 196 196-196 60 60-256 256-256-256z"></path>
+    </svg>
+  </button>
+
+  <div class="panel js-panel">
+    <article class="panel__inner js-panel__inner">
+      <p>Here's some secret terms and conditions...</p>
+    </article>
   </div>
+  </div>
+
+
+
   
 
 
