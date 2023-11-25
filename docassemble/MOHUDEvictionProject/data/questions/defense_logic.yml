@@ -621,7 +621,7 @@ subquestion: |
   % endif
   
 
-  ${ collapse_template(why_tenancy_facts_template) }
+  {Why does this matter}
 fields:
   - label: |
       % if person_answering == "tenant":
