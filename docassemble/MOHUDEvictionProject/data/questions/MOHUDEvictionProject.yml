@@ -399,7 +399,7 @@ subquestion: |
   <br>
   <h3 class="h5">You need to know</h3>
   <ul>
-  <li>This website does not provide legal advice. If you need legal advice, you can use <a href="https://www.lsmo.org/" target="_blank">https://www.lsmo.org/</a> to find a lawyer.</li>
+  <li><strong>This website does not provide legal advice.</strong> If you need legal advice, you can use <a href="https://www.lsmo.org/" target="_blank">https://www.lsmo.org/</a> to find a lawyer.</li>
   <li>The information and documents on this website have no warranty. We provide the information “as-is.” By using the site, you agree not to hold LSEM or the information providers on this site liable.</li>
   <li>We work hard to keep the information on the site up to date. Lawyers drafted and reviewed the documents this site uses. But laws and local rules change over time. These changes can make a document unenforceable when you use it.</li>
   <li>We do our best to keep the site working! To do that, we allow you to submit feedback so we can track problems on the site. But we cannot provide individual technical support.</li>
@@ -442,14 +442,14 @@ subquestion: |
   </ul>
   
   <h3 class="h5">These terms of use can change</h3>
-  <p>We may change these Terms of Use at any time with no notice. Please review the terms on a regular basis to see any changes.</p>
-  <p>If you use the site after we make changes, you accept our changed Terms of Use.</p>
+  <p>We may change these Terms of Use at any time with no notice. Please review the terms on a regular basis to see any changes.If you use the site after we make changes, you accept our changed Terms of Use.</p>
         
   <h3 class="h5">The laws of Missouri apply to these Terms of Use</h3>
   <p>If a judge decides that one of the terms in this Terms of Use is unenforceable, it will not change the terms that remain.</p>
   
-  <h3 class="h5">If you still have questions</h3>
+  <h3 class="h5"> have questions</h3>
         <address>
+          Send questions to: 
           Legal Services of Eastern Missouri<br>
           701 Market Street, Suite 1100<br>
           St. Louis, MO 63101
@@ -457,13 +457,6 @@ subquestion: |
   </div>
   </div>
 
-
-
-  
-
-
-    
-  ${ display_template(about_page_contents, scrollable=True, collapse=True) }
 fields:
   - To continue, you must accept the terms of use: acknowledged_information_use
     datatype: checkboxes

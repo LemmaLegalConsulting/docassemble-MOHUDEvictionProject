@@ -1,4 +1,8 @@
 ---
+features:
+  javascript: buttonFunction.js
+  css: buttons.css
+---
 depends on: users[0].address.address
 code: |
   users[0].address.address
@@ -49,8 +53,29 @@ fields:
     required: False
     help: |
       The case number helps the court clerk put your answer in the right file.
+      
 under: |
-  {CASE NUMBER|Where is the case number in the online docket?}
+      <link rel="stylesheet" href="buttons.css">
+      <script defer src="buttonFunction.js"></script>
+      <div class="terms">
+      <button class="link-button js-trigger" type="button" hidden>
+      Where is the case number in the online docket?
+      <svg viewBox="0 0 512 512" aria-hidden="true" fill="currentColor" width="1em" height="1em">
+      <path d="M60 99.333l196 196 196-196 60 60-256 256-256-256z"></path>
+      </svg>
+      </button>
+      <div class="[ panel ] [ js-panel ]">
+      <article class="[ panel__inner ] [ js-panel__inner ]">
+      <p>The case number is: <span class="plaintiff-link link-button js-trigger" aria-expanded="false">Plaintiff</span> and <span class="defendant-link link-button js-trigger" aria-expanded="false">Defendant</span></p>
+      <div class="panel-content" data-link="plaintiff">
+      <p>The person that files the lawsuit</p>
+      </div>
+      <div class="panel-content" data-link="defendant">
+      <p>The person that is being sued in the lawsuit</p>
+      </div>
+      </article>
+      </div>
+
 ---
 
 id: reason for eviction

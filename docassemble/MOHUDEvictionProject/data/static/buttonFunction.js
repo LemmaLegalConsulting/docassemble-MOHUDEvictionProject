@@ -4,6 +4,7 @@ console.clear();
 const trigger = document.querySelector('.js-trigger');
 const panel = document.querySelector('.js-panel');
 const panelInner = document.querySelector('.js-panel__inner');
+const panelContent = document.querySelectorAll('.panel-content');
 
 // This is the CSS Custom Property that is updated with the panel's content's height
 const maxHeightKey = '--panel-max-height';
@@ -52,3 +53,12 @@ const run = () => {
 trigger.addEventListener('click', run);
 
 run();
+
+trigger.forEach(link => {
+  link.addEventListener('click', () => {
+    const linkType = link.getAttribute('data-link');
+    const content = document.querySelector(`.panel-content[data-link="${linkType}"]`);
+
+    content.classList.toggle('active');
+  });
+});
