@@ -386,16 +386,74 @@ subquestion: |
   <script defer src="buttonFunction.js"></script>
   <div class="terms">
   <button class="link-button js-trigger" type="button" hidden>
-    See the terms & conditions
+    Terms of Use and Privacy Policy
     <svg viewBox="0 0 512 512" aria-hidden="true" fill="currentColor" width="1em" height="1em">
-      <path d="M60 99.333l196 196 196-196 60 60-256 256-256-256z"></path>
+    <path d="M60 99.333l196 196 196-196 60 60-256 256-256-256z"></path>
     </svg>
   </button>
 
   <div class="panel js-panel">
-    <article class="panel__inner js-panel__inner">
-      <p>Here's some secret terms and conditions...</p>
-    </article>
+    <article class="panel__inner js-panel__inner">  
+    This website is free to use. Legal Services of Eastern Missouri (“LSEM”), a nonprofit legal aid program, hosts the site.
+  <br>
+  <br>
+  <h3 class="h5">You need to know</h3>
+  <ul>
+  <li>This website does not provide legal advice. If you need legal advice, you can use <a href="https://www.lsmo.org/" target="_blank">https://www.lsmo.org/</a> to find a lawyer.</li>
+  <li>The information and documents on this website have no warranty. We provide the information “as-is.” By using the site, you agree not to hold LSEM or the information providers on this site liable.</li>
+  <li>We work hard to keep the information on the site up to date. Lawyers drafted and reviewed the documents this site uses. But laws and local rules change over time. These changes can make a document unenforceable when you use it.</li>
+  <li>We do our best to keep the site working! To do that, we allow you to submit feedback so we can track problems on the site. But we cannot provide individual technical support.</li>
+  </ul>
+
+  </ul>
+  <h3 class="h5">To use this site</h3>
+  <ul>
+  <li>You need to be over 13 to use this site.</li>
+  <li>This site is for <strong>anyone</strong> 13 and over. For example: you can be the person who needs the help, a lawyer, or a social worker.</li>
+  <li>You may not sell the information or the contents of this site. But you can charge for your own time.</li>
+  <li>Please keep your use fair. Do not use this site in a way that is illegal or that makes it harder for other people to use.</li>
+  </ul>
+  
+  <h3 class="h5">Information we and others collect</h3>
+  <ul>
+  <li>We collect the information that you type to help you complete your forms. We delete all information 180 days after you last update it. You can also delete information immediately.</li>
+  <li>We log information including IP addresses and web browsers from all visitors. We use this information to keep our site secure. We keep logs for up to 180 days.</li>
+  <li>We use Google Maps to help fill in addresses automatically. This feature sends your IP address to Google Maps to get your approximate location.</li>
+  <li>We use Google Analytics to learn how people use our website. This helps us understand which pages are hardest to use. Google may use this information to show you better advertisements.</li>
+  <li>We use email and text message delivery services that may keep their own records of any messages you send. If you choose to log in with your phone number, this may include a record of the times you log in to the site.</li>
+  </ul>
+  
+  <h3 class="h5">We keep your information safe</h3>
+  <ul>
+  <li>We use the same technology that banks and online stores use to keep your information safe. We use:</li>
+  <li>256 bit encryption</li>
+  <li>Software firewalls</li>
+  <li>Limited access controls</li>
+  <li>Continual monitoring</li>
+  <li>Regular security updates</li>
+  </ul>
+        
+  <h3 class="h5">Sharing your information</h3>
+  <ul>
+  <li>We never sell your information.</li>
+  <li>We share anonymous information with a small number of nonprofits and researchers. We use the information to improve our site and to improve free legal help in Missouri.</li>
+  <li>When you visit some pages of the site, the site may ask if you want to apply to get a free lawyer from legal aid. You get to decide if you want to share your personal information.</li>
+  <li>You may choose to email completed forms or share a link to your in-progress work at any time to any person.</li>
+  </ul>
+  
+  <h3 class="h5">These terms of use can change</h3>
+  <p>We may change these Terms of Use at any time with no notice. Please review the terms on a regular basis to see any changes.</p>
+  <p>If you use the site after we make changes, you accept our changed Terms of Use.</p>
+        
+  <h3 class="h5">The laws of Missouri apply to these Terms of Use</h3>
+  <p>If a judge decides that one of the terms in this Terms of Use is unenforceable, it will not change the terms that remain.</p>
+  
+  <h3 class="h5">If you still have questions</h3>
+        <address>
+          Legal Services of Eastern Missouri<br>
+          701 Market Street, Suite 1100<br>
+          St. Louis, MO 63101
+  </article>
   </div>
   </div>
 

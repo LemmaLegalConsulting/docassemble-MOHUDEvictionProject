@@ -1,0 +1,119 @@
+/* buttons.css */
+
+.button {
+  display: inline-block;
+  border: none;
+  padding: 0.6rem 1.2rem 0.8rem 1.2rem;
+  text-decoration: dashed;
+  background: #98b06f;
+  color: #212d40;
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  transition: background 250ms ease-in-out, transform 150ms ease;
+}
+
+.button:hover,
+.button:focus {
+  background: #ffffff;
+}
+
+.button:focus {
+  outline: 1px solid #212d40;
+  outline-offset: -4px;
+}
+
+.button:active {
+  transform: scale(0.99);
+}
+
+.link-button {
+  text-decoration: underline dashed;
+  color: #3b842c; /* Green color */
+  font-size: 1rem;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  outline: none;
+}
+
+.link-button[aria-expanded] {
+  text-decoration: underline dashed;
+  color: #3b842c; /* Green color */
+  font-size: 1rem;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  outline: none;
+}
+
+.link-button svg {
+  opacity: 0.8;
+  margin-left: 0.5rem;
+  transition: all 250ms ease-in-out;
+  font-size: 0.8rem;
+}
+
+.link-button[aria-expanded="true"] svg {
+  transform: rotate(-180deg);
+}
+
+.link-button:hover,
+.link-button:focus {
+  text-decoration: none;
+}
+
+.link-button:focus {
+  text-decoration: none;
+  outline: 1px solid rgba(255, 255, 255, 0.4);
+  outline-offset: 0.6rem;
+}
+
+.link-button:active {
+  transform: scale(0.99);
+}
+
+[aria-expanded] + .panel {
+  transition: all 200ms ease;
+  position: relative;
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: 0;
+  visibility: hidden;
+  -webkit-overflow-scrolling: touch;
+  background: #f0f1f9;  
+  border-radius: 10px;
+  border: .75px solid #ccc;
+}
+
+[aria-expanded] + .panel .panel__inner {
+  transition: all 500ms ease;
+  transition-delay: 50ms;
+  opacity: 0;
+  transform: translateY(1rem);
+  padding-top: 1.5rem;
+  padding: 1rem;
+  border-radius: 10px;
+  border: .75px solid #ccc;
+}
+
+[aria-expanded="true"] + .panel {
+  max-height: 200px;
+  visibility: visible;
+}
+
+[aria-expanded="true"] + .panel .panel__inner {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+
