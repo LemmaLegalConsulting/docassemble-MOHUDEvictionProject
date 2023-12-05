@@ -999,7 +999,7 @@ review:
         - defense_logic
         - explanation_answer
     button: |
-      How many units are in the building or apartment complex?:
+      How many units are in the building or apartment complex?
       **${ number_of_units_in_building }**
   - Edit:
       - is_mobile_home_owner
@@ -1214,7 +1214,6 @@ review:
   - note: | 
       ##Eviction Defenses##
       
-      The defenses listed can apply in all evictions.
   - note: |
       **Landlord discriminated against the Tenant in violation of state and federal law**
 
@@ -1225,16 +1224,19 @@ review:
       % else:
       Not Applicable
       % endif
+    show if: defense_discrimination
   - note: |
       % if person_answering == "tenant":
       Do you get a rent subsidy or do you live in public housing?
       % else:
       Does the tenant get a rent subsidy or do they live in public housing?
       % endif
-      **${ "Maybe" if is_rent_subsidized is None else yesno(is_rent_subsidized) }** [answered above]
+      **${ "Maybe" if is_rent_subsidized is None else yesno(is_rent_subsidized) }** [edit above]
+    show if: defense_discrimination
   - note: |
       How many units are in the building or apartment complex?:
-      **${ number_of_units_in_building }** [answered above]
+      **${ number_of_units_in_building }** [edit above]
+    show if: defense_discrimination
   - Edit:
       - tenant_believes_discrimination
       - recompute:
@@ -1277,6 +1279,7 @@ review:
       % else:
       Not Applicable
       % endif
+    show if: defense_reasonable_accommodation
   - Edit:
       - tenant_has_disability
       - recompute:
@@ -1339,13 +1342,15 @@ review:
       % else:
       Not Applicable
       % endif
+    show if: defense_vawa
   - note: |
       % if person_answering == "tenant":
       Do you get a rent subsidy or do you live in public housing?
       % else:
       Does the tenant get a rent subsidy or do they live in public housing?
       % endif
-      **${ "Maybe" if is_rent_subsidized is None else yesno(is_rent_subsidized) }** [answered above]
+      **${ "Maybe" if is_rent_subsidized is None else yesno(is_rent_subsidized) }** [edit above]
+    show if: defense_vawa
   - Edit:
       - tenant_is_dv_survivor
       - recompute:
@@ -1382,9 +1387,11 @@ review:
       % else:
       Not Applicable
       % endif
+    show if: defense_lease_not_attached
   - note: |
       Does a lease exist?
-      **${ "Maybe" if has_written_lease is None else yesno(has_written_lease) }** [answered above]
+      **${ "Maybe" if has_written_lease is None else yesno(has_written_lease) }** [edit above]
+    show if: defense_lease_not_attached
   - Edit:
       - lease_attached
       - recompute:
@@ -1405,6 +1412,7 @@ review:
       % else:
       Not Applicable
       % endif
+    show if: defense_settlement
   - Edit:
       - landlord_agreement
       - recompute:
@@ -1472,6 +1480,7 @@ review:
       % else:
       Not Applicable
       % endif
+    show if: defense_lease_signed_under_duress
   - Edit:
       - unfair_duress
       - recompute:
@@ -1495,6 +1504,7 @@ review:
       % else:
       Not Applicable
       % endif
+    show if: defense_fraud_lease
   - Edit:
       - false_promises_exists
       - recompute:
@@ -1518,6 +1528,7 @@ review:
       % else:
       Not Applicable
       % endif
+    show if: defense_liquidated_damages_late_fees
   - Edit:
       - late_fees_assessed
       - recompute:
@@ -1569,6 +1580,7 @@ review:
       % else:
       Not Applicable
       % endif
+    show if: defense_foreclosure
   - Edit:
       - landlord_foreclosed
       - recompute:
@@ -1605,6 +1617,7 @@ review:
       % else:
       Not Applicable
       % endif
+    show if: defense_new_owner_failed_to_provide_notice_of_sale
   - Edit:
       - previous_landlord_sold_property
       - recompute:
@@ -1652,6 +1665,7 @@ review:
       % else:
       Not Applicable
       % endif
+    show if: defense_unrepresented_corporation
   - Edit:
       - other_parties.revisit
       - recompute:
@@ -1688,13 +1702,15 @@ review:
       % else:
       Not Applicable
       % endif
+    show if: defense_excessive_rent_for_subsidized_housing
   - note: |
       % if person_answering == "tenant":
       Do you get a rent subsidy or do you live in public housing?
       % else:
       Does the tenant get a rent subsidy or do they live in public housing?
       % endif
-      **${ "Maybe" if is_rent_subsidized is None else yesno(is_rent_subsidized) }** [answered above]
+      **${ "Maybe" if is_rent_subsidized is None else yesno(is_rent_subsidized) }** [edit above]
+    show if: defense_excessive_rent_for_subsidized_housing
   - Edit:
       - excessive_rent
       - recompute:
@@ -1728,7 +1744,8 @@ review:
        - The tenant is ##NOT## being evicted for nonpayment of rent.
       % endif      
       % endif
-      [answered above]
+      [edit above]
+    show if: eviction_reason["nonpayment of rent"]
   - note: |
       **Landlord failed to state a claim for rent and possession**
 
@@ -1739,6 +1756,7 @@ review:
       % else:
       Not Applicable
       % endif
+    show if: defense_rent_pleading_requirement
   - Edit:
       - lease_attached
       - recompute:
@@ -1813,6 +1831,7 @@ review:
       % else:
       Not Applicable
       % endif
+    show if: defense_tender_refused
   - Edit:
       - offer_attempts.revisit
       - recompute:
@@ -1849,6 +1868,7 @@ review:
       % else:
       Not Applicable
       % endif  
+    show if: defense_rent_payment
   - Edit:
       - was_rent_paid
       - recompute:
@@ -1885,6 +1905,7 @@ review:
       % else:
       Not Applicable
       % endif
+    show if: defense_breach_of_habitability
   - Edit:
       - warranty_breaches
       - recompute:
@@ -1932,6 +1953,7 @@ review:
       % else:
       Not Applicable
       % endif      
+    show if: defense_estoppel_illegality
   - Edit:
       - cqe_breaches
       - recompute:
@@ -2001,7 +2023,8 @@ review:
        - The tenant is ##NOT## being evicted in an Unlawful Detainer case.
       % endif      
       % endif 
-      [answered above]
+      [edit above]
+    show if: case_type["AC Unlawful Detainer"]
   - note: |
       **Landlord did not properly terminate the tenancy in accordance with RSMo § 441.060**
 
@@ -2012,6 +2035,7 @@ review:
       % else:
       Not Applicable
       % endif
+    show if: defense_failure_to_terminate
   - note: |
       ****
       % if defense_ud_no_written_notice == True:
@@ -2021,7 +2045,7 @@ review:
       % else:
       No Written Notice: Not Applicable
       % endif
-
+    show if: defense_ud_no_written_notice
   - Edit:
       - got_notice_to_terminate
       - recompute:
@@ -2047,6 +2071,7 @@ review:
       % else:
       Premature Notice: Not Applicable
       % endif      
+    show if: defense_ud_no_rental_period_notice
   - note: |
       % if person_answering == "tenant":
       Do you live in a mobile  home that you own, and rent the land?
@@ -2054,7 +2079,8 @@ review:
       Does the tenant live in a mobile  home that the tenant owns, and rents the land?
       % endif
       **${ yesno(is_mobile_home_owner) }**
-      [answered above]
+      [edit above]
+    show if: defense_ud_no_rental_period_notice
   - Edit:
       - rent_day
       - recompute:
@@ -2106,9 +2132,11 @@ review:
       % else:
       Notice Violates Lease : Not Applicable
       % endif      
+    show if: defense_ud_lease_requirements
   - note: |
       Does a lease exist?
-      **${ "Maybe" if has_written_lease is None else yesno(has_written_lease) }** [answered above]
+      **${ "Maybe" if has_written_lease is None else yesno(has_written_lease) }** [edit above]
+    show if: defense_ud_lease_requirements
   - Edit:
       - lease_says_how_much_notice
       - recompute:
@@ -2138,13 +2166,15 @@ review:
       % else:
       Notice Violates Law : Not Applicable
       % endif      
+    show if: defense_termination_notice_required_by_law
   - note: |
       % if person_answering == "tenant":
       Do you get a rent subsidy or do you live in public housing?
       % else:
       Does the tenant get a rent subsidy or do they live in public housing?
       % endif
-      **${ "Maybe" if is_rent_subsidized is None else yesno(is_rent_subsidized) }** [answered above]    
+      **${ "Maybe" if is_rent_subsidized is None else yesno(is_rent_subsidized) }** [edit above]    
+    show if: defense_termination_notice_required_by_law
   - note: |
       **Tenant denies that Tenant violated the terms of the lease or that the claimed violation is a material breach**
 
@@ -2155,6 +2185,7 @@ review:
       % else:
       Not Applicable
       % endif
+    show if: defense_ud_did_not_violate_lease
   - Edit:
       - defense_no_breach
       - recompute:
@@ -2183,4 +2214,7 @@ review:
       to evict the tenant.
       % endif
       **${ "Maybe" if defense_breach_not_material is None else yesno(defense_breach_not_material) }**
+---
+code: |
+  show_all_defenses = True
 ---
