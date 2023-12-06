@@ -744,6 +744,9 @@ review:
       **None**
       % endif
   - note: |
+      ****
+    show if: defense_discrimination
+  - note: |
       **Landlord failed to reasonably accommodate Tenant's disability**
 
       % if defense_reasonable_accommodation == True:
@@ -807,6 +810,9 @@ review:
       % endif
       **${ "Maybe" if landlord_refused_accommodation is None else yesno(landlord_refused_accommodation) }**
   - note: |
+      ****
+    show if: defense_reasonable_accommodation
+  - note: |
       **Tenant has a defense under the provisions of the Violence Against Women Act, 34 U.S.C. § 12491, et seq.**
 
       % if defense_vawa == True:
@@ -852,6 +858,9 @@ review:
       % endif
       **${ "Maybe" if tenant_is_being_evicted_because_of_dv is None else yesno(tenant_is_being_evicted_because_of_dv) }**
   - note: |
+      ****
+    show if: defense_vawa
+  - note: |
       **Landlord has failed to comply with M.R.C.P. § 55.22**
 
       % if defense_lease_not_attached == True:
@@ -876,6 +885,9 @@ review:
     button: |
       Does the summons and petition packet have the lease attached as an exhibit?
       **${ "Maybe" if lease_attached is None else yesno(lease_attached) }**
+  - note: |
+      ****
+    show if: defense_lease_not_attached
   - note: |
       **Landlord and Tenant entered into a settlement agreement and Tenant has complied with the settlement’s terms**
 
@@ -941,9 +953,9 @@ review:
       Does the tenant have proof that the tenant complied with the agreement?
       % endif
       **${ "Maybe" if tenant_compliance_with_agreement_proof is None else yesno(tenant_compliance_with_agreement_proof) }**
-
-
-
+  - note: |
+      ****
+    show if: defense_settlement
   - note: |
       **The lease is invalid because unfair duress by Landlord caused Tenant to enter the lease**
 
@@ -969,6 +981,9 @@ review:
       % endif
       **${ "Maybe" if unfair_duress is None else yesno(unfair_duress) }**
   - note: |
+      ****
+    show if: defense_lease_signed_under_duress
+  - note: |
       **Landlord’s fraudulent promises induced Tenant to enter the lease**
 
       % if defense_fraud_lease == True:
@@ -992,6 +1007,9 @@ review:
       % else:
       **None**
       % endif
+  - note: |
+      ****
+    show if: defense_fraud_lease
   - note: |
       **The late fees attached to the Landlord’s Petition are an unfair penalty**
 
@@ -1043,7 +1061,9 @@ review:
     button: |
       Do the late fees charged by the landlord comply with the lease provision?
       **${ "Maybe" if late_fee_doesnt_comply_with_lease is None else noyes(late_fee_doesnt_comply_with_lease) }**
-
+  - note: |
+      ****
+    show if: defense_liquidated_damages_late_fees
   - note: |
       **The premises have been foreclosed upon but the Landlord has not followed proper procedures**
 
@@ -1082,6 +1102,9 @@ review:
       % endif
       **${ "Maybe" if notice_of_foreclosure is None else yesno(notice_of_foreclosure) }**
   - note: |
+      ****
+    show if: defense_foreclosure
+  - note: |
       **The premises have been sold but the prior Landlord has not provided Tenant the required notices and therefore no rent is owed**
 
       % if defense_new_owner_failed_to_provide_notice_of_sale == True:
@@ -1108,6 +1131,7 @@ review:
   - Edit:
       - notice_of_sale_provided_new_landlord
       - recompute:
+        - defense_new_owner_failed_to_provide_notice_of_sale
         - defense_logic
       - explanation_answer
     button: |
@@ -1120,6 +1144,7 @@ review:
   - Edit:
       - notice_contains_sale_document
       - recompute:
+        - defense_new_owner_failed_to_provide_notice_of_sale
         - defense_logic
       - explanation_answer
     button: |
@@ -1130,6 +1155,9 @@ review:
       % endif
       **${ "Maybe" if notice_contains_sale_document is None else yesno(notice_contains_sale_document) }**
   - note: |
+      ****
+    show if: defense_new_owner_failed_to_provide_notice_of_sale
+  - note: |
       **The Landlord is required to have an attorney in this case and it must be dismissed**
 
       % if defense_unrepresented_corporation == True:
@@ -1139,33 +1167,21 @@ review:
       % else:
       Not Applicable
       % endif
-    show if: defense_unrepresented_corporation
-  - Edit:
-      - other_parties.revisit
-      - recompute:
-        - defense_unrepresented_corporation
-        - defense_logic
-      - explanation_answer
-    button: |
+
       Plaintiffs:
       % if other_parties.there_are_any:
       % for item in other_parties:
       
-       - **${ item }**
-      
-      % if item.attorney.there_are_any:
-         - Attorney: **${ item.attorney[0] }**
-      **${ item.attorney[0].address }**
-      
-      % else:
-         - Attorney: **None**
+      % if item.person_type != "ALIndividual" and not item.attorney.there_are_any:
+      **${ item }** is a business that does not have an attorney. [edit above]
       
       % endif
-         - Person or Business: **${ "Person" if item.person_type == "ALIndividual" else "Business" }**
       % endfor
       % else:
       **None**
       % endif
+      ****
+    show if: defense_unrepresented_corporation
   - note: |
       **The Landlord has charged the Tenant rent that is not owed according to the Housing Choice Voucher Program contract entered into by the Landlord and the Tenant**
 
@@ -1198,9 +1214,10 @@ review:
       Is your landlord asking the tenant to pay an amount that is more than the tenant rent share?
       % endif
       **${ "Maybe" if excessive_rent is None else yesno(excessive_rent) }** 
-
-
   - note: | 
+      ****
+    show if: defense_excessive_rent_for_subsidized_housing
+  - note: |
       ##Rent and Possession Defenses##
       
       The defenses listed below only apply to evictions for nonpayment of rent.
@@ -1294,7 +1311,9 @@ review:
     button: |
       Does the Petition say that the landlord demanded rent?
       **${ "Maybe" if petition_states_demand_made is None else yesno(petition_states_demand_made) }**
-
+  - note: |
+      ****
+    show if: defense_rent_pleading_requirement
   - note: |
       **Landlord refused Tenant’s tender of rent**
 
@@ -1333,6 +1352,9 @@ review:
       **None**
       % endif      
   - note: |
+      ****
+    show if: defense_tender_refused
+  - note: |
       **Tenant has paid the rent allegedly owed**
 
       % if defense_rent_payment == True:
@@ -1369,6 +1391,9 @@ review:
       How much did the tenant pay?
       % endif
       **${ rent_amount_paid_text["rent_amount_paid"] }**
+  - note: |
+      ****
+    show if: defense_rent_payment
   - note: |
       **Landlord has breached the implied warranty of habitability**
 
@@ -1417,6 +1442,9 @@ review:
       Did the tenant tell the landlord about these problems?
       % endif
       **${ "Maybe" if notice_of_breach_to_landlord is None else yesno(notice_of_breach_to_landlord) }**
+  - note: |
+      ****
+    show if: defense_breach_of_habitability
   - note: |
       **Landlord is estopped from enforcement of the lease because it has violated Missouri law**
 
@@ -1474,11 +1502,9 @@ review:
       % else:
       **None**
       % endif
-
-
-
-
-
+  - note: |
+      ****
+    show if: defense_estoppel_illegality
   - note: |
       ##Unlawful Detainer Defenses##
       
@@ -1504,6 +1530,8 @@ review:
 
       % if defense_failure_to_terminate == True:
       <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> INCLUDED IN ANSWER
+      
+      A landlord must give proper notice to evict in an Unlawful Detainer case.  The landlord did not provide proper notice because:
       % elif defense_failure_to_terminate == False:
       <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Not Included in Answer
       % else:
@@ -1511,9 +1539,8 @@ review:
       % endif
     show if: defense_failure_to_terminate
   - note: |
-      ****
       % if defense_ud_no_written_notice == True:
-      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> No Written Notice
+      No Written Notice
       % elif defense_ud_no_written_notice == False:
       <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> No Written Notice
       % else:
@@ -1537,14 +1564,13 @@ review:
       % endif
       **${ "Maybe" if got_notice_to_terminate is None else yesno(got_notice_to_terminate) }**
   - note: |
-      ****
       % if defense_ud_no_rental_period_notice == True:
-      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> Premature Notice 
+      Premature Notice 
       % elif defense_ud_no_rental_period_notice == False:
       <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Premature Notice
       % else:
       Premature Notice: Not Applicable
-      % endif      
+      % endif
     show if: defense_ud_no_rental_period_notice
   - note: |
       % if person_answering == "tenant":
@@ -1598,9 +1624,8 @@ review:
       What day did the notice say it would end your tenancy?
       **${ termination_of_tenancy_date }**
   - note: |
-      ****
       % if defense_ud_lease_requirements == True:
-      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> Notice Violates Lease 
+      Notice Violates Lease 
       % elif defense_ud_lease_requirements == False:
       <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Notice Violates Lease 
       % else:
@@ -1632,9 +1657,8 @@ review:
       % endif
       **${ yesno(landlord_gave_notice_required_by_lease) }**
   - note: |
-      ****
       % if defense_termination_notice_required_by_law == True:
-      <i class="fa-regular fa-square-check" style="color: #62a0ea;"></i> Notice Violates Law
+      Notice Violates Law
       % elif defense_termination_notice_required_by_law == False:
       <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Notice Violates Law
       % else:
@@ -1649,6 +1673,9 @@ review:
       % endif
       **${ "Maybe" if is_rent_subsidized is None else yesno(is_rent_subsidized) }** [edit above]    
     show if: defense_termination_notice_required_by_law
+  - note: |
+      ****
+    show if: defense_failure_to_terminate
   - note: |
       **Tenant denies that Tenant violated the terms of the lease or that the claimed violation is a material breach**
 
