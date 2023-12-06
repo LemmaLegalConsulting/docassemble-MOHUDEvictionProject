@@ -31,12 +31,11 @@ code: |
   defense_unrepresented_corporation
   
   # UD defenses
-  
-  if got_notice_to_terminate:
-    defense_ud_no_written_notice
-    defense_ud_no_rental_period_notice
-    defense_ud_lease_requirements
-    defense_termination_notice_required_by_law
+  defense_ud_no_written_notice
+  defense_ud_no_rental_period_notice
+  defense_ud_lease_requirements
+  defense_termination_notice_required_by_law
+  defense_failure_to_terminate
 
   defense_logic = True
 ---
@@ -44,10 +43,13 @@ depends on:
   - defense_no_breach
   - defense_breach_not_material
 code: |
-  defense_ud_did_not_violate_lease = (
-    defense_no_breach or
-    defense_breach_not_material
-  )
+  if case_type["AC Unlawful Detainer"]:
+    defense_ud_did_not_violate_lease = (
+      defense_no_breach or
+      defense_breach_not_material
+    )
+  else:
+    defense_ud_did_not_violate_lease = None
 ---
 depends on:
   - got_notice_to_terminate
@@ -55,11 +57,14 @@ depends on:
   - lease_says_how_much_notice
   - landlord_gave_notice_required_by_lease
 code: |
-  defense_ud_lease_requirements = got_notice_to_terminate and (
-    has_written_lease and
-    lease_says_how_much_notice and
-    not landlord_gave_notice_required_by_lease
-  )
+  if case_type["AC Unlawful Detainer"]:
+    defense_ud_lease_requirements = got_notice_to_terminate and (
+      has_written_lease and
+      lease_says_how_much_notice and
+      not landlord_gave_notice_required_by_lease
+    )
+  else:
+    defense_ud_lease_requirements = None
 ---
 code: |
   # See: 24 C.F.R. § 247.4 (c)
@@ -68,36 +73,44 @@ code: |
 ---
 depends on:
   - is_federal_emergency
+  - case_type
   - eviction_reason
   - subsidized_housing_type
   - received_notice_date
   - notice_to_terminate_includes_specific_day
   - termination_of_tenancy_date
 code: |
-  defense_termination_notice_required_by_law = got_notice_to_terminate and has_improper_notice_required_by_law(
-      is_federal_emergency,
-      eviction_reason,
-      is_rent_subsidized,
-      received_notice_date,
-      notice_to_terminate_includes_specific_day,
-      showifdef("rent_day", 1),
-      showifdef("rent_period", 12),
-      showifdef("termination_of_tenancy_date") or None,
-  )
+  if case_type["AC Unlawful Detainer"]:
+    defense_termination_notice_required_by_law = got_notice_to_terminate and has_improper_notice_required_by_law(
+        is_federal_emergency,
+        eviction_reason,
+        is_rent_subsidized,
+        received_notice_date,
+        notice_to_terminate_includes_specific_day,
+        showifdef("rent_day", 1),
+        showifdef("rent_period", 12),
+        showifdef("termination_of_tenancy_date") or None,
+    )
+  else:
+    defense_termination_notice_required_by_law = None
 ---
 depends on:
+  - case_type
   - got_notice_to_terminate
   - defense_ud_no_written_notice
   - defense_ud_no_rental_period_notice
   - defense_ud_lease_requirements
   - defense_termination_notice_required_by_law
 code: |
-  defense_failure_to_terminate = (not got_notice_to_terminate) or (
-    defense_ud_no_written_notice or 
-    defense_ud_no_rental_period_notice or
-    defense_ud_lease_requirements or
-    defense_termination_notice_required_by_law
-  )
+  if case_type['AC Unlawful Detainer']:
+    defense_failure_to_terminate = (not got_notice_to_terminate) or (
+      defense_ud_no_written_notice or 
+      defense_ud_no_rental_period_notice or
+      defense_ud_lease_requirements or
+      defense_termination_notice_required_by_law
+    )
+  else:
+    defense_failure_to_terminate = None
 ---
 id: rent pleadings requirement logic
 depends on:
@@ -681,10 +694,10 @@ fields:
     field: kind_of_lease_agreement
     input type: radio
     choices:
-      - A lease for a fixed period of time (like 1 year): fixed_period
-      - A month-to-month, week-to-week or other lease that automatically renews: periodic
-      - No written lease: no_written_lease
-      - Unknown: dont_know
+      - ${ lease_type_text['fixed_period'] }: fixed_period
+      - ${ lease_type_text['periodic'] }: periodic
+      - ${ lease_type_text['no_written_lease'] }: no_written_lease
+      - ${ lease_type_text['dont_know'] }: dont_know
   - What day does the lease end?: fixed_period_end_date
     datatype: date
     show if:
@@ -726,6 +739,22 @@ fields:
     show if:
       variable: kind_of_lease_agreement
       is: periodic
+---
+variable name: lease_type_text
+use objects: True
+data:
+  fixed_period:
+    question: A lease for a fixed period of time (like 1 year)
+    document: A lease for a fixed period of time (like 1 year)   
+  periodic:
+    question: A month-to-month, week-to-week or other lease that automatically renews
+    document: A month-to-month, week-to-week or other lease that automatically renews
+  no_written_lease:
+    question: No written lease
+    document: No written lease
+  dont_know:
+    question: Unknown
+    document: Unknown
 ---
 template: why_tenancy_facts_template
 subject: |
@@ -953,7 +982,7 @@ subquestion: |
   
   * Being treated differently,
   * Being denied housing, or
-  * Being unfairly evicted
+  * Being unfairly evicted.
 fields:
   - label: |
       % if person_answering == 'tenant':
@@ -1319,7 +1348,10 @@ fields:
 depends on:
   - got_notice_to_terminate
 code: |
-  defense_ud_no_written_notice = not got_notice_to_terminate
+  if case_type["AC Unlawful Detainer"]:
+    defense_ud_no_written_notice = not got_notice_to_terminate
+  else:
+    defense_ud_no_written_notice = None
 ---
 depends on:
   - is_mobile_home_owner
@@ -1329,15 +1361,20 @@ depends on:
   - notice_to_terminate_includes_specific_day
   - termination_of_tenancy_date
 code: |
-  defense_ud_no_rental_period_notice = got_notice_to_terminate and has_improper_notice(
-    showifdef("is_mobile_home_owner"),
-    int(showifdef("rent_day", 1)),
-    int(showifdef("rent_period",12)),
-    received_notice_date,
-    showifdef("notice_to_terminate_includes_specific_day"),
-    showifdef("termination_of_tenancy_date")
-  )  
+  if case_type["AC Unlawful Detainer"]:
+    defense_ud_no_rental_period_notice = got_notice_to_terminate and has_improper_notice(
+      showifdef("is_mobile_home_owner"),
+      int(showifdef("rent_day", 1)),
+      int(showifdef("rent_period",12)),
+      received_notice_date,
+      showifdef("notice_to_terminate_includes_specific_day"),
+      showifdef("termination_of_tenancy_date")
+    )
+  else:
+    defense_ud_no_rental_period_notice = None
 ---
+depends on:
+  - kind_of_lease_agreement
 code: |
   if kind_of_lease_agreement == "no_written_lease":
     has_written_lease = False
