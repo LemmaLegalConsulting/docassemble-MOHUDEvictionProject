@@ -521,9 +521,9 @@ subquestion: |
 fields:
   - label: |
       % if person_answering == "tenant":
-      I deny doing what the landlord says that I did
+      I deny doing what the landlord says that I did.
       % else:
-      The tenant denies doing what the landlord says that they did
+      The tenant denies doing what the landlord says that they did.
       % endif
     field: defense_no_breach
     datatype: yesnoradio

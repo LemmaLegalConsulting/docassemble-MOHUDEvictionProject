@@ -982,7 +982,7 @@ subquestion: |
   
   * Being treated differently,
   * Being denied housing, or
-  * Being unfairly evicted
+  * Being unfairly evicted.
 fields:
   - label: |
       % if person_answering == 'tenant':
