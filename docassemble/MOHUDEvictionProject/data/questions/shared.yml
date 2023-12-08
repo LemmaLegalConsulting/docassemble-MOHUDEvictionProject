@@ -498,10 +498,14 @@ id: signpost casenet for landlord name
 only sets: signpost_case_net_for_landlord_name
 continue button field: signpost_case_net_for_landlord_name
 question: |
+  % if person_answering == "tenant":
   Do you want to check your landlord's name online?
+  % else: 
+  Does the tenant want to check the landlord's name online?
+  % endif
 subquestion: |
   You said you don't have the {Summons} and {Petition} with you. If you want, 
-  you can check your landlord's name online on a free website run by the
+  you can check the landlord's name online on a free website run by the
   Missouri Court.
 
   The website is called Case.net.
