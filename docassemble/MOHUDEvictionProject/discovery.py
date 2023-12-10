@@ -82,13 +82,15 @@ class DiscoveryDict(DADict):
     def init(self, *pargs, **kwargs):
         super().init(*pargs, **kwargs)
         self.object_type = DiscoveryItem
+        if not hasattr(self, "auto_gather") and not hasattr(self, "ask_number"):
+            self.auto_gather = False
 
         if hasattr(self, "yaml_source"):
             if not self.yaml_source.startswith("/"): # A relative path using docassemble package notation
                 self._load_from_yaml(path_and_mimetype(self.yaml_source)[0])
-            
-            # We have the canonical path to the file
-            self._load_from_yaml(self.yaml_source)
+            else:
+                # We have the canonical path to the file
+                self._load_from_yaml(self.yaml_source)
 
 
     def _load_from_yaml(self, yaml_path:str):
@@ -105,12 +107,14 @@ class DiscoveryDict(DADict):
                 log(exc)
         for item in yaml_items:
             dict_item = self.initializeObject(item["name"]) # ensure proper instance name
-            dict_item["name"]=item["name"]
-            dict_item["description"]=item.get("description", item["name"])
-            dict_item["category"]=item["category"]
-            dict_item["priority"]=int(item["priority"])
-            dict_item["conditions"]=item.get("conditions", [])
-            dict_item["default_check"]=item.get("default_check", False)
+            dict_item.name=item["name"]
+            dict_item.description=item.get("description", item["name"])
+            dict_item.category=item["category"]
+            dict_item.priority=int(item["priority"])
+            dict_item.conditions=item.get("conditions", [])
+            dict_item.default_check=item.get("default_check", False)
+        
+        self.gathered = True
 
     def precheck_items(self, limit:int = 25):
         """
@@ -144,11 +148,11 @@ class DiscoveryDict(DADict):
                         "note": f"## {category}"
                     }
                 )
-            for key in self.matches_category(category):
+            for key in self.matches_from_category(category, checked_only=False):
                 fields.append({
                     "label": f"### { self[key].name} [BR] {self[key].description}",
                     "label above field": True,
-                    "field": self.attr_name(f"{key}.checked"),
+                    "field": f"{self.instanceName}['{key}'].checked",
                     "default": self[key].checked if hasattr(self[key], "checked") else False,
                     "datatype": "yesno"
                 })
@@ -169,8 +173,8 @@ class DiscoveryDict(DADict):
     def matches_from_category(self, category, checked_only=True):
         """Returns a list of discovery items from a given category."""
         if checked_only:
-            return DAList(elements=[key for key,value in self.iteritems() if value.category == category and value.checked is True])
-        return DAList(elements=[key for key,value in self.iteritems() if value.category == category])
+            return [key for key in self.elements if self.elements[key].checked and self.elements[key].category == category]
+        return [key for key in self.elements if self.elements[key].category == category]
     
     def any_in_category(self, category):
         for key in self.elements:

@@ -1,4 +1,10 @@
 ---
+modules:
+  - .discovery
+---
+objects:
+  - interrogatories: DiscoveryDict.using(yaml_source="data/sources/interrogatories.yml")
+---
 id: customize discovery
 question: |
   Ask your landlord questions to get ready for court
@@ -22,6 +28,7 @@ fields:
     help: |
       Most tenants use the default questions and documents.
 ---
+mandatory: True
 id: customize discovery items
 question: |
   Customize discovery (questions and documents to get ready for court)
@@ -40,12 +47,12 @@ fields:
       interrogatories.ask_about_items()
   - Add custom question?: add_interrogatory
     datatype: yesno
-  - note: |
-      ## Documents (requests for production)
-  - code: |
-      requests_for_production.ask_about_items()
-  - Add custom document request?: add_request_for_production
-    datatype: yesno
+  #- note: |
+  #    ## Documents (requests for production)
+  #- code: |
+  #    requests_for_production.ask_about_items()
+  #- Add custom document request?: add_request_for_production
+  #  datatype: yesno
 validation code: |
   if interrogatories.count_checked() > 25:
     validation_error("You can only ask up to 25 questions.")
