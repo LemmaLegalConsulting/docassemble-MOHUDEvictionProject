@@ -1,0 +1,51 @@
+---
+id: customize discovery
+question: |
+  Ask your landlord questions to get ready for court
+subquestion:
+  You have the right to have your landlord answer some questions and give you some documents 
+  before trial. This is called "discovery."
+
+  This website includes a list of common questions to ask and documents to ask your landlord for.
+
+  Based on your answers, we will ask your landlord ${ interrogatories.count_checked() }
+  questions and ${ requests_for_production.count_checked() } documents.
+
+  You can change the list of questions and documents if you want to.
+
+  Most tenants use the default questions and documents.
+fields:
+  - What do you want to do?: customize_discovery_choice
+    choices:
+      - Customize the questions and documents I ask for: customize_discovery
+      - Use the default questions and documents: default_discovery
+    help: |
+      Most tenants use the default questions and documents.
+---
+id: customize discovery items
+question: |
+  Customize discovery (questions and documents to get ready for court)
+subquestion:
+  The list of questions and documents is based on your answers to other questions.
+
+  1. You can ask up to 25 questions. In court, questions are called "interrogatories".
+  1. You can ask for as many documents as you want.
+
+  Remember, you are **asking your landlord** for the information below.
+continue button field: review_discovery_requests
+fields:
+  - note: |
+      ## Questions (interrogatories)
+  - code: |
+      interrogatories.ask_about_items()
+  - Add custom question?: add_interrogatory
+    datatype: yesno
+  - note: |
+      ## Documents (requests for production)
+  - code: |
+      requests_for_production.ask_about_items()
+  - Add custom document request?: add_request_for_production
+    datatype: yesno
+validation code: |
+  if interrogatories.count_checked() > 25:
+    validation_error("You can only ask up to 25 questions.")

@@ -1,0 +1,151 @@
+- name: persons_with_knowledge
+  description: Lists people who know about the rental and any problems with it.
+  category: Tenancy
+  default_check: False
+  priority: 300
+  conditions:
+    - legal_representation_involved
+
+- name: steps_for_termination
+  description: Explains how the landlord tried to end the rental agreement.
+  category: Subsidized Housing
+  default_check: True
+  priority: 800
+  conditions:
+    - defense_failure_to_terminate
+
+- name: bad_conditions_need_for_repair
+  description: Talks about what the landlord knew and did about fixing things in the place.
+  category: Problems with the Apartment/Building
+  default_check: True
+  priority: 700
+  conditions:
+    - defense_breach_of_habitability
+
+- name: bad_conditions_inspections
+  description: Gives details about checks done by others on the place and what the landlord did after.
+  category: Problems with the Apartment/Building
+  default_check: True
+  priority: 600
+  conditions:
+    - defense_estoppel_illegality
+
+- name: bad_conditions_prepurchase_inspections
+  description: Asks about checks done before the landlord bought or got the place.
+  category: Problems with the Apartment/Building
+  default_check: False
+  priority: 500
+  conditions:
+    - defense_estoppel_illegality
+
+- name: bad_conditions_attempted_repairs
+  description: Tells about the landlord trying to fix or check things, including how much it cost.
+  category: Problems with the Apartment/Building
+  default_check: True
+  priority: 650
+  conditions:
+    - defense_breach_of_habitability
+
+- name: lead_paint
+  description: Asks if there's lead paint in the place and what the landlord did about it.
+  category: Problems with the Apartment/Building
+  default_check: True
+  priority: 750
+  conditions:
+    - defense_estoppel_illegality
+
+- name: bad_conditions_tenant_damaged
+  description: Describes damage the landlord thinks the tenant caused and the cost to fix it.
+  category: Problems with the Apartment/Building
+  default_check: False
+  priority: 400
+  conditions:
+    - defense_ud_did_not_violate_lease
+
+- name: bad_conditions_tenant_hindered
+  description: Asks if the tenant ever stopped the landlord from checking or fixing the place.
+  category: Problems with the Apartment/Building
+  default_check: False
+  priority: 450
+  conditions:
+    - defense_breach_of_cqe
+
+- name: bad_conditions_landlord_entered_premises
+  description: Tells when and why the landlord or others went into the tenant's place.
+  category: Problems with the Apartment/Building
+  default_check: True
+  priority: 550
+  conditions:
+    - defense_unrepresented_corporation
+
+- name: bad_conditions_describe_maintenance
+  description: Talks about how the landlord took care of the place and who helped.
+  category: Problems with the Apartment/Building
+  default_check: True
+  priority: 500
+  conditions:
+    - defense_breach_of_habitability
+
+- name: security_deposit_last_months_rent
+  description: Asks about money the tenant gave for security or last month's rent, and where it's kept.
+  category: Security Deposit and Last Month’s Rent
+  default_check: True
+  priority: 600
+  conditions:
+    - defense_lease_not_attached
+
+- name: disability_knowledge
+  description: Asks what the landlord knows about the tenant's or their family's disabilities.
+  category: Disability
+  default_check: False
+  priority: 350
+  conditions:
+    - defense_reasonable_accommodation
+
+- name: disability_ra
+  description: Asks about changes the tenant asked for because of a disability.
+  category: Disability
+  default_check: False
+  priority: 400
+  conditions:
+    - defense_reasonable_accommodation
+
+- name: disability_ra_response
+  description: Tells how the landlord responded to requests for changes because of disabilities.
+  category: Disability
+  default_check: False
+  priority: 450
+  conditions:
+    - defense_reasonable_accommodation
+
+- name: disability_ra_reasonable
+  description: Asks why the landlord might think it's hard to make changes for the tenant's disability.
+  category: Disability
+  default_check: False
+  priority: 500
+  conditions:
+    - defense_reasonable_accommodation
+
+- name: discrimination_subsidy_receipt
+  description: Asks if the landlord agreed to take special payment help for the rent.
+  category: Other
+  default_check: False
+  priority: 300
+  conditions:
+    - defense_discrimination
+
+- name: rental_value
+  description: Asks the landlord to guess how much the place could be rented for each year.
+  category: Other
+  default_check: False
+  priority: 200
+  conditions:
+    - defense_rent_pleading_requirement
+
+- name: insurance_policies
+  description: Asks if there is insurance for any problems or damage the tenant talks about in court.
+  category: Other
+  default_check: False
+  priority: 100
+  conditions:
+    - defense_vawa
