@@ -33,6 +33,7 @@ sections:
   - section_eviction_answer_case: About your court case
   - section_eviction_answer_tenancy: About your tenancy
   - section_eviction_answer_defenses: Claims and defenses
+  - section_eviction_discovery: Discovery
   - review_eviction_answer: Review your answers
   - section_eviction_answer_download: Download, print, deliver, and file
 ---
@@ -182,6 +183,11 @@ code: |
     tenant_compliance_with_agreement
   defense_logic
   information_collected
+  
+  nav.set_section("section_eviction_discovery")
+  if customize_discovery_choice == "customize_discovery":
+    add_interrogatory
+  
   nav.set_section("review_eviction_answer")
   explanation_answer
   document_order = True

@@ -4,6 +4,7 @@ modules:
 ---
 objects:
   - interrogatories: DiscoveryDict.using(yaml_source="data/sources/interrogatories.yml")
+  - requests_for_production: DiscoveryDict.using(yaml_source="data/sources/document_requests.yml")
 ---
 id: customize discovery
 question: |
@@ -36,7 +37,8 @@ subquestion:
   The list of questions and documents is based on your answers to other questions.
 
   1. You can ask up to 25 questions. In court, questions are called "interrogatories".
-  1. You can ask for as many documents as you want.
+  
+  2. You can ask for as many documents as you want.
 
   Remember, you are **asking your landlord** for the information below.
 continue button field: review_discovery_requests
@@ -47,12 +49,12 @@ fields:
       interrogatories.ask_about_items()
   - Add custom question?: add_interrogatory
     datatype: yesno
-  #- note: |
-  #    ## Documents (requests for production)
-  #- code: |
-  #    requests_for_production.ask_about_items()
-  #- Add custom document request?: add_request_for_production
-  #  datatype: yesno
+  - note: |
+      ## Documents (requests for production)
+  - code: |
+      requests_for_production.ask_about_items()
+  - Add custom document request?: add_request_for_production
+    datatype: yesno
 validation code: |
   if interrogatories.count_checked() > 25:
     validation_error("You can only ask up to 25 questions.")

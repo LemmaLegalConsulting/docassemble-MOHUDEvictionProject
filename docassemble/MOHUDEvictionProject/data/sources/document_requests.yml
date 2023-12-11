@@ -1,0 +1,7 @@
+- name: persons_with_knowledge
+  description: Lists people who know about the rental and any problems with it.
+  category: Tenancy
+  default_check: False
+  priority: 300
+  conditions:
+    - legal_representation_involved
