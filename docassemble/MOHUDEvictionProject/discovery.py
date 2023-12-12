@@ -65,6 +65,14 @@ class DiscoveryItem(DAObject):
             return True
         return any(showifdef(condition) for condition in self.conditions)
     
+    def ask_about(self):
+        return {
+                    "label": f"{self.description}",
+                    "field": f"{self.instanceName}.checked",
+                    "default": self.checked if hasattr(self, "checked") else False,
+                    "datatype": "yesnowide"
+                }        
+    
 class DiscoveryDict(DADict):
     """
     A dictionary of discovery items.
@@ -105,7 +113,10 @@ class DiscoveryDict(DADict):
                 yaml_items = yaml.safe_load(stream)
             except yaml.YAMLError as exc:
                 log(exc)
+        self.categories = []
         for item in yaml_items:
+            if item["category"] not in self.categories:
+                self.categories.append(item["category"])
             dict_item = self.initializeObject(item["name"]) # ensure proper instance name
             dict_item.name=item["name"]
             dict_item.description=item.get("description", item["name"])
@@ -135,31 +146,40 @@ class DiscoveryDict(DADict):
         for item in candidate_list[:limit]:
             item.checked = True
 
-    def ask_about_items(self, show_category_notes:bool = True):
-        """Returns the Docassemble question code for asking about discovery items."""
+    def ask_about_items(self, show_category_notes:bool = True, category:Optional[str] = None):
+        """Returns the Docassemble question code for asking about discovery items.
+        
+        Args:
+            show_category_notes (bool): Whether to include a heading with the category of each discovery item.
+            category (Optional[str]): The category of discovery items to ask about. If None, all categories
+                will be included. If defined, `show_category_notes` has no effect.
+        
+        Returns:
+            List[Dict[str, Union[str, bool]]]: A list of dictionaries representing Docassemble questions.
+        """
         categories = self.get_categories()
 
         fields = []
-
-        for category in categories:
-            if show_category_notes:
-                fields.append(
-                    {
-                        "note": f"## {category}"
-                    }
-                )
+        
+        if category is not None:
             for key in self.matches_from_category(category, checked_only=False):
-                fields.append({
-                    "label": f"### { self[key].name} [BR] {self[key].description}",
-                    "label above field": True,
-                    "field": f"{self.instanceName}['{key}'].checked",
-                    "default": self[key].checked if hasattr(self[key], "checked") else False,
-                    "datatype": "yesno"
-                })
+                fields.append(self[key].ask_about())
+        else:       
+            for category in categories:
+                if show_category_notes:
+                    fields.append(
+                        {
+                            "note": f"## {category}"
+                        }
+                    )
+                for key in self.matches_from_category(category, checked_only=False):
+                    fields.append(self[key].ask_about())
         return fields
     
     def get_categories(self):
         """Returns a list of categories for the discovery items."""
+        if hasattr(self, "categories"):
+            return self.categories
         return list(set([val.category for val in self.values()]))
 
     def checked_values(self):
@@ -190,6 +210,13 @@ class DiscoveryDict(DADict):
                 n += 1
         return n
     
+    def hook_after_gather(self):
+        if not hasattr(self, "categories"):
+            self.categories = []
+        for item in self.values():
+            if hasattr(item, "category") and item.category not in self.categories:
+                self.categories.append(item.category)
+
     def __getitem__(self, key):
         if key in self.elements:
             return self.elements[key]

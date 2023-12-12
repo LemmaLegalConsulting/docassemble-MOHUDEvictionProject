@@ -29,16 +29,14 @@ fields:
     help: |
       Most tenants use the default questions and documents.
 ---
-mandatory: True
 id: customize discovery items
 question: |
   Customize discovery (questions and documents to get ready for court)
-subquestion:
+subquestion: |
   The list of questions and documents is based on your answers to other questions.
 
   1. You can ask up to 25 questions. In court, questions are called "interrogatories".
-  
-  2. You can ask for as many documents as you want.
+  1. You can ask for as many documents as you want.
 
   Remember, you are **asking your landlord** for the information below.
 continue button field: review_discovery_requests
@@ -47,14 +45,20 @@ fields:
       ## Questions (interrogatories)
   - code: |
       interrogatories.ask_about_items()
-  - Add custom question?: add_interrogatory
-    datatype: yesno
   - note: |
       ## Documents (requests for production)
   - code: |
       requests_for_production.ask_about_items()
-  - Add custom document request?: add_request_for_production
-    datatype: yesno
 validation code: |
   if interrogatories.count_checked() > 25:
     validation_error("You can only ask up to 25 questions.")
+---
+question: |
+  Review discovery requests
+subquestion: |
+  % for key in interrogatories.checked_values():
+  - ${ interrogatories[key].description }
+  % endfor
+  % for key in requests_for_production.checked_values():
+  - ${ requests_for_production[key].description }
+  % endfor
