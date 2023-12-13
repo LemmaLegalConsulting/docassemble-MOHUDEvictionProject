@@ -295,6 +295,9 @@ subquestion: |
   
   Tap the {green words} in any screen for a definition or more information.
   
+  You can also click an underlined link with a triangle next to it to see more information.
+  ${ collapse_template(collapsible_info_template) }
+  
   % if chat_partners_available().help:
   Live help is currently available in this interview. Click the speech bubble
   (:comment-alt:) in the navigation bar to connect to a live advocate for help.
@@ -312,9 +315,6 @@ fields:
       minlength: |
         You cannot continue unless you agree to the terms of use.
 continue button field: al_intro_screen
-terms:
-  green words: |
-    Green words are legal terms or a short way of referring to something that needs more explanation. The definition or explanation pops up when you tap the green words.
 ---
 id: motion list
 question: |

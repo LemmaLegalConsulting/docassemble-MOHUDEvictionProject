@@ -1051,4 +1051,10 @@ question: |
 subquestion: |
   The last few questions are about getting a copy
   of the documents to the landlord.
-continue button field: signpost_service_of_process      
+continue button field: signpost_service_of_process
+---
+template: collapsible_info_template
+subject: Click here to see more information
+content: |
+  You can find more information or definitions by clicking on these links.
+---
