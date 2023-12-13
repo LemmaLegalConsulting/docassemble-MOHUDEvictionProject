@@ -186,7 +186,8 @@ code: |
   
   nav.set_section("section_eviction_discovery")
   if customize_discovery_choice == "customize_discovery":
-    add_interrogatory
+    customize_discovery_requests
+  review_discovery_requests
   
   nav.set_section("review_eviction_answer")
   explanation_answer

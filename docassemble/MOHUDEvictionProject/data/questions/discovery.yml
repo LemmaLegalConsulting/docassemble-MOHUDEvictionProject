@@ -39,7 +39,7 @@ subquestion: |
   1. You can ask for as many documents as you want.
 
   Remember, you are **asking your landlord** for the information below.
-continue button field: review_discovery_requests
+continue button field: customize_discovery_requests
 fields:
   - note: |
       ## Questions (interrogatories)
@@ -53,12 +53,15 @@ validation code: |
   if interrogatories.count_checked() > 25:
     validation_error("You can only ask up to 25 questions.")
 ---
+continue button field: review_discovery_requests
 question: |
   Review discovery requests
 subquestion: |
+  ## Questions (interrogatories)
   % for key in interrogatories.checked_values():
   - ${ interrogatories[key].description }
   % endfor
+  ## Documents (requests for production)
   % for key in requests_for_production.checked_values():
   - ${ requests_for_production[key].description }
   % endfor
