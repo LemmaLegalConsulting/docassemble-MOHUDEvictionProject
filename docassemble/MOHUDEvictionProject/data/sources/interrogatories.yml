@@ -12,6 +12,7 @@
   priority: 
   conditions:
     - defense_failure_to_terminate
+    - defense_discrimination
   
 - name: all_communications
   description: Asks the landlord to list all communications between tenant and landlord.
@@ -20,6 +21,8 @@
   priority: 800
   conditions:
     - defense_failure_to_terminate
+    - defense_discrimination
+    - defense_reasonable_accommodation
 
 - name: all_agreements
   description: Asks the landlord to list all agreements between tenant and landlord.
@@ -32,9 +35,11 @@
 - name: agreements_other
   description: Asks the landlord to list all agreements between landlord and anyone about maintenance, rent collection, or management.
   category: Tenancy
-  default_check: True
+  default_check: False
   priority: 300
   conditions:
+    - defense_breach_of_habitability
+    - defense_breach_of_cqe
   
 - name: notice
   description: Asks the landlord to list and describe each notice to the tenant.
@@ -208,6 +213,7 @@
   priority: 300
   conditions:
     - defense_discrimination
+    - defense_ll_refused_section_8
 
 - name: rental_value
   description: Asks the landlord to estimate the fair market rental value of the property for each year of the tenant's occupancy.
@@ -223,4 +229,12 @@
   default_check: False
   priority: 100
   conditions:
-    - defense_vawa
+
+- name: witnesses
+  description: Asks the landlord to identify any witnesses they may ask to testify at trial.
+  category: Other
+  default_check: False
+  priority: 100
+  conditions:
+  
+  

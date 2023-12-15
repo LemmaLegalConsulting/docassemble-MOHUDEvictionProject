@@ -1,18 +1,9 @@
-- name: persons_with_knowledge
-  description: Lists people who know about the rental and any problems with it.
-  category: Tenancy
-  default_check: False
-  priority: 300
-  conditions:
-    - legal_representation_involved
-    
 - name: tenancy_files
   description: A full set of papers about the person living in the place, including any computer files.
   category: Tenancy
   default_check: True
   priority: 900
   conditions:
-    - original_hearing_date_past
 
 - name: written_agreements
   description: All the papers that show agreements about living in the place, like leases.
@@ -23,12 +14,11 @@
     - defense_failure_to_terminate
 
 - name: landlord_documents
-  description: Any papers the owner has about the lease or the person living there, unless they are private.
+  description: Any papers the owner has about the lease, the tenant, or the home.
   category: Tenancy
   default_check: True
   priority: 700
   conditions:
-    - defense_ud_no_written_notice
 
 - name: tenant_conduct_notices
   description: Written rules for how the person living in the place should act that are not in the lease.
@@ -36,7 +26,7 @@
   default_check: False
   priority: 600
   conditions:
-    - defense_ud_no_rental_period_notice
+    - eviction_reason["lease_violation"]
 
 - name: management_policies
   description: Rules and guidelines for running the place while the person was living there.
@@ -44,15 +34,16 @@
   default_check: False
   priority: 500
   conditions:
-    - defense_ud_lease_requirements
 
 - name: accounting_documents
-  description: Records of money matters related to the person's rent and other payments for the place.
+  description: Records of money matters related to the tenant's rent and other payments for the home.
   category: Tenancy
   default_check: True
   priority: 800
   conditions:
-    - defense_termination_notice_required_by_law
+    - eviction_reason["nonpayment of rent"]
+    - excessive_rent
+    - defense_rent_payment
 
 - name: rental_payments_records
   description: A record of all the money the person gave for rent and any discounts they got.
@@ -60,7 +51,7 @@
   default_check: True
   priority: 850
   conditions:
-    - defense_ud_did_not_violate_lease
+    - eviction_reason["nonpayment of rent"]
 
 - name: non_rent_financials
   description: Details of payments made that are not for rent, like deposits for pets or cleaning and bills for things like water and electricity.
@@ -68,6 +59,9 @@
   default_check: False
   priority: 500
   conditions:
+    - eviction_reason["nonpayment of rent"]
+    - excessive_rent
+    - defense_rent_payment
     - defense_discrimination
 
 - name: landlord_tenant_communications
@@ -76,6 +70,8 @@
   default_check: True
   priority: 900
   conditions:
+    - defense_failure_to_terminate
+    - defense_discrimination
     - defense_reasonable_accommodation
 
 - name: third_party_complaints
