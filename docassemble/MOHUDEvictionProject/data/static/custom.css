@@ -20,3 +20,8 @@
 .fa-circle-question{
  color : #007cff
 }
+
+.da-subquestion,h3 {
+  margin-bottom : 27px;
+  margin-top : 10px;
+}
