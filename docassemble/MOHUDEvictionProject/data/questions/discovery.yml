@@ -12,17 +12,22 @@ question: |
 subquestion:
   You have the right to have your landlord answer some questions and give you some documents 
   before trial. This is called "discovery."
+  
 
   This website includes a list of common questions to ask and documents to ask your landlord for.
+  
 
   Based on your answers, we will ask your landlord ${ interrogatories.count_checked() }
   questions and ${ requests_for_production.count_checked() } documents.
+  
 
   You can change the list of questions and documents if you want to.
+  
 
   Most tenants use the default questions and documents.
 fields:
   - What do you want to do?: customize_discovery_choice
+    input type: radio
     choices:
       - Customize the questions and documents I ask for: customize_discovery
       - Use the default questions and documents: default_discovery

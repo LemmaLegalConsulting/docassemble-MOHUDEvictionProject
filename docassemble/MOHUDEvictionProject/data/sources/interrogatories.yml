@@ -9,7 +9,7 @@
   description: Asks the landlord about any systems they use to store rental or communication records.
   category: Tenancy
   default_check: True
-  priority: 
+  priority: 500
   conditions:
     - defense_failure_to_terminate
     - defense_discrimination
@@ -44,7 +44,7 @@
 - name: notice
   description: Asks the landlord to list and describe each notice to the tenant.
   category: Tenancy
-  default_check: False
+  default_check: True
   priority: 800
   conditions:
     - not notice_of_foreclosure

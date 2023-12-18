@@ -185,6 +185,7 @@ code: |
   information_collected
   
   nav.set_section("section_eviction_discovery")
+  customize_discovery_choice
   if customize_discovery_choice == "customize_discovery":
     customize_discovery_requests
   review_discovery_requests
