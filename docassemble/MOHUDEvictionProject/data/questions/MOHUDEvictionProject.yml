@@ -188,7 +188,7 @@ code: |
   customize_discovery_choice
   if customize_discovery_choice == "customize_discovery":
     customize_discovery_requests
-  review_discovery_requests
+    review_discovery_requests
   
   nav.set_section("review_eviction_answer")
   explanation_answer

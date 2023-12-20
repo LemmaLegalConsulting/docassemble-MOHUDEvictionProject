@@ -4,7 +4,7 @@ modules:
 ---
 objects:
   - interrogatories: DiscoveryDict.using(yaml_source="data/sources/interrogatories.yml")
-  - requests_for_production: DiscoveryDict.using(yaml_source="data/sources/document_requests.yml")
+  - document_requests: DiscoveryDict.using(yaml_source="data/sources/document_requests.yml")
 ---
 id: customize discovery
 question: |
@@ -18,7 +18,7 @@ subquestion:
   
 
   Based on your answers, we will ask your landlord ${ interrogatories.count_checked() }
-  questions and ${ requests_for_production.count_checked() } documents.
+  questions and ${ document_requests.count_checked() } documents.
   
 
   You can change the list of questions and documents if you want to.
@@ -29,8 +29,8 @@ fields:
   - What do you want to do?: customize_discovery_choice
     input type: radio
     choices:
-      - Customize the questions and documents I ask for: customize_discovery
       - Use the default questions and documents: default_discovery
+      - Customize the questions and documents I ask for: customize_discovery
     help: |
       Most tenants use the default questions and documents.
 ---
@@ -53,7 +53,7 @@ fields:
   - note: |
       ## Documents (requests for production)
   - code: |
-      requests_for_production.ask_about_items()
+      document_requests.ask_about_items()
 validation code: |
   if interrogatories.count_checked() > 25:
     validation_error("You can only ask up to 25 questions.")
@@ -67,6 +67,6 @@ subquestion: |
   - ${ interrogatories[key].description }
   % endfor
   ## Documents (requests for production)
-  % for key in requests_for_production.checked_values():
-  - ${ requests_for_production[key].description }
+  % for key in document_requests.checked_values():
+  - ${ document_requests[key].description }
   % endfor
