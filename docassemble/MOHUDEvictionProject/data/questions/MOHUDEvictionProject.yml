@@ -185,6 +185,7 @@ code: |
   information_collected
   
   nav.set_section("section_eviction_discovery")
+  precheck_items
   customize_discovery_choice
   if customize_discovery_choice == "customize_discovery":
     customize_discovery_requests
@@ -193,6 +194,11 @@ code: |
   nav.set_section("review_eviction_answer")
   explanation_answer
   document_order = True
+---
+code: |
+  interrogatories.precheck_items(limit=24)
+  document_requests.precheck_items(limit=None)
+  precheck_items = True
 ---
 ## other parties 
 code: | 

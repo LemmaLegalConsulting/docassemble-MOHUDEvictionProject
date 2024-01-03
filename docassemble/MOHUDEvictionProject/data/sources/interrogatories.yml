@@ -1,7 +1,7 @@
 - name: persons_with_knowledge
   description: Asks the landlord to list people who have knowledge about the rental and any related problems.
   category: Tenancy
-  default_check: False
+  default_check: True
   priority: 300
   conditions:
     
@@ -140,7 +140,7 @@
   default_check: False
   priority: 400
   conditions:
-    - eviction_reason["lease_violation"] and eviction_detailed_reasons["Destruction of property"]
+    - eviction_detailed_reasons["Destruction of property"]
 
 - name: bad_conditions_tenant_hindered
   description: Asks the landlord if the tenant ever prevented them from inspecting or repairing the property.
@@ -229,12 +229,12 @@
   default_check: False
   priority: 100
   conditions:
+    - eviction_detailed_reasons["Destruction of property"]
 
 - name: witnesses
   description: Asks the landlord to identify any witnesses they may ask to testify at trial.
   category: Other
-  default_check: False
+  default_check: True
   priority: 100
   conditions:
-  
-  
+    

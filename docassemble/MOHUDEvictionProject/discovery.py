@@ -47,7 +47,7 @@ class DiscoveryItem(DAObject):
     def __str__(self):
         return self.name
     
-    def applies(self, conditions:List[str]) -> bool:
+    def applies(self) -> bool:
         """
         Check if the discovery item is relevant in the interview's context.
 
@@ -63,6 +63,8 @@ class DiscoveryItem(DAObject):
         """
         if hasattr(self, "default_check") and self.default_check:
             return True
+        if not hasattr(self, "conditions") or not self.conditions:
+            return False
         return any(showifdef(condition) for condition in self.conditions)
     
     def ask_about(self):
