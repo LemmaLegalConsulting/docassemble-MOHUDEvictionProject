@@ -682,9 +682,9 @@ fields:
       variable: is_rent_subsidized
       is: False
     choices:
-      - One (single-family): one
-      - More than 1 but fewer than 4: fewer_than_four
-      - 4 or more: four_or_more
+      - ${ number_of_units_in_building_text['one'] }: one
+      - ${ number_of_units_in_building_text['fewer_than_four'] }: fewer_than_four
+      - ${ number_of_units_in_building_text['four_or_more'] }: four_or_more
   - label: |
       % if person_answering == "tenant":
       What kind of lease do you have?
@@ -755,6 +755,19 @@ data:
   dont_know:
     question: Unknown
     document: Unknown
+---
+variable name: number_of_units_in_building_text
+use objects: True
+data: 
+  one:
+    document: one
+    question: One (single-family)
+  fewer_than_four:
+    document: more than one but fewer than four
+    question: More than 1 but fewer than 4
+  four_or_more:
+    document: four or more
+    question: 4 or more
 ---
 template: why_tenancy_facts_template
 subject: |
@@ -1850,49 +1863,49 @@ data:
   harassment:
     question: |
       % if person_answering == "tenant":
-      Harass you in person or on the phone
+      Harass you in person or on the phone\
       % else:
-      Harassed Tenant in person or on the phone
+      Harassed Tenant in person or on the phone\
       % endif
     document: Harassed Tenant in person or on the phone
   visits:
     question: |
       % if person_answering == "tenant":
-      Make frequent or unnecessary visits or inspections of the property
+      Make frequent or unnecessary visits or inspections of the property\
       % else:
-      Made frequent or unnecessary visits or inspections of the property
+      Made frequent or unnecessary visits or inspections of the property\
       % endif
     document: Made frequent or unnecessary visits or inspections of the property
   remodeling:
     question: |
       % if person_answering == "tenant":
-      Do unnecessary remodeling work, or maintenance work that takes longer than they promised
+      Do unnecessary remodeling work, or maintenance work that takes longer than they promised\
       % else:
-      Performed unnecessary remodeling work, or maintenance work that took longer than they promised
+      Performed unnecessary remodeling work, or maintenance work that took longer than they promised\
       % endif
     document: Performed unnecessary remodeling work, or maintenance work that took longer than they promised
   access:
     question: |
       % if person_answering == "tenant":
-      Allow construction that stops you from easily getting into your home or makes you take a long detour
+      Allow construction that stops you from easily getting into your home or makes you take a long detour\
       % else:
-      Allows construction that stops the tenant from easily getting into their home or makes them take a long detour
+      Allows construction that stops the tenant from easily getting into their home or makes them take a long detour\
       % endif
     document: Allows construction that stops the tenant from easily getting into their home or makes them take a long detour
   animal:
     question: |
       % if person_answering == "tenant":
-      Allow their own dog or pet to bark constantly and disturb you
+      Allow their own dog or pet to bark constantly and disturb you\
       % else:
-      Allowed their dog or pet to bark constantly and disturb Tenant
+      Allowed their dog or pet to bark constantly and disturb Tenant\
       % endif 
     document: Allowed their dog or pet to bark constantly and disturb Tenant
   vermin:
     question: |
       % if person_answering == "tenant":
-      Not exterminate or take care of vermin or pests in the walls making disruptive noises
+      Not exterminate or take care of vermin or pests in the walls making disruptive noises\
       % else:
-      Failed to exterminate or take care of vermin or pests in the walls making disruptive noises
+      Failed to exterminate or take care of vermin or pests in the walls making disruptive noises\
       % endif
     document: Failed to exterminate or take care of vermin or pests in the walls making disruptive noises
 ---
@@ -2005,20 +2018,20 @@ variable name: rent_amount_paid_text
 use objects: True
 data:
   all:
-    question: |
+    question: |-
       % if person_answering == "tenant":
-      I paid all of the rent
+      I paid all of the rent\
       % else:
-      The tenant paid all of the rent
+      The tenant paid all of the rent\
       % endif    
     document: |
       all
   a_portion:
-    question: |
+    question: |-
       % if person_answering == "tenant":
-      I paid part of the rent
+      I paid part of the rent\
       % else:
-      The tenant paid part of the rent
+      The tenant paid part of the rent\
       % endif    
     document: |
       part
