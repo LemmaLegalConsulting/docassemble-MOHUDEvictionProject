@@ -208,7 +208,7 @@ class DiscoveryDict(DADict):
         """Returns the number of checked discovery items."""
         n = 0
         for key in self.elements:
-            if self.elements[key].default_check: 
+            if self.elements[key].checked: 
                 n += 1
         return n
     
