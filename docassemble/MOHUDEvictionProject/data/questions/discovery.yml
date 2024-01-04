@@ -38,20 +38,21 @@ id: customize discovery items
 question: |
   Customize discovery (questions and documents to get ready for court)
 subquestion: |
-  The list of questions and documents is based on your answers to other questions.
-
-  1. You can ask up to 25 questions. In court, questions are called "interrogatories".
-  1. You can ask for as many documents as you want.
+  The list of selected questions and documents is based on the answers to other questions.
 
   Remember, you are **asking your landlord** for the information below.
 continue button field: customize_discovery_requests
 fields:
   - note: |
       ## Questions (interrogatories)
+      
+      You can ask up to 25 questions. In court, questions are called "interrogatories". 
   - code: |
       interrogatories.ask_about_items()
   - note: |
       ## Documents (requests for production)
+      
+      You can ask for as many documents as you want. 
   - code: |
       document_requests.ask_about_items()
 validation code: |
@@ -64,9 +65,9 @@ question: |
 subquestion: |
   ## Questions (interrogatories)
   % for key in interrogatories.checked_values():
-  - ${ interrogatories[key].description }
+  1. ${ interrogatories[key].description }
   % endfor
   ## Documents (requests for production)
   % for key in document_requests.checked_values():
-  - ${ document_requests[key].description }
+  1. ${ document_requests[key].description }
   % endfor
