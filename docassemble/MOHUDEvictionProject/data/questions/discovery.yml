@@ -31,8 +31,6 @@ fields:
     choices:
       - Use the default questions and documents: default_discovery
       - Customize the questions and documents I ask for: customize_discovery
-    help: |
-      Most tenants use the default questions and documents.
 ---
 id: customize discovery items
 question: |
