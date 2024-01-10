@@ -1,0 +1,263 @@
+- name: persons_who_prepared_answers
+  description: List people who prepared the landlord's answers to the tenant's questions.
+  category: Tenancy
+  default_check: True
+  priority: 800
+  conditions:
+
+- name: persons_with_knowledge
+  description: List people who have knowledge about the rental and any related problems.
+  category: Tenancy
+  default_check: True
+  priority: 300
+  conditions:
+    
+- name: record_systems
+  description: Ask about any systems the landlord uses to store rental or communication records.
+  category: Tenancy
+  default_check: True
+  priority: 500
+  conditions:
+    - defense_failure_to_terminate
+    - defense_discrimination
+  
+- name: all_communications
+  description: List all communications between tenant and landlord.
+  category: Tenancy
+  default_check: True
+  priority: 800
+  conditions:
+    - defense_failure_to_terminate
+    - defense_discrimination
+    - defense_reasonable_accommodation
+
+- name: all_agreements
+  description: List all agreements between tenant and landlord.
+  category: Tenancy
+  default_check: True
+  priority: 800
+  conditions:
+    - defense_failure_to_terminate
+  
+- name: agreements_other
+  description: List all agreements between landlord and anyone about maintenance, rent collection, or management.
+  category: Tenancy
+  default_check: True
+  priority: 300
+  conditions:
+    - defense_breach_of_habitability
+    - defense_breach_of_cqe
+  
+- name: notice
+  description: List and describe each notice to the tenant.
+  category: Tenancy
+  default_check: True
+  priority: 800
+  conditions:
+    - not notice_of_foreclosure
+    - not got_notice_to_terminate
+    - defense_ud_no_rental_period_notice
+    - defense_termination_notice_required_by_law
+    - defense_ud_no_written_notice
+    - defense_new_owner_failed_to_provide_notice_of_sale
+    - defense_failure_to_terminate
+    - defense_breach_of_cqe
+
+- name: list_payments
+  description: List all payments made by the tenant.
+  category: Tenancy
+  default_check: False
+  priority: 600
+  conditions:
+    - eviction_reason["nonpayment of rent"]
+    - excessive_rent
+    - defense_rent_payment
+
+- name: subsidized_housing_basic_facts
+  description: Describe the tenant's subsidy or subsidized unit.
+  category: Subsidized Housing
+  default_check: False
+  priority: 800
+  conditions:
+    - is_rent_subsidized
+    - defense_excessive_rent_for_subsidized_housing
+    
+- name: subsidized_housing_rent_increase_request
+  description: Describe any request they made to increase the tenant's rent in the last year.
+  category: Subsidized Housing
+  default_check: False
+  priority: 800
+  conditions:
+    - is_rent_subsidized
+    - defense_excessive_rent_for_subsidized_housing
+    
+- name: subsidized_housing_steps_for_termination
+  description: Explain how the landlord tried to end the rental agreement.
+  category: Subsidized Housing
+  default_check: False
+  priority: 800
+  conditions:
+    - is_rent_subsidized
+    - defense_excessive_rent_for_subsidized_housing
+
+- name: bad_conditions_need_for_repair
+  description: Explain their knowledge and actions regarding necessary repairs in the property.
+  category: Problems with the Apartment/Building
+  default_check: False
+  priority: 700
+  conditions:
+    - defense_breach_of_habitability
+    - defense_breach_of_cqe
+
+- name: bad_conditions_inspections
+  description: List and describe inspections done by others and their subsequent actions.
+  category: Problems with the Apartment/Building
+  default_check: False
+  priority: 600
+  conditions:
+    - defense_breach_of_habitability
+    - defense_breach_of_cqe
+
+- name: bad_conditions_prepurchase_inspections
+  description: List and describe any inspections done before purchasing or acquiring the property.
+  category: Problems with the Apartment/Building
+  default_check: False
+  priority: 400
+  conditions:
+    - previous_landlord_sold_property
+    - defense_breach_of_habitability
+    - defense_breach_of_cqe
+
+- name: bad_conditions_attempted_repairs
+  description: List and describe attempts to repair or inspect the property, including associated costs.
+  category: Problems with the Apartment/Building
+  default_check: False
+  priority: 700
+  conditions:
+    - defense_breach_of_habitability
+    - defense_breach_of_cqe
+
+- name: lead_paint
+  description: About the presence of lead paint in the property and any actions taken.
+  category: Problems with the Apartment/Building
+  default_check: False
+  priority: 750
+  conditions:
+    - warranty_breaches["lead_paint"]
+    - defense_breach_of_habitability
+
+- name: bad_conditions_tenant_damaged
+  description: About damage they believe was caused by the tenant and the cost of repairs.
+  category: Problems with the Apartment/Building
+  default_check: False
+  priority: 400
+  conditions:
+    - eviction_detailed_reasons["Destruction of property"]
+    - defense_breach_of_habitability
+    - defense_breach_of_cqe
+
+- name: bad_conditions_tenant_hindered
+  description: If the tenant ever prevented the landlord from inspecting or repairing the property.
+  category: Problems with the Apartment/Building
+  default_check: False
+  priority: 450
+  conditions:
+    - defense_breach_of_habitability
+    - defense_breach_of_cqe
+
+- name: bad_conditions_landlord_entered_premises
+  description: About instances where the landlord or others entered the tenant's home.
+  category: Problems with the Apartment/Building
+  default_check: False
+  priority: 550
+  conditions:
+    - defense_breach_of_habitability
+    - defense_breach_of_cqe
+
+- name: bad_conditions_describe_maintenance
+  description: About the maintenance and management of the property.
+  category: Problems with the Apartment/Building
+  default_check: False
+  priority: 500
+  conditions:
+    - defense_breach_of_habitability
+    - defense_breach_of_cqe
+
+- name: security_deposit_last_months_rent
+  description: About security deposits or last month's rent paid by the tenant.
+  category: Security Deposit and Last Month’s Rent
+  default_check: True
+  priority: 600
+  conditions:
+    - eviction_reason["nonpayment of rent"]
+
+- name: disability_knowledge
+  description: What they know about the tenant's or their family's disabilities.
+  category: Disability
+  default_check: False
+  priority: 350
+  conditions:
+    - defense_reasonable_accommodation
+    - tenant_has_disability
+
+- name: disability_ra
+  description: About any reasonable accommodation requests made due to a disability.
+  category: Disability
+  default_check: False
+  priority: 400
+  conditions:
+    - defense_reasonable_accommodation
+    - tenant_has_disability
+
+- name: disability_ra_response
+  description: How they responded to requests for disability-related accommodations.
+  category: Disability
+  default_check: False
+  priority: 450
+  conditions:
+    - defense_reasonable_accommodation
+    - tenant_has_disability
+
+- name: disability_ra_reasonable
+  description: Why the landlord might consider disability-related accommodation requests as unreasonable.
+  category: Disability
+  default_check: False
+  priority: 500
+  conditions:
+    - defense_reasonable_accommodation
+    - tenant_has_disability
+
+- name: discrimination_subsidy_receipt
+  description: If the landlord agreed to accept special financial assistance for the tenant's rent.
+  category: Other
+  default_check: False
+  priority: 300
+  conditions:
+    - defense_discrimination
+    - defense_ll_refused_section_8
+
+- name: rental_value
+  description: Estimate the fair market rental value of the property for each year of the tenant's occupancy.
+  category: Other
+  default_check: False
+  priority: 200
+  conditions:
+    - eviction_reason["nonpayment of rent"]
+    - defense_rent_pleading_requirement
+
+- name: insurance_policies
+  description: If there is insurance coverage for any tenant-related claims or damages.
+  category: Other
+  default_check: False
+  priority: 100
+  conditions:
+    - eviction_reason["nonpayment of rent"]
+    - eviction_detailed_reasons["Destruction of property"]
+
+- name: witnesses
+  description: Identify any witnesses they may ask to testify at trial.
+  category: Other
+  default_check: True
+  priority: 100
+  conditions:
+    
