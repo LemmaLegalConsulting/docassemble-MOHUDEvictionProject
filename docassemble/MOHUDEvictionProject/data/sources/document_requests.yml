@@ -100,6 +100,7 @@
   priority: 400
   conditions:
     - defense_breach_of_habitability
+    - defense_breach_of_cqe
 
 - name: maintenance_requests
   description: Papers about asking the landlord to fix or take care of the home.
@@ -108,6 +109,7 @@
   priority: 600
   conditions:
     - defense_breach_of_habitability
+    - defense_breach_of_cqe
 
 - name: visual_depictions_of_premises
   description: Pictures or videos that show the home or nearby areas.
@@ -116,6 +118,7 @@
   priority: 450
   conditions:
     - defense_breach_of_habitability
+    - defense_breach_of_cqe
     
 - name: visual_depictions_of_damage
   description: Pictures or videos that show the home and any damage.
@@ -131,6 +134,7 @@
   default_check: True
   priority: 300
   conditions:
+    - defense_breach_of_habitability
     - defense_breach_of_cqe
 
 - name: health_violations
@@ -140,6 +144,7 @@
   priority: 500
   conditions:
     - defense_breach_of_habitability
+    - defense_breach_of_cqe
 
 - name: repair_maintenance_records
   description: Records of maintenance requests while the tenant was living in the home.
@@ -148,6 +153,7 @@
   priority: 600
   conditions:
     - defense_breach_of_habitability
+    - defense_breach_of_cqe
 
 - name: disability_ra_request
   description: Papers about asking the landlord to make changes for a tenant with a disability.
@@ -156,6 +162,7 @@
   priority: 300
   conditions:
     - defense_reasonable_accommodation
+    - tenant_has_disability
 
 - name: disability_ra_burdensome
   description: Proof if making changes for a tenant with a disability would be too hard or expensive for the landlord.
@@ -164,6 +171,7 @@
   priority: 200
   conditions:
     - defense_reasonable_accommodation
+    - tenant_has_disability
 
 - name: disability_ra_reasonable
   description: Proof that the changes asked for a tenant with a disability are fair and possible.
@@ -172,6 +180,7 @@
   priority: 200
   conditions:
     - defense_reasonable_accommodation
+    - tenant_has_disability
 
 - name: disability_ra_plan
   description: The landlord's rules about helping people with disabilities.
@@ -180,6 +189,7 @@
   priority: 250
   conditions:
     - defense_reasonable_accommodation
+    - tenant_has_disability
 
 - name: security_deposit_correspondence
   description: All the ways the landlord and the tenant talked about the money kept for security, like texts, emails, or letters.
@@ -219,3 +229,5 @@
   default_check: False
   priority: 200
   conditions:
+    - eviction_reason["nonpayment of rent"]
+    - eviction_detailed_reasons["Destruction of property"]
