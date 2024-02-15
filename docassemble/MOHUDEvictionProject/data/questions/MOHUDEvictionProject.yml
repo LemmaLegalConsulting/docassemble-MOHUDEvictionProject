@@ -501,6 +501,9 @@ depends on: original_hearing_date_past
 code: |
   eviction_motion_for_leave_attachment.enabled = original_hearing_date_past
 ---
+code: |
+  eviction_discovery_attachment.enabled = wants_discovery
+---
 id: eviction answer determination code
 code: |
   # We now handle unlawful detainer cases

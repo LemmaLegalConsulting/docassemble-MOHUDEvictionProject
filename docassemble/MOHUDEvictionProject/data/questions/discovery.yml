@@ -9,9 +9,8 @@ objects:
 id: wants discovery
 question: |
   Ask your landlord for information or documents to get ready for court
-subquestion:
-  You have the right to have your landlord answer some questions and give you some documents 
-  before trial. This is called "discovery."
+subquestion: |
+  You have the right to have your landlord answer some questions and give you some documents before trial. This is called "discovery."
   
   Discovery may help you understand what information or documents your Landlord has.
   
@@ -19,11 +18,12 @@ subquestion:
 fields:
   - Do you want to request information or documents from your landlord?: wants_discovery
     datatype: yesnoradio
+    default: True
 ---  
 id: customize discovery
 question: |
   You can customize the questions and documents you request from your landlord
-subquestion:
+subquestion: |
   Based on your answers, you would ask your landlord ${ interrogatories.count_checked() }
   questions and for ${ document_requests.count_checked() } documents.
   
@@ -35,6 +35,7 @@ fields:
     input type: radio
     choices:
       - Use the default questions and documents: default_discovery
+        default: True
       - Customize the questions and documents I ask for: customize_discovery
 ---
 id: customize discovery items
