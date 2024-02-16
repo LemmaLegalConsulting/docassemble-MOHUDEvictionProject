@@ -7,6 +7,9 @@ include:
   - court_information.yml
   - autoterms.yml
 ---
+modules:
+  - docassemble.demo.accordion
+---
 code: |
   feedback_form = f"{user_info().package}:feedback.yml"
 ---
