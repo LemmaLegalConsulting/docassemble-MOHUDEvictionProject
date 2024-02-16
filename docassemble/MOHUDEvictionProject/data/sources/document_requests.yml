@@ -23,7 +23,7 @@
 - name: tenant_conduct_notices
   description: Written rules for how the tenant living in the home should act that are not in the lease.
   category: Tenancy
-  default_check: True
+  default_check: False
   priority: 600
   conditions:
     - eviction_reason["lease_violation"]
@@ -31,14 +31,16 @@
 - name: management_policies
   description: Rules and guidelines for maintaining the home while the tenant was living there.
   category: Tenancy
-  default_check: True
+  default_check: False
   priority: 500
   conditions:
+    - defense_breach_of_habitability
+    - defense_breach_of_cqe
 
 - name: accounting_documents
   description: Records of money matters related to the tenant's rent and other payments for the home.
   category: Tenancy
-  default_check: True
+  default_check: False
   priority: 800
   conditions:
     - eviction_reason["nonpayment of rent"]
@@ -48,7 +50,7 @@
 - name: rental_payments_records
   description: A record of all the money the tenant gave for rent and any discounts they got.
   category: Tenancy
-  default_check: True
+  default_check: False
   priority: 850
   conditions:
     - eviction_reason["nonpayment of rent"]
@@ -67,7 +69,7 @@
 - name: landlord_tenant_communication_docs
   description: Documents recording communication between landlord and tenant. 
   category: Tenancy
-  default_check: True
+  default_check: False
   priority: 900
   conditions:
     - defense_failure_to_terminate
@@ -77,7 +79,7 @@
 - name: landlord_tenant_communications_exchange
   description: All the ways the landlord and the tenant talked to each other, like texts, emails, or letters.
   category: Tenancy
-  default_check: True
+  default_check: False
   priority: 900
   conditions:
     - defense_failure_to_terminate
@@ -96,7 +98,7 @@
 - name: tenant_complaints
   description: Any problems the tenant told the landlord about, like issues with other tenants or the home itself.
   category: Tenancy
-  default_check: True
+  default_check: False
   priority: 400
   conditions:
     - defense_breach_of_habitability
@@ -105,7 +107,7 @@
 - name: maintenance_requests
   description: Papers about asking the landlord to fix or take care of the home.
   category: Tenancy
-  default_check: True
+  default_check: False
   priority: 600
   conditions:
     - defense_breach_of_habitability
@@ -131,7 +133,7 @@
 - name: surveillance_records
   description: Any videos or records about watching the tenant.
   category: Tenancy
-  default_check: True
+  default_check: False
   priority: 300
   conditions:
     - defense_breach_of_habitability
@@ -194,7 +196,7 @@
 - name: security_deposit_correspondence
   description: All the ways the landlord and the tenant talked about the money kept for security, like texts, emails, or letters.
   category: Security Deposit and Last Month’s Rent
-  default_check: True
+  default_check: False
   priority: 700
   conditions:
     - eviction_reason["nonpayment of rent"]

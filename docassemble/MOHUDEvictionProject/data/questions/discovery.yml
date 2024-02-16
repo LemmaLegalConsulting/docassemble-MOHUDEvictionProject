@@ -6,23 +6,28 @@ objects:
   - interrogatories: DiscoveryDict.using(yaml_source="data/sources/interrogatories.yml")
   - document_requests: DiscoveryDict.using(yaml_source="data/sources/document_requests.yml")
 ---
+id: wants discovery
+question: |
+  Ask your landlord for information or documents to get ready for court
+subquestion: |
+  You have the right to have your landlord answer some questions and give you some documents before trial. This is called "discovery."
+  
+  Discovery may help you understand what information or documents your Landlord has.
+  
+  This website includes a list of common questions to ask and documents to ask your landlord for.
+fields:
+  - Do you want to request information or documents from your landlord?: wants_discovery
+    datatype: yesnoradio
+    default: True
+---  
 id: customize discovery
 question: |
-  Ask your landlord questions to get ready for court
-subquestion:
-  You have the right to have your landlord answer some questions and give you some documents 
-  before trial. This is called "discovery."
+  You can customize the questions and documents you request from your landlord
+subquestion: |
+  Based on your answers, you would ask your landlord ${ interrogatories.count_checked() }
+  questions and for ${ document_requests.count_checked() } documents.
   
-
-  This website includes a list of common questions to ask and documents to ask your landlord for.
-  
-
-  Based on your answers, we will ask your landlord ${ interrogatories.count_checked() }
-  questions and ${ document_requests.count_checked() } documents.
-  
-
   You can change the list of questions and documents if you want to.
-  
 
   Most tenants use the default questions and documents.
 fields:
@@ -30,13 +35,14 @@ fields:
     input type: radio
     choices:
       - Use the default questions and documents: default_discovery
+        default: True
       - Customize the questions and documents I ask for: customize_discovery
 ---
 id: customize discovery items
 question: |
   Customize discovery (questions and documents to get ready for court)
 subquestion: |
-  The list of selected questions and documents is based on the answers to other questions.
+  The list of selected questions and documents is based on your answers to previous questions.
 
   Remember, you are **asking your landlord** for the information below.
 continue button field: customize_discovery_requests

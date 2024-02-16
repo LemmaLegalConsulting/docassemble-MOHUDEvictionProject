@@ -62,10 +62,12 @@ code: |
   
   nav.set_section("section_eviction_discovery")
   precheck_items
-  customize_discovery_choice
-  if customize_discovery_choice == "customize_discovery":
-    customize_discovery_requests
-    review_discovery_requests
+  
+  if wants_discovery:
+    customize_discovery_choice
+    if customize_discovery_choice == "customize_discovery":
+      customize_discovery_requests
+      review_discovery_requests
     
   set_progress(90)
   signpost_service_of_process
@@ -498,6 +500,9 @@ id: add motion for leave to file if hearing is in the past
 depends on: original_hearing_date_past
 code: |
   eviction_motion_for_leave_attachment.enabled = original_hearing_date_past
+---
+code: |
+  eviction_discovery_attachment.enabled = wants_discovery
 ---
 id: eviction answer determination code
 code: |
