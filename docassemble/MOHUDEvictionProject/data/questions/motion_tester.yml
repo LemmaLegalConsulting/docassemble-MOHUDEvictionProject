@@ -220,16 +220,20 @@ subquestion: |
     
     * Motion to Elevate Security
     
-    * Notice of Hearing
+  And a required Notice of Hearing for each motion.
 ---
 id: Motion to Dismiss or For a More Definite Statement intro
 continue button field: motion_to_dismiss_intro
 question: |
   Motion to Dismiss or For a More Definite Statement
 subquestion: |
-  You said you want to make a Motion to Dismiss or For a More Definite Statement in your case. 
+  You said you want to make a Motion to Dismiss or For a More Definite Statement in your case.
   
   You have answered all the questions needed for this motion already. You will have a chance to review it on the next screen. It may take a second to load.
+---
+question: |
+  Did the Plaintiff file a rent and posession
+
 ---
 id: Motion to Shorten Time intro
 continue button field: motion_to_shorten_time_intro
