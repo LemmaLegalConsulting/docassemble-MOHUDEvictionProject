@@ -6,6 +6,7 @@ include:
   - docassemble.ALToolbox:display_template.yml
   - court_information.yml
   - autoterms.yml
+  - discovery.yml
 ---
 modules:
   - docassemble.demo.accordion
@@ -894,6 +895,11 @@ attachments:
     variable name: eviction_motion_for_leave_attachment[i]        
     skip undefined: True
     docx template file: motion_for_leave_to_file.docx
+  - name: discovery
+    filename: Discovery.docx     
+    variable name: eviction_discovery_attachment[i]        
+    skip undefined: True
+    docx template file: Discovery.docx
 ---
 id: preview eviction_defender
 question: |
@@ -963,7 +969,7 @@ subquestion: |
   
   **4. Complete and {file} the forms:**
   
-    * Fill in the date you deliver the form to the other party in the "Certificate of Service" box at the end of the document. 
+    * Fill in the date you deliver each form to the other party in the "Certificate of Service" box usually at the end of the document. There are 3 Certificate of Service boxes in the discovery document that you will need to fill in before delivering to the other party. 
     
     % if not docket_number: 
     * Add the case number.
@@ -999,9 +1005,10 @@ objects:
   - eviction_motion_to_continue_attachment: ALDocument.using(title="Postpone your eviction hearing", filename="eviction_motion_to_continue.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
   - eviction_answer_attachment: ALDocument.using(title="Answer and Affirmative Defenses", filename="answer_defenses.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
   - eviction_motion_for_leave_attachment: ALDocument.using(title="Motion for Leave to File Responsive Pleadings", filename="motion_for_leave_to_file.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+  - eviction_discovery_attachment: ALDocument.using(title="Discovery", filename="Discovery.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
 ---
 objects:
-  - al_user_bundle: ALDocumentBundle.using(elements=[eviction_defender_post_interview_instructions,eviction_motion_to_continue_attachment,eviction_answer_attachment,eviction_motion_for_leave_attachment], filename="eviction_helper.docx_package.pdf", title="All forms to download for your records", enabled=True)
+  - al_user_bundle: ALDocumentBundle.using(elements=[eviction_defender_post_interview_instructions,eviction_motion_to_continue_attachment,eviction_answer_attachment,eviction_motion_for_leave_attachment,eviction_discovery_attachment], filename="eviction_helper.docx_package.pdf", title="All forms to download for your records", enabled=True)
   - al_court_bundle: ALDocumentBundle.using(elements=attachment_list_court, filename="eviction_helper.docx_package.pdf", title="All forms to download for your records", enabled=True)
 ---
 template: about_page_contents
