@@ -11,6 +11,8 @@
   default_check: False
   priority: 300
   conditions:
+    - defense_breach_of_habitability
+    - defense_breach_of_cqe
     
 - name: record_systems
   description: Ask about any systems the landlord uses to store rental or communication records.

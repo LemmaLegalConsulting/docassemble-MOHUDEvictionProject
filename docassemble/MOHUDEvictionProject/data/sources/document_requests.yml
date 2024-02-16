@@ -16,7 +16,7 @@
 - name: landlord_documents
   description: Any papers the landlord has about the lease, the tenant, or the home.
   category: Tenancy
-  default_check: False
+  default_check: True
   priority: 700
   conditions:
 
@@ -34,6 +34,8 @@
   default_check: False
   priority: 500
   conditions:
+    - defense_breach_of_habitability
+    - defense_breach_of_cqe
 
 - name: accounting_documents
   description: Records of money matters related to the tenant's rent and other payments for the home.
@@ -48,7 +50,7 @@
 - name: rental_payments_records
   description: A record of all the money the tenant gave for rent and any discounts they got.
   category: Tenancy
-  default_check: True
+  default_check: False
   priority: 850
   conditions:
     - eviction_reason["nonpayment of rent"]
