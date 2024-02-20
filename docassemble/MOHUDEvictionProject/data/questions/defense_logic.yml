@@ -1284,10 +1284,10 @@ fields:
     field: notice_to_terminate_includes_specific_day
     input type: radio
     choices:
-      - Yes, it had a specific day: specific_day
-      - It said to move at the end of the next rental period: rental_period
-      - It did not say when to move: no_specific_day
-      - It said something else: something_else
+      - ${ notice_to_terminate_includes_specific_day_text['specific_day'] }: specific_day
+      - ${ notice_to_terminate_includes_specific_day_text['rental_period'] }: rental_period
+      - ${ notice_to_terminate_includes_specific_day_text['no_specific_day'] }: no_specific_day
+      - ${ notice_to_terminate_includes_specific_day_text['something_else'] }: something_else
     show if: got_notice_to_terminate
   - label: |
       % if person_answering == "tenant":
@@ -1301,6 +1301,22 @@ fields:
     show if:
       variable: notice_to_terminate_includes_specific_day
       is: specific_day
+---
+variable name: notice_to_terminate_includes_specific_day_text
+use objects: True
+data:
+  specific_day:
+    question: Yes, it had a specific day
+    document: Yes, it had a specific day
+  rental_period:
+    question: It said to move at the end of the next rental period
+    document: It said to move at the end of the next rental period
+  no_specific_day:
+    question: It did not say when to move
+    document: It did not say when to move
+  something_else:
+    question: It said something else
+    document: It said something else
 ---
 id: lease requirement for notice
 question: |

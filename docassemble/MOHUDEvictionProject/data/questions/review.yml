@@ -434,49 +434,33 @@ review:
         - defense_ud_no_rental_period_notice
         - defense_logic
       - explanation_answer
-    button: Edit information about the rental agreement
-  - note: |
-      Does a lease exist?
-      **${ "Maybe" if has_written_lease is None else yesno(has_written_lease) }**
-  - note: |
-      % if person_answering == "tenant":
-      Do you get a rent subsidy or do you live in public housing?
-      % else:
-      Does the tenant get a rent subsidy or do they live in public housing?
-      % endif
-      **${ "Maybe" if is_rent_subsidized is None else yesno(is_rent_subsidized) }**
-  - note: |
-      Type of Subsidized Housing:
-      **${ subsidized_housing_text[subsidized_housing_type] }**
-  - note: |
-      How many units are in the building or apartment complex?
-      **${ number_of_units_in_building_text[number_of_units_in_building] }**
-  - note: |
-      % if person_answering == "tenant":
-      Do you live in a mobile  home that you own, and rent the land?
-      % else:
-      Does the tenant live in a mobile  home that the tenant owns, and rents the land?
-      % endif
-      **${ yesno(is_mobile_home_owner) }**
-  - note: |
-      % if person_answering == "tenant":
-      What kind of lease do you have?
-      % else:
-      What kind of lease does the tenant have?
-      % endif
-      **${ lease_type_text[kind_of_lease_agreement] }**
-  - note: |
-      What day does the lease end?
-      **${ fixed_period_end_date }**
-  - note: |
-      Does the lease have a self-extending provision?
-      **${ "Maybe" if is_self_extending_lease is None else yesno(is_self_extending_lease) }**
-  - note: |
-      How often is rent due?
-      **${ times_per_year_list[rent_period] }
-  - note: |
-      What day is rent due?
-      **${ ordinal(rent_day - 1) } day of the month**
+  - Edit:
+      - kind_of_lease_agreement
+      - recompute:
+        - defense_discrimination
+        - defense_lease_not_attached
+        - defense_rent_pleading_requirement
+        - defense_excessive_rent_for_subsidized_housing
+        - defense_ud_no_rental_period_notice
+        - defense_logic
+      - explanation_answer
+    button: "<strong>\n% if person_answering == \"tenant\":\nWhat kind of housing do you have?\n% else:\
+      \ \nWhat kind of housing does the tenant have?\n% endif\n</strong>\n\n% if person_answering == \"\
+      tenant\":\nDo you live in subsidized housing, including getting a rent {subsidy} or living in public\
+      \ housing?\n% else: \nDoes the tenant live in subsidized housing, including getting a rent {subsidy}\
+      \ or living in public housing?\n% endif\n: ${ word(yesno(is_rent_subsidized)) }\n\n% if showifdef('is_rent_subsidized')\
+      \ == \"True\":\nWhat kind?\n: ${ showifdef('subsidized_housing_type') }\n% endif\n\n% if showifdef('is_rent_subsidized')\
+      \ == \"False\":\n% if person_answering == \"tenant\":\nDo you live in a mobile home that you own\
+      \ and rent the land?\n% else: \nDoes the tenant live in a mobile home that they own and rent the\
+      \ land?\n% endif\n: ${ word(yesno(is_mobile_home_owner)) }\n% endif\n\n% if showifdef('is_rent_subsidized')\
+      \ == \"False\":\nHow many units are in the building or apartment complex?\n: ${ showifdef('number_of_units_in_building')\
+      \ }\n% endif\n\n% if person_answering == \"tenant\":\nWhat kind of lease do you have?\n% else:\n\
+      What kind of lease does the tenant have?\n% endif\n: ${ lease_type_text[kind_of_lease_agreement] }\n\
+      \n% if showifdef('kind_of_lease_agreement') == \"fixed_period\":\nWhat day does the lease end?:\
+      \ ${ showifdef('fixed_period_end_date') }\n% endif\n\n% if showifdef('kind_of_lease_agreement')\
+      \ == \"fixed_period\":\nlabel above field: ${ showifdef('True') }\n% endif\n\n% if showifdef('kind_of_lease_agreement')\
+      \ == \"periodic\":\n**How often** is rent due?\n: ${ [tpyl[1] for tpyl in times_per_year_list if tpyl[0] == rent_period][0] }\n\nWhat **day** is rent due?\n(enter a number, like **1** for the first day of\
+      \ the month or week)\n: ${ showifdef('rent_day') }\n% endif\n"
   - raw html: |
       ${ next_accordion("About the eviction", showing=False) }
   - Edit:
@@ -1255,11 +1239,32 @@ review:
       ${ start_accordion('Landlord did not properly terminate the tenancy in accordance with RSMo § 441.060') }
     show if: defense_failure_to_terminate
   - note: |
-      A landlord must give proper notice to evict in an Unlawful Detainer case.  The landlord did not provide proper notice because:
+      A landlord must give proper notice to evict in an Unlawful Detainer case.  The landlord did not provide proper notice for the following reasons, which will be listed in the complaint:
     show if: defense_failure_to_terminate
   - note: |
-      No Written Notice
-    show if: defense_failure_to_terminate
+      **Defendant did not get a written notice to terminate Defendant‘s tenancy.**
+    show if: defense_ud_no_written_notice
+  - note: |
+      **Plaintiff did not give Defendant a full rental period's notice**
+      
+      % if showifdef('is_mobile_home_owner') == True:
+      A mobile home owner must get notice at least 60 days before the filing of the eviction.
+      
+      % else:
+      A tenant must get at least a rental period's notice before the filing of the eviction
+      
+      % endif
+    show if: defense_ud_no_rental_period_notice
+  - note: |
+      **Defendant’s lease has not ended because the landlord did not give Defendant the notice required by the lease**
+      
+      Some leases may require a longer amount of notice than the law.  If a lease has this requirement, a landlord must comply with the lease.
+    show if: defense_ud_lease_requirements
+  - note: |
+      **Defendant’s lease has not ended because Defendant did not receive the notice required by state and federal law, including but not limited to 24 C.F.R. § 247.4.**
+      
+      A tenant in subsidized housing must get at least 30 days notice if the tenant is being evicted for nonpayment of rent or other good cause.
+    show if: termination_notice_required_by_law
   - Edit:
       - got_notice_to_terminate
       - recompute:
@@ -1270,105 +1275,67 @@ review:
         - defense_logic
         - explanation_answer
     button: |
-      Edit information about the written notice
-    show if: defense_failure_to_terminate
-  - note: |    
-      % if person_answering == "tenant":
-      Did you get a written notice to end your tenancy?
-      % else:
-      Did the tenant get a written notice to end their tenancy?
-      % endif
-      **${ "Maybe" if got_notice_to_terminate is None else yesno(got_notice_to_terminate) }**
-    show if: defense_failure_to_terminate
-  - note: |
-      % if defense_ud_no_rental_period_notice == True:
-      Premature Notice 
-      % elif defense_ud_no_rental_period_notice == False:
-      <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Premature Notice
-      % else:
-      Premature Notice: Not Applicable
-      % endif
-    show if: defense_failure_to_terminate
-  - note: |
-      % if person_answering == "tenant":
-      Do you live in a mobile  home that you own, and rent the land?
-      % else:
-      Does the tenant live in a mobile  home that the tenant owns, and rents the land?
-      % endif
-      **${ yesno(is_mobile_home_owner) }**
-      [edit above]
-    show if: defense_failure_to_terminate
-  - note: |
-      What day is rent due?
-      **${ rent_day }**      
-    show if: defense_failure_to_terminate
-  - note: |
-      How often is rent due?
-      **${ rent_period }**
-    show if: defense_failure_to_terminate
-  - note: |
-      Did the notice include a specific day to end your tenancy?
-      **${ yesno(notice_to_terminate_includes_specific_day) }**
-    show if: defense_failure_to_terminate
+      **Notice to terminate tenancy**
 
-  - note: |
+      % if person_answering == "tenant":
+      Did you get a written {notice} to end your tenancy?
+      % else:
+      Did the tenant get a written {notice} to end their tenancy?
+      % endif
+      : ${ yesno(got_notice_to_terminate) }
+
+      % if got_notice_to_terminate == True:
+      % if person_answering == "tenant":
       About what day did you **get** the notice?
-      **${ received_notice_date }**
-    show if: defense_failure_to_terminate
-  - note: |
+      % else:
+      About what day did the tenant **get** the notice?
+      % endif
+      : ${ showifdef('received_notice_date') }
+
+      % if person_answering == "tenant":
+      Did the notice include a specific day to **end** your tenancy?
+      % else:
+      Did the notice include a specific day to **end** the tenant's tenancy?
+      % endif
+      : ${ notice_to_terminate_includes_specific_day_text[notice_to_terminate_includes_specific_day] }
+
+      % if showifdef('notice_to_terminate_includes_specific_day') == "specific_day":
+      % if person_answering == "tenant":
       What day did the notice say it would end your tenancy?
-      **${ termination_of_tenancy_date }**
-    show if: defense_failure_to_terminate
-  - note: |
-      % if defense_ud_lease_requirements == True:
-      Notice Violates Lease 
-      % elif defense_ud_lease_requirements == False:
-      <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Notice Violates Lease 
       % else:
-      Notice Violates Lease : Not Applicable
-      % endif      
-    show if: defense_failure_to_terminate
-  - note: |
-      Does a lease exist?
-      **${ "Maybe" if has_written_lease is None else yesno(has_written_lease) }** [edit above]
-    show if: defense_failure_to_terminate
+      What day did the notice say it would end the tenant's tenancy?
+      % endif
+      : ${ showifdef('termination_of_tenancy_date') }
+      % endif
+      % endif
   - Edit:
-      - lease_says_how_much_notice
+      - kind_of_lease_agreement
       - recompute:
+        - defense_discrimination
+        - defense_lease_not_attached
+        - defense_rent_pleading_requirement
+        - defense_excessive_rent_for_subsidized_housing
+        - defense_ud_no_rental_period_notice
         - defense_logic
-        - defense_ud_lease_requirements
-    button: |
-      Edit information about notice requirements in the lease
-    show if: defense_failure_to_terminate
-  - note: |
-      Does the lease say how much notice the landlord must give to the tenant?
-      **${ "Maybe" if lease_says_how_much_notice is None else yesno(lease_says_how_much_notice) }**
-    show if: defense_failure_to_terminate
-  - note: |
-      % if person_answering == "tenant":
-      Did the landlord give you the amount of notice required by the lease?
-      % else:
-      Did the landlord give the tenant the amount of notice required by the lease?
-      % endif
-      **${ yesno(landlord_gave_notice_required_by_lease) }**
-    show if: defense_failure_to_terminate
-  - note: |
-      % if defense_termination_notice_required_by_law == True:
-      Notice Violates Law
-      % elif defense_termination_notice_required_by_law == False:
-      <i class="fa-regular fa-rectangle-xmark" style="color: #e01b24;"></i> Notice Violates Law
-      % else:
-      Notice Violates Law : Not Applicable
-      % endif      
-    show if: defense_failure_to_terminate
-  - note: |
-      % if person_answering == "tenant":
-      Do you get a rent subsidy or do you live in public housing?
-      % else:
-      Does the tenant get a rent subsidy or do they live in public housing?
-      % endif
-      **${ "Maybe" if is_rent_subsidized is None else yesno(is_rent_subsidized) }** [edit above]    
-    show if: defense_failure_to_terminate
+      - explanation_answer
+    button: "<strong>\n% if person_answering == \"tenant\":\nWhat kind of housing do you have?\n% else:\
+      \ \nWhat kind of housing does the tenant have?\n% endif\n</strong>\n\n% if person_answering == \"\
+      tenant\":\nDo you live in subsidized housing, including getting a rent {subsidy} or living in public\
+      \ housing?\n% else: \nDoes the tenant live in subsidized housing, including getting a rent {subsidy}\
+      \ or living in public housing?\n% endif\n: ${ word(yesno(is_rent_subsidized)) }\n\n% if showifdef('is_rent_subsidized')\
+      \ == \"True\":\nWhat kind?\n: ${ showifdef('subsidized_housing_type') }\n% endif\n\n% if showifdef('is_rent_subsidized')\
+      \ == \"False\":\n% if person_answering == \"tenant\":\nDo you live in a mobile home that you own\
+      \ and rent the land?\n% else: \nDoes the tenant live in a mobile home that they own and rent the\
+      \ land?\n% endif\n: ${ word(yesno(is_mobile_home_owner)) }\n% endif\n\n% if showifdef('is_rent_subsidized')\
+      \ == \"False\":\nHow many units are in the building or apartment complex?\n: ${ showifdef('number_of_units_in_building')\
+      \ }\n% endif\n\n% if person_answering == \"tenant\":\nWhat kind of lease do you have?\n% else:\n\
+      What kind of lease does the tenant have?\n% endif\n: ${ lease_type_text[kind_of_lease_agreement] }\n\
+      \n% if showifdef('kind_of_lease_agreement') == \"fixed_period\":\nWhat day does the lease end?:\
+      \ ${ showifdef('fixed_period_end_date') }\n% endif\n\n% if showifdef('kind_of_lease_agreement')\
+      \ == \"periodic\":\n**How often** is rent due?\n: ${ [tpyl[1] for tpyl in times_per_year_list if tpyl[0] == rent_period][0] }\n\nWhat **day** is rent due?\n(enter a number, like **1** for the first day of\
+      \ the month or week)\n: ${ showifdef('rent_day') }\n% endif\n"
+    show if: |
+      defense_ud_no_rental_period_notice or defense_ud_lease_requirements or termination_notice_required_by_law
   - raw html: |
       ${ end_accordion() }
     show if: defense_failure_to_terminate
