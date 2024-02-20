@@ -1,12 +1,13 @@
 ---
 include:
   - shared.yml
+  - court_information.yml
 ---
 metadata:
   title: |
-    DIY Motions
+    File a motion
   short title: |
-    DIY Motions
+    File a motion
   title url: |
     https://motenanthelp.org/
   tags:
@@ -44,6 +45,12 @@ code: |
   nav.set_section("section_about_court")
   trial_court.name
   docket_number
+  
+  eviction_reason
+  check_case_type
+  
+  if has_written_lease and not lease_attached:
+    petition_states_terms_of_lease
   
   nav.set_section("section_service_method")
   other_parties[0].service_method
@@ -330,13 +337,22 @@ fields:
     code: |
       motion_checkboxes
 ---
+## MTD MDS is for when Plaintiff filed its petition in rent and possession, based upon an alleged written lease. 
 code: |
-  motion_checkboxes = {'motion_for_leave_to_file': 'Motion for Leave to File Responsive Pleadings',
+  if (eviction_reason["nonpayment of rent"] and has_written_lease and lease_attached) or (eviction_reason["nonpayment of rent"] and has_written_lease and petition_states_terms_of_lease):
+    motion_checkboxes = {'motion_for_leave_to_file': 'Motion for Leave to File Responsive Pleadings',
       'motion_to_dismiss': 'Motion to Dismiss or For a More Definite Statement',
       'motion_to_set_aside_judgment': 'Motion to Set Aside Judgment',
       'motion_to_shorten_time': 'Motion to Shorten Time',
       'motion_to_elevate_security': 'Motion to Elevate Security',
       'notice_of_hearing': 'Notice of Hearing'}
+  else:
+    motion_checkboxes = {'motion_for_leave_to_file': 'Motion for Leave to File Responsive Pleadings',
+      'motion_to_set_aside_judgment': 'Motion to Set Aside Judgment',
+      'motion_to_shorten_time': 'Motion to Shorten Time',
+      'motion_to_elevate_security': 'Motion to Elevate Security',
+      'notice_of_hearing': 'Notice of Hearing'}
+    
 ---
 id: judgment_date
 question: |
