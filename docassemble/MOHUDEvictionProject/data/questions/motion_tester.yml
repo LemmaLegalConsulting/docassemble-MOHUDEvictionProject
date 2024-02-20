@@ -336,23 +336,23 @@ fields:
     code: |
       motion_checkboxes
 ---
+## Motions that are always applicable are listed in the always_applicable_motions dictionary at the top of the code block.  To add logic, remove a key:value pair and add conditional logic.
 ## MTD MDS is for when Plaintiff filed its petition in rent and possession, based upon an alleged written lease. 
+## Motion to set aside judgment is only applicable when there is a final judgment at least 30 days ago
 code: |
-  if has_written_lease and lease_attached and eviction_reason["nonpayment of rent"]:
-    motion_checkboxes = {'motion_for_leave_to_file': 'Motion for Leave to File Responsive Pleadings',
-      'motion_to_dismiss': 'Motion to Dismiss or For a More Definite Statement',
-      'motion_to_set_aside_judgment': 'Motion to Set Aside Judgment',
-      'motion_to_shorten_time': 'Motion to Shorten Time',
-      'motion_to_elevate_security': 'Motion to Elevate Security',
-      'notice_of_hearing': 'Notice of Hearing'}
-  else:
-    motion_checkboxes = {'motion_for_leave_to_file': 'Motion for Leave to File Responsive Pleadings',
-      'motion_to_set_aside_judgment': 'Motion to Set Aside Judgment',
+  always_applicable_motions = {'motion_for_leave_to_file': 'Motion for Leave to File Responsive Pleadings',
       'motion_to_shorten_time': 'Motion to Shorten Time',
       'motion_to_elevate_security': 'Motion to Elevate Security',
       'notice_of_hearing': 'Notice of Hearing'}
 
-#  if final_judgment and judgment_date <= today().minus(days=30):
+  if has_written_lease and lease_attached and eviction_reason["nonpayment of rent"]:
+    always_applicable_motions['motion_to_dismiss'] = 'Motion to Dismiss or For a More Definite Statement'
+
+  if final_judgment and judgment_date <= today().minus(days=30):
+    always_applicable_motions['motion_to_set_aside_judgment'] = 'Motion to Set Aside Judgment'
+    
+  motion_checkboxes = always_applicable_motions
+
 ---
 id: judgment_date
 question: |
