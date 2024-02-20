@@ -49,8 +49,8 @@ code: |
   eviction_reason
   check_case_type
   
-  if has_written_lease and not lease_attached:
-    petition_states_terms_of_lease
+  has_written_lease
+  lease_attached
   
   nav.set_section("section_service_method")
   other_parties[0].service_method
@@ -157,7 +157,6 @@ code: |
 code: |
   motion_to_set_aside_intro
   petition_date 
-  judgment_date
   statements[0]
   motion_to_set_aside_preview
   motion_to_set_aside_judgment_order = True
@@ -339,7 +338,7 @@ fields:
 ---
 ## MTD MDS is for when Plaintiff filed its petition in rent and possession, based upon an alleged written lease. 
 code: |
-  if (eviction_reason["nonpayment of rent"] and has_written_lease and lease_attached) or (eviction_reason["nonpayment of rent"] and has_written_lease and petition_states_terms_of_lease):
+  if has_written_lease and lease_attached and eviction_reason["nonpayment of rent"]:
     motion_checkboxes = {'motion_for_leave_to_file': 'Motion for Leave to File Responsive Pleadings',
       'motion_to_dismiss': 'Motion to Dismiss or For a More Definite Statement',
       'motion_to_set_aside_judgment': 'Motion to Set Aside Judgment',
@@ -352,15 +351,19 @@ code: |
       'motion_to_shorten_time': 'Motion to Shorten Time',
       'motion_to_elevate_security': 'Motion to Elevate Security',
       'notice_of_hearing': 'Notice of Hearing'}
-    
+
+#  if final_judgment and judgment_date <= today().minus(days=30):
 ---
 id: judgment_date
 question: |
-  When was a {judgment} entered in this matter?
+  Has a judge made a final decision in this case?
 fields:
+  - A judge entered a final judgment in this case: final_judgment
+    datatype: yesnoradio
   - Date: judgment_date
     datatype: ThreePartsDate
     alMax: ${ today() }
+    show if: final_judgment
 ---
 id: petition_date 
 question: |
