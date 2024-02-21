@@ -713,7 +713,7 @@ subquestion: |
   % else:
   The tenant's name and address should be included as a Defendant.
   % endif
-  % if tenant_got_summons and petition_available and len(users)==1:
+  % if tenant_got_summons and petition_available:
   
   [FILE ComplaintCaptionDefendant.png, 100%]
   
