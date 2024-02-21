@@ -1,5 +1,6 @@
 include:
   - docassemble.AssemblyLine:assembly_line.yml
+  - docassemble.GithubFeedbackForm:embedded_review.yml
   - defense_logic.yml
   - information_collected.yml
   - al_reminders.yml
@@ -1000,6 +1001,8 @@ subquestion: |
  
   ${ al_user_bundle.send_button_html(show_editable_checkbox=True) }
 
+  ${ only_once_review_widget() }
+  
 progress: 100
 ---
 objects:
