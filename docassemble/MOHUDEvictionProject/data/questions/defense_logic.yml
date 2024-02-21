@@ -1034,7 +1034,7 @@ fields:
     datatype: area
     required: False
     js show if: |
-      val("tenant_protected_classes").length > 0
+      val("tenant_protected_classes") && val("tenant_protected_classes").length
 ---
 depends on:
   - tenant_believes_discrimination
