@@ -364,13 +364,15 @@ depends on:
 id: late fees defense logic for not has_written_lease
 if: not has_written_lease
 code: |
-  if late_fees_assessed and late_fees_penalty:
+  if late_fees_assessed and not no_written_lease_any_written_late_fees:
     defense_liquidated_damages_late_fees = True
+    late_fees_penalty = False
+    late_fees_lease_provision = False
   else:
     defense_liquidated_damages_late_fees = False
 depends on:
   - late_fees_assessed
-  - late_fees_penalty
+  - no_written_lease_any_written_late_fees
 ---
 id: late fees
 question: |
@@ -388,6 +390,19 @@ fields:
       % endif
     field: late_fees_assessed
     datatype: yesnoradio
+  - label: |
+      % if person_answering == "tenant":
+      Did your landlord give you anything **in writing** that said they would charge late fees?
+      % else: 
+      Did the tenant's landlord give them anything **in writing** that said the landlord would charge late fees?
+      % endif
+    field: no_written_lease_any_written_late_fees
+    datatype: yesnomaybe
+    show if: 
+      variable: late_fees_assessed
+      is: True
+      code: |
+        not has_written_lease
   - note: |
       <h2 class="h4">Was the amount the landlord charged "fair"?</h2>
       It is up to a judge to decide if the late fee is "fair". But if the late fee is
@@ -399,7 +414,11 @@ fields:
       The fee may be too high.
       
       In some counties, more than $5 per day is considered too high.
-    show if: late_fees_assessed
+    show if: 
+      variable: late_fees_assessed
+      is: True
+      code: |
+        has_written_lease
   - label: |
       % if person_answering == "tenant":
       Is the late fee more than a fair amount to cover the landlord's cost?
@@ -408,7 +427,11 @@ fields:
       % endif
     field: late_fees_penalty
     datatype: yesnomaybe
-    show if: late_fees_assessed
+    show if: 
+      variable: late_fees_assessed
+      is: True
+      code: |
+        has_written_lease
   - label: |
       Is there a part of the {lease} that allows the landlord to charge the late fee?
     field: late_fees_lease_provision
@@ -420,9 +443,6 @@ fields:
         has_written_lease
   - label: |
       Do the late fees charged by the landlord comply with the lease provision?
-      % if has_written_lease == False:
-      You can answer no if you don't have a written lease.
-      % endif
     field: late_fee_doesnt_comply_with_lease
     datatype: noyesmaybe
     show if: 
