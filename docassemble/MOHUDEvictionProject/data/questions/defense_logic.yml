@@ -155,16 +155,7 @@ depends on:
   - eviction_reason
   - offer_attempts
 code: |
-  if eviction_reason["nonpayment of rent"]:
-    defense_tender_refused = False
-    if offer_attempts.there_are_any:
-      for offer in offer_attempts:
-        if offer.has_refused_payment and offer.was_attempt_full:
-          defense_tender_refused = True
-  else:
-    defense_tender_refused = None
-comment: |
-  add date requirement
+  defense_tender_refused = eviction_reason['nonpayment of rent'] and any(offer.has_refused_payment and offer.was_attempt_full for offer in offer_attempts.complete_elements())
 ---
 id: rent payment defense logic
 code: |
@@ -1530,6 +1521,7 @@ fields:
     field: offer_attempts.there_are_any
     datatype: yesnoradio
 ---
+## THIS ONE IS USED IF OFFER ATTEMPTS < 1 
 id: payment attempt loop
 question: |
   % if person_answering == "tenant":
@@ -1544,9 +1536,9 @@ subquestion: |
   % else: 
   So far, the tenant said they
   % endif
-  % for offer in offer_attempts.complete_elements():
-  
-   - Tried to pay ${ "the full amount" if offer.was_attempt_full else "part of the rent" } on ${ offer.attempt_date } ${ offer.attempt_method if not offer.attempt_method == "other" else "" }.
+  % for offer_attempt in offer_attempts.complete_elements():
+   
+   - Tried to pay ${ "the full amount" if offer_attempt.was_attempt_full else "part of the rent" } on ${ offer_attempt.attempt_date } ${ offer_attempt.attempt_method_other if offer_attempt.attempt_method == "other" else offer_attempt.attempt_method }${", but " + landlord_doc_name + " refused to accept the payment." if offer_attempt.has_refused_payment else "."}
    
   % endfor
   % endif
@@ -1564,7 +1556,7 @@ fields:
       - ${"I wrote a letter" if person_answering == "tenant" else "Wrote a letter"}: "by letter"
       - ${"I sent an email" if person_answering == "tenant" else "Sent an email"}: "by email"
       - ${"I told my landlord in person" if person_answering == "tenant" else "Told the landlord in person"}: "in person"
-      - ${"I told my landlord in a phone call" if person_answering == "tenant" else "Told the landlord in a phone call"}: "in a phone_call"
+      - ${"I told my landlord in a phone call" if person_answering == "tenant" else "Told the landlord in a phone call"}: "in a phone call"
       - Other: "other"
   - Explanation: offer_attempts[i].attempt_method_other
     datatype: area
@@ -1598,6 +1590,7 @@ fields:
       % endif 
     field: offer_attempts[i].has_attempt_evidence
     datatype: yesnoradio
+    show if: offer_attempts[i].has_refused_payment
 #  - note: |
 #      ${ collapse_template(example_of_refused_payment_evidence) }
 #    show if: offer_attempts[i].has_refused_payment
@@ -1608,7 +1601,8 @@ fields:
 #content: |
 #  For example, a letter from the landlord refusing to accept the money, a written check or money order, or a witness to the landlord's refusal.
 ---
-id: payment attempt loop 2
+## THIS ONE IS USED FOR FIRST OFFER ATTEMPT
+id: payment attempt initial collect
 question: |
   % if person_answering == "tenant":
   Did you make any other attempts to pay the rent?
@@ -1622,9 +1616,9 @@ subquestion: |
   % else: 
   So far, the tenant said they
   % endif
-  % for offer in offer_attempts.complete_elements():
+  % for offer_attempt in offer_attempts.complete_elements():
   
-   - tried to pay ${ "the full amount" if offer.was_attempt_full else "part of the rent" } on ${ offer.attempt_date } ${ offer.attempt_method if not offer.attempt_method == "other" else "" }.
+   - Tried to pay ${ "the full amount" if offer_attempt.was_attempt_full else "part of the rent" } on ${ offer_attempt.attempt_date } ${ offer_attempt.attempt_method_other if offer_attempt.attempt_method == "other" else offer_attempt.attempt_method }${", but " + landlord_doc_name + " refused to accept the payment." if offer_attempt.has_refused_payment else "."}
    
   % endfor
   % endif
