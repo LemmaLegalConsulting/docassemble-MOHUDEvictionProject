@@ -60,7 +60,7 @@ code: |
   users[0].name.first
   greet_user
   nav.set_section("section_eviction_answer_can_i")
-  if not tenant_got_summons or not (method_of_summons_service['sheriff'] or method_of_summons_service['certified_mail'] or (method_of_summons_service['mail'] and method_of_summons_service['posting'])):
+  if not tenant_got_summons or not (method_of_summons_service['sheriff'] or ((method_of_summons_service['mail'] or method_of_summons_service['certified_mail']) and method_of_summons_service['posting'])):
     posting_warning
   else:
     recommend_filing_answer
