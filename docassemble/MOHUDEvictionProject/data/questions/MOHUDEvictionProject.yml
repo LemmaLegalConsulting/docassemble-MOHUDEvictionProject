@@ -104,7 +104,7 @@ code: |
 
   ########## Should you file an answer?
   nav.set_section("section_eviction_answer_can_i")
-  if not tenant_got_summons or not (method_of_summons_service['sheriff'] or (method_of_summons_service['mail'] and method_of_summons_service['posting'])):
+  if not tenant_got_summons or not (method_of_summons_service['sheriff'] or ((method_of_summons_service['mail'] or method_of_summons_service['certified_mail']) and method_of_summons_service['posting'])):
     posting_warning
   else:
     recommend_filing_answer
@@ -241,10 +241,10 @@ subquestion: |
   % endfor
   % endif
   
-  In order to serve a tenant personally a landlord must do one of the following things:
+  In order to serve a tenant personally a landlord must:
   
-   - Have the sheriff or a process server hand the tenant the summons and petition
-   - Send the summons and petition to the tenant through regular mail and post the summons and petition at the tenant's door.
+   - Have the sheriff or a process server hand the tenant the summons and petition; OR
+   - Send the summons and petition to the tenant through regular or certified mail and post the summons and petition at the tenant's door.
   
   If your landlord did not serve you personally, the landlord cannot sue you for money damages.  If you file an answer, the court may order 
   you to pay money that you would not need to pay otherwise.
@@ -269,10 +269,10 @@ subquestion: |
   % endfor
   % endif
 
-  In order to serve a tenant personally a landlord must do one of the following things:
+  In order to serve a tenant personally a landlord must:
   
-   - Have the sheriff or a process server hand the tenant the summons and petition
-   - Send the summons and petition to the tenant through regular mail and post the summons and petition at the tenant's door.
+   - Have the sheriff or a process server hand the tenant the summons and petition; OR
+   - Send the summons and petition to the tenant through regular or certified mail and post the summons and petition at the tenant's door.
   
   If the landlord did not serve the tenant personally, the landlord cannot sue the tenant for money damages.  If the tenant files an answer, the court may order 
   the tenant to pay money that the tenant would not need to pay otherwise.
@@ -503,6 +503,9 @@ code: |
 ---
 code: |
   eviction_discovery_attachment.enabled = wants_discovery
+---
+code: |
+  motion_to_shorten_time_attachment.enabled = wants_discovery and not original_hearing_date_past
 ---
 id: eviction answer determination code
 code: |

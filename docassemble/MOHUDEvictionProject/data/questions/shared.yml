@@ -1,5 +1,6 @@
 include:
   - docassemble.AssemblyLine:assembly_line.yml
+  - docassemble.GithubFeedbackForm:embedded_review.yml
   - defense_logic.yml
   - information_collected.yml
   - al_reminders.yml
@@ -219,7 +220,7 @@ subquestion:  |
   If you have the {Summons} and {Petition}, the name of each Plaintiff is listed
   in the box labeled "Plaintiff". 
   
-  [FILE MOSummonsPlaintiffAttorney.png, 100%]
+  [FILE ComplaintCaptionPlaintiff.png, 100%]
   
   % endif  
 fields:
@@ -313,9 +314,9 @@ question: |
   % endif
 subquestion: |
   % if person_answering == "tenant":
-  Write the address that you are being evicted from.
+  Write the **Missouri** address that you are being evicted from.
   % else:
-  Write the address that the tenant is being evicted from.
+  Write the **Missouri** address that the tenant is being evicted from.
   % endif
 fields:
   - code: |
@@ -712,7 +713,7 @@ subquestion: |
   % else:
   The tenant's name and address should be included as a Defendant.
   % endif
-  % if tenant_got_summons and petition_available and len(users)==1:
+  % if tenant_got_summons and petition_available:
   
   [FILE ComplaintCaptionDefendant.png, 100%]
   
@@ -879,7 +880,7 @@ attachments:
     docx template file: eviction_helper_next_steps.docx
   - name: eviction motion to continue attachment
     filename: eviction_motion_to_continue.docx     
-    variable name: eviction_motion_to_continue_attachment[i]        
+    variable name: eviction_motion_to_continue_attachment[i]       
     skip undefined: True
     docx template file: motion_to_continue.docx
   - name: eviction answer
@@ -897,6 +898,11 @@ attachments:
     variable name: eviction_discovery_attachment[i]        
     skip undefined: True
     docx template file: Discovery.docx
+  - name: motion to shorten time
+    filename: motion_to_shorten_time.docx     
+    variable name: motion_to_shorten_time_attachment[i]        
+    skip undefined: True
+    docx template file: motion_to_shorten_time.docx
 ---
 id: preview eviction_defender
 question: |
@@ -995,6 +1001,8 @@ subquestion: |
  
   ${ al_user_bundle.send_button_html(show_editable_checkbox=True) }
 
+  ${ only_once_review_widget() }
+  
 progress: 100
 ---
 objects:
@@ -1003,9 +1011,10 @@ objects:
   - eviction_answer_attachment: ALDocument.using(title="Answer and Affirmative Defenses", filename="answer_defenses.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
   - eviction_motion_for_leave_attachment: ALDocument.using(title="Motion for Leave to File Responsive Pleadings", filename="motion_for_leave_to_file.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
   - eviction_discovery_attachment: ALDocument.using(title="Discovery", filename="Discovery.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+  - motion_to_shorten_time_attachment: ALDocument.using(title="File a Motion to Shorten Time", filename="motion_to_shorten_time.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
 ---
 objects:
-  - al_user_bundle: ALDocumentBundle.using(elements=[eviction_defender_post_interview_instructions,eviction_motion_to_continue_attachment,eviction_answer_attachment,eviction_motion_for_leave_attachment,eviction_discovery_attachment], filename="eviction_helper.docx_package.pdf", title="All forms to download for your records", enabled=True)
+  - al_user_bundle: ALDocumentBundle.using(elements=[eviction_defender_post_interview_instructions,eviction_motion_to_continue_attachment,eviction_answer_attachment,eviction_motion_for_leave_attachment,motion_to_shorten_time_attachment,eviction_discovery_attachment], filename="eviction_helper.docx_package.pdf", title="All forms to download for your records", enabled=True)
   - al_court_bundle: ALDocumentBundle.using(elements=attachment_list_court, filename="eviction_helper.docx_package.pdf", title="All forms to download for your records", enabled=True)
 ---
 template: about_page_contents
