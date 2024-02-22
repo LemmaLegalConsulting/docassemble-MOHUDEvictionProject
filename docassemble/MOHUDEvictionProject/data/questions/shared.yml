@@ -1,5 +1,6 @@
 include:
   - docassemble.AssemblyLine:assembly_line.yml
+  - docassemble.GithubFeedbackForm:embedded_review.yml
   - defense_logic.yml
   - information_collected.yml
   - al_reminders.yml
@@ -222,7 +223,7 @@ subquestion:  |
   If you have the {Summons} and {Petition}, the name of each Plaintiff is listed
   in the box labeled "Plaintiff". 
   
-  [FILE MOSummonsPlaintiffAttorney.png, 100%]
+  [FILE ComplaintCaptionPlaintiff.png, 100%]
   
   % endif  
 fields:
@@ -316,9 +317,9 @@ question: |
   % endif
 subquestion: |
   % if person_answering == "tenant":
-  Write the address that you are being evicted from.
+  Write the **Missouri** address that you are being evicted from.
   % else:
-  Write the address that the tenant is being evicted from.
+  Write the **Missouri** address that the tenant is being evicted from.
   % endif
 fields:
   - code: |
@@ -715,7 +716,7 @@ subquestion: |
   % else:
   The tenant's name and address should be included as a Defendant.
   % endif
-  % if tenant_got_summons and petition_available and len(users)==1:
+  % if tenant_got_summons and petition_available:
   
   [FILE ComplaintCaptionDefendant.png, 100%]
   
@@ -1003,6 +1004,8 @@ subquestion: |
  
   ${ al_user_bundle.send_button_html(show_editable_checkbox=True) }
 
+  ${ only_once_review_widget() }
+  
 progress: 100
 ---
 objects:

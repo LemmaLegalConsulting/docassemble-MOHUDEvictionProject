@@ -1439,7 +1439,7 @@ subquestion: |
   
   You said that a copy of the lease is not attached to the petition.
   
-  The petition looks different in different counties. But it may look like this:
+  A rental summary in the petition may look like this:
 
   [FILE ComplaintTerms.png, 100%]
 fields:
@@ -1575,7 +1575,7 @@ subquestion: |
   % endif
   % for offer in offer_attempts.complete_elements():
   
-   - Tried to pay ${ "the full amount" if offer.was_attempt_full else "part of the rent" } on ${ offer.attempt_date } ${ offer.attempt_method if not offer.attempt_method == "other" else "" } but the landlord refused.
+   - Tried to pay ${ "the full amount" if offer.was_attempt_full else "part of the rent" } on ${ offer.attempt_date } ${ offer.attempt_method if not offer.attempt_method == "other" else "" }.
    
   % endfor
   % endif
@@ -1637,6 +1637,7 @@ fields:
 #content: |
 #  For example, a letter from the landlord refusing to accept the money, a written check or money order, or a witness to the landlord's refusal.
 ---
+id: payment attempt loop 2
 question: |
   % if person_answering == "tenant":
   Did you make any other attempts to pay the rent?
@@ -1652,7 +1653,7 @@ subquestion: |
   % endif
   % for offer in offer_attempts.complete_elements():
   
-   - tried to pay ${ "the full amount" if offer.was_attempt_full else "part of the rent" } on ${ offer.attempt_date } ${ offer.attempt_method if not offer.attempt_method == "other" else "" } but the landlord refused.
+   - tried to pay ${ "the full amount" if offer.was_attempt_full else "part of the rent" } on ${ offer.attempt_date } ${ offer.attempt_method if not offer.attempt_method == "other" else "" }.
    
   % endfor
   % endif
