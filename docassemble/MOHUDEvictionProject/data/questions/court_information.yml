@@ -75,7 +75,7 @@ fields:
     choices:
       - label: |
           % if person_answering == "tenant":
-          My landlord says I owe rent
+          My landlord says I owe rent.
           % else:
           Landlord says the tenant owes rent
           % endif
@@ -83,22 +83,23 @@ fields:
       - label: |
           % if person_answering == "tenant":
           My landlord says I broke my lease for a reason other than owing rent.
-          For example: paying rent late too many times or making too much noise.
           % else:
           Tenant broke another term of the lease
           % endif
         value: lease violation
+        help: |
+          For example: Paying rent late too many times or making too much noise.
       - label: |
           % if person_answering == "tenant":
           My landlord says I did something illegal and they are asking
-          to move me out right away. For example: selling drugs
-          or other criminal activity.
+          to move me out right away.
           % else:
           The landlord says the tenant did something illegal and they are asking
-          to move the tenant out right away. For example: selling drugs
-          or other criminal activity.
+          to move the tenant out right away. 
           % endif
         value: criminal activity
+        help: |
+          For example: Selling drugs or other criminal activity.
       - label: |
           % if person_answering == "tenant":
           My landlord says the lease ended or that they do not want to
@@ -222,7 +223,7 @@ fields:
     choices:
       - label: |
           % if person_answering == "tenant":
-          My landlord says I owe rent
+          My landlord says I owe rent.
           % else:
           Landlord says the tenant owes rent
           % endif
@@ -230,22 +231,23 @@ fields:
       - label: |
           % if person_answering == "tenant":
           My landlord says I broke my lease for a reason other than owing rent.
-          For example: paying rent late too many times or making too much noise.
           % else:
           Tenant broke another term of the lease
           % endif
         value: lease violation
+        help: |
+          For example: Paying rent late too many times or making too much noise.
       - label: |
           % if person_answering == "tenant":
           My landlord says I did something illegal and they are asking
-          to move me out right away. For example: selling drugs
-          or other criminal activity.
+          to move me out right away.
           % else:
           The landlord says the tenant did something illegal and they are asking
-          to move the tenant out right away. For example: selling drugs
-          or other criminal activity.
+          to move the tenant out right away. 
           % endif
         value: criminal activity
+        help: |
+          For example: Selling drugs or other criminal activity.
       - label: |
           % if person_answering == "tenant":
           My landlord says the lease ended or that they do not want to
