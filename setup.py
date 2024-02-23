@@ -44,7 +44,7 @@ def find_package_data(where='.', package='', exclude=standard_exclude, exclude_d
     return out
 
 setup(name='docassemble.MOHUDEvictionProject',
-      version='1.5.5',
+      version='1.5.6',
       description=('Postpone your eviction hearing'),
       long_description='# Missouri eviction answer and motions\r\n\r\nBuilt for Legal Services of Eastern Missouri with a grant from the Department of Housing and Urban Development.\r\n\r\n\r\n',
       long_description_content_type='text/markdown',
