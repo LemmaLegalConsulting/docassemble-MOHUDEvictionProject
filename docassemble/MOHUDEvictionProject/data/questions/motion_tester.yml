@@ -336,42 +336,32 @@ fields:
     datatype: checkboxes
     none of the above: false
     code: |
-      [{val["option"]:val["label"]} for val in motion_checkboxes if val["visible"]]
+      [{val["option"]:val["label"]} for val in motion_checkboxes if val["visible"] == "True"]
 ---
 variable name: motion_checkboxes
-data from code:
-  - option: |
-      "motion_for_leave_to_file"
-    label: |
-      "Motion for Leave to File Responsive Pleadings"
-    visible: True
-  - option: |
-      "motion_to_shorten_time"
-    label: |
-      "Motion to Shorten Time"
-    visible: True
-  - option: |
-      "motion_to_elevate_security"
-    label: |
-      "Motion to Elevate Security"
-    visible: True
-  - option: |
-      "notice_of_hearing"
-    label: |
-      "Notice of Hearing"
-    visible: True
-  - option: |
-      "motion_to_dismiss"
-    label: |
-      "Motion to Dismiss or For a More Definite Statement"
-    visible: |
-      has_written_lease and lease_attached and eviction_reason["nonpayment of rent"]
-  - option: |
-      "motion_to_set_aside_judgment"
-    label: |
-      "Motion to Set Aside Judgment"
-    visible: |
-      final_judgment and judgment_date <= today().minus(days=30)
+data:
+# Example:
+# - option: name of the dictionary key
+#   label: name of the motion
+#   visible: True or False, or a mako expression that evaluates to True or False. It's treated as a string
+  - option: motion_for_leave_to_file
+    label: Motion for Leave to File Responsive Pleadings
+    visible: ${ True } 
+  - option: motion_to_shorten_time
+    label: Motion to Shorten Time
+    visible: ${ True }
+  - option: motion_to_elevate_security
+    label: Motion to Elevate Security
+    visible: ${ True }
+  - option: notice_of_hearing
+    label: Notice of Hearing
+    visible: ${ True }
+  - option: motion_to_dismiss
+    label: Motion to Dismiss or For a More Definite Statement
+    visible: ${ has_written_lease and lease_attached and eviction_reason["nonpayment of rent"] }
+  - option: motion_to_set_aside_judgment
+    label: Motion to Set Aside Judgment
+    visible: ${ final_judgment and judgment_date <= today().minus(days=30) }
 ---
 id: judgment_date
 question: |
