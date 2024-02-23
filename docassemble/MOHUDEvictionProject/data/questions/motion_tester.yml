@@ -326,6 +326,8 @@ fields:
         You cannot continue unless you agree to the terms of use.
 continue button field: al_intro_screen
 ---
+reconsider: 
+  - motion_checkboxes
 id: motion list
 question: |
   Which {motion|motions} do you need?
@@ -334,25 +336,42 @@ fields:
     datatype: checkboxes
     none of the above: false
     code: |
-      motion_checkboxes
+      [{val["option"]:val["label"]} for val in motion_checkboxes if val["visible"]]
 ---
-## Motions that are always applicable are listed in the always_applicable_motions dictionary at the top of the code block.  To add logic, remove a key:value pair and add conditional logic.
-## MTD MDS is for when Plaintiff filed its petition in rent and possession, based upon an alleged written lease. 
-## Motion to set aside judgment is only applicable when there is a final judgment at least 30 days ago
-code: |
-  always_applicable_motions = {'motion_for_leave_to_file': 'Motion for Leave to File Responsive Pleadings',
-      'motion_to_shorten_time': 'Motion to Shorten Time',
-      'motion_to_elevate_security': 'Motion to Elevate Security',
-      'notice_of_hearing': 'Notice of Hearing'}
-
-  if has_written_lease and lease_attached and eviction_reason["nonpayment of rent"]:
-    always_applicable_motions['motion_to_dismiss'] = 'Motion to Dismiss or For a More Definite Statement'
-
-  if final_judgment and judgment_date <= today().minus(days=30):
-    always_applicable_motions['motion_to_set_aside_judgment'] = 'Motion to Set Aside Judgment'
-    
-  motion_checkboxes = always_applicable_motions
-
+variable name: motion_checkboxes
+data from code:
+  - option: |
+      "motion_for_leave_to_file"
+    label: |
+      "Motion for Leave to File Responsive Pleadings"
+    visible: True
+  - option: |
+      "motion_to_shorten_time"
+    label: |
+      "Motion to Shorten Time"
+    visible: True
+  - option: |
+      "motion_to_elevate_security"
+    label: |
+      "Motion to Elevate Security"
+    visible: True
+  - option: |
+      "notice_of_hearing"
+    label: |
+      "Notice of Hearing"
+    visible: True
+  - option: |
+      "motion_to_dismiss"
+    label: |
+      "Motion to Dismiss or For a More Definite Statement"
+    visible: |
+      has_written_lease and lease_attached and eviction_reason["nonpayment of rent"]
+  - option: |
+      "motion_to_set_aside_judgment"
+    label: |
+      "Motion to Set Aside Judgment"
+    visible: |
+      final_judgment and judgment_date <= today().minus(days=30)
 ---
 id: judgment_date
 question: |
