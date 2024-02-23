@@ -992,7 +992,6 @@ review:
       ${ start_accordion('The premises have been sold but the prior Landlord has not provided Tenant the required notices and therefore no rent is owed') }
     show if: defense_new_owner_failed_to_provide_notice_of_sale
   - note: |
-      A new landlord must provide a tenant proper notice when the new landlord buys a rental property. In a ${ trial_court.classification.strip()} county like ${ trial_court.county }, the notice must contain a copy of the deed
       % if trial_court.classification.strip() == "Class 1":
       A new landlord must provide a tenant proper notice when the new landlord buys a rental property. In a ${ trial_court.classification.strip()} county like ${ trial_court.county }, the notice must contain a copy of the deed, or a notarized document signed both by the original landlord and the new landlord.
       % else:
@@ -1787,7 +1786,6 @@ review:
       ${ start_accordion('The premises have been sold but the prior Landlord has not provided Tenant the required notices and therefore no rent is owed') }
     show if: not defense_new_owner_failed_to_provide_notice_of_sale
   - note: |
-      A new landlord must provide a tenant proper notice when the new landlord buys a rental property. In a ${ trial_court.classification.strip()} county like ${ trial_court.county }, the notice must contain a copy of the deed
       % if trial_court.classification.strip() == "Class 1":
       A new landlord must provide a tenant proper notice when the new landlord buys a rental property. In a ${ trial_court.classification.strip()} county like ${ trial_court.county }, the notice must contain a copy of the deed, or a notarized document signed both by the original landlord and the new landlord.
       % else:
