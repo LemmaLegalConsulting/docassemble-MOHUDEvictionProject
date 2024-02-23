@@ -1377,6 +1377,7 @@ review:
       <strong> ${ showifdef('termination_of_tenancy_date') }</strong>
       % endif
       % endif
+    show if: termination_notice_required_by_law
   - Edit:
       - kind_of_lease_agreement
       - recompute:
