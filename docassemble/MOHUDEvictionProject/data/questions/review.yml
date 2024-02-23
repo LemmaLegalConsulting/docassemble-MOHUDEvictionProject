@@ -547,6 +547,7 @@ review:
         - defense_lease_signed_under_duress
         - defense_fraud_lease
         - defense_liquidated_damages_late_fees
+        - defense_breach_of_cqe
         - defense_estoppel_illegality
         - defense_breach_of_habitability
         - defense_foreclosure
@@ -1259,6 +1260,7 @@ review:
   - Edit:
       - cqe_breaches
       - recompute:
+        - defense_breach_of_cqe
         - defense_estoppel_illegality
         - defense_logic
     button: |
@@ -2054,6 +2056,7 @@ review:
   - Edit:
       - cqe_breaches
       - recompute:
+        - defense_breach_of_cqe
         - defense_estoppel_illegality
         - defense_logic
     button: |
