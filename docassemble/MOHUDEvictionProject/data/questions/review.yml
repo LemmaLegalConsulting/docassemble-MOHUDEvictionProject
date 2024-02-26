@@ -1187,16 +1187,32 @@ review:
   - Edit:
       - was_rent_paid
       - recompute:
-        - rent_amount_paid_text
         - defense_rent_payment
         - defense_logic
-    button: "<strong>\n% if person_answering == \"tenant\":\nHave you paid at least part of the rent your\
-      \ landlord says you owe?\n% else: \nHas the tenant paid at least part of the rent the landlord says\
-      \ the tenant owes?\n% endif\n</strong>\n\n% if person_answering == \"tenant\":\nI paid at least\
-      \ part of the rent\n% else:\nThe tenant paid at least part of the rent\n% endif\n <strong>${ word(yesno(was_rent_paid))\
-      \ }</strong>\n\n% if showifdef('was_rent_paid'):\n% if person_answering == \"tenant\":\nHow much did you\
-      \ pay?\n% else:\nHow much did the tenant pay?\n% endif\n <strong>${ showifdef('rent_amount_paid') }</strong>\n%\
-      \ endif\n"
+    button: |
+      <strong>
+      % if person_answering == "tenant":
+      Have you paid at least part of the rent your landlord says you owe?
+      % else: 
+      Has the tenant paid at least part of the rent the landlord says the tenant owes?
+      % endif
+      </strong>
+      
+      % if person_answering == "tenant":
+      I paid at least part of the rent
+      % else:
+      The tenant paid at least part of the rent
+      % endif
+      <strong>${ word(yesno(was_rent_paid)) }</strong>
+      
+      % if showifdef('was_rent_paid'):
+      % if person_answering == "tenant":
+      How much did you pay?
+      % else:
+      How much did the tenant pay?
+      % endif
+      <strong>${ rent_amount_paid_text[rent_amount_paid] }</strong>
+      % endif
     show if: defense_rent_payment
   - raw html: |
       ${ end_accordion() }
