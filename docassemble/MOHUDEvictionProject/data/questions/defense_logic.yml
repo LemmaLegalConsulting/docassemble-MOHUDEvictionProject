@@ -1288,7 +1288,6 @@ fields:
       % endif
     field: termination_of_tenancy_date
     datatype: date
-    max: ${ today().format("yyyy-MM-dd") }
     show if:
       variable: notice_to_terminate_includes_specific_day
       is: specific_day
