@@ -866,9 +866,8 @@ fields:
       % endif
     field: tenant_wants_accommodation_in_answer
     datatype: yesnoradio
-    show if: 
-      variable: tenant_asked_for_accommodation
-      is: False
+    js show if: |
+      val("tenant_has_disability") && val("tenant_asked_for_accommodation") == false
   - label: |
       % if person_answering == "tenant":
       Did your landlord say **no**?
@@ -877,7 +876,8 @@ fields:
       % endif
     field: landlord_refused_accommodation
     datatype: yesnomaybe
-    show if: tenant_asked_for_accommodation
+    js show if: |
+      val("tenant_has_disability") && val("tenant_asked_for_accommodation")
 ---
 template: disability_defense_example_template
 subject: |

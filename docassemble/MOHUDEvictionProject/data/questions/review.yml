@@ -1021,7 +1021,7 @@ review:
       % endif
       **${ "Maybe" if notice_of_sale_provided_new_landlord is None else yesno(notice_of_sale_provided_new_landlord) }**
       
-      % if defined('notice_contains_sale_document'):
+      % if showifdef('notice_of_sale_provided_new_landlord'):
       % if trial_court.classification.strip() == "Class 1":
       Did that letter have a copy of the deed, or a notarized document signed both by the original landlord and the new landlord?
       % else:
@@ -1371,7 +1371,7 @@ review:
       % endif
       <strong> ${ yesno(got_notice_to_terminate) }</strong>
 
-      % if got_notice_to_terminate == True:
+      % if showifdef('got_notice_to_terminate'):
       % if person_answering == "tenant":
       About what day did you **get** the notice?
       % else:
@@ -1395,7 +1395,7 @@ review:
       <strong> ${ showifdef('termination_of_tenancy_date') }</strong>
       % endif
       % endif
-    show if: termination_notice_required_by_law
+    show if: defense_failure_to_terminate
   - Edit:
       - kind_of_lease_agreement
       - recompute:
