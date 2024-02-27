@@ -5,9 +5,9 @@ include:
 ---
 metadata:
   title: |
-    File a motion
+    File A Motion
   short title: |
-    File a motion
+    File A Motion
   title url: |
     https://motenanthelp.org/
   tags:
@@ -37,39 +37,39 @@ code: |
     user.name.first
     user.address.address
     
+  nav.set_section("section_about_court")
+  motion_list
+  
+  if motion_list['motion_to_dismiss']:
+    eviction_reason
+    check_case_type
+    
+    has_written_lease
+    lease_attached
+  
+  if motion_list['motion_to_set_aside_judgment']: 
+    final_judgment
+  
+  if (motion_list['motion_to_dismiss'] and (not has_written_lease or not lease_attached or not eviction_reason["nonpayment of rent"])) or (motion_list['motion_to_set_aside_judgment'] and (not final_judgment or judgment_date >= today().minus(days=30))):
+    warning_kickout_loop
+  
+  trial_court.name
+  docket_number
+    
   nav.set_section("section_about_ll")
   for party in other_parties:
     party.address.address
     party.attorney.gather()
   
-  nav.set_section("section_about_court")
-  trial_court.name
-  docket_number
-  
-  eviction_reason
-  check_case_type
-  
-  has_written_lease
-  lease_attached
-  
-  nav.set_section("section_service_method")
-  other_parties[0].service_method
-  if other_parties[0].service_method == "email":
-    other_parties[0].service_email
-  elif other_parties[0].service_method in ["mail", "hand"]:
-    if other_parties[0].attorney.there_are_any:
-      other_parties[0].attorney[0].address.address
-    other_parties[0].service_address.address
-  
   nav.set_section("Your Motions")
   
-  if motion_list['motion_to_dismiss']:
+  if motion_list['motion_to_dismiss'] and has_written_lease and lease_attached and eviction_reason["nonpayment of rent"]:
     nav.set_section("section_motion_to_dismiss")
     motion_to_dismiss_order
   if motion_list['motion_to_shorten_time']:
     nav.set_section("section_motion_to_shorten_time")
     motion_to_shorten_time_order
-  if motion_list['motion_to_set_aside_judgment']:
+  if motion_list['motion_to_set_aside_judgment'] and final_judgment and judgment_date <= today().minus(days=30):
     nav.set_section("section_motion_to_set_aside_judgment")
     motion_to_set_aside_judgment_order
   if motion_list['motion_for_leave_to_file']:
@@ -81,6 +81,15 @@ code: |
   if motion_list['notice_of_hearing']:
     nav.set_section("section_notice_of_hearing")
     notice_of_hearing_order
+    
+  nav.set_section("section_service_method")
+  other_parties[0].service_method
+  if other_parties[0].service_method == "email":
+    other_parties[0].service_email
+  elif other_parties[0].service_method in ["mail", "hand"]:
+    if other_parties[0].attorney.there_are_any:
+      other_parties[0].attorney[0].address.address
+    other_parties[0].service_address.address
 
   nav.set_section("section_review")
   review_motions
@@ -88,6 +97,15 @@ code: |
   nav.set_section("section_download")
   signature_date
   motions_download
+---
+reconsider: 
+  - go_to_review
+  - warning_kickout
+code: |
+  if warning_kickout or go_to_review: 
+    review_specific_motions
+    
+  warning_kickout_loop = True
 ---
 code: |
   enable_al_nav_sections = True
@@ -99,10 +117,10 @@ data from code:
       "Getting started"
   - section_about: |
       "About you"
+  - section_about_court: |
+      "About your case"
   - section_about_ll: |
       "About your landlord"
-  - section_about_court: |
-      "About your court case"
   - section_service_method: |
       "Service method"
   - Your Motions:
@@ -212,7 +230,7 @@ code: |
 id: motions intro
 continue button field: motions_intro_screen
 question: | 
-  DIY Motions
+  File A Motion
 subquestion: |
   This form can help you prepare the following {motion|motions}: 
   
@@ -228,6 +246,44 @@ subquestion: |
     
   And a required Notice of Hearing for each motion.
 ---
+id: soft exit motions warning 
+reconsider: True
+decoration: hand
+question: |
+  % if person_answering == "tenant":
+  You may not want to {file} this motion
+  % else: 
+  The tenant may not want to {file} this motion
+  % endif
+subquestion: |
+  % if motion_list['motion_to_dismiss'] and (not has_written_lease or not lease_attached or not eviction_reason["nonpayment of rent"]):
+  You selected to fill out a Motion to Dismiss or For a More Definite Statement. To file this motion, it should be true that: 
+  
+  1. Your ladlord is evicting you for nonpayment of rent;
+  2. You have a written lease; AND
+  3. The lease was attached to the Landlord's petition when it was delivered to you.
+  % endif
+  % if motion_list['motion_to_set_aside_judgment'] and (not final_judgment or judgment_date >= today().minus(days=30)):
+  You selected to fill out a Motion to Set Aside Judgment. To file this motion, it should be true that: 
+  
+  1. A judge entered a final judgment in this case; AND
+  2. The day the judge entered the final judgment was less than 30 days ago. 
+  % endif
+  
+  Based on your answers, your may not want to file this motion. 
+buttons:
+  - ${"I understand, let me keep going" if person_answering == "tenant" else "The tenant understands, let them keep going"}: 
+      code: |
+        go_to_review = False
+        warning_kickout = True
+  - ${"Choose a different motion"}: 
+      code: |
+        warning_kickout = False
+        go_to_review = True
+    color: info
+  - Exit: exit
+    url: https://motenanthelp.org/
+---
 id: Motion to Dismiss or For a More Definite Statement intro
 continue button field: motion_to_dismiss_intro
 question: |
@@ -236,10 +292,6 @@ subquestion: |
   You said you want to make a Motion to Dismiss or For a More Definite Statement in your case.
   
   You have answered all the questions needed for this motion already. You will have a chance to review it on the next screen. It may take a second to load.
----
-question: |
-  Did the Plaintiff file a rent and posession
-
 ---
 id: Motion to Shorten Time intro
 continue button field: motion_to_shorten_time_intro
@@ -290,7 +342,7 @@ subquestion: |
 id: basic questions intro screen
 decoration: form-lineal
 question: |
-  DIY Motions: Missouri Tenant Help
+  File A Motion: Missouri Tenant Help
 subquestion: |
   Missouri Tenant Help can help you complete and download forms in 3 steps:
 
@@ -336,32 +388,41 @@ fields:
     datatype: checkboxes
     none of the above: false
     code: |
-      [{val["option"]:val["label"]} for val in motion_checkboxes if val["visible"] == "True"]
+      motion_checkboxes
 ---
-variable name: motion_checkboxes
-data:
-# Example:
-# - option: name of the dictionary key
-#   label: name of the motion
-#   visible: True or False, or a mako expression that evaluates to True or False. It's treated as a string
-  - option: motion_for_leave_to_file
-    label: Motion for Leave to File Responsive Pleadings
-    visible: ${ True } 
-  - option: motion_to_shorten_time
-    label: Motion to Shorten Time
-    visible: ${ True }
-  - option: motion_to_elevate_security
-    label: Motion to Elevate Security
-    visible: ${ True }
-  - option: notice_of_hearing
-    label: Notice of Hearing
-    visible: ${ True }
-  - option: motion_to_dismiss
-    label: Motion to Dismiss or For a More Definite Statement
-    visible: ${ has_written_lease and lease_attached and eviction_reason["nonpayment of rent"] }
-  - option: motion_to_set_aside_judgment
-    label: Motion to Set Aside Judgment
-    visible: ${ final_judgment and judgment_date <= today().minus(days=30) }
+code: |
+  motion_checkboxes = {'motion_for_leave_to_file': 'Motion for Leave to File Responsive Pleadings',
+      'motion_to_dismiss': 'Motion to Dismiss or For a More Definite Statement',
+      'motion_to_set_aside_judgment': 'Motion to Set Aside Judgment',
+      'motion_to_shorten_time': 'Motion to Shorten Time',
+      'motion_to_elevate_security': 'Motion to Elevate Security',
+      'notice_of_hearing': 'Notice of Hearing'}
+---
+# Keeping for example way to do this in future
+#variable name: motion_checkboxes
+#data:
+## Example:
+## - option: name of the dictionary key
+##   label: name of the motion
+##   visible: True or False, or a mako expression that evaluates to True or False. It's treated as a string
+#  - option: motion_for_leave_to_file
+#    label: Motion for Leave to File Responsive Pleadings
+#    visible: ${ True } 
+#  - option: motion_to_shorten_time
+#    label: Motion to Shorten Time
+#    visible: ${ True }
+#  - option: motion_to_elevate_security
+#    label: Motion to Elevate Security
+#    visible: ${ True }
+#  - option: notice_of_hearing
+#    label: Notice of Hearing
+#    visible: ${ True }
+#  - option: motion_to_dismiss
+#    label: Motion to Dismiss or For a More Definite Statement
+#    visible: ${ has_written_lease and lease_attached and eviction_reason["nonpayment of rent"] }
+#  - option: motion_to_set_aside_judgment
+#    label: Motion to Set Aside Judgment
+#    visible: ${ final_judgment and judgment_date <= today().minus(days=30) }
 ---
 id: judgment_date
 question: |
@@ -373,6 +434,9 @@ fields:
     datatype: ThreePartsDate
     alMax: ${ today() }
     show if: final_judgment
+validation code: |
+  if not final_judgment: 
+    judgment_date = today().minus(days=31)
 ---
 id: petition_date 
 question: |
@@ -860,7 +924,20 @@ subquestion: |
   ${ action_button_html(url_action('review_motions'), label='Edit answers', color='info') }
   
   Remember to come back to this window to continue.
+---
+id: review_specific_motions
+continue button field: review_specific_motions
+question: |
+  ##Your Motions##
+review:
+  - Edit: |-
+      motion_list
+    button: |
+      **Which motions do you need?**
 
+      % for item in motion_list.true_values():
+      - ${ motion_checkboxes[item] }
+      % endfor
 ---
 id: review_motions
 continue button field: review_motions
