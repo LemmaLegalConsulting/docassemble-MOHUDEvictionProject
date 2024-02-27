@@ -60,6 +60,15 @@ code: |
   for party in other_parties:
     party.address.address
     party.attorney.gather()
+    
+  nav.set_section("section_service_method")
+  other_parties[0].service_method
+  if other_parties[0].service_method == "email":
+    other_parties[0].service_email
+  elif other_parties[0].service_method in ["mail", "hand"]:
+    if other_parties[0].attorney.there_are_any:
+      other_parties[0].attorney[0].address.address
+    other_parties[0].service_address.address
   
   nav.set_section("Your Motions")
   
@@ -78,18 +87,8 @@ code: |
   if motion_list['motion_to_elevate_security']:
     nav.set_section("section_motion_to_elevate_security")
     motion_to_elevate_security_order
-  if motion_list['notice_of_hearing']:
-    nav.set_section("section_notice_of_hearing")
-    notice_of_hearing_order
-    
-  nav.set_section("section_service_method")
-  other_parties[0].service_method
-  if other_parties[0].service_method == "email":
-    other_parties[0].service_email
-  elif other_parties[0].service_method in ["mail", "hand"]:
-    if other_parties[0].attorney.there_are_any:
-      other_parties[0].attorney[0].address.address
-    other_parties[0].service_address.address
+
+  notice_of_hearing_order
 
   nav.set_section("section_review")
   review_motions
@@ -144,10 +143,6 @@ data from code:
         "Motion to Elevate Security"
       hidden: |
         not showifdef("motion_list['motion_to_elevate_security']")
-    - section_notice_of_hearing: |
-        "Notice of Hearing"
-      hidden: |
-        not showifdef("motion_list['notice_of_hearing']")
   - section_review: |
       "Review your answers"
   - section_download: |
@@ -203,10 +198,10 @@ code: |
   motion_to_elevate_security_order = True
 ---
 code: |
-  notice_of_hearing_intro
-  new_hearing_date
+  #notice_of_hearing_intro
+  #new_hearing_date
   motions_for_hearing
-  notice_of_hearing_preview
+  #notice_of_hearing_preview
   notice_of_hearing_order = True
 ---
 code: |
@@ -225,7 +220,7 @@ code: |
   motion_to_elevate_security_attachment.enabled = motion_list['motion_to_elevate_security']
 ---
 code: |
-  notice_of_hearing_attachment.enabled = motion_list['notice_of_hearing']
+  notice_of_hearing_attachment.enabled = motion_list.any_true()
 ---
 id: motions intro
 continue button field: motions_intro_screen
@@ -627,13 +622,14 @@ fields:
   - Reasons exist: reasons_unable_to_prepare_exists
     datatype: yesnoradio
 ---
+## in future add link to discovery interview
 id: discovery
 question: |
   Discovery
 fields:
   - Did you request discovery?: discovery_requested
     datatype: yesnoradio
-  - Do you plan to conduct discovery?: discovery_planned
+  - Do you plan to request discovery?: discovery_planned
     datatype: yesnoradio
     show if:
       variable: discovery_requested
