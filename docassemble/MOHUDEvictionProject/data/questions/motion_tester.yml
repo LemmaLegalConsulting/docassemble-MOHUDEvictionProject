@@ -390,8 +390,7 @@ code: |
       'motion_to_dismiss': 'Motion to Dismiss or For a More Definite Statement',
       'motion_to_set_aside_judgment': 'Motion to Set Aside Judgment',
       'motion_to_shorten_time': 'Motion to Shorten Time',
-      'motion_to_elevate_security': 'Motion to Elevate Security',
-      'notice_of_hearing': 'Notice of Hearing'}
+      'motion_to_elevate_security': 'Motion to Elevate Security'}
 ---
 # Keeping for example way to do this in future
 #variable name: motion_checkboxes
@@ -823,6 +822,65 @@ subquestion: |
 
   ${ al_user_bundle.send_button_html(show_editable_checkbox=True) }
 
+progress: 100
+---
+---
+id: download motions
+event: motions_download
+question: |
+  Download, print, deliver, and file the forms
+subquestion: |
+  Thank you, ${users}. The forms are ready to download, print, deliver, and file.
+  
+  **1. View and download the forms below.** Click the "Edit answers" button to fix any mistakes.
+  
+  **2. Print the forms.** You may be able to use a printer at a public library or the county law library.
+  
+  **3. Deliver the forms to:**
+  
+  % if other_parties[0].attorney.there_are_any: 
+  Plaintiff's attorney: ${ other_parties[0].attorney[0].name }
+  
+  % else:
+  Plaintiff: ${ other_parties[0].name }
+  
+  % endif
+  % if other_parties[0].service_method == "email":
+  Email: ${ other_parties[0].service_email }
+  % else:
+  ${ other_parties[0].service_address.block() }
+  % endif
+  
+  **4. Complete and {file} the forms:**
+  
+    * Fill in the date you deliver each form to the other party in the "Certificate of Service" box usually at the end of the document. There are 3 Certificate of Service boxes in the discovery document that you will need to fill in before delivering to the other party. 
+    
+    % if not docket_number: 
+    * Add the case number.
+    
+    % endif
+    * Go to the court and file the forms at the clerk's office.
+  
+  ${ county_dictionary[trial_court.county]['court_address_and_operating_hours'] }
+  
+  ###Deadline to deliver and file the forms###
+  
+  Deliver and file these forms **as soon as possible**. 
+  
+  Check with your county clerk for how to complete the Notice of Hearing.
+
+  ${ action_button_html(url_action('review_eviction_answer'), label='Edit answers', color='info') }
+    
+  % if device().is_mobile:
+  ${ al_user_bundle.download_list_html(format="pdf") }
+  % else:
+  ${ al_user_bundle.download_list_html(format="docx") }
+  % endif
+ 
+  ${ al_user_bundle.send_button_html(show_editable_checkbox=True) }
+
+  ${ only_once_review_widget() }
+  
 progress: 100
 ---
 id: motion_to_elevate_security_preview
