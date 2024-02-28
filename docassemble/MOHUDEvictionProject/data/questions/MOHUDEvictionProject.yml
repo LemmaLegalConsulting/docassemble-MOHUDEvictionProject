@@ -507,6 +507,14 @@ code: |
 code: |
   motion_to_shorten_time_attachment.enabled = wants_discovery and not original_hearing_date_past
 ---
+ide: add notice of hearing if any motions enabled
+code: |
+  notice_of_hearing_attachment.enabled = motion_to_shorten_time_attachment.enabled or eviction_motion_for_leave_attachment.enabled or eviction_motion_to_continue_attachment.enabled
+---
+code: |
+  motions_for_hearing = list()
+  ## WIP
+---
 id: eviction answer determination code
 code: |
   # We now handle unlawful detainer cases
