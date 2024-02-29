@@ -50,7 +50,7 @@ code: |
   if motion_list['motion_to_set_aside_judgment']: 
     final_judgment
   
-  if (motion_list['motion_to_dismiss'] and (not has_written_lease or not lease_attached or not eviction_reason["nonpayment of rent"])) or (motion_list['motion_to_set_aside_judgment'] and (judgment_date >= today().minus(days=30) or not final_judgment)):
+  if (motion_list['motion_to_dismiss'] and (not has_written_lease or not lease_attached or not eviction_reason["nonpayment of rent"])) or (motion_list['motion_to_set_aside_judgment'] and (judgment_date_more_than_30 or not final_judgment)):
     warning_kickout_loop
   
   trial_court.name
@@ -72,13 +72,13 @@ code: |
   
   nav.set_section("Your Motions")
   
-  if motion_list['motion_to_dismiss'] and has_written_lease and lease_attached and eviction_reason["nonpayment of rent"]:
+  if motion_list['motion_to_dismiss']:
     nav.set_section("section_motion_to_dismiss")
     motion_to_dismiss_order
   if motion_list['motion_to_shorten_time']:
     nav.set_section("section_motion_to_shorten_time")
     motion_to_shorten_time_order
-  if motion_list['motion_to_set_aside_judgment'] and final_judgment and judgment_date <= today().minus(days=30):
+  if motion_list['motion_to_set_aside_judgment']:
     nav.set_section("section_motion_to_set_aside_judgment")
     motion_to_set_aside_judgment_order
   if motion_list['motion_for_leave_to_file']:
@@ -169,7 +169,7 @@ code: |
 code: |
   motion_to_set_aside_intro
   petition_date 
-  statements[0]
+  supporting_statement
   motion_to_set_aside_preview
   motion_to_set_aside_judgment_order = True
 ---
@@ -260,14 +260,14 @@ subquestion: |
   2. You have a written lease; AND
   3. The lease was attached to the Landlord's petition when it was delivered to you.
   % endif
-  % if motion_list['motion_to_set_aside_judgment'] and (not final_judgment or judgment_date >= today().minus(days=30)):
+  % if motion_list['motion_to_set_aside_judgment'] and (not final_judgment or judgment_date_more_than_30):
   You selected to fill out a Motion to Set Aside Judgment. To file this motion, it should be true that: 
   
   1. A judge entered a final judgment in this case; AND
   2. The day the judge entered the final judgment was less than 30 days ago. 
   % endif
   
-  Based on your answers, your may not want to file this motion. 
+  Based on your answers, you may not want to file this motion. 
 buttons:
   - ${"I understand, let me keep going" if person_answering == "tenant" else "The tenant understands, let them keep going"}: 
       code: |
@@ -418,7 +418,17 @@ code: |
 #    visible: ${ has_written_lease and lease_attached and eviction_reason["nonpayment of rent"] }
 #  - option: motion_to_set_aside_judgment
 #    label: Motion to Set Aside Judgment
-#    visible: ${ final_judgment and judgment_date <= today().minus(days=30) }
+#    visible: ${ final_judgment or judgment_date_more_than_30 }
+---
+depends on: judgment_date
+id: Calculating if judgment_date is more then 30 days ago
+code: |
+  thirty_days_ago = current_datetime() - date_interval(days=30)
+  
+  if final_judgment:
+    judgment_date_more_than_30 = judgment_date <= thirty_days_ago
+  else: 
+    judgment_date_more_than_30 = True
 ---
 id: judgment_date
 question: |
@@ -430,9 +440,6 @@ fields:
     datatype: date
     max: ${ today() }
     show if: final_judgment
-validation code: |
-  if not final_judgment: 
-    judgment_date = today().minus(days=31)
 ---
 id: petition_date 
 question: |
@@ -442,17 +449,12 @@ fields:
     datatype: ThreePartsDate
     alMax: ${ today() }
 ---
-objects: 
-  - statements: DAList
----
-id: statements
+id: supporting_statement
 question: |
-  Add any supporting statements to your {motion}. 
+  Why should the judge agree to cancel the earlier decision because of your request?
 fields: 
-  - Statement: statements[i]
+  - Explain: supporting_statement 
     input type: area
-    rows: 5
-list collect: True
 ---
 objects: 
   - rental_address: ALAddress
@@ -1143,13 +1145,11 @@ review:
       ##Motion to Set Aside Judgment##
     show if: motion_list['motion_to_set_aside_judgment']
   - Edit: |-
-      statements.revisit
+      supporting_statement
     button: |
       **Statements**
 
-      % for item in statements:
-      - ${ item }
-      % endfor
+      ${ showifdef('supporting_statement') }
   - Edit: |-
       judgment_date
     button: |
@@ -1304,20 +1304,6 @@ review:
 ---
 
 event: |-
-  statements.revisit
-
-id: |-
-  revisit statements
-
-question: |-
-  Edit your answers about Statements
-
-subquestion: |-
-  ${ statements.table }
-
----
-
-event: |-
   rental_address.revisit
 
 id: |-
@@ -1329,41 +1315,4 @@ question: |-
 subquestion: |-
   ${ rental_address.table }
 
----
-
-event: |-
-  reasons.revisit
-
-id: |-
-  revisit reasons
-
-question: |-
-  Edit your answers about Reasons
-
-subquestion: |-
-  ${ reasons.table }
-
----
-
-columns:
-  - Statement: |-
-      row_item.statements[i] if hasattr(row_item, 'statements[i]') else ''
-
-rows: |-
-  statements
-
-table: |-
-  statements.table
-
----
-
-columns:
-  - Reason: |-
-      row_item.reasons[i] if hasattr(row_item, 'reasons[i]') else ''
-
-rows: |-
-  reasons
-
-table: |-
-  reasons.table
 ---
