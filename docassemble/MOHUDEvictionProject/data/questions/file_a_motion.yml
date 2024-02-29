@@ -75,15 +75,15 @@ code: |
   if motion_list['motion_to_dismiss']:
     nav.set_section("section_motion_to_dismiss")
     motion_to_dismiss_order
+  if motion_list['motion_for_leave_to_file']:
+    nav.set_section("section_motion_for_leave_to_file")
+    motion_for_leave_to_file_order
   if motion_list['motion_to_shorten_time']:
     nav.set_section("section_motion_to_shorten_time")
     motion_to_shorten_time_order
   if motion_list['motion_to_set_aside_judgment']:
     nav.set_section("section_motion_to_set_aside_judgment")
     motion_to_set_aside_judgment_order
-  if motion_list['motion_for_leave_to_file']:
-    nav.set_section("section_motion_for_leave_to_file")
-    motion_for_leave_to_file_order
   if motion_list['motion_to_elevate_security']:
     nav.set_section("section_motion_to_elevate_security")
     motion_to_elevate_security_order
@@ -127,6 +127,10 @@ data from code:
         "Motion to Dismiss or For a More Definite Statement"
       hidden: |
         not showifdef("motion_list['motion_to_dismiss']")
+    - section_motion_for_leave_to_file: |
+        "Motion for Leave to File Responsive Pleadings"
+      hidden: |
+        not showifdef("motion_list['motion_for_leave_to_file']")
     - section_motion_to_shorten_time: |
         "Motion to Shorten Time"
       hidden: |
@@ -135,10 +139,6 @@ data from code:
         "Motion to Set Aside Judgment"
       hidden: |
         not showifdef("motion_list['motion_to_set_aside_judgment']")
-    - section_motion_for_leave_to_file: |
-        "Motion for Leave to File Responsive Pleadings"
-      hidden: |
-        not showifdef("motion_list['motion_for_leave_to_file']")
     - section_motion_to_elevate_security: |
         "Motion to Elevate Security"
       hidden: |
@@ -922,7 +922,7 @@ subquestion: |
   
   Check with your county clerk for how to complete the Notice of Hearing.
 
-  ${ action_button_html(url_action('review_eviction_answer'), label='Edit answers', color='info') }
+  ${ action_button_html(url_action('review_motions'), label='Edit answers', color='info') }
     
   % if device().is_mobile:
   ${ al_user_bundle.download_list_html(format="pdf") }
