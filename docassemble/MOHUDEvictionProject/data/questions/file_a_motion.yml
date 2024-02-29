@@ -50,7 +50,7 @@ code: |
   if motion_list['motion_to_set_aside_judgment']: 
     final_judgment
   
-  if (motion_list['motion_to_dismiss'] and (not has_written_lease or not lease_attached or not eviction_reason["nonpayment of rent"])) or (motion_list['motion_to_set_aside_judgment'] and (not final_judgment or judgment_date >= today().minus(days=30))):
+  if (motion_list['motion_to_dismiss'] and (not has_written_lease or not lease_attached or not eviction_reason["nonpayment of rent"])) or (motion_list['motion_to_set_aside_judgment'] and (judgment_date >= today().minus(days=30) or not final_judgment)):
     warning_kickout_loop
   
   trial_court.name
@@ -427,8 +427,8 @@ fields:
   - A judge entered a final judgment in this case: final_judgment
     datatype: yesnoradio
   - Date: judgment_date
-    datatype: ThreePartsDate
-    alMax: ${ today() }
+    datatype: date
+    max: ${ today() }
     show if: final_judgment
 validation code: |
   if not final_judgment: 
