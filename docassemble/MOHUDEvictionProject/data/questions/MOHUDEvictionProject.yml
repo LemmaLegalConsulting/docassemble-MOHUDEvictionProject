@@ -1,6 +1,7 @@
 ---
 include:
   - shared.yml
+  - file_a_motion.yml
 ---
 metadata:
   title: |
@@ -26,6 +27,44 @@ modules:
 ---
 code: |
   interview_short_title = "Eviction Defender"
+---
+# this needs to be False in order to incorporate file_a_motion.yml
+initial: True
+code: |
+  enable_al_nav_sections = False
+#---
+#Not entirely working yet, leaving for future incorporation
+#reconsider: True
+#variable name: al_nav_sections
+#data from code:
+#  - section_eviction_answer_intro: |
+#      "Getting started"
+#  - section_eviction_answer_can_i: |
+#      "Should you file an Answer?"
+#  - section_eviction_answer_you: |
+#      "About you"
+#  - section_eviction_answer_other: |
+#      "About your landlord"
+#  - section_eviction_answer_case: |
+#      "About your court case"
+#  - section_eviction_answer_tenancy: |
+#      "About your tenancy"
+#  - review_eviction_answer: |
+#      "Review your answers"
+#  - section_eviction_discovery: |
+#      "Discovery"
+#  - Your Motions:
+#    - section_motion_for_leave_to_file: |
+#        "Motion for Leave to File Responsive Pleadings"
+#      hidden: |
+#        not showifdef("original_hearing_date_past")
+#    - section_motion_to_shorten_time: |
+#        "Motion to Shorten Time"
+#      hidden: |
+#        not showifdef("wants_discovery") and showifdef("original_hearing_date_past")
+#  - section_eviction_answer_download: |
+#      "Download, print, and file"
+---
 ---
 sections:
   - section_eviction_answer_intro: Getting started
@@ -68,6 +107,12 @@ code: |
     if customize_discovery_choice == "customize_discovery":
       customize_discovery_requests
       review_discovery_requests
+      
+    if wants_discovery and not original_hearing_date_past: 
+      motion_to_shorten_time_order
+   
+  if original_hearing_date_past:
+    motion_for_leave_to_file_order
     
   set_progress(90)
   signpost_service_of_process
