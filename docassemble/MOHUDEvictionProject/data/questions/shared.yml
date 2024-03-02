@@ -9,6 +9,9 @@ include:
   - autoterms.yml
   - discovery.yml
 ---
+modules:
+  - docassemble.demo.accordion
+---
 code: |
   feedback_form = f"{user_info().package}:feedback.yml"
 ---
@@ -668,9 +671,9 @@ data:
   posting:
     question: |
       % if person_answering == "tenant":
-      It was taped, stapled, or posted to my door or home
+      It was taped, stapled, or posted to my door or home\
       % else:
-      It was taped, stapled, or posted to the tenant's door or home
+      It was taped, stapled, or posted to the tenant's door or home\
       % endif   
     document: |
       It was taped, stapled, or posted to the tenant's door or home   
@@ -682,25 +685,25 @@ data:
   sheriff:
     question: |
       % if person_answering == "tenant":
-      It was handed to me by the sheriff or process server (called personal service)
+      It was handed to me by the sheriff or process server (called personal service)\
       % else:
-      It was handed to the tenant by the sheriff or process server (called personal service)
-      % endif   
+      It was handed to the tenant by the sheriff or process server (called personal service)\
+      % endif
     document: |
       It was handed to the tenant by the sheriff
   other_delivery:
     question: |
       % if person_answering == "tenant":
-      It was handed to me by my landlord or somebody other than the sheriff or a process server
+      It was handed to me by my landlord or somebody other than the sheriff or a process server\
       % else:
-      It was handed to the tenant by the landlord or somebody other than the sheriff
+      It was handed to the tenant by the landlord or somebody other than the sheriff\
       % endif   
     document: |
       It was handed to the tenant by the landlord or somebody other than the sheriff
   other:
-    question: |
+    question: >-
       Some other method of getting the petition
-    document: |
+    document: >-
       Some other method of getting the petition
 ---
 id: other tenants
