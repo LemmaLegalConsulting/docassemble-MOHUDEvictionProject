@@ -317,12 +317,14 @@ objects:
   - al_user_bundle: ALDocumentBundle.using(elements=[eviction_motion_to_continue_post_interview_instructions,eviction_motion_to_continue_attachment], filename="eviction_motion_to_continue.docx_package.pdf", title="All forms to download for your records", enabled=True)
   - al_court_bundle: ALDocumentBundle.using(elements=[eviction_motion_to_continue_attachment], filename="eviction_motion_to_continue.docx_package.pdf", title="All forms to download for your records", enabled=True)
 ---
-attachments:
+attachment:
   - name: eviction motion to continue post interview instructions
     filename: Post-interview-instructions     
     variable name: eviction_motion_to_continue_post_interview_instructions[i]        
     skip undefined: True
     docx template file: eviction_motion_to_continue_next_steps.docx
+---
+attachment:    
   - name: eviction motion to continue attachment
     filename: eviction_motion_to_continue.docx     
     variable name: eviction_motion_to_continue_attachment[i]        
