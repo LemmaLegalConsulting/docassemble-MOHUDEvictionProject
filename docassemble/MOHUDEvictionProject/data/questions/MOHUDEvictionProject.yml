@@ -42,6 +42,9 @@ sections:
 code: |
   user_role = user_ask_role = "defendant"
 ---
+mandatory: False
+question: ${ al_user_bundle }
+---
 ###################### Main order ######################
 mandatory: True
 code: |
@@ -80,7 +83,11 @@ code: |
 
   al_user_wants_reminders
   set_progress(100)
-  eviction_defender_download
+  generate_downloads_task
+  if generate_downloads_task.ready():
+    eviction_defender_download
+  else:
+    waiting_screen
 ---
 #################### Interview order #####################
 comment: |
