@@ -1387,6 +1387,7 @@ code: |
       int(showifdef("rent_period",12)),
       received_notice_date,
       showifdef("notice_to_terminate_includes_specific_day"),
+      showifdef("petition_date"),
       showifdef("termination_of_tenancy_date")
     )
   else:

@@ -134,8 +134,7 @@ code: |
     docket_review
 
   original_hearing_date
-  if original_hearing_date_past:
-    petition_date
+  petition_date
     
   docket_number
 
@@ -475,6 +474,7 @@ code: |
 code: |
   docket_number
   filing_date
+  petition_date
   for party in other_parties:
     party.address.address
     party.attorney.gather()
@@ -486,6 +486,8 @@ code: |
   petition_states_demand_made
   petition_review = True
 comment: |
+  This block doesn't appear to be used.
+  
   filing_date
   is_rent_sought
   petition_requirements
