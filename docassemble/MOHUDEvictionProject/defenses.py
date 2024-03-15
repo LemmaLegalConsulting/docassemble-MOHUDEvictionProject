@@ -57,6 +57,7 @@ def has_improper_notice(
     rent_period: int,
     received_notice_date: DADateTime,
     notice_to_terminate_includes_specific_day: str,
+    petition_date: DADateTime,
     termination_of_tenancy_date: Optional[DADateTime]=None
 ) -> bool:
     """
@@ -70,6 +71,7 @@ def has_improper_notice(
         rent_day (int): The day of the rental period that rent is due.
         rent_period (int): The number of times the rental period occurs in a year (e.g., 12 for monthly rental period)
         received_notice_date (DADateTime): The date the tenant received the notice.
+        petition_date (DADateTime): The date the eviction petition is filed.
         notice_to_terminate_includes_specific_day (str): Whether the notice specifies a specific day or rental period.
         termination_of_tenancy_date (Optional[DADateTime]): The date the tenancy is terminated.
 
@@ -86,6 +88,9 @@ def has_improper_notice(
 
         if notice_to_terminate_includes_specific_day == "rental_period":
             termination_of_tenancy_date = end_of_next_rental_period(received_notice_date, rent_day, rent_period)
+        elif notice_to_terminate_includes_specific_day in ["no_specific_day","something_else"]:
+            termination_of_tenancy_date = petition_date
+          
         # else: termination_of_tenancy_date is already set to a specific date
         
         # True means notice is improper

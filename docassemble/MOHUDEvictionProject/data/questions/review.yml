@@ -594,12 +594,12 @@ review:
       Is the landlord asking for an expedited (emergency) eviction?: ${ showifdef('landlord_seeking_emergency_eviction') }
       % endif
   - Edit:
-      - filing_date
+      - petition_date
       - recompute:
         - defense_logic
     button: |
-      Filing Date:
-      **${ filing_date }**
+      When did the Plaintiff file their petition in this case?:
+      **${ petition_date }**
   - Edit:
       - tenant_got_summons
       - recompute:
