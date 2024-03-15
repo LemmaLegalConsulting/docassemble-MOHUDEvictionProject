@@ -184,8 +184,7 @@ code: |
       excessive_rent
     if late_fees_assessed and trial_court.circuit == 21:
       petition_separates_nonrent
-  if late_fees_assessed:
-    late_fees_penalty
+  late_fees_assessed
   if eviction_reason["nonpayment of rent"]:
     petition_states_demand_made
     landlord_problems_section
