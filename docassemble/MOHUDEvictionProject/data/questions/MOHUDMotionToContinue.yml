@@ -352,6 +352,12 @@ code: |
 code: |
   eviction_motion_for_leave_attachment.enabled = False
 ---
+code: |
+  motion_to_shorten_time_attachment.enabled = False
+---
+code: |
+  eviction_discovery_attachment.enabled = False
+---
 id: eviction motion to continue review screen
 continue button field: review_eviction_answer
 question: |
