@@ -1,0 +1,183 @@
+include:
+ - docassemble.PovertyScale:poverty.yml
+---
+modules:
+  - docassemble.PovertyScale.poverty
+---
+mandatory: True
+question: Income qualification
+subquestion: |  
+  % if income_eligible:
+  You are eligible with an annual income of ${ currency(user_provided_income * 12) } for a household of 
+  ${ user_provided_hh_size } for the following reason:
+  ${ income_eligibility_reason }
+  % else: 
+  You are not eligible with an annual income of ${ currency(user_provided_income * 12) } for a household of 
+  ${ user_provided_hh_size } 
+  % endif
+  
+  % if assets_eligible:
+  You are eligible with household assets of ${ currency(household_assets) }
+  % else:
+  You are not eligible with household assets of ${ currency(household_assets) }
+  % endif
+  
+  % if citizenship_eligible:
+  You are eligible as a ${ citizenship_eligibility_reason }
+  % else:
+  You are not eligible because of your citizenship status.
+  % endif
+
+  ${ poverty_scale_table }
+---
+code: |
+  if poverty_scale_income_qualifies(user_provided_income, household_size=user_provided_hh_size, multiplier=1.25):
+    income_eligibility_reason = "Income Below 125% under 3-1"
+    income_eligible = True    
+  elif benefit_reason['maintain_benefits']:
+    income_eligibility_reason = "Maintaining Benefits under 3-2(1)"
+    income_eligible = True
+  elif poverty_scale_income_qualifies(user_provided_income, household_size=user_provided_hh_size, multiplier=2.00):
+    if benefit_reason['obtain_benefits'] or benefit_reason['obtain_or_maintain_disability_benefits']:
+      income_eligibility_reason = "Obtaining Benefits under 3-2(3)"
+      income_eligible = True
+    elif other_factors:
+      income_eligibility_reason = "Other Factors under 3-2(4)"
+      income_eligible = True
+    else:
+      income_eligible = False
+  else:
+    income_eligible = False
+---
+code: |
+  if household_assets > 7500:
+    assets_eligible = False
+  else:
+    assets_eligible = True
+---
+question: |
+  Is the client requesting assistance for any of the following reasons
+fields:
+  - no label: benefit_reason
+    datatype: checkboxes
+    choices:
+      - Maintain benefits provided by a governmental program for low-income individuals or families: maintain_benefits
+      - Obtain governmental benefits for low income individuals and families: obtain_benefits
+      - Obtain or maintain governmental benefits forpersons with disabilities: obtain_or_maintain_disability_benefits
+---
+question: |
+  Income information
+fields:
+  - Monthly income: user_provided_income
+    datatype: currency
+  - Household size (include yourself): user_provided_hh_size
+    datatype: integer
+    default: 1
+  - Household assets: household_assets
+    datatype: integer
+---
+code: |
+  if citizenship_status_citizen:
+    citizenship_eligibility_reason = "Citizen"
+    citizenship_eligible = True
+  elif citizenship_status_permanent_resident:
+    citizenship_eligibility_reason = "Permanent Resident"
+    citizenship_eligible = True
+  elif citizenship_status_worker and related_to_employment_contract:
+    citizenship_eligibility_reason = "Agricultural or Forestry Worker"
+    citizenship_eligibility_reason = "Citizen"
+    citizenship_eligible = True
+  elif citizenship_status_family and filed_application:
+    citizenship_eligibility_reason = "Family member of citizen"
+    citizenship_eligible = True
+  elif citizenship_status_refugee:
+    citizenship_eligibility_reason = "Refugee"
+    citizenship_eligible = True
+  elif citizenship_status_victim and related_to_battery and violated_us_law:
+    citizenship_eligibility_reason = "Refugee"
+    citizenship_eligible = True
+  else:
+    citizenship_eligible = False
+---
+code: |
+  citizenship_status = dict()
+---
+question: Citizenship Eligibility
+fields:
+  - Are you a U.S. Citizen?: citizenship_status_citizen
+    datatype: yesnoradio
+  - Are you a permanent resident?: citizenship_status_permanent_resident
+    datatype: yesnoradio
+    show if:
+      variable: citizenship_status_citizen
+      is: False
+  - Are you an agricultural or forestry worker under a H-2 visa?: citizenship_status_worker
+    datatype: yesnoradio
+    show if:
+      variable: citizenship_status_permanent_resident
+      is: False
+  - Is the requested legal assistance related to your specific employment contract and involve one of the following things?: related_to_employment_contract
+    datatype: yesnoradio
+    show if:
+      variable: citizenship_status_worker
+      is: True
+  - show if:
+      variable: citizenship_status_worker
+      is: True
+    note: |
+      - Wages
+      - Housing
+      - Transportation
+      - Other Employment
+  - Are you married to a U.S. citizen, or a parent of a U.S. citizen, or an unmarried child under the age of 21 of a U.S. citizen?: citizenship_status_family
+    datatype: yesnoradio
+    show if:
+      variable: citizenship_status_permanent_resident
+      is: False
+  - Have you filed an application that has not been rejected for one of the following statuses: filed_application
+    datatype: yesnoradio
+    show if:
+      variable: citizenship_status_family
+      is: True
+  - show if:
+      variable: citizenship_status_family
+      is: True
+    note: |
+      - Adjustment of status to lawful permanent residence (I-485) or (I-485A) or (I-512)
+      - Petition for Alien Relative (I-130)
+      - Application for Asylum or Withholding of Removal (I-589)
+      - Refugee/Asylee Relative Petition (I-730)
+      - Petition for Alien Fiancé (I-129F)
+      - Application for Immigrant Visa and Alien Registration (DS-230)
+      - Application for persons seeking V nonimmigrant status orextension of V status (I-539 or I-539A)
+      - Permanent residency directly with the American Consulate (OF-230)
+      - Suspension of deportation (I-256A or EOIR-40), or cancellation of removal (EOIR-42), family unity (I-817), or NACARA suspension or special rule cancellation and adjustment (I-881)
+      - Self-petition for widow(er) or abused spouse or child of US Citizen or Legal Permanent Resident (I-360)
+      - Application to Adjust Status from Temporary Permanent Resident Under INA 245A (I-698)
+      - Employment Authorization Document (card), Form I-688B or I-766, coded C9 or “Serves as I-512 Advance Parole”, or a9, or a13, or A13, or a14, or A14, a15, or A15, c16, or C16, c8, or C8, c10, or C10, c21, or C21, c24, or C24
+      - Any verification from INS/USCIS/DHS, or other authoritative document
+  - Are you a refugee, an asylee, an alien granted Withholding Of Removal, or Conditional Entrants?: citizenship_status_refugee
+    datatype: yesnoradio
+    show if:
+      variable: citizenship_status_permanent_resident
+      is: False
+  - Have you suffered from Battery, Extreme Cruelty, Sexual Assault, or other U Visa Crime?: citizenship_status_victim
+    datatype: yesnoradio
+    show if:
+      variable: citizenship_status_permanent_resident
+      is: False
+  - Is the requested legal assistance related to the Battery, Extreme Cruelty, Sexual Assault, or other U Visa Crime?: related_to_battery
+    datatype: yesnoradio
+    show if:
+      variable: citizenship_status_victim
+      is: True
+  - Did the Battery, Extreme Cruelty, Sexual Assault, or other U Visa Crime violate a law of the United States?: violated_us_law
+    datatype: yesnoradio
+    show if:
+      variable: citizenship_status_victim
+      is: True
+  - show if:
+      variable: citizenship_status_victim
+      is: True
+    note: |
+      The Battery, Extreme Cruelty, Sexual Assault, or other U Visa Crime is not required to have happened in the United States if it volates a law of the United States?
