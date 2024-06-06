@@ -1,0 +1,103 @@
+---
+include:
+  - docassemble.AssemblyLine:assembly_line.yml
+  - docassemble.ALToolbox:goal_satisfy.yml
+---
+modules:
+  - docassemble.ALToolbox.llms
+---
+objects:
+  - intake_question_series: GoalSatisfactionList.using(goals=intake_goals, initial_question = str(initial_question))
+---
+code: |
+  from pdfminer.high_level import extract_text
+
+  # Set up logic here to choose the right PDF, based on geographic location and user_problem_classification
+  relevant_protocol_to_apply = extract_text(path_and_mimetype("data/sources/LSEM_Housing.pdf")[0])
+---
+code: |
+  intake_question_series.initial_draft = user_problem_description
+---
+mandatory: True
+code: |
+  user_problem_classification
+  intake_question_series.initial_draft
+  intake_question_series.gather()
+  ai_problem_best_guess
+  your_results
+---
+question: |
+  ${ initial_question.subject }
+subquestion: |
+  ${ initial_question.content }  
+fields:
+  - Explain in a few sentences: user_problem_description
+    datatype: area
+---
+event: your_results
+question: |
+  Your results
+subquestion: |
+  % if ai_problem_best_guess.get("qualifies"):
+  You may qualify for help from a Missouri legal aid program. Here is why:
+  % else:
+  You may not qualify for help from a Missouri legal aid program. Here is why:
+  % endif
+
+  ${ ai_problem_best_guess.get("narrative") }
+---
+template: initial_question
+subject: |
+  What do you need help with today?
+content: |
+  Explain your problem in a few sentences. We will ask a few follow-up questions
+  to help you understand if a Missouri legal aid program is currently able to help you.
+---
+code: |
+  try:
+    user_problem_classification = classify_text(
+        user_problem_description, 
+        choices = {
+            "Housing": "A problem related to housing, housing subsidies like Section 8, or evictions",
+            "Consumer": "A problem related to consumer protection, like debt collection, bankruptcy, or fraud",
+            "Other": "Anything else that doesn't fit into the above categories"
+          },
+        default_response = "Other",
+    )
+  except Exception as e:
+    user_problem_classification = "Other"
+    log("Unable to classify problem: " + str(e))
+---
+code: |
+  intake_goals = [
+    f"Keep asking questions to find out if the user qualifies based on these criteria: \n```\n{relevant_protocol_to_apply}\n```",
+    "The user has provided a complete response to all of the relevant criteria based on their initial problem description and the intake criteria"
+  ]  
+---
+template: answer_in_out_prompt
+content: |
+  You are a frontline legal aid intake worker who is telling a client if the legal aid 
+  program is currently able to help with the problem that they have.
+
+  The protocols to apply are:
+
+  ```
+  ${ relevant_protocol_to_apply }
+  ```
+  Evaluate the user's response and respond with a JSON structure that includes:
+
+  1. The value true or false
+  2. A narrative that explains why the person qualifies or does not qualify, without being definitive.
+
+  Use direct address.
+
+  Example: 
+  ```
+  {
+    "qualifies": true,
+    "narrative": "You likely qualify because you are being evicted and the hearing is less than 10 days away."
+  }
+  ```
+---
+code: |
+  ai_problem_best_guess = chat_completion(str(answer_in_out_prompt), intake_question_series.synthesize_draft_response())
