@@ -7,7 +7,7 @@ modules:
   - docassemble.ALToolbox.llms
 ---
 objects:
-  - intake_question_series: GoalSatisfactionList.using(goals=intake_goals, initial_question = str(initial_question))
+  - intake_question_series: GoalSatisfactionList.using(goals=intake_goals, initial_question = str(initial_question), model="gpt-4-turbo")
 ---
 code: |
   from pdfminer.high_level import extract_text
@@ -100,4 +100,4 @@ content: |
   ```
 ---
 code: |
-  ai_problem_best_guess = chat_completion(str(answer_in_out_prompt), intake_question_series.synthesize_draft_response())
+  ai_problem_best_guess = chat_completion(str(answer_in_out_prompt), intake_question_series.synthesize_draft_response(), json_mode=True, model="gpt-4-turbo")
