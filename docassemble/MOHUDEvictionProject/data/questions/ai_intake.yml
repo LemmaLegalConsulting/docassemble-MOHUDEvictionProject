@@ -2,6 +2,7 @@
 include:
   - docassemble.AssemblyLine:assembly_line.yml
   - docassemble.ALToolbox:goal_satisfy.yml
+  - intake.yml
 ---
 modules:
   - docassemble.ALToolbox.llms
@@ -38,13 +39,24 @@ event: your_results
 question: |
   Your results
 subquestion: |
-  % if ai_problem_best_guess.get("qualifies"):
+  % if ai_problem_best_guess.get("qualifies") and income_eligible and assets_eligible and citizenship_eligible:
   You may qualify for help from a Missouri legal aid program. Here is why:
+  
+  ${ ai_problem_best_guess.get("narrative") }
+  
+  % elif not income_eligible:
+  You may not qualify for help from a Missouri legal aid program because your income is above the income limit.
+  % elif not assets_eligible:
+  You may not qualify for help from a Missouri legal aid program because your household assets are above the assets limit.
+  % elif not citizenship_eligible:
+  You may not qualify for help from a Missouri legal aid program because you are not a citizen or a permanent resident.
   % else:
   You may not qualify for help from a Missouri legal aid program. Here is why:
+  
+  ${ ai_problem_best_guess.get("narrative") }
+  
   % endif
 
-  ${ ai_problem_best_guess.get("narrative") }
 ---
 template: initial_question
 subject: |
@@ -60,6 +72,9 @@ code: |
         choices = {
             "Housing": "A problem related to housing, housing subsidies like Section 8, or evictions",
             "Consumer": "A problem related to consumer protection, like debt collection, bankruptcy, or fraud",
+            "Maintaining benefits": "A problem related to maintaining government benefits provided by a governmental program for low-income individuals or families.",
+            "Obtaining benefits": "A problem related to obtaining government benefits provided by a governmental program for low-income individuals or families.",
+            "Disability benefits": "A problem related to obtaining or maintaining disability benefits.",
             "Other": "Anything else that doesn't fit into the above categories"
           },
         default_response = "Other",
@@ -77,7 +92,7 @@ code: |
 template: answer_in_out_prompt
 content: |
   You are a frontline legal aid intake worker who is telling a client if the legal aid 
-  program is currently able to help with the problem that they have.
+  program is currently able to help with the problem that they have.  The client does not have much time and you should only ask questions that are needed to determine if the client qualifies.  Respect the client's privacy, the client may be uncomfortable telling you the reason the client is being evicted or losing their voucher.
 
   The protocols to apply are:
 
@@ -87,7 +102,7 @@ content: |
   Evaluate the user's response and respond with a JSON structure that includes:
 
   1. The value true or false
-  2. A narrative that explains why the person qualifies or does not qualify, without being definitive.
+  2. A narrative that explains why the person qualifies or does not qualify, without being definitive and without giving legal advice.
 
   Use direct address.
 
