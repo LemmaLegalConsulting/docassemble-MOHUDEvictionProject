@@ -117,9 +117,9 @@ sections:
   - section_eviction_answer_intro: Introduction
   - section_eviction_answer_can_i: Should you file a Motion to Continue?
   - section_eviction_answer_you: Information about you
+  - section_eviction_answer_casenet: Using Case.net
   - section_eviction_answer_other: Information about the other party
   - section_eviction_answer_case: Information about the eviction
-  - section_eviction_answer_casenet: Using Case.net
   - review_eviction_answer: Review your answers
   - section_serve_other_side: Getting a copy to your landlord
   - section_eviction_answer_download: Download, print and file
@@ -414,7 +414,7 @@ review:
          - Attorney: **None**
       
       % endif
-         - Person or Business: **${ "Person" if item.person_type == "ALIndividual" else "Business" }**
+         - Person or Business: **${ "Person" if item.person_type == "individual" else "Business" }**
       % endfor
       % else:
       **None**
