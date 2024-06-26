@@ -203,7 +203,7 @@ id: you can do it affirmation
 question: |
   ${ users[0].familiar() }, you can do this!
 subquestion: |
-  It takes most tenants about **30 minutes** to use this website. But you can 
+  It takes most tenants about **10 minutes** to use this website. But you can 
   save your work and come back at any time.
 
   Just answer the questions on each screen as well as you can. Make sure
