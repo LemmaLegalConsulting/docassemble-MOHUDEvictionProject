@@ -13,8 +13,45 @@ code: |
     else:
       trial_court.county = trial_court_county_selected
       trial_court.circuit = county_dictionary[trial_court.county]['circuit']
+  if len(county_dictionary[trial_court.county]["courts"]) == 1:
+    trial_court.location_name = None
+  else:
+    potential_courts = list()
+    for index in range(len(county_dictionary[trial_court.county]["courts"])):
+      potential_courts.append({index:county_dictionary[trial_court.county]["courts"][index]["location_name"]})
   trial_court.division = "Associate Division"
   trial_court.address.county = trial_court.county
+---
+code: |
+  if len(county_dictionary[trial_court.county]["courts"]) == 1:
+    trial_court.address.address = county_dictionary[trial_court.county]["courts"][0]["address"]
+    trial_court.building_name = county_dictionary[trial_court.county]["courts"][0]["name"]
+    if "unit" in county_dictionary[trial_court.county]["courts"][0].keys():
+      trial_court.address.unit = county_dictionary[trial_court.county]["courts"][0]["unit"]
+    else:
+      trial_court.address.unit = None
+    trial_court.address.city = county_dictionary[trial_court.county]["courts"][0]["city"]
+    trial_court.address.state = county_dictionary[trial_court.county]["courts"][0]["state"]
+    trial_court.address.zip = county_dictionary[trial_court.county]["courts"][0]["zip"]
+    if "schedule" in county_dictionary[trial_court.county]["courts"][0].keys():
+      trial_court.schedule = county_dictionary[trial_court.county]["courts"][0]["schedule"]
+    else:
+      trial_court.address.schedule = None
+  else:
+    trial_court.building_name = county_dictionary[trial_court.county]["courts"][int(trial_court.location_number)]["name"]
+    trial_court.address.address = county_dictionary[trial_court.county]["courts"][int(trial_court.location_number)]["address"]
+    if "unit" in county_dictionary[trial_court.county]["courts"][int(trial_court.location_number)].keys():
+      trial_court.address.unit = county_dictionary[trial_court.county]["courts"][int(trial_court.location_number)]["unit"]
+    else:
+      trial_court.address.unit = None
+    trial_court.address.city = county_dictionary[trial_court.county]["courts"][int(trial_court.location_number)]["city"]
+    trial_court.address.state = county_dictionary[trial_court.county]["courts"][int(trial_court.location_number)]["state"]
+    trial_court.address.zip = county_dictionary[trial_court.county]["courts"][int(trial_court.location_number)]["zip"]
+    if "schedule" in county_dictionary[trial_court.county]["courts"][int(trial_court.location_number)].keys():
+      trial_court.schedule = county_dictionary[trial_court.county]["courts"][int(trial_court.location_number)]["schedule"]
+    else:
+      trial_court.schedule = None
+    trial_court.address.location_name= county_dictionary[trial_court.county]["courts"][int(trial_court.location_number)]["location_name"]
 ---
 id: caption - docket number and file date
 question: |
@@ -45,6 +82,18 @@ fields:
       % if trial_court.circuit:
       ${ ordinal_number(trial_court.circuit, use_word=False).capitalize() + " Judicial Circuit - " + trial_court.county }
       % endif
+  - show if: 
+      code: |
+        len(county_dictionary[trial_court.county]["courts"]) > 1
+    note: |
+      There are two courts for eviction cases in your county.  You can find the location name on the summons or on Case.net.
+  - Location Name: trial_court.location_number
+    datatype: radio
+    code: |
+      potential_courts
+    show if: 
+      code: |
+        len(county_dictionary[trial_court.county]["courts"]) > 1
   - Case Number: docket_number
     required: False
     help: |
@@ -519,47 +568,43 @@ data:
       1-800-444-0514
     legal_aid_program_office_app_addresses: |
       LSEM - St. Louis - Main Office
-      Peabody Plaza Building
-      701 Market St., Suite 1100
-      St. Louis, MO  63101
-      (314) 534-4200
-    court_address_and_operating_hours: |
-      Adair County Courthouse
-      106 W. Washington Street
-      Kirksville, MO 63501
-      8 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      701 Market St., Peabody Plaza Building, Suite 1100, St. Louis, MO 63101
+    courts: 
+      - name: Adair County Courthouse
+        address: 106 W. Washington Street
+        city: Kirksville
+        state: MO
+        zip: 63501
+        schedule: 8 a.m. to 5 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Andrew County:
     circuit: 5
     class: |
       Class 3
-    casenet_code: |- 
+    casenet_code: |-
        ADW
     legal_aid_program_website: |
-      https://www.lawmo.org/
+      https://lawmo.org/
     legal_aid_program: |
       Legal Aid of Western Missouri
     legal_aid_program_online_app: |
       https://lawmo.org/get-legal-help
     legal_aid_program_phone_app: |
-      1-800-892-2101
-    legal_aid_program_office_app_addresses: |
-      LAWMO - Kansas City - Central Office
-      4001 Martin Luther King, Jr. Blvd., Suite 300
-      Kansas City, MO  64130
       (816) 474-6750
-      LAWMO - St. Joseph Office
-      706 Felix Street
-      St. Joseph, MO 64501
-      (816) 364-2325
+    legal_aid_program_office_app_addresses: |
+      Legal Aid of Western Missouri (LAWMO) - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300, Kansas City, MO 64130
       LAWMO - Kansas City - Westside Office
-      920 Southwest Blvd.
-      Kansas City, MO 64108
-      (816) 474-9868
-    court_address_and_operating_hours: |
-      Andrew County Courthouse
-      411 Court St.
-      P.O. Box 318
-      Savannah, MO 64485
+      920 Southwest Blvd., Kansas City,  64108
+      LAWMO - St. Joseph Office
+      706 Felix Street, St. Joseph,  64501
+    courts: 
+      - name: Andrew County Courthouse
+        address: 411 Court St.
+        unit: P.O. Box 318
+        city: Savannah
+        state: MO
+        zip: 64485
+        schedule: 8:00 a.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Atchison County:
     circuit: 4
     class: |
@@ -567,32 +612,28 @@ data:
     casenet_code: |-
        ATN
     legal_aid_program_website: |
-      https://www.lawmo.org/
+      https://lawmo.org/
     legal_aid_program: |
       Legal Aid of Western Missouri
     legal_aid_program_online_app: |
       https://lawmo.org/get-legal-help
     legal_aid_program_phone_app: |
-      1-800-892-2101
-    legal_aid_program_office_app_addresses: |
-      LAWMO - Kansas City - Central Office
-      4001 Martin Luther King, Jr. Blvd., Suite 300
-      Kansas City, MO  64130
       (816) 474-6750
-      LAWMO - St. Joseph Office
-      706 Felix Street
-      St. Joseph, MO 64501
-      (816) 364-2325
+    legal_aid_program_office_app_addresses: |
+      Legal Aid of Western Missouri (LAWMO) - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300, Kansas City, MO 64130
       LAWMO - Kansas City - Westside Office
-      920 Southwest Blvd.
-      Kansas City, MO 64108
-      (816) 474-9868
-    court_address_and_operating_hours: |
-      Atchison County Courthouse
-      400 S. Washington Street
-      P.O. Box 280
-      Rock Port, MO 64482
-      8:30 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) (Closed noon - 1 p.m. for lunch)
+      920 Southwest Blvd., Kansas City,  64108
+      LAWMO - St. Joseph Office
+      706 Felix Street, St. Joseph,  64501
+    courts: 
+      - name: Atchison County Courthouse
+        address: 400 S. Washington Street
+        unit: P.O. Box 280
+        city: Rock Port
+        state: MO
+        zip: 64482
+        schedule: 8:30 a.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays<br /></a>(Closed noon - 1 p.m. for lunch)<a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank"><br /></a>
   Audrain County:
     circuit: 12
     class: |
@@ -608,15 +649,15 @@ data:
     legal_aid_program_phone_app: |
       1-800-568-4931
     legal_aid_program_office_app_addresses: |
-      MMLS - Columbia - Main Office
-      117 North Garth 
-      Columbia, MO  65203
-      (573) 442-0116
-    court_address_and_operating_hours: |
-      Audrain County Courthouse
-      101 N. Jefferson
-      Mexico, MO 65265
-      8 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      Mid-Missouri Legal Services (MMLS) - Columbia - Main Office
+      117 North Garth, Columbia, MO 65203
+    courts: 
+      - name: Audrain County Courthouse
+        address: 101 N. Jefferson
+        city: Mexico
+        state: MO
+        zip: 65265
+        schedule: 8 a.m. to 5 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Barry County:
     circuit: 39
     class: |
@@ -632,14 +673,15 @@ data:
     legal_aid_program_phone_app: |
       1-800-444-4863
     legal_aid_program_office_app_addresses: |
-      LSSM - Springfield Office
-      809 N. Campbell Avenue
-      Springfield, MO  65802
-      (417) 881-0533
-    court_address_and_operating_hours: |
-      Barry County Judicial Center
-      102 West Street
-      Cassville, MO 65625
+      Legal Services of Southern Missouri – Main Office – Springfield
+      809 N. Campbell Avenue, Springfield, MO 65802
+    courts: 
+      - name: Barry County Courthouse
+        address: 102 West Street
+        city: Cassville
+        state: MO
+        zip: 65625
+        schedule: 8 a.m. to 4 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Barton County:
     circuit: 28
     class: |
@@ -647,31 +689,27 @@ data:
     casenet_code: |-
        BAR
     legal_aid_program_website: |
-      https://www.lawmo.org/
+      https://lawmo.org/
     legal_aid_program: |
       Legal Aid of Western Missouri
     legal_aid_program_online_app: |
       https://lawmo.org/get-legal-help
     legal_aid_program_phone_app: |
-      1-800-492-7095
-    legal_aid_program_office_app_addresses: |
-      LAWMO - Kansas City - Central Office
-      4001 Martin Luther King, Jr. Blvd., Suite 300
-      Kansas City, MO  64130
       (816) 474-6750
-      LAWMO - Joplin Office
-      1027 South Main, Suite LL7
-      Joplin, MO 64801
-      (417) 782-1650
+    legal_aid_program_office_app_addresses: |
+      Legal Aid of Western Missouri (LAWMO) - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300, Kansas City, MO 64130
       LAWMO - Kansas City - Westside Office
-      920 Southwest Blvd.
-      Kansas City, MO 64108
-      (816) 474-9868
-    court_address_and_operating_hours: |
-      Barton County Courthouse
-      1004 Gulf
-      Lamar, MO 64759
-      8 a.m. to&nbsp;4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) (Closed noon to 1 p.m. for lunch)
+      920 Southwest Blvd., Kansas City,  64108
+      LAWMO - Joplin Office
+      1027 South Main, Suite LL7, Joplin,  64801
+    courts: 
+      - name: Barton County Courthouse
+        address: 1004 Gulf
+        city: Lamar
+        state: MO
+        zip: 64759
+        schedule: 8 a.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays<br /></a>(Closed noon to 1 p.m. for lunch)<a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank"><br /></a>
   Bates County:
     circuit: 27
     class: |
@@ -679,31 +717,27 @@ data:
     casenet_code: |-
        BAT
     legal_aid_program_website: |
-      https://www.lawmo.org/
+      https://lawmo.org/
     legal_aid_program: |
       Legal Aid of Western Missouri
     legal_aid_program_online_app: |
       https://lawmo.org/get-legal-help
     legal_aid_program_phone_app: |
-      1-800-492-7095
-    legal_aid_program_office_app_addresses: |
-      LAWMO - Kansas City - Central Office
-      4001 Martin Luther King, Jr. Blvd., Suite 300
-      Kansas City, MO  64130
       (816) 474-6750
-      LAWMO - Joplin Office
-      1027 South Main, Suite LL7
-      Joplin, MO 64801
-      (417) 782-1650
+    legal_aid_program_office_app_addresses: |
+      Legal Aid of Western Missouri (LAWMO) - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300, Kansas City, MO 64130
       LAWMO - Kansas City - Westside Office
-      920 Southwest Blvd.
-      Kansas City, MO 64108
-      (816) 474-9868
-    court_address_and_operating_hours: |
-      Bates County Courthouse
-      One North Delaware
-      Butler, MO 64730
-      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      920 Southwest Blvd., Kansas City,  64108
+      LAWMO - Joplin Office
+      1027 South Main, Suite LL7, Joplin,  64801
+    courts: 
+      - name: Bates County Courthouse
+        address: One North Delaware
+        city: Butler
+        state: MO
+        zip: 64730
+        schedule: 8 a.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Benton County:
     circuit: 30
     class: |
@@ -711,31 +745,28 @@ data:
     casenet_code: |-
        BEN
     legal_aid_program_website: |
-      https://www.lawmo.org/
+      https://lawmo.org/
     legal_aid_program: |
       Legal Aid of Western Missouri
     legal_aid_program_online_app: |
       https://lawmo.org/get-legal-help
     legal_aid_program_phone_app: |
-      1-800-892-2943
-    legal_aid_program_office_app_addresses: |
-      LAWMO - Kansas City - Central Office
-      4001 Martin Luther King, Jr. Blvd., Suite 300
-      Kansas City, MO  64130
       (816) 474-6750
-      LAWMO - Warrensburg Office
-      305 North Holden  
-      Warrensburg, MO 64093
-      (660) 747-7101
+    legal_aid_program_office_app_addresses: |
+      Legal Aid of Western Missouri (LAWMO) - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300, Kansas City, MO 64130
       LAWMO - Kansas City - Westside Office
-      920 Southwest Blvd.
-      Kansas City, MO 64108
-      (816) 474-9868
-    court_address_and_operating_hours: |
-      Benton County Courthouse
-      316 Van Buren Road
-      P.O. Box 37
-      Warsaw, MO 65355
+      920 Southwest Blvd., Kansas City,  64108
+      LAWMO - Warrensburg Office
+      305 North Holden, Warrensburg,  64093
+    courts: 
+      - name: Benton County Courthouse
+        address: 316 Van Buren St.
+        unit: P.O. Box 37
+        city: Warsaw
+        state: MO
+        zip: 65355
+        schedule: 8 a.m. to 12 p.m. and 1 p.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Bollinger County:
     circuit: 32
     class: |
@@ -751,15 +782,15 @@ data:
     legal_aid_program_phone_app: |
       1-800-444-4863
     legal_aid_program_office_app_addresses: |
-      LSSM - Sikeston Office
-      2201 E. Malone Avenue 
-      Sikeston, MO  63801
-      (573) 683-3783
-    court_address_and_operating_hours: |
-      Bollinger County Courthouse
-      204 High Street
-      Marble Hill, MO 63764
-      8 a.m. to 4 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      Legal Services of Southern Missouri – Sikeston
+      2201 E. Malone Avenue, Sikeston, MO 63801
+    courts: 
+      - name: Bollinger County Courthouse
+        address: 204 High Street
+        city: Marble Hill
+        state: MO
+        zip: 63764
+        schedule: 8 a.m. to 4 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Boone County:
     circuit: 13
     class: |
@@ -775,15 +806,15 @@ data:
     legal_aid_program_phone_app: |
       1-800-568-4931
     legal_aid_program_office_app_addresses: |
-      MMLS - Columbia - Main Office
-      117 North Garth 
-      Columbia, MO  65203
-      (573) 442-0116
-    court_address_and_operating_hours: |
-      Boone County Courthouse
-      705 E. Walnut Street
-      Columbia, MO 65201
-      8 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      Mid-Missouri Legal Services (MMLS) - Columbia - Main Office
+      117 North Garth, Columbia, MO 65203
+    courts: 
+      - name: Boone County Courthouse
+        address: 705 E. Walnut Street
+        city: Columbia
+        state: MO
+        zip: 65201
+        schedule: 8 a.m. to 5 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Buchanan County:
     circuit: 5
     class: |
@@ -791,31 +822,27 @@ data:
     casenet_code: |-
        BUC
     legal_aid_program_website: |
-      https://www.lawmo.org/
+      https://lawmo.org/
     legal_aid_program: |
       Legal Aid of Western Missouri
     legal_aid_program_online_app: |
       https://lawmo.org/get-legal-help
     legal_aid_program_phone_app: |
-      1-800-892-2101
-    legal_aid_program_office_app_addresses: |
-      LAWMO - Kansas City - Central Office
-      4001 Martin Luther King, Jr. Blvd., Suite 300
-      Kansas City, MO  64130
       (816) 474-6750
-      LAWMO - St. Joseph Office
-      706 Felix Street
-      St. Joseph, MO 64501
-      (816) 364-2325
+    legal_aid_program_office_app_addresses: |
+      Legal Aid of Western Missouri (LAWMO) - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300, Kansas City, MO 64130
       LAWMO - Kansas City - Westside Office
-      920 Southwest Blvd.
-      Kansas City, MO 64108
-      (816) 474-9868
-    court_address_and_operating_hours: |
-      Buchanan County Courthouse
-      411 Jules Street
-      St. Joseph, MO 64501
-      8 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      920 Southwest Blvd., Kansas City,  64108
+      LAWMO - St. Joseph Office
+      706 Felix Street, St. Joseph,  64501
+    courts: 
+      - name: Buchanan County Courthouse
+        address: 411 Jules Street
+        city: St. Joseph
+        state: MO
+        zip: 64501
+        schedule: 8 a.m. to 5 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Butler County:
     circuit: 36
     class: |
@@ -831,15 +858,15 @@ data:
     legal_aid_program_phone_app: |
       1-800-444-4863
     legal_aid_program_office_app_addresses: |
-      LSSM - Sikeston Office
-      2201 E. Malone Avenue 
-      Sikeston, MO  63801
-      (573) 683-3783
-    court_address_and_operating_hours: |
-      Butler County Courthouse
-      100 North Main
-      Poplar Bluff, MO 63901
-      8 a.m. to 4 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      Legal Services of Southern Missouri – Sikeston
+      2201 E. Malone Avenue, Sikeston, MO 63801
+    courts: 
+      - name: Butler County Courthouse
+        address: 100 North Main
+        city: Poplar Bluff
+        state: MO
+        zip: 63901
+        schedule: 8 a.m. to 4 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Caldwell County:
     circuit: 43
     class: |
@@ -847,32 +874,28 @@ data:
     casenet_code: |-
        CDL
     legal_aid_program_website: |
-      https://www.lawmo.org/
+      https://lawmo.org/
     legal_aid_program: |
       Legal Aid of Western Missouri
     legal_aid_program_online_app: |
       https://lawmo.org/get-legal-help
     legal_aid_program_phone_app: |
-      1-800-892-2101
-    legal_aid_program_office_app_addresses: |
-      LAWMO - Kansas City - Central Office
-      4001 Martin Luther King, Jr. Blvd., Suite 300
-      Kansas City, MO  64130
       (816) 474-6750
-      LAWMO - St. Joseph Office
-      706 Felix Street
-      St. Joseph, MO 64501
-      (816) 364-2325
+    legal_aid_program_office_app_addresses: |
+      Legal Aid of Western Missouri (LAWMO) - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300, Kansas City, MO 64130
       LAWMO - Kansas City - Westside Office
-      920 Southwest Blvd.
-      Kansas City, MO 64108
-      (816) 474-9868
-    court_address_and_operating_hours: |
-      Caldwell County Courthouse
-      49 East Main Street
-      P.O. Box 68
-      Kingston, MO 64650
-      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      920 Southwest Blvd., Kansas City,  64108
+      LAWMO - St. Joseph Office
+      706 Felix Street, St. Joseph,  64501
+    courts: 
+      - name: Caldwell County Courthouse
+        address: 49 East Main Street
+        unit: P.O. Box 68
+        city: Kingston
+        state: MO
+        zip: 64650
+        schedule: 8 a.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Callaway County:
     circuit: 13
     class: |
@@ -888,15 +911,15 @@ data:
     legal_aid_program_phone_app: |
       1-800-568-4931
     legal_aid_program_office_app_addresses: |
-      MMLS - Columbia - Main Office
-      117 North Garth 
-      Columbia, MO  65203
-      (573) 442-0116
-    court_address_and_operating_hours: |
-      Callaway County Courthouse
-      10 E. 5th Street
-      Fulton, MO 65251
-      8 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      Mid-Missouri Legal Services (MMLS) - Columbia - Main Office
+      117 North Garth, Columbia, MO 65203
+    courts: 
+      - name: Callaway County Courthouse
+        address: 10 E. 5th Street
+        city: Fulton
+        state: MO
+        zip: 65251
+        schedule: 8 a.m. to 5 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Camden County:
     circuit: 26
     class: |
@@ -904,31 +927,27 @@ data:
     casenet_code: |-
        CAM
     legal_aid_program_website: |
-      https://www.lawmo.org/
+      https://lawmo.org/
     legal_aid_program: |
       Legal Aid of Western Missouri
     legal_aid_program_online_app: |
       https://lawmo.org/get-legal-help
     legal_aid_program_phone_app: |
-      1-800-892-2943
-    legal_aid_program_office_app_addresses: |
-      LAWMO - Kansas City - Central Office
-      4001 Martin Luther King, Jr. Blvd., Suite 300
-      Kansas City, MO  64130
       (816) 474-6750
-      LAWMO - Warrensburg Office
-      305 North Holden  
-      Warrensburg, MO 64093
-      (660) 747-7101
+    legal_aid_program_office_app_addresses: |
+      Legal Aid of Western Missouri (LAWMO) - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300, Kansas City, MO 64130
       LAWMO - Kansas City - Westside Office
-      920 Southwest Blvd.
-      Kansas City, MO 64108
-      (816) 474-9868
-    court_address_and_operating_hours: |
-      Camden County Courthouse
-      1 Court Circle, Suite 8
-      Camdenton, MO 65020
-      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      920 Southwest Blvd., Kansas City,  64108
+      LAWMO - Warrensburg Office
+      305 North Holden, Warrensburg,  64093
+    courts: 
+      - name: Camden County Courthouse
+        address: 1 Court Circle, Suite 8
+        city: Camdenton
+        state: MO
+        zip: 65020
+        schedule: 8 a.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Cape Girardeau County:
     circuit: 32
     class: |
@@ -944,15 +963,15 @@ data:
     legal_aid_program_phone_app: |
       1-800-444-4863
     legal_aid_program_office_app_addresses: |
-      LSSM - Sikeston Office
-      2201 E. Malone Avenue 
-      Sikeston, MO  63801
-      (573) 683-3783
-    court_address_and_operating_hours: |
-      Cape Girardeau County Courthouse
-      203 North High Street
-      Jackson, MO 63755
-      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      Legal Services of Southern Missouri – Sikeston
+      2201 E. Malone Avenue, Sikeston, MO 63801
+    courts: 
+      - name: Cape Girardeau County Courthouse
+        address: 203 North High Street
+        city: Jackson
+        state: MO
+        zip: 63755
+        schedule: 8 a.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Carroll County:
     circuit: 8
     class: |
@@ -960,30 +979,26 @@ data:
     casenet_code: |-
        CRL
     legal_aid_program_website: |
-      https://www.lawmo.org/
+      https://lawmo.org/
     legal_aid_program: |
       Legal Aid of Western Missouri
     legal_aid_program_online_app: |
       https://lawmo.org/get-legal-help
     legal_aid_program_phone_app: |
-      1-800-892-2943
-    legal_aid_program_office_app_addresses: |
-      LAWMO - Kansas City - Central Office
-      4001 Martin Luther King, Jr. Blvd., Suite 300
-      Kansas City, MO  64130
       (816) 474-6750
-      LAWMO - Warrensburg Office
-      305 North Holden  
-      Warrensburg, MO 64093
-      (660) 747-7101
+    legal_aid_program_office_app_addresses: |
+      Legal Aid of Western Missouri (LAWMO) - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300, Kansas City, MO 64130
       LAWMO - Kansas City - Westside Office
-      920 Southwest Blvd.
-      Kansas City, MO 64108
-      (816) 474-9868
-    court_address_and_operating_hours: |
-      Carroll County Courthouse
-      8 South Main
-      Carrollton, MO 64633
+      920 Southwest Blvd., Kansas City,  64108
+      LAWMO - Warrensburg Office
+      305 North Holden, Warrensburg,  64093
+    courts: 
+      - name: Carroll County Courthouse
+        address: 8 South Main
+        city: Carrollton
+        state: MO
+        zip: 64633
   Carter County:
     circuit: 37
     class: |
@@ -999,15 +1014,15 @@ data:
     legal_aid_program_phone_app: |
       1-800-444-4863
     legal_aid_program_office_app_addresses: |
-      LSSM - Springfield Office
-      809 N. Campbell Avenue
-      Springfield, MO  65802
-      (417) 881-0533
-    court_address_and_operating_hours: |
-      Carter County Courthouse
-      1122 Main Street
-      Van Buren, MO 63965
-      8 a.m. to&nbsp;4 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      Legal Services of Southern Missouri – Main Office – Springfield
+      809 N. Campbell Avenue, Springfield, MO 65802
+    courts: 
+      - name: Carter County Courthouse
+        address: 1122 Main Street
+        city: Van Buren
+        state: MO
+        zip: 63965
+        schedule: 8 a.m. to&nbsp;4 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Cass County:
     circuit: 17
     class: |
@@ -1015,31 +1030,27 @@ data:
     casenet_code: |-
        CAS
     legal_aid_program_website: |
-      https://www.lawmo.org/
+      https://lawmo.org/
     legal_aid_program: |
       Legal Aid of Western Missouri
     legal_aid_program_online_app: |
       https://lawmo.org/get-legal-help
     legal_aid_program_phone_app: |
-      1-800-892-2943
-    legal_aid_program_office_app_addresses: |
-      LAWMO - Kansas City - Central Office
-      4001 Martin Luther King, Jr. Blvd., Suite 300
-      Kansas City, MO  64130
       (816) 474-6750
-      LAWMO - Warrensburg Office
-      305 North Holden  
-      Warrensburg, MO 64093
-      (660) 747-7101
+    legal_aid_program_office_app_addresses: |
+      Legal Aid of Western Missouri (LAWMO) - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300, Kansas City, MO 64130
       LAWMO - Kansas City - Westside Office
-      920 Southwest Blvd.
-      Kansas City, MO 64108
-      (816) 474-9868
-    court_address_and_operating_hours: |
-      Cass County Justice Center
-      2501 West Mechanic
-      Harrisonville, MO 64701
-      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      920 Southwest Blvd., Kansas City,  64108
+      LAWMO - Warrensburg Office
+      305 North Holden, Warrensburg,  64093
+    courts: 
+      - name: Cass County Justice Center
+        address: 2501 West Mechanic
+        city: Harrisonville
+        state: MO
+        zip: 64701
+        schedule: 8 a.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Cedar County:
     circuit: 28
     class: |
@@ -1055,16 +1066,16 @@ data:
     legal_aid_program_phone_app: |
       1-800-444-4863
     legal_aid_program_office_app_addresses: |
-      LSSM - Springfield Office
-      809 N. Campbell Avenue
-      Springfield, MO  65802
-      (417) 881-0533
-    court_address_and_operating_hours: |
-      Cedar County Courthouse
-      113 South Street
-      P.O. Box 665
-      Stockton, MO 65785
-      7:30&nbsp;a.m. to&nbsp;4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      Legal Services of Southern Missouri – Main Office – Springfield
+      809 N. Campbell Avenue, Springfield, MO 65802
+    courts: 
+      - name: Cedar County Courthouse
+        address: 113 South Street
+        unit: P.O. Box 665
+        city: Stockton
+        state: MO
+        zip: 65785
+        schedule: 7:30 a.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Chariton County:
     circuit: 9
     class: |
@@ -1080,15 +1091,15 @@ data:
     legal_aid_program_phone_app: |
       1-800-568-4931
     legal_aid_program_office_app_addresses: |
-      MMLS - Columbia - Main Office
-      117 North Garth 
-      Columbia, MO  65203
-      (573) 442-0116
-    court_address_and_operating_hours: |
-      Chariton County Courthouse
-      306 South Cherry Street
-      Keytesville, MO 65261
-      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) (Closed noon - 1 p.m. for lunch)
+      Mid-Missouri Legal Services (MMLS) - Columbia - Main Office
+      117 North Garth, Columbia, MO 65203
+    courts: 
+      - name: Chariton County Courthouse
+        address: 306 South Cherry Street
+        city: Keytesville
+        state: MO
+        zip: 65261
+        schedule: 8 a.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays<br /></a>(Closed noon - 1 p.m. for lunch)<a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank"><br /></a>
   Christian County:
     circuit: 38
     class: |
@@ -1104,44 +1115,22 @@ data:
     legal_aid_program_phone_app: |
       1-800-444-4863
     legal_aid_program_office_app_addresses: |
-      LSSM - Springfield Office
-      809 N. Campbell Avenue
-      Springfield, MO  65802
-      (417) 881-0533
-    court_address_and_operating_hours: |
-      Christian County Circuit Court Building
-      Circuit Court Building
-      102 W. Walnut Street
-      Ozark, MO 65721
-      Christian County Justice Center
-      110 W. Elm Street
-      Ozark, MO 65721
-      8 a.m. to&nbsp;4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
-  City of St. Louis:
-    circuit: 22
-    class: |
-      Class 1
-    casenet_code: |-
-       STL
-    legal_aid_program_website: |
-      http://www.lsem.org/
-    legal_aid_program: |
-      Legal Services of Eastern Missouri
-    legal_aid_program_online_app: |
-      https://lsem.org/get-help-now/
-    legal_aid_program_phone_app: |
-      1-800-444-0514
-    legal_aid_program_office_app_addresses: |
-      LSEM - St. Louis - Main Office
-      Peabody Plaza Building
-      701 Market St., Suite 1100
-      St. Louis, MO  63101
-      (314) 534-4200
-    court_address_and_operating_hours: |
-      St. Louis Circuit Court
-      10 N. Tucker Boulevard
-      St. Louis, MO 63101
-      <strong>Civil Court Building</strong><br />For jurors and attorneys: 7:30 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) For the general public: 8:30 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      Legal Services of Southern Missouri – Main Office – Springfield
+      809 N. Campbell Avenue, Springfield, MO 65802
+    courts: 
+      - name: Christian County Justice Center
+        location_name: Christian County Justice Center
+        address: 110 W. Elm Street
+        city: Ozark
+        state: MO
+        zip: 65721
+        schedule: 8 a.m. to&nbsp;4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
+      - name: Christian County Circuit Court Building
+        location_name: Christian County Circuit Court Building
+        address: 102 W. Walnut Street
+        city: Ozark
+        state: MO
+        zip: 65721
   Clark County:
     circuit: 1
     class: |
@@ -1158,15 +1147,14 @@ data:
       1-800-444-0514
     legal_aid_program_office_app_addresses: |
       LSEM - St. Louis - Main Office
-      Peabody Plaza Building
-      701 Market St., Suite 1100
-      St. Louis, MO  63101
-      (314) 534-4200
-    court_address_and_operating_hours: |
-      Clark County Courthouse
-      111 East Court Street, Suite 210
-      Kahoka, MO 63445
-      8 a.m. to&nbsp;4 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      701 Market St., Peabody Plaza Building, Suite 1100, St. Louis, MO 63101
+    courts: 
+      - name: Clark County Courthouse
+        address: 111 East Court Street, Suite 210
+        city: Kahoka
+        state: MO
+        zip: 63445
+        schedule: 8 a.m. to&nbsp;4 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Clay County:
     circuit: 7
     class: |
@@ -1174,27 +1162,25 @@ data:
     casenet_code: |-
        CLY
     legal_aid_program_website: |
-      https://www.lawmo.org/
+      https://lawmo.org/
     legal_aid_program: |
       Legal Aid of Western Missouri
     legal_aid_program_online_app: |
       https://lawmo.org/get-legal-help
     legal_aid_program_phone_app: |
-      None
-    legal_aid_program_office_app_addresses: |
-      LAWMO - Kansas City - Central Office
-      4001 Martin Luther King, Jr. Blvd., Suite 300
-      Kansas City, MO  64130
       (816) 474-6750
+    legal_aid_program_office_app_addresses: |
+      Legal Aid of Western Missouri (LAWMO) - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300, Kansas City, MO 64130
       LAWMO - Kansas City - Westside Office
-      920 Southwest Blvd.
-      Kansas City, MO 64108
-      (816) 474-9868
-    court_address_and_operating_hours: |
-      Clay County Courthouse
-      11 South Water
-      Liberty, MO 64068
-      8 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      920 Southwest Blvd., Kansas City,  64108
+    courts: 
+      - name: Clay County Courthouse
+        address: 11 South Water
+        city: Liberty
+        state: MO
+        zip: 64068
+        schedule: 8 a.m. to 5 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Clinton County:
     circuit: 43
     class: |
@@ -1202,31 +1188,27 @@ data:
     casenet_code: |-
        CLN
     legal_aid_program_website: |
-      https://www.lawmo.org/
+      https://lawmo.org/
     legal_aid_program: |
       Legal Aid of Western Missouri
     legal_aid_program_online_app: |
       https://lawmo.org/get-legal-help
     legal_aid_program_phone_app: |
-      1-800-892-2101
-    legal_aid_program_office_app_addresses: |
-      LAWMO - Kansas City - Central Office
-      4001 Martin Luther King, Jr. Blvd., Suite 300
-      Kansas City, MO  64130
       (816) 474-6750
-      LAWMO - St. Joseph Office
-      706 Felix Street
-      St. Joseph, MO 64501
-      (816) 364-2325
+    legal_aid_program_office_app_addresses: |
+      Legal Aid of Western Missouri (LAWMO) - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300, Kansas City, MO 64130
       LAWMO - Kansas City - Westside Office
-      920 Southwest Blvd.
-      Kansas City, MO 64108
-      (816) 474-9868
-    court_address_and_operating_hours: |
-      Clinton County Courthouse
-      207 North Main Street
-      Plattsburg, MO 64477
-      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      920 Southwest Blvd., Kansas City,  64108
+      LAWMO - St. Joseph Office
+      706 Felix Street, St. Joseph,  64501
+    courts: 
+      - name: Clinton County Courthouse
+        address: 207 North Main Street
+        city: Plattsburg
+        state: MO
+        zip: 64477
+        schedule: 8 a.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Cole County:
     circuit: 19
     class: |
@@ -1242,14 +1224,14 @@ data:
     legal_aid_program_phone_app: |
       1-800-568-4931
     legal_aid_program_office_app_addresses: |
-      MMLS - Columbia - Main Office
-      117 North Garth 
-      Columbia, MO  65203
-      (573) 442-0116
-    court_address_and_operating_hours: |
-      Cole County Courthouse
-      301 East High Street
-      Jefferson City, MO 65101
+      Mid-Missouri Legal Services (MMLS) - Columbia - Main Office
+      117 North Garth, Columbia, MO 65203
+    courts: 
+      - name: Cole County Courthouse
+        address: 301 East High Street
+        city: Jefferson City
+        state: MO
+        zip: 65101
   Cooper County:
     circuit: 18
     class: |
@@ -1265,15 +1247,15 @@ data:
     legal_aid_program_phone_app: |
       1-800-568-4931
     legal_aid_program_office_app_addresses: |
-      MMLS - Columbia - Main Office
-      117 North Garth 
-      Columbia, MO  65203
-      (573) 442-0116
-    court_address_and_operating_hours: |
-      Cooper County Courthouse
-      200 Main Street
-      Boonville, MO 65233
-      8 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      Mid-Missouri Legal Services (MMLS) - Columbia - Main Office
+      117 North Garth, Columbia, MO 65203
+    courts: 
+      - name: Cooper County Courthouse
+        address: 200 Main Street
+        city: Boonville
+        state: MO
+        zip: 65233
+        schedule: 8 a.m. to 5 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Crawford County:
     circuit: 42
     class: |
@@ -1289,16 +1271,16 @@ data:
     legal_aid_program_phone_app: |
       1-800-444-4863
     legal_aid_program_office_app_addresses: |
-      LSSM - Rolla Office
-      1000 N. Pine, Suite B
-      Rolla, MO  65401
-      (573) 341-3655
-    court_address_and_operating_hours: |
-      Crawford County Courthouse
-      302 W. Main Street
-      PO Box 1550
-      Steelville, MO 65565
-      8 a.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="../../page.jsp?id=7100">state holidays<br /></a>(Closed noon - 1 p.m. for lunch)
+      Legal Services of Southern Missouri – Rolla
+      1000 N. Pine, Suite B, Rolla, MO 65401
+    courts: 
+      - name: Crawford County Courthouse
+        address: 302 W. Main Street
+        unit: PO Box 1550
+        city: Steelville
+        state: MO
+        zip: 65565
+        schedule: 8 a.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays<br /></a>(Closed noon - 1 p.m. for lunch)
   Dade County:
     circuit: 28
     class: |
@@ -1314,15 +1296,15 @@ data:
     legal_aid_program_phone_app: |
       1-800-444-4863
     legal_aid_program_office_app_addresses: |
-      LSSM - Springfield Office
-      809 N. Campbell Avenue
-      Springfield, MO  65802
-      (417) 881-0533
-    court_address_and_operating_hours: |
-      Dade County Courthouse
-      300 W. Water
-      Greenfield, MO 65661
-      7 a.m. to&nbsp;4 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      Legal Services of Southern Missouri – Main Office – Springfield
+      809 N. Campbell Avenue, Springfield, MO 65802
+    courts: 
+      - name: Dade County Courthouse
+        address: 300 W. Water
+        city: Greenfield
+        state: MO
+        zip: 65661
+        schedule: 7 a.m. to&nbsp;4 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Dallas County:
     circuit: 30
     class: |
@@ -1338,16 +1320,16 @@ data:
     legal_aid_program_phone_app: |
       1-800-444-4863
     legal_aid_program_office_app_addresses: |
-      LSSM - Springfield Office
-      809 N. Campbell Avenue
-      Springfield, MO  65802
-      (417) 881-0533
-    court_address_and_operating_hours: |
-      Dallas County Courthouse
-      108 S. Maple Street
-      P.O. Box 1910
-      Buffalo, MO 65622
-      7:30&nbsp;a.m. to 4 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      Legal Services of Southern Missouri – Main Office – Springfield
+      809 N. Campbell Avenue, Springfield, MO 65802
+    courts: 
+      - name: Dallas County Courthouse
+        address: 108 S. Maple Street
+        unit: P.O. Box 1910
+        city: Buffalo
+        state: MO
+        zip: 65622
+        schedule: 7:30&nbsp;a.m. to 4 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Daviess County:
     circuit: 43
     class: |
@@ -1355,32 +1337,28 @@ data:
     casenet_code: |-
        DAV
     legal_aid_program_website: |
-      https://www.lawmo.org/
+      https://lawmo.org/
     legal_aid_program: |
       Legal Aid of Western Missouri
     legal_aid_program_online_app: |
       https://lawmo.org/get-legal-help
     legal_aid_program_phone_app: |
-      1-800-892-2101
-    legal_aid_program_office_app_addresses: |
-      LAWMO - Kansas City - Central Office
-      4001 Martin Luther King, Jr. Blvd., Suite 300
-      Kansas City, MO  64130
       (816) 474-6750
-      LAWMO - St. Joseph Office
-      706 Felix Street
-      St. Joseph, MO 64501
-      (816) 364-2325
+    legal_aid_program_office_app_addresses: |
+      Legal Aid of Western Missouri (LAWMO) - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300, Kansas City, MO 64130
       LAWMO - Kansas City - Westside Office
-      920 Southwest Blvd.
-      Kansas City, MO 64108
-      (816) 474-9868
-    court_address_and_operating_hours: |
-      Daviess County Courthouse
-      102 North Main
-      PO Box 337
-      Gallatin, MO 64640
-      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) For after hours assistance from the court, please contact the sheriff's department.
+      920 Southwest Blvd., Kansas City,  64108
+      LAWMO - St. Joseph Office
+      706 Felix Street, St. Joseph,  64501
+    courts: 
+      - name: Daviess County Courthouse
+        address: 102 North Main
+        unit: PO Box 337
+        city: Gallatin
+        state: MO
+        zip: 64640
+        schedule: 8 a.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays<br /></a>For after hours assistance from the court, please contact the sheriff's department.
   DeKalb County:
     circuit: 43
     class: |
@@ -1388,31 +1366,27 @@ data:
     casenet_code: |-
        DEK
     legal_aid_program_website: |
-      https://www.lawmo.org/
+      https://lawmo.org/
     legal_aid_program: |
       Legal Aid of Western Missouri
     legal_aid_program_online_app: |
       https://lawmo.org/get-legal-help
     legal_aid_program_phone_app: |
-      1-800-892-2101
-    legal_aid_program_office_app_addresses: |
-      LAWMO - Kansas City - Central Office
-      4001 Martin Luther King, Jr. Blvd., Suite 300
-      Kansas City, MO  64130
       (816) 474-6750
-      LAWMO - St. Joseph Office
-      706 Felix Street
-      St. Joseph, MO 64501
-      (816) 364-2325
+    legal_aid_program_office_app_addresses: |
+      Legal Aid of Western Missouri (LAWMO) - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300, Kansas City, MO 64130
       LAWMO - Kansas City - Westside Office
-      920 Southwest Blvd.
-      Kansas City, MO 64108
-      (816) 474-9868
-    court_address_and_operating_hours: |
-      DeKalb County Courthouse
-      109 W. Main
-      P.O. Box 248
-      Maysville, MO 64469
+      920 Southwest Blvd., Kansas City,  64108
+      LAWMO - St. Joseph Office
+      706 Felix Street, St. Joseph,  64501
+    courts: 
+      - name: DeKalb County Courthouse
+        address: 109 W. Main
+        unit: P.O. Box 248
+        city: Maysville
+        state: MO
+        zip: 64469
   Dent County:
     circuit: 42
     class: |
@@ -1428,15 +1402,15 @@ data:
     legal_aid_program_phone_app: |
       1-800-444-4863
     legal_aid_program_office_app_addresses: |
-      LSSM - Rolla Office
-      1000 N. Pine, Suite B
-      Rolla, MO  65401
-      (573) 341-3655
-    court_address_and_operating_hours: |
-      Dent County Judicial Building
-      112 E. 5th Street
-      Salem, MO 65560
-      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      Legal Services of Southern Missouri – Rolla
+      1000 N. Pine, Suite B, Rolla, MO 65401
+    courts: 
+      - name: Dent County Judicial Building
+        address: 112 E. 5th Street
+        city: Salem
+        state: MO
+        zip: 65560
+        schedule: 8 a.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Douglas County:
     circuit: 44
     class: |
@@ -1452,15 +1426,15 @@ data:
     legal_aid_program_phone_app: |
       1-800-444-4863
     legal_aid_program_office_app_addresses: |
-      LSSM - Springfield Office
-      809 N. Campbell Avenue
-      Springfield, MO  65802
-      (417) 881-0533
-    court_address_and_operating_hours: |
-      Douglas County Courthouse
-      203 E. Lincoln Avenue
-      Ava, MO 65608
-      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      Legal Services of Southern Missouri – Main Office – Springfield
+      809 N. Campbell Avenue, Springfield, MO 65802
+    courts: 
+      - name: Douglas County Courthouse
+        address: 203 E. Lincoln Avenue
+        city: Ava
+        state: MO
+        zip: 65608
+        schedule: 8 a.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Dunklin County:
     circuit: 35
     class: |
@@ -1476,16 +1450,16 @@ data:
     legal_aid_program_phone_app: |
       1-800-444-4863
     legal_aid_program_office_app_addresses: |
-      LSSM - Sikeston Office
-      2201 E. Malone Avenue 
-      Sikeston, MO  63801
-      (573) 683-3783
-    court_address_and_operating_hours: |
-      Dunklin County Justice Center
-      1175 Floyd Street
-      P.O. Box 567
-      Kennett, MO 63857
-      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      Legal Services of Southern Missouri – Sikeston
+      2201 E. Malone Avenue, Sikeston, MO 63801
+    courts: 
+      - name: Dunklin County Justice Center
+        address: 1175 Floyd Street
+        unit: P.O. Box 567
+        city: Kennett
+        state: MO
+        zip: 63857
+        schedule: 8 a.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Franklin County:
     circuit: 20
     class: |
@@ -1502,15 +1476,14 @@ data:
       1-800-444-0514
     legal_aid_program_office_app_addresses: |
       LSEM - St. Louis - Main Office
-      Peabody Plaza Building
-      701 Market St., Suite 1100
-      St. Louis, MO  63101
-      (314) 534-4200
-    court_address_and_operating_hours: |
-      Franklin County Judicial Center
-      401 East Main Street
-      Union, MO 63084
-      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      701 Market St., Peabody Plaza Building, Suite 1100, St. Louis, MO 63101
+    courts: 
+      - name: Franklin County Judicial Center
+        address: 401 East Main Street
+        city: Union
+        state: MO
+        zip: 63084
+        schedule: 8 a.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Gasconade County:
     circuit: 20
     class: |
@@ -1526,15 +1499,15 @@ data:
     legal_aid_program_phone_app: |
       1-800-444-4863
     legal_aid_program_office_app_addresses: |
-      LSSM - Rolla Office
-      1000 N. Pine, Suite B
-      Rolla, MO  65401
-      (573) 341-3655
-    court_address_and_operating_hours: |
-      Gasconade County Courthouse
-      119 E. 1st Street, Room 6
-      Hermann, MO 65041
-      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      Legal Services of Southern Missouri – Rolla
+      1000 N. Pine, Suite B, Rolla, MO 65401
+    courts: 
+      - name: Gasconade County Courthouse
+        address: 119 E. 1st Street, Room 6
+        city: Hermann
+        state: MO
+        zip: 65041
+        schedule: 8 a.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Gentry County:
     circuit: 4
     class: |
@@ -1542,31 +1515,27 @@ data:
     casenet_code: |-
        GEN
     legal_aid_program_website: |
-      https://www.lawmo.org/
+      https://lawmo.org/
     legal_aid_program: |
       Legal Aid of Western Missouri
     legal_aid_program_online_app: |
       https://lawmo.org/get-legal-help
     legal_aid_program_phone_app: |
-      1-800-892-2101
-    legal_aid_program_office_app_addresses: |
-      LAWMO - Kansas City - Central Office
-      4001 Martin Luther King, Jr. Blvd., Suite 300
-      Kansas City, MO  64130
       (816) 474-6750
-      LAWMO - St. Joseph Office
-      706 Felix Street
-      St. Joseph, MO 64501
-      (816) 364-2325
+    legal_aid_program_office_app_addresses: |
+      Legal Aid of Western Missouri (LAWMO) - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300, Kansas City, MO 64130
       LAWMO - Kansas City - Westside Office
-      920 Southwest Blvd.
-      Kansas City, MO 64108
-      (816) 474-9868
-    court_address_and_operating_hours: |
-      Gentry County Courthouse
-      200 West Clay Street, Suite 101
-      Albany, MO 64402
-      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      920 Southwest Blvd., Kansas City,  64108
+      LAWMO - St. Joseph Office
+      706 Felix Street, St. Joseph,  64501
+    courts: 
+      - name: Gentry County Courthouse
+        address: 200 West Clay Street, Suite 101
+        city: Albany
+        state: MO
+        zip: 64402
+        schedule: 8 a.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Greene County:
     circuit: 31
     class: |
@@ -1582,14 +1551,14 @@ data:
     legal_aid_program_phone_app: |
       1-800-444-4863
     legal_aid_program_office_app_addresses: |
-      LSSM - Springfield Office
-      809 N. Campbell Avenue
-      Springfield, MO  65802
-      (417) 881-0533
-    court_address_and_operating_hours: |
-      Greene County Judicial Courts Facility
-      1010 North Boonville
-      Springfield, MO 65802
+      Legal Services of Southern Missouri – Main Office – Springfield
+      809 N. Campbell Avenue, Springfield, MO 65802
+    courts: 
+      - name: Greene County Judicial Courts Facility
+        address: 1010 North Boonville
+        city: Springfield
+        state: MO
+        zip: 65802
   Grundy County:
     circuit: 3
     class: |
@@ -1597,31 +1566,27 @@ data:
     casenet_code: |-
        GRU
     legal_aid_program_website: |
-      https://www.lawmo.org/
+      https://lawmo.org/
     legal_aid_program: |
       Legal Aid of Western Missouri
     legal_aid_program_online_app: |
       https://lawmo.org/get-legal-help
     legal_aid_program_phone_app: |
-      1-800-892-2101
-    legal_aid_program_office_app_addresses: |
-      LAWMO - Kansas City - Central Office
-      4001 Martin Luther King, Jr. Blvd., Suite 300
-      Kansas City, MO  64130
       (816) 474-6750
-      LAWMO - St. Joseph Office
-      706 Felix Street
-      St. Joseph, MO 64501
-      (816) 364-2325
+    legal_aid_program_office_app_addresses: |
+      Legal Aid of Western Missouri (LAWMO) - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300, Kansas City, MO 64130
       LAWMO - Kansas City - Westside Office
-      920 Southwest Blvd.
-      Kansas City, MO 64108
-      (816) 474-9868
-    court_address_and_operating_hours: |
-      Grundy County Courthouse
-      700 Main Street
-      Trenton, MO 64683
-      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      920 Southwest Blvd., Kansas City,  64108
+      LAWMO - St. Joseph Office
+      706 Felix Street, St. Joseph,  64501
+    courts: 
+      - name: Grundy County Courthouse
+        address: 700 Main Street
+        city: Trenton
+        state: MO
+        zip: 64683
+        schedule: 8 a.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Harrison County:
     circuit: 3
     class: |
@@ -1629,32 +1594,28 @@ data:
     casenet_code: |-
        HAR
     legal_aid_program_website: |
-      https://www.lawmo.org/
+      https://lawmo.org/
     legal_aid_program: |
       Legal Aid of Western Missouri
     legal_aid_program_online_app: |
       https://lawmo.org/get-legal-help
     legal_aid_program_phone_app: |
-      1-800-892-2101
-    legal_aid_program_office_app_addresses: |
-      LAWMO - Kansas City - Central Office
-      4001 Martin Luther King, Jr. Blvd., Suite 300
-      Kansas City, MO  64130
       (816) 474-6750
-      LAWMO - St. Joseph Office
-      706 Felix Street
-      St. Joseph, MO 64501
-      (816) 364-2325
+    legal_aid_program_office_app_addresses: |
+      Legal Aid of Western Missouri (LAWMO) - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300, Kansas City, MO 64130
       LAWMO - Kansas City - Westside Office
-      920 Southwest Blvd.
-      Kansas City, MO 64108
-      (816) 474-9868
-    court_address_and_operating_hours: |
-      Harrison County Courthouse
-      1500 Central Street
-      P.O. Box 189
-      Bethany, MO 64424
-      8 a.m. to&nbsp;4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) (Closed noon -&nbsp;12:30 p.m. for lunch)
+      920 Southwest Blvd., Kansas City,  64108
+      LAWMO - St. Joseph Office
+      706 Felix Street, St. Joseph,  64501
+    courts: 
+      - name: Harrison County Courthouse
+        address: 1500 Central Street
+        unit: P.O. Box 189
+        city: Bethany
+        state: MO
+        zip: 64424
+        schedule: 8 a.m. to&nbsp;4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays<br /></a>(Closed noon -&nbsp;12:30 p.m. for lunch)
   Henry County:
     circuit: 27
     class: |
@@ -1662,31 +1623,27 @@ data:
     casenet_code: |-
        HEN
     legal_aid_program_website: |
-      https://www.lawmo.org/
+      https://lawmo.org/
     legal_aid_program: |
       Legal Aid of Western Missouri
     legal_aid_program_online_app: |
       https://lawmo.org/get-legal-help
     legal_aid_program_phone_app: |
-      1-800-892-2943
-    legal_aid_program_office_app_addresses: |
-      LAWMO - Kansas City - Central Office
-      4001 Martin Luther King, Jr. Blvd., Suite 300
-      Kansas City, MO  64130
       (816) 474-6750
-      LAWMO - Warrensburg Office
-      305 North Holden  
-      Warrensburg, MO 64093
-      (660) 747-7101
+    legal_aid_program_office_app_addresses: |
+      Legal Aid of Western Missouri (LAWMO) - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300, Kansas City, MO 64130
       LAWMO - Kansas City - Westside Office
-      920 Southwest Blvd.
-      Kansas City, MO 64108
-      (816) 474-9868
-    court_address_and_operating_hours: |
-      Henry County Courthouse
-      100 W. Franklin
-      Clinton, MO 64735
-      8 a.m. to&nbsp;4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      920 Southwest Blvd., Kansas City,  64108
+      LAWMO - Warrensburg Office
+      305 North Holden, Warrensburg,  64093
+    courts: 
+      - name: Henry County Courthouse
+        address: 100 W. Franklin
+        city: Clinton
+        state: MO
+        zip: 64735
+        schedule: 8 a.m. to&nbsp;4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Hickory County:
     circuit: 30
     class: |
@@ -1694,22 +1651,24 @@ data:
     casenet_code: |-
        HIK
     legal_aid_program_website: |
-      https://www.lawmo.org/
+      https://lawmo.org/
     legal_aid_program: |
       Legal Aid of Western Missouri
     legal_aid_program_online_app: |
       https://lawmo.org/get-legal-help
     legal_aid_program_phone_app: |
-      1-800-892-2943
+      (816) 474-6750
     legal_aid_program_office_app_addresses: |
+      Legal Aid of Western Missouri (LAWMO) - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300, Kansas City, MO 64130
       LAWMO - Warrensburg Office
-      305 North Holden  
-      Warrensburg, MO 64093
-      (660) 747-7101
-    court_address_and_operating_hours: |
-      Hickory County Courthouse
-      100 W. Polk Street
-      Hermitage, MO 65668
+      305 North Holden, Warrensburg,  64093
+    courts: 
+      - name: Hickory County Courthouse
+        address: 100 W. Polk Street
+        city: Hermitage
+        state: MO
+        zip: 65668
   Holt County:
     circuit: 4
     class: |
@@ -1717,31 +1676,27 @@ data:
     casenet_code: |-
        HOL
     legal_aid_program_website: |
-      https://www.lawmo.org/
+      https://lawmo.org/
     legal_aid_program: |
       Legal Aid of Western Missouri
     legal_aid_program_online_app: |
       https://lawmo.org/get-legal-help
     legal_aid_program_phone_app: |
-      1-800-892-2101
-    legal_aid_program_office_app_addresses: |
-      LAWMO - Kansas City - Central Office
-      4001 Martin Luther King, Jr. Blvd., Suite 300
-      Kansas City, MO  64130
       (816) 474-6750
-      LAWMO - St. Joseph Office
-      706 Felix Street
-      St. Joseph, MO 64501
-      (816) 364-2325
+    legal_aid_program_office_app_addresses: |
+      Legal Aid of Western Missouri (LAWMO) - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300, Kansas City, MO 64130
       LAWMO - Kansas City - Westside Office
-      920 Southwest Blvd.
-      Kansas City, MO 64108
-      (816) 474-9868
-    court_address_and_operating_hours: |
-      Holt County Courthouse
-      102 West Nodaway
-      P.O. Box 318
-      Oregon, MO 64473
+      920 Southwest Blvd., Kansas City,  64108
+      LAWMO - St. Joseph Office
+      706 Felix Street, St. Joseph,  64501
+    courts: 
+      - name: Holt County Courthouse
+        address: 102 West Nodaway
+        unit: P.O. Box 318
+        city: Oregon
+        state: MO
+        zip: 64473
   Howard County:
     circuit: 14
     class: |
@@ -1757,15 +1712,15 @@ data:
     legal_aid_program_phone_app: |
       1-800-568-4931
     legal_aid_program_office_app_addresses: |
-      MMLS - Columbia - Main Office
-      117 North Garth 
-      Columbia, MO  65203
-      (573) 442-0116
-    court_address_and_operating_hours: |
-      Howard County Courthouse
-      #1 Courthouse Square
-      Fayette, MO 65248
-      8:30 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      Mid-Missouri Legal Services (MMLS) - Columbia - Main Office
+      117 North Garth, Columbia, MO 65203
+    courts: 
+      - name: Howard County Courthouse
+        address: #1 Courthouse Square
+        city: Fayette
+        state: MO
+        zip: 65248
+        schedule: 8:30 a.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Howell County:
     circuit: 37
     class: |
@@ -1781,15 +1736,15 @@ data:
     legal_aid_program_phone_app: |
       1-800-444-4863
     legal_aid_program_office_app_addresses: |
-      LSSM - Springfield Office
-      809 N. Campbell Avenue
-      Springfield, MO  65802
-      (417) 881-0533
-    court_address_and_operating_hours: |
-      Howell County Courthouse
-      106 Courthouse
-      West Plains, MO 65775
-      8 a.m. to&nbsp;4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      Legal Services of Southern Missouri – Main Office – Springfield
+      809 N. Campbell Avenue, Springfield, MO 65802
+    courts: 
+      - name: Howell County Courthouse
+        address: 106 Courthouse
+        city: West Plains
+        state: MO
+        zip: 65775
+        schedule: 8 a.m. to&nbsp;4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Iron County:
     circuit: 42
     class: |
@@ -1805,16 +1760,16 @@ data:
     legal_aid_program_phone_app: |
       1-800-444-4863
     legal_aid_program_office_app_addresses: |
-      LSSM - Rolla Office
-      1000 N. Pine, Suite B
-      Rolla, MO  65401
-      (573) 341-3655
-    court_address_and_operating_hours: |
-      Iron County Courthouse
-      250 S. Main Street
-      Suite 220
-      Ironton, MO 63650
-      8:30 a.m. to&nbsp;4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      Legal Services of Southern Missouri – Rolla
+      1000 N. Pine, Suite B, Rolla, MO 65401
+    courts: 
+      - name: Iron County Courthouse
+        address: 250 S. Main Street
+        unit: Suite 220
+        city: Ironton
+        state: MO
+        zip: 63650
+        schedule: 8:30 a.m. to&nbsp;4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Jackson County:
     circuit: 16
     class: |
@@ -1822,30 +1777,32 @@ data:
     casenet_code: |-
        JAK
     legal_aid_program_website: |
-      https://www.lawmo.org/
+      https://lawmo.org/
     legal_aid_program: |
       Legal Aid of Western Missouri
     legal_aid_program_online_app: |
       https://lawmo.org/get-legal-help
     legal_aid_program_phone_app: |
-      None
-    legal_aid_program_office_app_addresses: |
-      LAWMO - Kansas City - Central Office
-      4001 Martin Luther King, Jr. Blvd., Suite 300
-      Kansas City, MO  64130
       (816) 474-6750
+    legal_aid_program_office_app_addresses: |
+      Legal Aid of Western Missouri (LAWMO) - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300, Kansas City, MO 64130
       LAWMO - Kansas City - Westside Office
-      920 Southwest Blvd.
-      Kansas City, MO 64108
-      (816) 474-9868
-    court_address_and_operating_hours: |
-      Kansas City Courthouse
-      415 E. 12th Street
-      Kansas City, MO 64106
-      8 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
-      Independence Courthouse
-      308 West Kansas
-      Independence, MO 64050
+      920 Southwest Blvd., Kansas City,  64108
+    courts: 
+      - name: Kansas City Courthouse
+        location_name: Kansas City
+        address: 415 E. 12th Street
+        city: Kansas City
+        state: MO
+        zip: 64106
+        schedule: 8 a.m. to 5 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
+      - name: Independence Courthouse
+        location_name: Independence
+        address: 308 West Kansas
+        city: Independence
+        state: MO
+        zip: 64050
   Jasper County:
     circuit: 29
     class: |
@@ -1853,35 +1810,35 @@ data:
     casenet_code: |-
        JAS
     legal_aid_program_website: |
-      https://www.lawmo.org/
+      https://lawmo.org/
     legal_aid_program: |
       Legal Aid of Western Missouri
     legal_aid_program_online_app: |
       https://lawmo.org/get-legal-help
     legal_aid_program_phone_app: |
-      1-800-492-7095
-    legal_aid_program_office_app_addresses: |
-      LAWMO - Kansas City - Central Office
-      4001 Martin Luther King, Jr. Blvd., Suite 300
-      Kansas City, MO  64130
       (816) 474-6750
-      LAWMO - Joplin Office
-      1027 South Main, Suite LL7
-      Joplin, MO 64801
-      (417) 782-1650
+    legal_aid_program_office_app_addresses: |
+      Legal Aid of Western Missouri (LAWMO) - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300, Kansas City, MO 64130
       LAWMO - Kansas City - Westside Office
-      920 Southwest Blvd.
-      Kansas City, MO 64108
-      (816) 474-9868
-    court_address_and_operating_hours: |
-      Jasper County Courthouse (Carthage)
-      302 S. Main
-      Carthage, MO 64836
-      8 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
-      Jasper County Courthouse (Joplin)
-      633 South Pearl Avenue
-      Joplin, MO 64804
-      8 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      920 Southwest Blvd., Kansas City,  64108
+      LAWMO - Joplin Office
+      1027 South Main, Suite LL7, Joplin,  64801
+    courts: 
+      - name: Jasper County Courthouse - Carthage Office
+        location_name: Carthage
+        address: 302 S. Main
+        city: Carthage
+        state: MO
+        zip: 64836
+        schedule: 8 a.m. to 5 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
+      - name: Jasper County Courts Building - Joplin Office
+        location_name: Joplin
+        address: 633 South Pearl Avenue
+        city: Joplin
+        state: MO
+        zip: 64804
+        schedule: 8 a.m. to 5 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Jefferson County:
     circuit: 23
     class: |
@@ -1898,16 +1855,15 @@ data:
       1-800-444-0514
     legal_aid_program_office_app_addresses: |
       LSEM - St. Louis - Main Office
-      Peabody Plaza Building
-      701 Market St., Suite 1100
-      St. Louis, MO  63101
-      (314) 534-4200
-    court_address_and_operating_hours: |
-      Jefferson County Courthouse
-      300 Main Street
-      P.O. Box 100
-      Hillsboro, MO 63050
-      8 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      701 Market St., Peabody Plaza Building, Suite 1100, St. Louis, MO 63101
+    courts: 
+      - name: Jefferson County Courthouse
+        address: 300 Main Street
+        unit: P.O. Box 100
+        city: Hillsboro
+        state: MO
+        zip: 63050
+        schedule: 8 a.m. to 5 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Johnson County:
     circuit: 17
     class: |
@@ -1915,31 +1871,27 @@ data:
     casenet_code: |-
        JON
     legal_aid_program_website: |
-      https://www.lawmo.org/
+      https://lawmo.org/
     legal_aid_program: |
       Legal Aid of Western Missouri
     legal_aid_program_online_app: |
       https://lawmo.org/get-legal-help
     legal_aid_program_phone_app: |
-      1-800-892-2943
-    legal_aid_program_office_app_addresses: |
-      LAWMO - Kansas City - Central Office
-      4001 Martin Luther King, Jr. Blvd., Suite 300
-      Kansas City, MO  64130
       (816) 474-6750
-      LAWMO - Warrensburg Office
-      305 North Holden  
-      Warrensburg, MO 64093
-      (660) 747-7101
+    legal_aid_program_office_app_addresses: |
+      Legal Aid of Western Missouri (LAWMO) - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300, Kansas City, MO 64130
       LAWMO - Kansas City - Westside Office
-      920 Southwest Blvd.
-      Kansas City, MO 64108
-      (816) 474-9868
-    court_address_and_operating_hours: |
-      Johnson County Justice Center
-      101 West Market
-      Warrensburg, MO 64093
-      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) (Closed&nbsp;noon - 1 p.m. for lunch)
+      920 Southwest Blvd., Kansas City,  64108
+      LAWMO - Warrensburg Office
+      305 North Holden, Warrensburg,  64093
+    courts: 
+      - name: Johnson County Justice Center
+        address: 101 West Market
+        city: Warrensburg
+        state: MO
+        zip: 64093
+        schedule: 8 a.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays<br /></a>(Closed&nbsp;noon - 1 p.m. for lunch)<a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank"><br /></a>
   Knox County:
     circuit: 2
     class: |
@@ -1956,15 +1908,14 @@ data:
       1-800-444-0514
     legal_aid_program_office_app_addresses: |
       LSEM - St. Louis - Main Office
-      Peabody Plaza Building
-      701 Market St., Suite 1100
-      St. Louis, MO  63101
-      (314) 534-4200
-    court_address_and_operating_hours: |
-      Knox County Courthouse
-      107 North 4th Street, Suite I
-      Edina, MO 63537
-      8:30 a.m. to noon and 1 -&nbsp;4 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      701 Market St., Peabody Plaza Building, Suite 1100, St. Louis, MO 63101
+    courts: 
+      - name: Knox County Courthouse
+        address: 107 North 4th Street, Suite I
+        city: Edina
+        state: MO
+        zip: 63537
+        schedule: 8:30 a.m. to noon and 1 -&nbsp;4 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Laclede County:
     circuit: 26
     class: |
@@ -1980,16 +1931,16 @@ data:
     legal_aid_program_phone_app: |
       1-800-444-4863
     legal_aid_program_office_app_addresses: |
-      LSSM - Springfield Office
-      809 N. Campbell Avenue
-      Springfield, MO  65802
-      (417) 881-0533
-    court_address_and_operating_hours: |
-      Laclede County Courthouse
-      Government Center
-      200 N. Adams
-      Lebanon, MO 65536
-      8 a.m. to 4 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      Legal Services of Southern Missouri – Main Office – Springfield
+      809 N. Campbell Avenue, Springfield, MO 65802
+    courts: 
+      - name: Laclede County Courthouse
+        address: Government Center
+        unit: 200 N. Adams
+        city: Lebanon
+        state: MO
+        zip: 65536
+        schedule: 8 a.m. to 4 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Lafayette County:
     circuit: 15
     class: |
@@ -1997,35 +1948,33 @@ data:
     casenet_code: |-
        LAF
     legal_aid_program_website: |
-      https://www.lawmo.org/
+      https://lawmo.org/
     legal_aid_program: |
       Legal Aid of Western Missouri
     legal_aid_program_online_app: |
       https://lawmo.org/get-legal-help
     legal_aid_program_phone_app: |
-      1-800-892-2943
-    legal_aid_program_office_app_addresses: |
-      LAWMO - Kansas City - Central Office
-      4001 Martin Luther King, Jr. Blvd., Suite 300
-      Kansas City, MO  64130
       (816) 474-6750
-      LAWMO - Warrensburg Office
-      305 North Holden  
-      Warrensburg, MO 64093
-      (660) 747-7101
+    legal_aid_program_office_app_addresses: |
+      Legal Aid of Western Missouri (LAWMO) - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300, Kansas City, MO 64130
       LAWMO - Kansas City - Westside Office
-      920 Southwest Blvd.
-      Kansas City, MO 64108
-      (816) 474-9868
-    court_address_and_operating_hours: |
-      Lafayette County Courthouse
-      1001 Main St.
-      Lexington, MO 64067
-      Lafayette Hall
-      116 S. 10th Street
-      P.O. Box 10
-      Lexington, MO 64067
-      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      920 Southwest Blvd., Kansas City,  64108
+      LAWMO - Warrensburg Office
+      305 North Holden, Warrensburg,  64093
+    courts: 
+      - name: Lafayette Hall
+        address: 116 S. 10th Street
+        unit: P.O. Box 10
+        city: Lexington
+        state: MO
+        zip: 64067
+        schedule: 8 a.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
+      - name: Lafayette County Courthouse
+        address: 1001 Main St.
+        city: Lexington
+        state: MO
+        zip: 64067
   Lawrence County:
     circuit: 39
     class: |
@@ -2041,15 +1990,15 @@ data:
     legal_aid_program_phone_app: |
       1-800-444-4863
     legal_aid_program_office_app_addresses: |
-      LSSM - Springfield Office
-      809 N. Campbell Avenue
-      Springfield, MO  65802
-      (417) 881-0533
-    court_address_and_operating_hours: |
-      Lawrence County Justice Center
-      240 North Main, Suite 110
-      Mount Vernon, MO 65712
-      7:30 a.m. to&nbsp;4 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      Legal Services of Southern Missouri – Main Office – Springfield
+      809 N. Campbell Avenue, Springfield, MO 65802
+    courts: 
+      - name: Lawrence County Justice Center
+        address: 240 North Main, Suite 110
+        city: Mount Vernon
+        state: MO
+        zip: 65712
+        schedule: 7:30 a.m. to&nbsp;4 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Lewis County:
     circuit: 2
     class: |
@@ -2066,16 +2015,15 @@ data:
       1-800-444-0514
     legal_aid_program_office_app_addresses: |
       LSEM - St. Louis - Main Office
-      Peabody Plaza Building
-      701 Market St., Suite 1100
-      St. Louis, MO  63101
-      (314) 534-4200
-    court_address_and_operating_hours: |
-      Lewis County Courthouse
-      100 East Lafayette
-      P.O. Box 8
-      Monticello, MO 63457
-      7:30 a.m. to&nbsp;4 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) (Closed 12:30 to 1 p.m. for lunch)
+      701 Market St., Peabody Plaza Building, Suite 1100, St. Louis, MO 63101
+    courts: 
+      - name: Lewis County Courthouse
+        address: 100 East Lafayette
+        unit: P.O. Box 8
+        city: Monticello
+        state: MO
+        zip: 63457
+        schedule: 7:30 a.m. to&nbsp;4 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays<br /></a>(Closed 12:30 to 1 p.m. for lunch)<a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank"><br /></a>
   Lincoln County:
     circuit: 45
     class: |
@@ -2092,15 +2040,14 @@ data:
       1-800-444-0514
     legal_aid_program_office_app_addresses: |
       LSEM - St. Louis - Main Office
-      Peabody Plaza Building
-      701 Market St., Suite 1100
-      St. Louis, MO  63101
-      (314) 534-4200
-    court_address_and_operating_hours: |
-      Lincoln County Justice Center
-      45 Business Park Drive
-      Troy, MO 63379
-      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      701 Market St., Peabody Plaza Building, Suite 1100, St. Louis, MO 63101
+    courts: 
+      - name: Lincoln County Justice Center
+        address: 45 Business Park Drive
+        city: Troy
+        state: MO
+        zip: 63379
+        schedule: 8 a.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Linn County:
     circuit: 9
     class: |
@@ -2108,31 +2055,27 @@ data:
     casenet_code: |-
        LIN
     legal_aid_program_website: |
-      https://www.lawmo.org/
+      https://lawmo.org/
     legal_aid_program: |
       Legal Aid of Western Missouri
     legal_aid_program_online_app: |
       https://lawmo.org/get-legal-help
     legal_aid_program_phone_app: |
-      1-800-892-2101
-    legal_aid_program_office_app_addresses: |
-      LAWMO - Kansas City - Central Office
-      4001 Martin Luther King, Jr. Blvd., Suite 300
-      Kansas City, MO  64130
       (816) 474-6750
-      LAWMO - St. Joseph Office
-      706 Felix Street
-      St. Joseph, MO 64501
-      (816) 364-2325
+    legal_aid_program_office_app_addresses: |
+      Legal Aid of Western Missouri (LAWMO) - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300, Kansas City, MO 64130
       LAWMO - Kansas City - Westside Office
-      920 Southwest Blvd.
-      Kansas City, MO 64108
-      (816) 474-9868
-    court_address_and_operating_hours: |
-      Linn County Courthouse
-      108 North High
-      P.O. Box 84
-      Linneus, MO 64653
+      920 Southwest Blvd., Kansas City,  64108
+      LAWMO - St. Joseph Office
+      706 Felix Street, St. Joseph,  64501
+    courts: 
+      - name: Linn County Courthouse
+        address: 108 North High
+        unit: P.O. Box 84
+        city: Linneus
+        state: MO
+        zip: 64653
   Livingston County:
     circuit: 43
     class: |
@@ -2140,31 +2083,56 @@ data:
     casenet_code: |-
        LIV
     legal_aid_program_website: |
-      https://www.lawmo.org/
+      https://lawmo.org/
     legal_aid_program: |
       Legal Aid of Western Missouri
     legal_aid_program_online_app: |
       https://lawmo.org/get-legal-help
     legal_aid_program_phone_app: |
-      1-800-892-2101
-    legal_aid_program_office_app_addresses: |
-      LAWMO - Kansas City - Central Office
-      4001 Martin Luther King, Jr. Blvd., Suite 300
-      Kansas City, MO  64130
       (816) 474-6750
-      LAWMO - St. Joseph Office
-      706 Felix Street
-      St. Joseph, MO 64501
-      (816) 364-2325
+    legal_aid_program_office_app_addresses: |
+      Legal Aid of Western Missouri (LAWMO) - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300, Kansas City, MO 64130
       LAWMO - Kansas City - Westside Office
-      920 Southwest Blvd.
-      Kansas City, MO 64108
-      (816) 474-9868
-    court_address_and_operating_hours: |
-      Livingston County Courthouse
-      700 Webster
-      Chillicothe, MO 64601
-      8:30 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      920 Southwest Blvd., Kansas City,  64108
+      LAWMO - St. Joseph Office
+      706 Felix Street, St. Joseph,  64501
+    courts: 
+      - name: Livingston County Courthouse
+        address: 700 Webster
+        city: Chillicothe
+        state: MO
+        zip: 64601
+        schedule: 8:30 a.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
+  McDonald County:
+    circuit: 40
+    class: |
+      Class 3
+    casenet_code: |-
+       MCD
+    legal_aid_program_website: |
+      https://lawmo.org/
+    legal_aid_program: |
+      Legal Aid of Western Missouri
+    legal_aid_program_online_app: |
+      https://lawmo.org/get-legal-help
+    legal_aid_program_phone_app: |
+      (816) 474-6750
+    legal_aid_program_office_app_addresses: |
+      Legal Aid of Western Missouri (LAWMO) - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300, Kansas City, MO 64130
+      LAWMO - Kansas City - Westside Office
+      920 Southwest Blvd., Kansas City,  64108
+      LAWMO - Joplin Office
+      1027 South Main, Suite LL7, Joplin,  64801
+    courts: 
+      - name: McDonald County Courthouse
+        address: Highway W. & Main Street
+        unit: P.O. Box 157
+        city: Pineville
+        state: MO
+        zip: 64856
+        schedule: 8 a.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Macon County:
     circuit: 41
     class: |
@@ -2181,15 +2149,14 @@ data:
       1-800-444-0514
     legal_aid_program_office_app_addresses: |
       LSEM - St. Louis - Main Office
-      Peabody Plaza Building
-      701 Market St., Suite 1100
-      St. Louis, MO  63101
-      (314) 534-4200
-    court_address_and_operating_hours: |
-      Macon County Courthouse
-      101 E. Washington Street
-      Macon, MO 63552
-      8 a.m. (phones answered)/8:30 a.m. (office open to public)&nbsp;to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      701 Market St., Peabody Plaza Building, Suite 1100, St. Louis, MO 63101
+    courts: 
+      - name: Macon County Courthouse
+        address: 101 E. Washington Street
+        city: Macon
+        state: MO
+        zip: 63552
+        schedule: 8 a.m. (phones answered)/8:30 a.m. (office open to public)&nbsp;to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Madison County:
     circuit: 24
     class: |
@@ -2205,15 +2172,15 @@ data:
     legal_aid_program_phone_app: |
       1-800-444-4863
     legal_aid_program_office_app_addresses: |
-      LSSM - Rolla Office
-      1000 N. Pine, Suite B
-      Rolla, MO  65401
-      (573) 341-3655
-    court_address_and_operating_hours: |
-      Madison County Courthouse
-      3 Court Square, Suite 1
-      P.O. Box 470
-      Fredericktown, MO 63645
+      Legal Services of Southern Missouri – Rolla
+      1000 N. Pine, Suite B, Rolla, MO 65401
+    courts: 
+      - name: Madison County Courthouse
+        address: 3 Court Square
+        unit: P.O. Box 470
+        city: Fredericktown
+        state: MO
+        zip: 63645
   Maries County:
     circuit: 25
     class: |
@@ -2229,15 +2196,15 @@ data:
     legal_aid_program_phone_app: |
       1-800-444-4863
     legal_aid_program_office_app_addresses: |
-      LSSM - Rolla Office
-      1000 N. Pine, Suite B
-      Rolla, MO  65401
-      (573) 341-3655
-    court_address_and_operating_hours: |
-      Maries County Courthouse
-      211 Fourth Street
-      Vienna, MO 65582
-      8 a.m. to 4 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      Legal Services of Southern Missouri – Rolla
+      1000 N. Pine, Suite B, Rolla, MO 65401
+    courts: 
+      - name: Maries County Courthouse
+        address: 211 Fourth Street
+        city: Vienna
+        state: MO
+        zip: 65582
+        schedule: 8 a.m. to 4 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Marion County:
     circuit: 10
     class: |
@@ -2254,52 +2221,22 @@ data:
       1-800-444-0514
     legal_aid_program_office_app_addresses: |
       LSEM - St. Louis - Main Office
-      Peabody Plaza Building
-      701 Market St., Suite 1100
-      St. Louis, MO  63101
-      (314) 534-4200
-    court_address_and_operating_hours: |
-      Marion County Courthouse (District 1)
-      100 S. Main
-      Palmyra, MO 63461
-      8 a.m. to noon and 1 - 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
-      Marion County Courthouse (District 2)
-      906 Broadway
-      Hannibal, MO 63401
-      8 a.m. to noon and 1 - 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
-  McDonald County:
-    circuit: 40
-    class: |
-      Class 3
-    casenet_code: |-
-       MCD
-    legal_aid_program_website: |
-      https://www.lawmo.org/
-    legal_aid_program: |
-      Legal Aid of Western Missouri
-    legal_aid_program_online_app: |
-      https://lawmo.org/get-legal-help
-    legal_aid_program_phone_app: |
-      1-800-492-7095
-    legal_aid_program_office_app_addresses: |
-      LAWMO - Kansas City - Central Office
-      4001 Martin Luther King, Jr. Blvd., Suite 300
-      Kansas City, MO  64130
-      (816) 474-6750
-      LAWMO - Joplin Office
-      1027 South Main, Suite LL7
-      Joplin, MO 64801
-      (417) 782-1650
-      LAWMO - Kansas City - Westside Office
-      920 Southwest Blvd.
-      Kansas City, MO 64108
-      (816) 474-9868
-    court_address_and_operating_hours: |
-      McDonald County Courthouse
-      Highway W. & Main Street
-      P.O. Box 157
-      Pineville, MO 64856
-      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      701 Market St., Peabody Plaza Building, Suite 1100, St. Louis, MO 63101
+    courts: 
+      - name: Marion County Courthouse - Palmyra
+        location_name: Palmyra
+        address: 100 S. Main
+        city: Palmyra
+        state: MO
+        zip: 63461
+        schedule: 8 a.m. to noon and 1 - 5 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
+      - name: Marion County Courthouse - Hannibal
+        location_name: Hannibal
+        address: 906 Broadway
+        city: Hannibal
+        state: MO
+        zip: 63401
+        schedule: 8 a.m. to noon and 1 - 5 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Mercer County:
     circuit: 3
     class: |
@@ -2307,31 +2244,27 @@ data:
     casenet_code: |-
        MER
     legal_aid_program_website: |
-      https://www.lawmo.org/
+      https://lawmo.org/
     legal_aid_program: |
       Legal Aid of Western Missouri
     legal_aid_program_online_app: |
       https://lawmo.org/get-legal-help
     legal_aid_program_phone_app: |
-      1-800-892-2101
-    legal_aid_program_office_app_addresses: |
-      LAWMO - Kansas City - Central Office
-      4001 Martin Luther King, Jr. Blvd., Suite 300
-      Kansas City, MO  64130
       (816) 474-6750
-      LAWMO - St. Joseph Office
-      706 Felix Street
-      St. Joseph, MO 64501
-      (816) 364-2325
+    legal_aid_program_office_app_addresses: |
+      Legal Aid of Western Missouri (LAWMO) - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300, Kansas City, MO 64130
       LAWMO - Kansas City - Westside Office
-      920 Southwest Blvd.
-      Kansas City, MO 64108
-      (816) 474-9868
-    court_address_and_operating_hours: |
-      Mercer County Courthouse
-      802 East Main Street
-      Princeton, MO 64673
-      8:30 a.m. to&nbsp;4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) (Closed noon - 1 p.m. for lunch)
+      920 Southwest Blvd., Kansas City,  64108
+      LAWMO - St. Joseph Office
+      706 Felix Street, St. Joseph,  64501
+    courts: 
+      - name: Mercer County Courthouse
+        address: 802 East Main Street
+        city: Princeton
+        state: MO
+        zip: 64673
+        schedule: 8:30 a.m. to&nbsp;4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays<br /></a>(Closed noon - 1 p.m. for lunch)<a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank"><br /></a>
   Miller County:
     circuit: 26
     class: |
@@ -2347,16 +2280,16 @@ data:
     legal_aid_program_phone_app: |
       1-800-568-4931
     legal_aid_program_office_app_addresses: |
-      MMLS - Columbia - Main Office
-      117 North Garth 
-      Columbia, MO  65203
-      (573) 442-0116
-    court_address_and_operating_hours: |
-      Miller County Courthouse
-      2001 Highway 52
-      P.O. Box 11
-      Tuscumbia, MO 65082
-      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      Mid-Missouri Legal Services (MMLS) - Columbia - Main Office
+      117 North Garth, Columbia, MO 65203
+    courts: 
+      - name: Miller County Courthouse
+        address: 2001 Highway 52
+        unit: P.O. Box 11
+        city: Tuscumbia
+        state: MO
+        zip: 65082
+        schedule: 8 a.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Mississippi County:
     circuit: 33
     class: |
@@ -2372,16 +2305,16 @@ data:
     legal_aid_program_phone_app: |
       1-800-444-4863
     legal_aid_program_office_app_addresses: |
-      LSSM - Sikeston Office
-      2201 E. Malone Avenue 
-      Sikeston, MO  63801
-      (573) 683-3783
-    court_address_and_operating_hours: |
-      Mississippi County Courthouse
-      200 North Main Street
-      P.O. Box 369
-      Charleston, MO 63834
-      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      Legal Services of Southern Missouri – Sikeston
+      2201 E. Malone Avenue, Sikeston, MO 63801
+    courts: 
+      - name: Mississippi County Courthouse
+        address: 200 North Main Street
+        unit: P.O. Box 369
+        city: Charleston
+        state: MO
+        zip: 63834
+        schedule: 8 a.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Moniteau County:
     circuit: 26
     class: |
@@ -2397,15 +2330,15 @@ data:
     legal_aid_program_phone_app: |
       1-800-568-4931
     legal_aid_program_office_app_addresses: |
-      MMLS - Columbia - Main Office
-      117 North Garth 
-      Columbia, MO  65203
-      (573) 442-0116
-    court_address_and_operating_hours: |
-      Moniteau County Courthouse
-      200 E. Main
-      California, MO 65018
-      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) <br />(Closed noon - 12:30 p.m. for lunch)
+      Mid-Missouri Legal Services (MMLS) - Columbia - Main Office
+      117 North Garth, Columbia, MO 65203
+    courts: 
+      - name: Moniteau County Courthouse
+        address: 200 E. Main
+        city: California
+        state: MO
+        zip: 65018
+        schedule: 8 a.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a><br />(Closed noon - 12:30 p.m. for lunch)<a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank"><br /></a>
   Monroe County:
     circuit: 10
     class: |
@@ -2422,15 +2355,14 @@ data:
       1-800-444-0514
     legal_aid_program_office_app_addresses: |
       LSEM - St. Louis - Main Office
-      Peabody Plaza Building
-      701 Market St., Suite 1100
-      St. Louis, MO  63101
-      (314) 534-4200
-    court_address_and_operating_hours: |
-      Monroe County Courthouse
-      300 North Main Street
-      Paris, MO 65275
-      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      701 Market St., Peabody Plaza Building, Suite 1100, St. Louis, MO 63101
+    courts: 
+      - name: Monroe County Courthouse
+        address: 300 North Main Street
+        city: Paris
+        state: MO
+        zip: 65275
+        schedule: 8 a.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Montgomery County:
     circuit: 12
     class: |
@@ -2447,15 +2379,14 @@ data:
       1-800-444-0514
     legal_aid_program_office_app_addresses: |
       LSEM - St. Louis - Main Office
-      Peabody Plaza Building
-      701 Market St., Suite 1100
-      St. Louis, MO  63101
-      (314) 534-4200
-    court_address_and_operating_hours: |
-      Montgomery County Courthouse
-      Temporary location: 723 N. Sturgeon
-      Montgomery City, MO 63361
-      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      701 Market St., Peabody Plaza Building, Suite 1100, St. Louis, MO 63101
+    courts: 
+      - name: Montgomery County Courthouse
+        address: Temporary location - 723 N. Sturgeon
+        city: Montgomery City
+        state: MO
+        zip: 63361
+        schedule: 8 a.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Morgan County:
     circuit: 26
     class: |
@@ -2463,32 +2394,28 @@ data:
     casenet_code: |-
        MOR
     legal_aid_program_website: |
-      https://www.lawmo.org/
+      https://lawmo.org/
     legal_aid_program: |
       Legal Aid of Western Missouri
     legal_aid_program_online_app: |
       https://lawmo.org/get-legal-help
     legal_aid_program_phone_app: |
-      1-800-892-2943
-    legal_aid_program_office_app_addresses: |
-      LAWMO - Kansas City - Central Office
-      4001 Martin Luther King, Jr. Blvd., Suite 300
-      Kansas City, MO  64130
       (816) 474-6750
-      LAWMO - Warrensburg Office
-      305 North Holden  
-      Warrensburg, MO 64093
-      (660) 747-7101
+    legal_aid_program_office_app_addresses: |
+      Legal Aid of Western Missouri (LAWMO) - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300, Kansas City, MO 64130
       LAWMO - Kansas City - Westside Office
-      920 Southwest Blvd.
-      Kansas City, MO 64108
-      (816) 474-9868
-    court_address_and_operating_hours: |
-      Morgan County Justice Center
-      211 East Newton Street
-      Suite 4
-      Versailles, MO 65084
-      8 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      920 Southwest Blvd., Kansas City,  64108
+      LAWMO - Warrensburg Office
+      305 North Holden, Warrensburg,  64093
+    courts: 
+      - name: Morgan County Justice Center
+        address: 211 East Newton Street
+        unit: Suite 4
+        city: Versailles
+        state: MO
+        zip: 65084
+        schedule: 8 a.m. to 5 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   New Madrid County:
     circuit: 34
     class: |
@@ -2504,14 +2431,14 @@ data:
     legal_aid_program_phone_app: |
       1-800-444-4863
     legal_aid_program_office_app_addresses: |
-      LSSM - Sikeston Office
-      2201 E. Malone Avenue 
-      Sikeston, MO  63801
-      (573) 683-3783
-    court_address_and_operating_hours: |
-      New Madrid County Courthouse
-      450 Main Street
-      New Madrid, MO 63869
+      Legal Services of Southern Missouri – Sikeston
+      2201 E. Malone Avenue, Sikeston, MO 63801
+    courts: 
+      - name: New Madrid County Courthouse
+        address: 450 Main Street
+        city: New Madrid
+        state: MO
+        zip: 63869
   Newton County:
     circuit: 40
     class: |
@@ -2519,31 +2446,27 @@ data:
     casenet_code: |-
        NWT
     legal_aid_program_website: |
-      https://www.lawmo.org/
+      https://lawmo.org/
     legal_aid_program: |
       Legal Aid of Western Missouri
     legal_aid_program_online_app: |
       https://lawmo.org/get-legal-help
     legal_aid_program_phone_app: |
-      1-800-492-7095
-    legal_aid_program_office_app_addresses: |
-      LAWMO - Kansas City - Central Office
-      4001 Martin Luther King, Jr. Blvd., Suite 300
-      Kansas City, MO  64130
       (816) 474-6750
-      LAWMO - Joplin Office
-      1027 South Main, Suite LL7
-      Joplin, MO 64801
-      (417) 782-1650
+    legal_aid_program_office_app_addresses: |
+      Legal Aid of Western Missouri (LAWMO) - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300, Kansas City, MO 64130
       LAWMO - Kansas City - Westside Office
-      920 Southwest Blvd.
-      Kansas City, MO 64108
-      (816) 474-9868
-    court_address_and_operating_hours: |
-      Newton County Judicial Center
-      123 East Main St.
-      P.O. Box 170
-      Neosho, MO 64850
+      920 Southwest Blvd., Kansas City,  64108
+      LAWMO - Joplin Office
+      1027 South Main, Suite LL7, Joplin,  64801
+    courts: 
+      - name: Newton County Judicial Center
+        address: 123 East Main St.
+        unit: P.O. Box 170
+        city: Neosho
+        state: MO
+        zip: 64850
   Nodaway County:
     circuit: 4
     class: |
@@ -2551,31 +2474,27 @@ data:
     casenet_code: |-
        NDY
     legal_aid_program_website: |
-      https://www.lawmo.org/
+      https://lawmo.org/
     legal_aid_program: |
       Legal Aid of Western Missouri
     legal_aid_program_online_app: |
       https://lawmo.org/get-legal-help
     legal_aid_program_phone_app: |
-      1-800-892-2101
-    legal_aid_program_office_app_addresses: |
-      LAWMO - Kansas City - Central Office
-      4001 Martin Luther King, Jr. Blvd., Suite 300
-      Kansas City, MO  64130
       (816) 474-6750
-      LAWMO - St. Joseph Office
-      706 Felix Street
-      St. Joseph, MO 64501
-      (816) 364-2325
+    legal_aid_program_office_app_addresses: |
+      Legal Aid of Western Missouri (LAWMO) - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300, Kansas City, MO 64130
       LAWMO - Kansas City - Westside Office
-      920 Southwest Blvd.
-      Kansas City, MO 64108
-      (816) 474-9868
-    court_address_and_operating_hours: |
-      Nodaway County Courthouse
-      305 N. Main
-      Maryville, MO 64468
-      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      920 Southwest Blvd., Kansas City,  64108
+      LAWMO - St. Joseph Office
+      706 Felix Street, St. Joseph,  64501
+    courts: 
+      - name: Nodaway County Courthouse
+        address: 305 N. Main
+        city: Maryville
+        state: MO
+        zip: 64468
+        schedule: 8 a.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Oregon County:
     circuit: 37
     class: |
@@ -2591,16 +2510,16 @@ data:
     legal_aid_program_phone_app: |
       1-800-444-4863
     legal_aid_program_office_app_addresses: |
-      LSSM - Springfield Office
-      809 N. Campbell Avenue
-      Springfield, MO  65802
-      (417) 881-0533
-    court_address_and_operating_hours: |
-      Oregon County Courthouse
-      Courthouse Square
-      P.O. Box 406
-      Alton, MO 65606
-      The Oregon County courthouse is open from&nbsp;8 a.m. to 4 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) . Therefore, the Oregon County Circuit Court is open from 8 a.m. to 4 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) .
+      Legal Services of Southern Missouri – Main Office – Springfield
+      809 N. Campbell Avenue, Springfield, MO 65802
+    courts: 
+      - name: Oregon County Courthouse
+        address: Courthouse Square
+        unit: P.O. Box 406
+        city: Alton
+        state: MO
+        zip: 65606
+        schedule: The Oregon County courthouse is open from&nbsp;8 a.m. to 4 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>. Therefore, the Oregon County Circuit Court is open from 8 a.m. to 4 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>.
   Osage County:
     circuit: 20
     class: |
@@ -2616,16 +2535,16 @@ data:
     legal_aid_program_phone_app: |
       1-800-568-4931
     legal_aid_program_office_app_addresses: |
-      MMLS - Columbia - Main Office
-      117 North Garth 
-      Columbia, MO  65203
-      (573) 442-0116
-    court_address_and_operating_hours: |
-      Osage County Courthouse
-      106 E. Main Street
-      P.O. Box 825
-      Linn, MO 65051
-      8 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      Mid-Missouri Legal Services (MMLS) - Columbia - Main Office
+      117 North Garth, Columbia, MO 65203
+    courts: 
+      - name: Osage County Courthouse
+        address: 106 E. Main Street
+        unit: P.O. Box 825
+        city: Linn
+        state: MO
+        zip: 65051
+        schedule: 8 a.m. to 5 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Ozark County:
     circuit: 44
     class: |
@@ -2641,15 +2560,15 @@ data:
     legal_aid_program_phone_app: |
       1-800-444-4863
     legal_aid_program_office_app_addresses: |
-      LSSM - Springfield Office
-      809 N. Campbell Avenue
-      Springfield, MO  65802
-      (417) 881-0533
-    court_address_and_operating_hours: |
-      Ozark County Courthouse
-      2 Court Square
-      Gainesville, MO 65655
-      8 a.m. - noon and 12:30&nbsp;- 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      Legal Services of Southern Missouri – Main Office – Springfield
+      809 N. Campbell Avenue, Springfield, MO 65802
+    courts: 
+      - name: Ozark County Courthouse
+        address: 2 Court Square
+        city: Gainesville
+        state: MO
+        zip: 65655
+        schedule: 8 a.m. - noon and 12:30&nbsp;- 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Pemiscot County:
     circuit: 34
     class: |
@@ -2665,16 +2584,16 @@ data:
     legal_aid_program_phone_app: |
       1-800-444-4863
     legal_aid_program_office_app_addresses: |
-      LSSM - Sikeston Office
-      2201 E. Malone Avenue 
-      Sikeston, MO  63801
-      (573) 683-3783
-    court_address_and_operating_hours: |
-      Pemiscot County Courthouse (Division I and III)
-      610 Ward Avenue
-      P.O. Box 34
-      Caruthersville, MO 63830
-      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      Legal Services of Southern Missouri – Sikeston
+      2201 E. Malone Avenue, Sikeston, MO 63801
+    courts: 
+      - name: Pemiscot County Courthouse (Division I and III)
+        address: 610 Ward Avenue
+        unit: P.O. Box 34
+        city: Caruthersville
+        state: MO
+        zip: 63830
+        schedule: 8 a.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Perry County:
     circuit: 32
     class: |
@@ -2690,15 +2609,15 @@ data:
     legal_aid_program_phone_app: |
       1-800-444-4863
     legal_aid_program_office_app_addresses: |
-      LSSM - Sikeston Office
-      2201 E. Malone Avenue 
-      Sikeston, MO  63801
-      (573) 683-3783
-    court_address_and_operating_hours: |
-      Perry County Courthouse
-      15 West Ste. Marie Street
-      Perryville, MO 63775
-      8 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      Legal Services of Southern Missouri – Sikeston
+      2201 E. Malone Avenue, Sikeston, MO 63801
+    courts: 
+      - name: Perry County Courthouse
+        address: 15 West Ste. Marie Street
+        city: Perryville
+        state: MO
+        zip: 63775
+        schedule: 8 a.m. to 5 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Pettis County:
     circuit: 18
     class: |
@@ -2706,31 +2625,27 @@ data:
     casenet_code: |-
        PET
     legal_aid_program_website: |
-      https://www.lawmo.org/
+      https://lawmo.org/
     legal_aid_program: |
       Legal Aid of Western Missouri
     legal_aid_program_online_app: |
       https://lawmo.org/get-legal-help
     legal_aid_program_phone_app: |
-      1-800-892-2943
-    legal_aid_program_office_app_addresses: |
-      LAWMO - Kansas City - Central Office
-      4001 Martin Luther King, Jr. Blvd., Suite 300
-      Kansas City, MO  64130
       (816) 474-6750
-      LAWMO - Warrensburg Office
-      305 North Holden  
-      Warrensburg, MO 64093
-      (660) 747-7101
+    legal_aid_program_office_app_addresses: |
+      Legal Aid of Western Missouri (LAWMO) - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300, Kansas City, MO 64130
       LAWMO - Kansas City - Westside Office
-      920 Southwest Blvd.
-      Kansas City, MO 64108
-      (816) 474-9868
-    court_address_and_operating_hours: |
-      Pettis County Courthouse
-      415 South Ohio
-      Sedalia, MO 65301
-      8 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      920 Southwest Blvd., Kansas City,  64108
+      LAWMO - Warrensburg Office
+      305 North Holden, Warrensburg,  64093
+    courts: 
+      - name: Pettis County Courthouse
+        address: 415 South Ohio
+        city: Sedalia
+        state: MO
+        zip: 65301
+        schedule: 8 a.m. to 5 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Phelps County:
     circuit: 25
     class: |
@@ -2746,15 +2661,15 @@ data:
     legal_aid_program_phone_app: |
       1-800-444-4863
     legal_aid_program_office_app_addresses: |
-      LSSM - Rolla Office
-      1000 N. Pine, Suite B
-      Rolla, MO  65401
-      (573) 341-3655
-    court_address_and_operating_hours: |
-      Phelps County Courthouse
-      200 N. Main Street
-      Rolla, MO 65401
-      8 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      Legal Services of Southern Missouri – Rolla
+      1000 N. Pine, Suite B, Rolla, MO 65401
+    courts: 
+      - name: Phelps County Courthouse
+        address: 200 N. Main Street
+        city: Rolla
+        state: MO
+        zip: 65401
+        schedule: 8 a.m. to 5 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Pike County:
     circuit: 45
     class: |
@@ -2771,15 +2686,14 @@ data:
       1-800-444-0514
     legal_aid_program_office_app_addresses: |
       LSEM - St. Louis - Main Office
-      Peabody Plaza Building
-      701 Market St., Suite 1100
-      St. Louis, MO  63101
-      (314) 534-4200
-    court_address_and_operating_hours: |
-      Pike County Courthouse
-      115 W. Main
-      Bowling Green, MO 63334
-      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      701 Market St., Peabody Plaza Building, Suite 1100, St. Louis, MO 63101
+    courts: 
+      - name: Pike County Courthouse
+        address: 115 W. Main
+        city: Bowling Green
+        state: MO
+        zip: 63334
+        schedule: 8 a.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Platte County:
     circuit: 6
     class: |
@@ -2787,27 +2701,25 @@ data:
     casenet_code: |-
        PLA
     legal_aid_program_website: |
-      https://www.lawmo.org/
+      https://lawmo.org/
     legal_aid_program: |
       Legal Aid of Western Missouri
     legal_aid_program_online_app: |
       https://lawmo.org/get-legal-help
     legal_aid_program_phone_app: |
-      None
-    legal_aid_program_office_app_addresses: |
-      LAWMO - Kansas City - Central Office
-      4001 Martin Luther King, Jr. Blvd., Suite 300
-      Kansas City, MO  64130
       (816) 474-6750
+    legal_aid_program_office_app_addresses: |
+      Legal Aid of Western Missouri (LAWMO) - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300, Kansas City, MO 64130
       LAWMO - Kansas City - Westside Office
-      920 Southwest Blvd.
-      Kansas City, MO 64108
-      (816) 474-9868
-    court_address_and_operating_hours: |
-      Platte County Courthouse
-      415 Third Street
-      Platte City, MO 64079
-      8 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      920 Southwest Blvd., Kansas City,  64108
+    courts: 
+      - name: Platte County Courthouse
+        address: 415 Third Street
+        city: Platte City
+        state: MO
+        zip: 64079
+        schedule: 8 a.m. to 5 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Polk County:
     circuit: 30
     class: |
@@ -2823,15 +2735,15 @@ data:
     legal_aid_program_phone_app: |
       1-800-444-4863
     legal_aid_program_office_app_addresses: |
-      LSSM - Springfield Office
-      809 N. Campbell Avenue
-      Springfield, MO  65802
-      (417) 881-0533
-    court_address_and_operating_hours: |
-      Polk County Courthouse
-      102 E. Broadway Street, Room 14
-      Bolivar, MO 65613
-      8 a.m. to 4:45 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      Legal Services of Southern Missouri – Main Office – Springfield
+      809 N. Campbell Avenue, Springfield, MO 65802
+    courts: 
+      - name: Polk County Courthouse
+        address: 102 E. Broadway Street, Room 14
+        city: Bolivar
+        state: MO
+        zip: 65613
+        schedule: 8 a.m. to 4:45 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Pulaski County:
     circuit: 25
     class: |
@@ -2847,15 +2759,15 @@ data:
     legal_aid_program_phone_app: |
       1-800-444-4863
     legal_aid_program_office_app_addresses: |
-      LSSM - Rolla Office
-      1000 N. Pine, Suite B
-      Rolla, MO  65401
-      (573) 341-3655
-    court_address_and_operating_hours: |
-      Pulaski County Courthouse
-      301 Historic Route 66 E, Suite 318
-      Waynesville, MO 65583
-      7:30&nbsp;a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      Legal Services of Southern Missouri – Rolla
+      1000 N. Pine, Suite B, Rolla, MO 65401
+    courts: 
+      - name: Pulaski County Courthouse
+        address: 301 Historic Route 66 E, Suite 318
+        city: Waynesville
+        state: MO
+        zip: 65583
+        schedule: 7:30&nbsp;a.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Putnam County:
     circuit: 3
     class: |
@@ -2863,31 +2775,27 @@ data:
     casenet_code: |-
        PUT
     legal_aid_program_website: |
-      https://www.lawmo.org/
+      https://lawmo.org/
     legal_aid_program: |
       Legal Aid of Western Missouri
     legal_aid_program_online_app: |
       https://lawmo.org/get-legal-help
     legal_aid_program_phone_app: |
-      1-800-892-2101
-    legal_aid_program_office_app_addresses: |
-      LAWMO - Kansas City - Central Office
-      4001 Martin Luther King, Jr. Blvd., Suite 300
-      Kansas City, MO  64130
       (816) 474-6750
-      LAWMO - St. Joseph Office
-      706 Felix Street
-      St. Joseph, MO 64501
-      (816) 364-2325
+    legal_aid_program_office_app_addresses: |
+      Legal Aid of Western Missouri (LAWMO) - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300, Kansas City, MO 64130
       LAWMO - Kansas City - Westside Office
-      920 Southwest Blvd.
-      Kansas City, MO 64108
-      (816) 474-9868
-    court_address_and_operating_hours: |
-      Putnam County Courthouse
-      1601 West Main Street
-      Unionville, MO 63565
-      8:30 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) (Closed noon - 1 p.m. for lunch)
+      920 Southwest Blvd., Kansas City,  64108
+      LAWMO - St. Joseph Office
+      706 Felix Street, St. Joseph,  64501
+    courts: 
+      - name: Putnam County Courthouse
+        address: 1601 West Main Street
+        city: Unionville
+        state: MO
+        zip: 63565
+        schedule: 8:30 a.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays<br /></a>(Closed noon - 1 p.m. for lunch)<a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank"><br /></a>
   Ralls County:
     circuit: 10
     class: |
@@ -2904,16 +2812,15 @@ data:
       1-800-444-0514
     legal_aid_program_office_app_addresses: |
       LSEM - St. Louis - Main Office
-      Peabody Plaza Building
-      701 Market St., Suite 1100
-      St. Louis, MO  63101
-      (314) 534-4200
-    court_address_and_operating_hours: |
-      Ralls County Courthouse
-      311 South Main Street
-      P.O. Box 466
-      New London, MO 63459
-      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) (Closed noon - 1 p.m. for lunch)
+      701 Market St., Peabody Plaza Building, Suite 1100, St. Louis, MO 63101
+    courts: 
+      - name: Ralls County Courthouse
+        address: 311 South Main Street
+        unit: P.O. Box 466
+        city: New London
+        state: MO
+        zip: 63459
+        schedule: 8 a.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays<br /></a>(Closed noon - 1 p.m. for lunch)<a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank"><br /></a>
   Randolph County:
     circuit: 14
     class: |
@@ -2929,15 +2836,15 @@ data:
     legal_aid_program_phone_app: |
       1-800-568-4931
     legal_aid_program_office_app_addresses: |
-      MMLS - Columbia - Main Office
-      117 North Garth 
-      Columbia, MO  65203
-      (573) 442-0116
-    court_address_and_operating_hours: |
-      Randolph County Justice Center
-      372 Highway JJ, Suite 1A
-      Huntsville, MO 65259
-      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      Mid-Missouri Legal Services (MMLS) - Columbia - Main Office
+      117 North Garth, Columbia, MO 65203
+    courts: 
+      - name: Randolph County Justice Center
+        address: 372 Highway JJ, Suite 1A
+        city: Huntsville
+        state: MO
+        zip: 65259
+        schedule: 8 a.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Ray County:
     circuit: 8
     class: |
@@ -2945,31 +2852,27 @@ data:
     casenet_code: |-
        RAY
     legal_aid_program_website: |
-      https://www.lawmo.org/
+      https://lawmo.org/
     legal_aid_program: |
       Legal Aid of Western Missouri
     legal_aid_program_online_app: |
       https://lawmo.org/get-legal-help
     legal_aid_program_phone_app: |
-      1-800-892-2943
-    legal_aid_program_office_app_addresses: |
-      LAWMO - Kansas City - Central Office
-      4001 Martin Luther King, Jr. Blvd., Suite 300
-      Kansas City, MO  64130
       (816) 474-6750
-      LAWMO - Warrensburg Office
-      305 North Holden  
-      Warrensburg, MO 64093
-      (660) 747-7101
+    legal_aid_program_office_app_addresses: |
+      Legal Aid of Western Missouri (LAWMO) - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300, Kansas City, MO 64130
       LAWMO - Kansas City - Westside Office
-      920 Southwest Blvd.
-      Kansas City, MO 64108
-      (816) 474-9868
-    court_address_and_operating_hours: |
-      Ray County Courthouse
-      100 West Main Street, 2nd Floor
-      Richmond, MO 64085
-      8 a.m. to&nbsp;4 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      920 Southwest Blvd., Kansas City,  64108
+      LAWMO - Warrensburg Office
+      305 North Holden, Warrensburg,  64093
+    courts: 
+      - name: Ray County Courthouse
+        address: 100 West Main Street, 2nd Floor
+        city: Richmond
+        state: MO
+        zip: 64085
+        schedule: 8 a.m. to&nbsp;4 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Reynolds County:
     circuit: 42
     class: |
@@ -2985,14 +2888,14 @@ data:
     legal_aid_program_phone_app: |
       1-800-444-4863
     legal_aid_program_office_app_addresses: |
-      LSSM - Rolla Office
-      1000 N. Pine, Suite B
-      Rolla, MO  65401
-      (573) 341-3655
-    court_address_and_operating_hours: |
-      Reynolds County Courthouse
-      2319 Greene Street
-      Centerville, MO 63633
+      Legal Services of Southern Missouri – Rolla
+      1000 N. Pine, Suite B, Rolla, MO 65401
+    courts: 
+      - name: Reynolds County Courthouse
+        address: 2319 Greene Street
+        city: Centerville
+        state: MO
+        zip: 63633
   Ripley County:
     circuit: 36
     class: |
@@ -3008,230 +2911,15 @@ data:
     legal_aid_program_phone_app: |
       1-800-444-4863
     legal_aid_program_office_app_addresses: |
-      LSSM - Sikeston Office
-      2201 E. Malone Avenue 
-      Sikeston, MO  63801
-      (573) 683-3783
-    court_address_and_operating_hours: |
-      Ripley County Courthouse
-      100 Courthouse Square, Suite #4
-      Doniphan, MO 63935
-      7 a.m. to 4 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
-  Saint Francois County:
-    circuit: 24
-    class: |
-      Class 1
-    casenet_code: |-
-       SAL
-    legal_aid_program_website: |
-      http://www.lsosm.org/https://www.lawmo.org/
-    legal_aid_program: |
-      Legal Services of Southern MissouriLegal Aid of Western Missouri
-    legal_aid_program_online_app: |
-      https://application.lsosm.org/https://lawmo.org/get-legal-help
-    legal_aid_program_phone_app: |
-      1-800-444-4863
-    legal_aid_program_office_app_addresses: |
-      LSSM - Rolla Office
-      1000 N. Pine, Suite B
-      Rolla, MO  65401
-      (573) 341-3655
-      LAWMO - Kansas City - Westside Office
-      920 Southwest Blvd.
-      Kansas City, MO 64108
-      (816) 474-9868
-    court_address_and_operating_hours: |
-      St. Francois County Courthouse
-      1 North Washington Street
-      Farmington, MO 63640
-      8 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) Passport hours are 8 a.m. to 4 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
-  Sainte Genevieve County:
-    circuit: 24
-    class: |
-      Class 3
-    casenet_code: |-
-       SYR
-    legal_aid_program_website: |
-      http://www.lsosm.org/https://www.lawmo.org/
-    legal_aid_program: |
-      Legal Services of Southern MissouriLegal Aid of Western Missouri
-    legal_aid_program_online_app: |
-      https://application.lsosm.org/https://lawmo.org/get-legal-help
-    legal_aid_program_phone_app: |
-      1-800-444-4863
-    legal_aid_program_office_app_addresses: |
-      LSSM - Rolla Office
-      1000 N. Pine, Suite B
-      Rolla, MO  65401
-      (573) 341-3655
-      LAWMO - Kansas City - Westside Office
-      920 Southwest Blvd.
-      Kansas City, MO 64108
-      (816) 474-9868
-    court_address_and_operating_hours: |
-      Ste. Genevieve County Courthouse
-      55 South 3rd Street
-      Ste. Genevieve, MO 63670
-      8 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
-  Saline County:
-    circuit: 15
-    class: |
-      Class 4
-    casenet_code: |-
-       SLD
-    legal_aid_program_website: |
-      https://www.lawmo.org/
-    legal_aid_program: |
-      Legal Aid of Western Missouri
-    legal_aid_program_online_app: |
-      https://lawmo.org/get-legal-help
-    legal_aid_program_phone_app: |
-      1-800-892-2943
-    legal_aid_program_office_app_addresses: |
-      LAWMO - Kansas City - Central Office
-      4001 Martin Luther King, Jr. Blvd., Suite 300
-      Kansas City, MO  64130
-      (816) 474-6750
-      LAWMO - Warrensburg Office
-      305 North Holden  
-      Warrensburg, MO 64093
-      (660) 747-7101
-      LAWMO - Kansas City - Westside Office
-      920 Southwest Blvd.
-      Kansas City, MO 64108
-      (816) 474-9868
-    court_address_and_operating_hours: |
-      Saline County Courthouse
-      19 E. Arrow Street
-      P.O. Box 670
-      Marshall, MO 65340
-      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
-  Schuyler County:
-    circuit: 1
-    class: |
-      Class 3
-    casenet_code: |-
-       SCT
-    legal_aid_program_website: |
-      http://www.lsem.org/
-    legal_aid_program: |
-      Legal Services of Eastern Missouri
-    legal_aid_program_online_app: |
-      https://lsem.org/get-help-now/
-    legal_aid_program_phone_app: |
-      1-800-444-0514
-    legal_aid_program_office_app_addresses: |
-      LSEM - St. Louis - Main Office
-      Peabody Plaza Building
-      701 Market St., Suite 1100
-      St. Louis, MO  63101
-      (314) 534-4200
-    court_address_and_operating_hours: |
-      Schuyler County Courthouse
-      110 W. Washington
-      Lancaster, MO 63548
-      8 a.m. to 4 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
-  Scotland County:
-    circuit: 1
-    class: |
-      Class 3
-    casenet_code: |-
-       SHA
-    legal_aid_program_website: |
-      http://www.lsem.org/
-    legal_aid_program: |
-      Legal Services of Eastern Missouri
-    legal_aid_program_online_app: |
-      https://lsem.org/get-help-now/
-    legal_aid_program_phone_app: |
-      1-800-444-0514
-    legal_aid_program_office_app_addresses: |
-      LSEM - St. Louis - Main Office
-      Peabody Plaza Building
-      701 Market St., Suite 1100
-      St. Louis, MO  63101
-      (314) 534-4200
-    court_address_and_operating_hours: |
-      Scotland County Courthouse
-      117 South Market Street
-      Memphis, MO 63555
-      8 a.m. to 4 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
-  Scott County:
-    circuit: 33
-    class: |
-      Class 3
-    casenet_code: |-
-       SBY
-    legal_aid_program_website: |
-      http://www.lsosm.org/
-    legal_aid_program: |
-      Legal Services of Southern Missouri
-    legal_aid_program_online_app: |
-      https://application.lsosm.org/
-    legal_aid_program_phone_app: |
-      1-800-444-4863
-    legal_aid_program_office_app_addresses: |
-      LSSM - Sikeston Office
-      2201 E. Malone Avenue 
-      Sikeston, MO  63801
-      (573) 683-3783
-    court_address_and_operating_hours: |
-      Scott County Courthouse
-      131 S. Winchester Street
-      P.O. Box 587
-      Benton, MO 63736
-      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) Special closings will be posted on <a href="http://www.scottcountymo.com/circuit.php">Scott County's website</a>
-  Shannon County:
-    circuit: 37
-    class: |
-      Class 3
-    casenet_code: |-
-       SCH
-    legal_aid_program_website: |
-      http://www.lsosm.org/
-    legal_aid_program: |
-      Legal Services of Southern Missouri
-    legal_aid_program_online_app: |
-      https://application.lsosm.org/
-    legal_aid_program_phone_app: |
-      1-800-444-4863
-    legal_aid_program_office_app_addresses: |
-      LSSM - Springfield Office
-      809 N. Campbell Avenue
-      Springfield, MO  65802
-      (417) 881-0533
-    court_address_and_operating_hours: |
-      Shannon County Circuit Court
-      18529 Main Street
-      P.O. Box 148
-      Eminence, MO 65466
-      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) (Closed noon to 12:30 p.m. for lunch)
-  Shelby County:
-    circuit: 41
-    class: |
-      Class 3
-    casenet_code: |-
-       SCL
-    legal_aid_program_website: |
-      http://www.lsem.org/
-    legal_aid_program: |
-      Legal Services of Eastern Missouri
-    legal_aid_program_online_app: |
-      https://lsem.org/get-help-now/
-    legal_aid_program_phone_app: |
-      1-800-444-0514
-    legal_aid_program_office_app_addresses: |
-      LSEM - St. Louis - Main Office
-      Peabody Plaza Building
-      701 Market St., Suite 1100
-      St. Louis, MO  63101
-      (314) 534-4200
-    court_address_and_operating_hours: |
-      Shelby County Courthouse
-      100 E. Main Street
-      P.O. Box 176
-      Shelbyville, MO 63469
-      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      Legal Services of Southern Missouri – Sikeston
+      2201 E. Malone Avenue, Sikeston, MO 63801
+    courts: 
+      - name: Ripley County Courthouse
+        address: 100 Courthouse Square, Suite #4
+        city: Doniphan
+        state: MO
+        zip: 63935
+        schedule: 7 a.m. to 4 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   St. Charles County:
     circuit: 11
     class: |
@@ -3248,15 +2936,14 @@ data:
       1-800-444-0514
     legal_aid_program_office_app_addresses: |
       LSEM - St. Louis - Main Office
-      Peabody Plaza Building
-      701 Market St., Suite 1100
-      St. Louis, MO  63101
-      (314) 534-4200
-    court_address_and_operating_hours: |
-      St. Charles County Courthouse
-      300 N. 2nd Street
-      St. Charles, MO 63301
-      8 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      701 Market St., Peabody Plaza Building, Suite 1100, St. Louis, MO 63101
+    courts: 
+      - name: St. Charles County Courthouse
+        address: 300 N. 2nd Street
+        city: St. Charles
+        state: MO
+        zip: 63301
+        schedule: 8 a.m. to 5 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   St. Clair County:
     circuit: 27
     class: |
@@ -3264,31 +2951,83 @@ data:
     casenet_code: |-
        SLC
     legal_aid_program_website: |
-      https://www.lawmo.org/
+      https://lawmo.org/
     legal_aid_program: |
       Legal Aid of Western Missouri
     legal_aid_program_online_app: |
       https://lawmo.org/get-legal-help
     legal_aid_program_phone_app: |
-      1-800-892-2943
-    legal_aid_program_office_app_addresses: |
-      LAWMO - Kansas City - Central Office
-      4001 Martin Luther King, Jr. Blvd., Suite 300
-      Kansas City, MO  64130
       (816) 474-6750
-      LAWMO - Warrensburg Office
-      305 North Holden  
-      Warrensburg, MO 64093
-      (660) 747-7101
+    legal_aid_program_office_app_addresses: |
+      Legal Aid of Western Missouri (LAWMO) - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300, Kansas City, MO 64130
       LAWMO - Kansas City - Westside Office
-      920 Southwest Blvd.
-      Kansas City, MO 64108
-      (816) 474-9868
-    court_address_and_operating_hours: |
-      St. Clair County Courthouse
-      655 Second Street
-      Osceola, MO 64776
-      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      920 Southwest Blvd., Kansas City,  64108
+      LAWMO - Warrensburg Office
+      305 North Holden, Warrensburg,  64093
+    courts: 
+      - name: St. Clair County Courthouse
+        address: 655 Second Street
+        city: Osceola
+        state: MO
+        zip: 64776
+        schedule: 8 a.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
+  Ste. Genevieve County:
+    circuit: 24
+    class: |
+      Class 3
+    casenet_code: |-
+       SYR
+    legal_aid_program_website: |
+      https://lawmo.org/http://www.lsosm.org/
+    legal_aid_program: |
+      Legal Aid of Western MissouriLegal Services of Southern Missouri
+    legal_aid_program_online_app: |
+      https://lawmo.org/get-legal-helphttps://application.lsosm.org/
+    legal_aid_program_phone_app: |
+      (816) 474-67501-800-444-4863
+    legal_aid_program_office_app_addresses: |
+      Legal Aid of Western Missouri (LAWMO) - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300, Kansas City, MO 64130
+      LAWMO - Kansas City - Westside Office
+      920 Southwest Blvd., Kansas City,  64108
+      Legal Services of Southern Missouri – Rolla
+      1000 N. Pine, Suite B, Rolla, MO 65401
+    courts: 
+      - name: Ste. Genevieve County Courthouse
+        address: 55 South 3rd Street
+        city: Ste. Genevieve
+        state: MO
+        zip: 63670
+        schedule: 8 a.m. to 5 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
+  St. Francois County:
+    circuit: 24
+    class: |
+      Class 1
+    casenet_code: |-
+       SAL
+    legal_aid_program_website: |
+      https://lawmo.org/http://www.lsosm.org/
+    legal_aid_program: |
+      Legal Aid of Western MissouriLegal Services of Southern Missouri
+    legal_aid_program_online_app: |
+      https://lawmo.org/get-legal-helphttps://application.lsosm.org/
+    legal_aid_program_phone_app: |
+      (816) 474-67501-800-444-4863
+    legal_aid_program_office_app_addresses: |
+      Legal Aid of Western Missouri (LAWMO) - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300, Kansas City, MO 64130
+      LAWMO - Kansas City - Westside Office
+      920 Southwest Blvd., Kansas City,  64108
+      Legal Services of Southern Missouri – Rolla
+      1000 N. Pine, Suite B, Rolla, MO 65401
+    courts: 
+      - name: St. Francois County Courthouse
+        address: 1 North Washington Street
+        city: Farmington
+        state: MO
+        zip: 63640
+        schedule: 8 a.m. to 5 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays<br /></a>Passport hours are 8 a.m. to 4 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   St. Louis County:
     circuit: 21
     class: |
@@ -3305,14 +3044,165 @@ data:
       1-800-444-0514
     legal_aid_program_office_app_addresses: |
       LSEM - St. Louis - Main Office
-      Peabody Plaza Building
-      701 Market St., Suite 1100
-      St. Louis, MO  63101
-      (314) 534-4200
-    court_address_and_operating_hours: |
-      St. Louis County Court Building
-      105 South Central Avenue
-      Clayton, MO 63105
+      701 Market St., Peabody Plaza Building, Suite 1100, St. Louis, MO 63101
+    courts: 
+      - name: St. Louis County Court Building
+        address: 105 South Central Avenue
+        city: Clayton
+        state: MO
+        zip: 63105
+  Saline County:
+    circuit: 15
+    class: |
+      Class 4
+    casenet_code: |-
+       SLD
+    legal_aid_program_website: |
+      https://lawmo.org/
+    legal_aid_program: |
+      Legal Aid of Western Missouri
+    legal_aid_program_online_app: |
+      https://lawmo.org/get-legal-help
+    legal_aid_program_phone_app: |
+      (816) 474-6750
+    legal_aid_program_office_app_addresses: |
+      Legal Aid of Western Missouri (LAWMO) - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300, Kansas City, MO 64130
+      LAWMO - Kansas City - Westside Office
+      920 Southwest Blvd., Kansas City,  64108
+      LAWMO - Warrensburg Office
+      305 North Holden, Warrensburg,  64093
+    courts: 
+      - name: Saline County Courthouse
+        address: 19 E. Arrow Street
+        unit: P.O. Box 670
+        city: Marshall
+        state: MO
+        zip: 65340
+        schedule: 8 a.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
+  Schuyler County:
+    circuit: 1
+    class: |
+      Class 3
+    casenet_code: |-
+       SCT
+    legal_aid_program_website: |
+      http://www.lsem.org/
+    legal_aid_program: |
+      Legal Services of Eastern Missouri
+    legal_aid_program_online_app: |
+      https://lsem.org/get-help-now/
+    legal_aid_program_phone_app: |
+      1-800-444-0514
+    legal_aid_program_office_app_addresses: |
+      LSEM - St. Louis - Main Office
+      701 Market St., Peabody Plaza Building, Suite 1100, St. Louis, MO 63101
+    courts: 
+      - name: Schuyler County Courthouse
+        address: 110 W. Washington
+        city: Lancaster
+        state: MO
+        zip: 63548
+        schedule: 8 a.m. to 4 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
+  Scotland County:
+    circuit: 1
+    class: |
+      Class 3
+    casenet_code: |-
+       SHA
+    legal_aid_program_website: |
+      http://www.lsem.org/
+    legal_aid_program: |
+      Legal Services of Eastern Missouri
+    legal_aid_program_online_app: |
+      https://lsem.org/get-help-now/
+    legal_aid_program_phone_app: |
+      1-800-444-0514
+    legal_aid_program_office_app_addresses: |
+      LSEM - St. Louis - Main Office
+      701 Market St., Peabody Plaza Building, Suite 1100, St. Louis, MO 63101
+    courts: 
+      - name: Scotland County Courthouse
+        address: 117 South Market Street
+        city: Memphis
+        state: MO
+        zip: 63555
+        schedule: 8 a.m. to 4 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
+  Scott County:
+    circuit: 33
+    class: |
+      Class 3
+    casenet_code: |-
+       SBY
+    legal_aid_program_website: |
+      http://www.lsosm.org/
+    legal_aid_program: |
+      Legal Services of Southern Missouri
+    legal_aid_program_online_app: |
+      https://application.lsosm.org/
+    legal_aid_program_phone_app: |
+      1-800-444-4863
+    legal_aid_program_office_app_addresses: |
+      Legal Services of Southern Missouri – Sikeston
+      2201 E. Malone Avenue, Sikeston, MO 63801
+    courts: 
+      - name: Scott County Courthouse
+        address: 131 S. Winchester Street
+        unit: P.O. Box 587
+        city: Benton
+        state: MO
+        zip: 63736
+        schedule: 8 a.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays<br /></a>Special closings will be posted on <a href="http://www.scottcountymo.com/circuit.php" target="_blank">Scott County's website</a>
+  Shannon County:
+    circuit: 37
+    class: |
+      Class 3
+    casenet_code: |-
+       SCH
+    legal_aid_program_website: |
+      http://www.lsosm.org/
+    legal_aid_program: |
+      Legal Services of Southern Missouri
+    legal_aid_program_online_app: |
+      https://application.lsosm.org/
+    legal_aid_program_phone_app: |
+      1-800-444-4863
+    legal_aid_program_office_app_addresses: |
+      Legal Services of Southern Missouri – Main Office – Springfield
+      809 N. Campbell Avenue, Springfield, MO 65802
+    courts: 
+      - name: Shannon County Circuit Court
+        address: 18529 Main Street
+        unit: P.O. Box 148
+        city: Eminence
+        state: MO
+        zip: 65466
+        schedule: 8 a.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>(Closed noon to 12:30 p.m. for lunch)
+  Shelby County:
+    circuit: 41
+    class: |
+      Class 3
+    casenet_code: |-
+       SCL
+    legal_aid_program_website: |
+      http://www.lsem.org/
+    legal_aid_program: |
+      Legal Services of Eastern Missouri
+    legal_aid_program_online_app: |
+      https://lsem.org/get-help-now/
+    legal_aid_program_phone_app: |
+      1-800-444-0514
+    legal_aid_program_office_app_addresses: |
+      LSEM - St. Louis - Main Office
+      701 Market St., Peabody Plaza Building, Suite 1100, St. Louis, MO 63101
+    courts: 
+      - name: Shelby County Courthouse
+        address: 100 E. Main Street
+        unit: P.O. Box 176
+        city: Shelbyville
+        state: MO
+        zip: 63469
+        schedule: 8 a.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Stoddard County:
     circuit: 35
     class: |
@@ -3328,15 +3218,15 @@ data:
     legal_aid_program_phone_app: |
       1-800-444-4863
     legal_aid_program_office_app_addresses: |
-      LSSM - Sikeston Office
-      2201 E. Malone Avenue 
-      Sikeston, MO  63801
-      (573) 683-3783
-    court_address_and_operating_hours: |
-      Stoddard County Justice Center
-      403 South Prairie
-      Bloomfield, MO 63825
-      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      Legal Services of Southern Missouri – Sikeston
+      2201 E. Malone Avenue, Sikeston, MO 63801
+    courts: 
+      - name: Stoddard County Justice Center
+        address: 403 South Prairie
+        city: Bloomfield
+        state: MO
+        zip: 63825
+        schedule: 8 a.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Stone County:
     circuit: 39
     class: |
@@ -3352,16 +3242,16 @@ data:
     legal_aid_program_phone_app: |
       1-800-444-4863
     legal_aid_program_office_app_addresses: |
-      LSSM - Springfield Office
-      809 N. Campbell Avenue
-      Springfield, MO  65802
-      (417) 881-0533
-    court_address_and_operating_hours: |
-      Stone County Courthouse
-      110-F S. Maple Street
-      P.O. Box 18
-      Galena, MO 65656
-      7:30 a.m. to 4 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) (Closed&nbsp;noon to 12:30 p.m. for lunch)
+      Legal Services of Southern Missouri – Main Office – Springfield
+      809 N. Campbell Avenue, Springfield, MO 65802
+    courts: 
+      - name: Stone County Courthouse
+        address: 110-F S. Maple Street
+        unit: P.O. Box 18
+        city: Galena
+        state: MO
+        zip: 65656
+        schedule: 7:30 a.m. to 4 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays<br /></a>(Closed&nbsp;noon to 12:30 p.m. for lunch)
   Sullivan County:
     circuit: 9
     class: |
@@ -3369,22 +3259,24 @@ data:
     casenet_code: |-
        SUL
     legal_aid_program_website: |
-      https://www.lawmo.org/
+      https://lawmo.org/
     legal_aid_program: |
       Legal Aid of Western Missouri
     legal_aid_program_online_app: |
       https://lawmo.org/get-legal-help
     legal_aid_program_phone_app: |
-      1-800-892-2101
+      (816) 474-6750
     legal_aid_program_office_app_addresses: |
+      Legal Aid of Western Missouri (LAWMO) - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300, Kansas City, MO 64130
       LAWMO - St. Joseph Office
-      706 Felix Street
-      St. Joseph, MO 64501
-      (816) 364-2325
-    court_address_and_operating_hours: |
-      Sullivan County Courthouse
-      109 N. Main St.
-      Milan, MO 63556
+      706 Felix Street, St. Joseph,  64501
+    courts: 
+      - name: Sullivan County Courthouse
+        address: 109 N. Main St.
+        city: Milan
+        state: MO
+        zip: 63556
   Taney County:
     circuit: 46
     class: |
@@ -3400,16 +3292,16 @@ data:
     legal_aid_program_phone_app: |
       1-800-444-4863
     legal_aid_program_office_app_addresses: |
-      LSSM - Springfield Office
-      809 N. Campbell Avenue
-      Springfield, MO  65802
-      (417) 881-0533
-    court_address_and_operating_hours: |
-      Taney County Courthouse
-      266 Main Street
-      P.O. Box 129
-      Forsyth, MO 65653
-      8 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      Legal Services of Southern Missouri – Main Office – Springfield
+      809 N. Campbell Avenue, Springfield, MO 65802
+    courts: 
+      - name: Taney County Courthouse
+        address: 266 Main Street
+        unit: P.O. Box 129
+        city: Forsyth
+        state: MO
+        zip: 65653
+        schedule: 8 a.m. to 5 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Texas County:
     circuit: 25
     class: |
@@ -3425,15 +3317,15 @@ data:
     legal_aid_program_phone_app: |
       1-800-444-4863
     legal_aid_program_office_app_addresses: |
-      LSSM - Rolla Office
-      1000 N. Pine, Suite B
-      Rolla, MO  65401
-      (573) 341-3655
-    court_address_and_operating_hours: |
-      Texas County Justice Center
-      519 N. Grand
-      Houston, MO 65483
-      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      Legal Services of Southern Missouri – Rolla
+      1000 N. Pine, Suite B, Rolla, MO 65401
+    courts: 
+      - name: Texas County Justice Center
+        address: 519 N. Grand
+        city: Houston
+        state: MO
+        zip: 65483
+        schedule: 8 a.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Vernon County:
     circuit: 28
     class: |
@@ -3441,31 +3333,27 @@ data:
     casenet_code: |-
        VER
     legal_aid_program_website: |
-      https://www.lawmo.org/
+      https://lawmo.org/
     legal_aid_program: |
       Legal Aid of Western Missouri
     legal_aid_program_online_app: |
       https://lawmo.org/get-legal-help
     legal_aid_program_phone_app: |
-      1-800-492-7095
-    legal_aid_program_office_app_addresses: |
-      LAWMO - Kansas City - Central Office
-      4001 Martin Luther King, Jr. Blvd., Suite 300
-      Kansas City, MO  64130
       (816) 474-6750
-      LAWMO - Joplin Office
-      1027 South Main, Suite LL7
-      Joplin, MO 64801
-      (417) 782-1650
+    legal_aid_program_office_app_addresses: |
+      Legal Aid of Western Missouri (LAWMO) - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300, Kansas City, MO 64130
       LAWMO - Kansas City - Westside Office
-      920 Southwest Blvd.
-      Kansas City, MO 64108
-      (816) 474-9868
-    court_address_and_operating_hours: |
-      Vernon County Courthouse
-      100 West Cherry Street
-      Nevada, MO 64772
-      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) (Closed noon - 12:30 p.m. for lunch)
+      920 Southwest Blvd., Kansas City,  64108
+      LAWMO - Joplin Office
+      1027 South Main, Suite LL7, Joplin,  64801
+    courts: 
+      - name: Vernon County Courthouse
+        address: 100 West Cherry Street
+        city: Nevada
+        state: MO
+        zip: 64772
+        schedule: 8 a.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays<br /></a>(Closed noon - 12:30 p.m. for lunch)<a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank"><br /></a>
   Warren County:
     circuit: 12
     class: |
@@ -3482,15 +3370,14 @@ data:
       1-800-444-0514
     legal_aid_program_office_app_addresses: |
       LSEM - St. Louis - Main Office
-      Peabody Plaza Building
-      701 Market St., Suite 1100
-      St. Louis, MO  63101
-      (314) 534-4200
-    court_address_and_operating_hours: |
-      Warren County Courthouse
-      104 West Main Street
-      Warrenton, MO 63383
-      8 a.m. to 4:30 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      701 Market St., Peabody Plaza Building, Suite 1100, St. Louis, MO 63101
+    courts: 
+      - name: Warren County Courthouse
+        address: 104 West Main Street
+        city: Warrenton
+        state: MO
+        zip: 63383
+        schedule: 8 a.m. to 4:30 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Washington County:
     circuit: 24
     class: |
@@ -3507,14 +3394,13 @@ data:
       1-800-444-0514
     legal_aid_program_office_app_addresses: |
       LSEM - St. Louis - Main Office
-      Peabody Plaza Building
-      701 Market St., Suite 1100
-      St. Louis, MO  63101
-      (314) 534-4200
-    court_address_and_operating_hours: |
-      Washington County Courthouse
-      102 North Missouri Street
-      Potosi, MO 63664
+      701 Market St., Peabody Plaza Building, Suite 1100, St. Louis, MO 63101
+    courts: 
+      - name: Washington County Courthouse
+        address: 102 North Missouri Street
+        city: Potosi
+        state: MO
+        zip: 63664
   Wayne County:
     circuit: 42
     class: |
@@ -3530,15 +3416,15 @@ data:
     legal_aid_program_phone_app: |
       1-800-444-4863
     legal_aid_program_office_app_addresses: |
-      LSSM - Rolla Office
-      1000 N. Pine, Suite B
-      Rolla, MO  65401
-      (573) 341-3655
-    court_address_and_operating_hours: |
-      Wayne County Courthouse
-      109 Walnut Street
-      P.O Box 78
-      Greenville, MO 63944
+      Legal Services of Southern Missouri – Rolla
+      1000 N. Pine, Suite B, Rolla, MO 65401
+    courts: 
+      - name: Wayne County Courthouse
+        address: 109 Walnut Street
+        unit: P.O Box 78
+        city: Greenville
+        state: MO
+        zip: 63944
   Webster County:
     circuit: 30
     class: |
@@ -3554,15 +3440,15 @@ data:
     legal_aid_program_phone_app: |
       1-800-444-4863
     legal_aid_program_office_app_addresses: |
-      LSSM - Springfield Office
-      809 N. Campbell Avenue
-      Springfield, MO  65802
-      (417) 881-0533
-    court_address_and_operating_hours: |
-      Webster County Courthouse
-      101 S. Crittenden Street, Room 22
-      Marshfield, MO 65706
-      8 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      Legal Services of Southern Missouri – Main Office – Springfield
+      809 N. Campbell Avenue, Springfield, MO 65802
+    courts: 
+      - name: Webster County Courthouse
+        address: 101 S. Crittenden Street, Room 22
+        city: Marshfield
+        state: MO
+        zip: 65706
+        schedule: 8 a.m. to 5 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Worth County:
     circuit: 4
     class: |
@@ -3570,28 +3456,26 @@ data:
     casenet_code: |-
        WOR
     legal_aid_program_website: |
-      https://www.lawmo.org/
+      https://lawmo.org/
     legal_aid_program: |
       Legal Aid of Western Missouri
     legal_aid_program_online_app: |
       https://lawmo.org/get-legal-help
     legal_aid_program_phone_app: |
-      None
-    legal_aid_program_office_app_addresses: |
-      LAWMO - Kansas City - Central Office
-      4001 Martin Luther King, Jr. Blvd., Suite 300
-      Kansas City, MO  64130
       (816) 474-6750
+    legal_aid_program_office_app_addresses: |
+      Legal Aid of Western Missouri (LAWMO) - Kansas City - Central Office
+      4001 Martin Luther King, Jr. Blvd., Suite 300, Kansas City, MO 64130
       LAWMO - Kansas City - Westside Office
-      920 Southwest Blvd.
-      Kansas City, MO 64108
-      (816) 474-9868
-    court_address_and_operating_hours: |
-      Worth County Courthouse
-      11 West 4th Street
-      P.O. Box 350
-      Grant City, MO 64456
-      8 a.m. to 5 p.m. Monday through Friday, excluding [state holidays](https://www.courts.mo.gov/page.jsp?id=7100) 
+      920 Southwest Blvd., Kansas City,  64108
+    courts: 
+      - name: Worth County Courthouse
+        address: 11 West 4th Street
+        unit: P.O. Box 350
+        city: Grant City
+        state: MO
+        zip: 64456
+        schedule: 8 a.m. to 5 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
   Wright County:
     circuit: 44
     class: |
@@ -3607,12 +3491,35 @@ data:
     legal_aid_program_phone_app: |
       1-800-444-4863
     legal_aid_program_office_app_addresses: |
-      LSSM - Springfield Office
-      809 N. Campbell Avenue
-      Springfield, MO  65802
-      (417) 881-0533
-    court_address_and_operating_hours: |
-      Wright County Courthouse
-      125 Court Square
-      Hartville, MO 65667
-
+      Legal Services of Southern Missouri – Main Office – Springfield
+      809 N. Campbell Avenue, Springfield, MO 65802
+    courts: 
+      - name: Wright County Courthouse
+        address: 125 Court Square
+        city: Hartville
+        state: MO
+        zip: 65667
+  City of St. Louis:
+    circuit: 22
+    class: |
+      Class 1
+    casenet_code: |-
+       STL
+    legal_aid_program_website: |
+      http://www.lsem.org/
+    legal_aid_program: |
+      Legal Services of Eastern Missouri
+    legal_aid_program_online_app: |
+      https://lsem.org/get-help-now/
+    legal_aid_program_phone_app: |
+      1-800-444-0514
+    legal_aid_program_office_app_addresses: |
+      LSEM - St. Louis - Main Office
+      701 Market St., Peabody Plaza Building, Suite 1100, St. Louis, MO 63101
+    courts: 
+      - name: St. Louis Circuit Court
+        address: 10 N. Tucker Boulevard
+        city: St. Louis
+        state: MO
+        zip: 63101
+        schedule: <strong>Civil Court Building</strong><br />For jurors and attorneys - 7:30 a.m. to 5 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays<br /></a>For the general public - 8:30 a.m. to 5 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a><a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank"><br /></a>
