@@ -866,7 +866,7 @@ objects:
   - motion_for_leave_to_file_attachment: ALDocument.using(title="File a Motion for Leave to File Responsive Pleadings", filename="motion_for_leave_to_file_answer.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
   - motion_to_elevate_security_attachment: ALDocument.using(title="File a Motion to Elevate Security", filename="motion_to_elevate_security.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
   - notice_of_hearing_attachment: ALDocument.using(title="File a Notice of Hearing", filename="notice_of_hearing.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
-  - file_a_motion_helper_next_steps_attachment: ALDocument.using(title="Next Steps to File a Motion", filename="notice_of_hearing.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+  - file_a_motion_helper_next_steps_attachment: ALDocument.using(title="Next Steps to File a Motion", filename="next_steps.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
 ---
 objects:
   - al_user_bundle: ALDocumentBundle.using(elements=[file_a_motion_helper_next_steps_attachment, motion_to_dismiss_attachment, motion_to_shorten_time_attachment, motion_to_set_aside_attachment, motion_for_leave_to_file_attachment, motion_to_elevate_security_attachment,notice_of_hearing_attachment], filename="motions.docx", title="All forms to download for your records", enabled=True)
@@ -1106,7 +1106,7 @@ review:
          - Attorney: **None**
       
       % endif
-         - Person or Business: **${ "Person" if item.person_type == "ALIndividual" else "Business" }**
+         - Person or Business: **${ "Person" if item.person_type == "individual" else "Business" }**
       % endfor
       % else:
       **None**
