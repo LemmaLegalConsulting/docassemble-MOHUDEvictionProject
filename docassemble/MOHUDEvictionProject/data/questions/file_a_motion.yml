@@ -50,7 +50,7 @@ code: |
   if motion_list['motion_to_set_aside_judgment']: 
     final_judgment
   
-  if (motion_list['motion_to_dismiss'] and (not has_written_lease or not lease_attached or not eviction_reason["nonpayment of rent"])) or (motion_list['motion_to_set_aside_judgment'] and (judgment_date_more_than_30 or not final_judgment)):
+  if (motion_list['motion_to_dismiss'] and (not has_written_lease or lease_attached or not eviction_reason["nonpayment of rent"])) or (motion_list['motion_to_set_aside_judgment'] and (judgment_date_more_than_30 or not final_judgment)):
     warning_kickout_loop
   
   trial_court.name
@@ -253,12 +253,13 @@ question: |
   The tenant may not want to {file} this motion
   % endif
 subquestion: |
-  % if motion_list['motion_to_dismiss'] and (not has_written_lease or not lease_attached or not eviction_reason["nonpayment of rent"]):
+  % if motion_list['motion_to_dismiss'] and (not has_written_lease or lease_attached or not eviction_reason["nonpayment of rent"]):
   You selected to fill out a Motion to Dismiss or For a More Definite Statement. To file this motion, it should be true that: 
   
   1. Your ladlord is evicting you for nonpayment of rent;
   2. You have a written lease; AND
-  3. The lease was attached to the Landlord's petition when it was delivered to you.
+  3. The lease was not attached to the Landlord's petition when it was delivered to you.
+  
   % endif
   % if motion_list['motion_to_set_aside_judgment'] and (not final_judgment or judgment_date_more_than_30):
   You selected to fill out a Motion to Set Aside Judgment. To file this motion, it should be true that: 
