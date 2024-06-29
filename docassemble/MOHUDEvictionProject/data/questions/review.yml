@@ -2240,7 +2240,7 @@ review:
     show if: not defense_failure_to_terminate
   - raw html: |
       ${ start_accordion('Tenant denies that Tenant violated the terms of the lease or that the claimed violation is a material breach') }
-    show if: not defense_failure_to_terminate
+    show if: not defense_ud_did_not_violate_lease
   - Edit:
       - defense_no_breach
       - recompute:
