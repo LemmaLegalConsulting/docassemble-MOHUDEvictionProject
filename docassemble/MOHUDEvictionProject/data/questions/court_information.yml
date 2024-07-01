@@ -40,7 +40,7 @@ code: |
   else:
     trial_court.building_name = county_dictionary[trial_court.county]["courts"][int(trial_court.location_number)]["name"]
     trial_court.address.address = county_dictionary[trial_court.county]["courts"][int(trial_court.location_number)]["address"]
-    if "unit" in county_dictionary[trial_court.county]["courts"][int(trial_court.location_number)].keys():
+    if "unit" in county_dictionary[trial_court.county]["courts"][int(trial_court.location_number)]:
       trial_court.address.unit = county_dictionary[trial_court.county]["courts"][int(trial_court.location_number)]["unit"]
     else:
       trial_court.address.unit = None
