@@ -26,7 +26,7 @@ code: |
   if len(county_dictionary[trial_court.county]["courts"]) == 1:
     trial_court.address.address = county_dictionary[trial_court.county]["courts"][0]["address"]
     trial_court.building_name = county_dictionary[trial_court.county]["courts"][0]["name"]
-    if "unit" in county_dictionary[trial_court.county]["courts"][0].keys():
+    if "unit" in county_dictionary[trial_court.county]["courts"][0]:
       trial_court.address.unit = county_dictionary[trial_court.county]["courts"][0]["unit"]
     else:
       trial_court.address.unit = None
