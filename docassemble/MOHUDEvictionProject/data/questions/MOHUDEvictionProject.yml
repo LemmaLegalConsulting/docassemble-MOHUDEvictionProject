@@ -68,7 +68,9 @@ code: |
     if customize_discovery_choice == "customize_discovery":
       customize_discovery_requests
       review_discovery_requests
-    
+  
+  motions_for_hearing
+  
   set_progress(90)
   signpost_service_of_process
   nav.set_section("section_eviction_answer_download")  
@@ -507,6 +509,19 @@ code: |
 ---
 code: |
   motion_to_shorten_time_attachment.enabled = wants_discovery and not original_hearing_date_past
+---
+id: add notice of hearing if any motions enabled
+code: |
+  notice_of_hearing_attachment.enabled = motion_to_shorten_time_attachment.enabled or eviction_motion_for_leave_attachment.enabled or eviction_motion_to_continue_attachment.enabled
+---
+code: |
+  motions_for_hearing = list()
+  if motion_to_shorten_time_attachment.enabled:
+    motions_for_hearing.append("Motion to Shorten Time")
+  if eviction_motion_for_leave_attachment.enabled:
+    motions_for_hearing.append("Motion for Leave to File Responsive Pleadings")
+  if eviction_motion_to_continue_attachment.enabled:
+    motions_for_hearing.append("Motion to Continue")
 ---
 id: eviction answer determination code
 code: |
