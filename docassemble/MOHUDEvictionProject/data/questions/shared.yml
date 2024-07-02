@@ -924,6 +924,13 @@ attachment:
     skip undefined: True
     docx template file: notice_of_hearing.docx
 ---
+attachment:
+  - name: motion to dismiss
+    filename: motion_to_dismiss  
+    variable name: motion_to_dismiss_attachment[i]        
+    skip undefined: True
+    docx template file: motion_to_dismiss.docx
+---
 id: preview eviction_defender
 question: |
   % if person_answering == "tenant":
@@ -1050,10 +1057,13 @@ objects:
   - motion_to_shorten_time_attachment: ALDocument.using(title="File a Motion to Shorten Time", filename="motion_to_shorten_time.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
 ---
 objects:
+  - motion_to_dismiss_attachment: ALDocument.using(title="File a Motion to Dismiss", filename="motion_to_dismiss.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+---
+objects:
   - notice_of_hearing_attachment: ALDocument.using(title="File a Notice of Hearing", filename="notice_of_hearing.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
 ---
 objects:
-  - al_user_bundle: ALDocumentBundle.using(elements=[eviction_defender_post_interview_instructions,eviction_motion_to_continue_attachment,eviction_answer_attachment,eviction_motion_for_leave_attachment,motion_to_shorten_time_attachment,eviction_discovery_attachment,notice_of_hearing_attachment], filename="eviction_helper.docx_package.pdf", title="All forms to download for your records", enabled=True)
+  - al_user_bundle: ALDocumentBundle.using(elements=[eviction_defender_post_interview_instructions,eviction_motion_to_continue_attachment,eviction_answer_attachment,eviction_motion_for_leave_attachment,motion_to_shorten_time_attachment,eviction_discovery_attachment,motion_to_dismiss_attachment,notice_of_hearing_attachment], filename="eviction_helper.docx_package.pdf", title="All forms to download for your records", enabled=True)
   - al_court_bundle: ALDocumentBundle.using(elements=attachment_list_court, filename="eviction_helper.docx_package.pdf", title="All forms to download for your records", enabled=True)
 ---
 template: about_page_contents

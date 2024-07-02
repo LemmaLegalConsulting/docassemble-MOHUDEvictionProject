@@ -510,6 +510,10 @@ code: |
 code: |
   motion_to_shorten_time_attachment.enabled = wants_discovery and not original_hearing_date_past
 ---
+id: add motion to dismiss if no lease
+code: |
+  motion_to_dismiss_attachment.enabled = defense_lease_not_attached
+---
 id: add notice of hearing if any motions enabled
 code: |
   notice_of_hearing_attachment.enabled = motion_to_shorten_time_attachment.enabled or eviction_motion_for_leave_attachment.enabled or eviction_motion_to_continue_attachment.enabled
