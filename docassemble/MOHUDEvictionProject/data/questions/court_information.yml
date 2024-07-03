@@ -15,6 +15,7 @@ code: |
       trial_court.circuit = county_dictionary[trial_court.county]['circuit']
   if len(county_dictionary[trial_court.county]["courts"]) == 1:
     trial_court.location_name = None
+    potential_courts = list()
   else:
     potential_courts = list()
     for index in range(len(county_dictionary[trial_court.county]["courts"])):

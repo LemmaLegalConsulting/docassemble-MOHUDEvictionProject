@@ -250,7 +250,7 @@ subquestion: |
   % endif
 fields:
   - Is ${ other_parties[i] } represented by an {attorney}?: other_parties[i].attorney.there_are_any
-    datatype: yesnoradio
+    datatype: yesnomaybe
 ---
 id: opposing attorney name
 sets:
