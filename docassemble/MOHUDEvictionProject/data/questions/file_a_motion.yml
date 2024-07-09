@@ -927,7 +927,14 @@ subquestion: |
     % endif
     * Go to the court and file the forms at the clerk's office.
   
-  ${ county_dictionary[trial_court.county]['court_address_and_operating_hours'] }
+    ${ trial_court.building_name }
+      
+    ${ trial_court.address.on_one_line() }
+      
+    % if trial_court.schedule is not None:
+    ${ trial_court.schedule }
+    % endif
+  
   
   ###Deadline to deliver and file the forms###
   
