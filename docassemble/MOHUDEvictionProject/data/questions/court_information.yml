@@ -37,7 +37,7 @@ code: |
     if "schedule" in county_dictionary[trial_court.county]["courts"][0].keys():
       trial_court.schedule = county_dictionary[trial_court.county]["courts"][0]["schedule"]
     else:
-      trial_court.address.schedule = None
+      trial_court.schedule = None
   else:
     trial_court.building_name = county_dictionary[trial_court.county]["courts"][int(trial_court.location_number)]["name"]
     trial_court.address.address = county_dictionary[trial_court.county]["courts"][int(trial_court.location_number)]["address"]
