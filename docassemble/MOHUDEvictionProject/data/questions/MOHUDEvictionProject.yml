@@ -55,6 +55,7 @@ code: |
   store_variables_snapshot(
       persistent=True,
       data={
+          "is_right_to_counsel": is_right_to_counsel,
           "zip": showifdef("users[0].address.zip"),
           "reached_interview_end": True,
       },

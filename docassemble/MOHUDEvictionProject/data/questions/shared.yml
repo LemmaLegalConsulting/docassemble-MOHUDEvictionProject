@@ -133,6 +133,11 @@ fields:
       - The tenant: tenant
       - An attorney: attorney
       - Someone **else** helping a tenant: tenant_helper
+  - Is this right to counsel?: is_right_to_counsel
+    datatype: yesnoradio
+    show if:
+      variable: person_answering
+      is: attorney
   - Will you file an appearance?: representation_type
     input type: radio
     choices:
