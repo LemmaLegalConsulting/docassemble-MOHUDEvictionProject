@@ -140,7 +140,16 @@ code: |
 
   if not tenant_got_summons or not petition_available:
     if not trial_court.county == None and tenant_using_casenet:
-      docket_review
+      casenet_login_instructions
+      nav.set_section("section_eviction_answer_case")  
+      nav.set_section("section_eviction_answer_other") 
+      for party in other_parties:
+        party.attorney.gather()
+      nav.set_section("section_eviction_answer_case")   
+      users.gather()
+      original_hearing_date
+      set_parts(subtitle=str(users))
+      docket_review_conclusion
 
   # Eviction reasons
   eviction_reason

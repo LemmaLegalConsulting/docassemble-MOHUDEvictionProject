@@ -521,36 +521,6 @@ subquestion: |
   % endif
 continue button field: docket_review_conclusion
 ---
-
----
-id: docket review order
-code: |
-  casenet_login_instructions
-  nav.set_section("section_eviction_answer_case")  
-  nav.set_section("section_eviction_answer_other") 
-  for party in other_parties:
-    party.attorney.gather()
-    if party.attorney.there_are_any:
-      party.attorney[0].address.address
-    else:
-      party.address.address
-  nav.set_section("section_eviction_answer_case")   
-  users.gather()
-  original_hearing_date
-  set_parts(subtitle=str(users))
-  docket_review_conclusion
-  docket_review = True
-comment: |
-  filing_date
-  original_hearing_date
-  other_parties[0].address.address
-  trial_court.address.address
-  users.gather()
-  set_parts(subtitle=str(users))
-  docket_number
-  is_rent_sought
-  docket_review = True
----
 variable name: county_dictionary
 data:  
   Adair County:
