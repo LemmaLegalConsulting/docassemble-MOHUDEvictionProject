@@ -397,7 +397,7 @@ template: find_county_name_template
 subject: |
   What if I don't know the name of my county?
 content: |
-  You can use [data.mo.gov](https://data.mo.gov/Demographics/Missouri-County-Boundaries-Map/n34b-fwqr)
+  You can use [data.mo.gov](https://data.mo.gov/Geography/Missouri-Zip-Codes-by-County-City/im7g-fucq/data_preview)
   to look at a map of county boundaries.
 ---
 depends on: trial_court.county
