@@ -398,7 +398,7 @@ subject: |
   What if I don't know the name of my county?
 content: |
   You can use [data.mo.gov](https://data.mo.gov/Geography/Missouri-Zip-Codes-by-County-City/im7g-fucq/data_preview)
-  to look at a map of county boundaries.
+  to look up your county based on zip code and/or city.
 ---
 depends on: trial_court.county
 code: |
