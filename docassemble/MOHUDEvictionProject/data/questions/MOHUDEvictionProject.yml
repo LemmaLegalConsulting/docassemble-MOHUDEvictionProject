@@ -55,8 +55,10 @@ code: |
   store_variables_snapshot(
       persistent=True,
       data={
-          "is_right_to_counsel": is_right_to_counsel,
+          "is_right_to_counsel": showifdef ("is_right_to_counsel"),
           "zip": showifdef("users[0].address.zip"),
+          "city": showifdef("users[0].address.city"),
+          "county": showifdef("users[0].address.county"),
           "reached_interview_end": True,
       },
   )
@@ -263,7 +265,8 @@ subquestion: |
   % else:
   The tenant got the Summons and Petition in the following ways:
   % for method in method_of_summons_service.true_values():
-   - method_of_summons_service_text[method]
+  
+   - ${ method_of_summons_service_text[method] }
     
   % endfor
   % endif
