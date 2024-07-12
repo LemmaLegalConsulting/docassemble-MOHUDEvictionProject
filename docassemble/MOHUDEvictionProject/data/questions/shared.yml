@@ -133,6 +133,11 @@ fields:
       - The tenant: tenant
       - An attorney: attorney
       - Someone **else** helping a tenant: tenant_helper
+  - This is a right to counsel case for an MO legal aid program: is_right_to_counsel
+    datatype: yesno
+    show if:
+      variable: person_answering
+      is: attorney
   - Will you file an appearance?: representation_type
     input type: radio
     choices:

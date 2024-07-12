@@ -40,6 +40,7 @@ Scenario: MOHUDEvictionProject.yml attorney (entering appearance) runs
     | acknowledged_information_use['minimum_number'] | None | |
     | eviction_defender_intro | True | |
     | person_answering | attorney | person_answering |
+    | is_right_to_counsel | False | is_right_to_counsel |
     | representation_type | entering_appearance | representation_type |
     | users[0].name.first | Uli | users[0].name.first |
     | users[0].name.last | User1 | users[0].name.first |
@@ -67,6 +68,7 @@ Scenario: MOHUDEvictionProject.yml attorney (ghostwriting) runs
     | acknowledged_information_use['minimum_number'] | None | |
     | eviction_defender_intro | True | |
     | person_answering | attorney | person_answering |
+    | is_right_to_counsel | True | is_right_to_counsel |
     | representation_type | ghostwriting | representation_type |
     | users[0].name.first | Uli | users[0].name.first |
     | users[0].name.last | User1 | users[0].name.first |
