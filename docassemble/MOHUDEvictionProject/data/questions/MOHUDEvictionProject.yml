@@ -519,13 +519,14 @@ code: |
   notice_of_hearing_attachment.enabled = motion_to_shorten_time_attachment.enabled or eviction_motion_for_leave_attachment.enabled or eviction_motion_to_continue_attachment.enabled
 ---
 code: |
-  motions_for_hearing = list()
-  if motion_to_shorten_time_attachment.enabled:
-    motions_for_hearing.append("Motion to Shorten Time")
-  if eviction_motion_for_leave_attachment.enabled:
-    motions_for_hearing.append("Motion for Leave to File Responsive Pleadings")
-  if eviction_motion_to_continue_attachment.enabled:
-    motions_for_hearing.append("Motion to Continue")
+  motions_for_hearing_temp = list()
+  if motion_to_shorten_time_attachment.enabled and "Motion to Shorten Time" not in motions_for_hearing_temp:
+    motions_for_hearing_temp.append("Motion to Shorten Time")
+  if eviction_motion_for_leave_attachment.enabled and "Motion for Leave to File Responsive Pleadings" not in motions_for_hearing_temp:
+    motions_for_hearing_temp.append("Motion for Leave to File Responsive Pleadings")
+  if eviction_motion_to_continue_attachment.enabled and "Motion to Continue" not in motions_for_hearing_temp:
+    motions_for_hearing_temp.append("Motion to Continue")
+  motions_for_hearing = motions_for_hearing_temp
 ---
 id: eviction answer determination code
 code: |
