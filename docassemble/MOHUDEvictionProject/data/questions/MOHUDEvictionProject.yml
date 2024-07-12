@@ -46,19 +46,14 @@ code: |
 mandatory: True
 code: |
   al_intro_screen
+  track_intro
+
   eviction_defender_intro
   document_order
-
-  # Store anonymous data for analytics / statistics
   nav.set_section("review_eviction_answer")
   review_eviction_answer
-  store_variables_snapshot(
-      persistent=True,
-      data={
-          "zip": showifdef("users[0].address.zip"),
-          "reached_interview_end": True,
-      },
-  )
+  track_review
+
   
   nav.set_section("section_eviction_discovery")
   precheck_items
@@ -68,8 +63,9 @@ code: |
     if customize_discovery_choice == "customize_discovery":
       customize_discovery_requests
       review_discovery_requests
-    
   set_progress(90)
+  track_discovery
+
   signpost_service_of_process
   nav.set_section("section_eviction_answer_download")  
   signature_date
@@ -80,7 +76,128 @@ code: |
 
   al_user_wants_reminders
   set_progress(100)
+  store_variables_snapshot(
+      persistent=True,
+      data={
+          "start_time": start_time(timezone = 'America/Chicago'),
+          "person_answering": showifdef("person_answering"),
+          "is_right_to_counsel": showifdef("is_right_to_counsel"),
+          "posting_warning": showifdef("posting_warning"),
+          "recommend_filing_answer": showifdef("recommend_filing_answer"),
+          "zip": showifdef("users[0].address.zip"),
+          "city": showifdef("users[0].address.city"),
+          "county": showifdef("users[0].address.county"),
+          "user_information_time": snapshot_user_information_time,
+          "case_information_time": snapshot_case_information_time,
+          "review_time": snapshot_review_time,
+          "discovery_time": snapshot_discovery_time,
+          "assembled_documents": assembled_documents,
+          "download_time": current_datetime(timezone = 'America/Chicago'),
+          "reached_interview_end": True,
+      },
+    )
   eviction_defender_download
+---
+code: |
+  snapshot_user_information_time = current_datetime(timezone = 'America/Chicago')
+---
+code: |
+  snapshot_case_information_time = current_datetime(timezone = 'America/Chicago')
+---
+code: |
+  snapshot_review_time = current_datetime(timezone = 'America/Chicago')
+---
+code: |
+  snapshot_discovery_time = current_datetime(timezone = 'America/Chicago')
+---
+code: |
+  store_variables_snapshot(
+    persistent=True, 
+    data={
+        "start_time": start_time(timezone = 'America/Chicago'),
+        "reached_interview_end": False,
+      },
+  )
+  track_intro = True
+---
+code: |
+  store_variables_snapshot(
+    persistent=True,
+    data={
+        "start_time": start_time(timezone = 'America/Chicago'),
+        "person_answering": showifdef("person_answering"),
+        "is_right_to_counsel": showifdef("is_right_to_counsel"),
+        "posting_warning": showifdef("posting_warning"),
+        "recommend_filing_answer": showifdef("recommend_filing_answer"),
+        "zip": showifdef("users[0].address.zip"),
+        "city": showifdef("users[0].address.city"),
+        "county": showifdef("users[0].address.county"),
+        "user_information_time": snapshot_user_information_time,
+        "case_information_time": snapshot_case_information_time,
+        "review_time": snapshot_review_time,
+        "reached_interview_end": False
+    },
+  )
+  track_review = True
+---
+code: |
+  store_variables_snapshot(
+      persistent=True,
+      data={
+          "start_time": start_time(timezone = 'America/Chicago'),
+          "person_answering": showifdef("person_answering"),
+          "is_right_to_counsel": showifdef("is_right_to_counsel"),
+          "posting_warning": showifdef("posting_warning"),
+          "recommend_filing_answer": showifdef("recommend_filing_answer"),
+          "zip": showifdef("users[0].address.zip"),
+          "city": showifdef("users[0].address.city"),
+          "county": showifdef("users[0].address.county"),
+          "user_information_time": snapshot_user_information_time,
+          "case_information_time": snapshot_case_information_time,
+          "review_time": snapshot_review_time,
+          "discovery_time": snapshot_discovery_time,
+          "assembled_documents": assembled_documents,
+          "reached_interview_end": False,
+      },
+  )
+  track_discovery = True
+---
+code: |
+  store_variables_snapshot(
+    persistent=True,
+    data={
+        "start_time": start_time(timezone = 'America/Chicago'),
+        "person_answering": showifdef("person_answering"),
+        "is_right_to_counsel": showifdef("is_right_to_counsel"),
+        "posting_warning": showifdef("posting_warning"),
+        "recommend_filing_answer": showifdef("recommend_filing_answer"),
+        "zip": showifdef("users[0].address.zip"),
+        "city": showifdef("users[0].address.city"),
+        "county": showifdef("users[0].address.county"),
+        "user_information_time": snapshot_user_information_time,
+        "reached_interview_end": False,
+    },
+  )
+  track_user_information = True
+---
+code: |
+  store_variables_snapshot(
+    persistent=True,
+    data={
+        "start_time": start_time(timezone = 'America/Chicago'),
+        "person_answering": showifdef("person_answering"),
+        "is_right_to_counsel": showifdef("is_right_to_counsel"),
+        "posting_warning": showifdef("posting_warning"),
+        "recommend_filing_answer": showifdef("recommend_filing_answer"),
+        "zip": showifdef("users[0].address.zip"),
+        "city": showifdef("users[0].address.city"),
+        "county": showifdef("users[0].address.county"),
+        "user_information_time": snapshot_user_information_time,
+        "case_information_time": snapshot_case_information_time,
+        "reached_interview_end": False,
+    },
+  )
+  track_case_information = True
 ---
 #################### Interview order #####################
 comment: |
@@ -114,6 +231,8 @@ code: |
   users[0].address.address
   users[0].address.geocode()
   users.gather()
+  track_user_information
+
   
   ######### About your landlord
   nav.set_section("section_eviction_answer_other")
@@ -155,6 +274,8 @@ code: |
 
   ######### Claims and defenses
   set_progress(50)
+  track_case_information
+
   nav.set_section("section_eviction_answer_defenses")
   signpost_claims_and_defenses
   if got_notice_to_terminate:
@@ -262,7 +383,8 @@ subquestion: |
   % else:
   The tenant got the Summons and Petition in the following ways:
   % for method in method_of_summons_service.true_values():
-   - method_of_summons_service_text[method]
+  
+   - ${ method_of_summons_service_text[method] }
     
   % endfor
   % endif
@@ -507,6 +629,22 @@ code: |
 ---
 code: |
   motion_to_shorten_time_attachment.enabled = wants_discovery and not original_hearing_date_past
+---
+code: |
+  assembled_documents_temp = list()
+  if "Answer" not in assembled_documents_temp:
+    assembled_documents_temp.append("Answer")
+  if "Instructions" not in assembled_documents_temp:
+    assembled_documents_temp.append("Instructions")
+  if eviction_motion_to_continue_attachment.enabled and "Motion to Continue" not in assembled_documents_temp:
+    assembled_documents_temp.append("Motion to Continue")
+  if eviction_motion_for_leave_attachment.enabled and "Motion for Leave" not in assembled_documents_temp:
+    assembled_documents_temp.append("Motion for Leave")
+  if eviction_discovery_attachment.enabled and "Discovery" not in assembled_documents_temp:
+    assembled_documents_temp.append("Discovery")
+  if motion_to_shorten_time_attachment.enabled and "Motion to Shorten Time" not in assembled_documents_temp:
+    assembled_documents_temp.append("Motion to Shorten Time")
+  assembled_documents = assembled_documents_temp
 ---
 id: eviction answer determination code
 code: |
