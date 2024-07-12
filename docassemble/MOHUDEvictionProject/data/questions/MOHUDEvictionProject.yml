@@ -63,6 +63,10 @@ code: |
     if customize_discovery_choice == "customize_discovery":
       customize_discovery_requests
       review_discovery_requests
+
+  
+  motions_for_hearing
+
   set_progress(90)
   track_discovery
 
@@ -629,6 +633,24 @@ code: |
 ---
 code: |
   motion_to_shorten_time_attachment.enabled = wants_discovery and not original_hearing_date_past
+---
+id: add motion to dismiss if no lease
+code: |
+  motion_to_dismiss_attachment.enabled = defense_lease_not_attached
+---
+id: add notice of hearing if any motions enabled
+code: |
+  notice_of_hearing_attachment.enabled = motion_to_shorten_time_attachment.enabled or eviction_motion_for_leave_attachment.enabled or eviction_motion_to_continue_attachment.enabled
+---
+code: |
+  motions_for_hearing_temp = list()
+  if motion_to_shorten_time_attachment.enabled and "Motion to Shorten Time" not in motions_for_hearing_temp:
+    motions_for_hearing_temp.append("Motion to Shorten Time")
+  if eviction_motion_for_leave_attachment.enabled and "Motion for Leave to File Responsive Pleadings" not in motions_for_hearing_temp:
+    motions_for_hearing_temp.append("Motion for Leave to File Responsive Pleadings")
+  if eviction_motion_to_continue_attachment.enabled and "Motion to Continue" not in motions_for_hearing_temp:
+    motions_for_hearing_temp.append("Motion to Continue")
+  motions_for_hearing = motions_for_hearing_temp
 ---
 code: |
   assembled_documents_temp = list()
