@@ -207,50 +207,65 @@ question: |
   Is there another Plaintiff in this eviction case?
 subquestion:  |
   You have already told us about ${ other_parties.complete_elements() }.
-
-  % if tenant_using_casenet:
-  You can find the name of each Plaintiff in the Parties and Attorneys tab 
-  in the online docket.
-
-  If the online docket lists a "Doing business as" but not
-  another plaintiff like in the example below, you can answer "no" to 
-  this question:
   
-  [FILE DocketDBAExample.png, 100%]
+  % if tenant_got_summons and petition_available:
+    If you have the {Summons} and {Petition}, the name of each {Plaintiff} is listed
+    in the box labeled "Plaintiff".
 
-  ${ warn_picture_is_example_template }
   % else:
-  If you have the {Summons} and {Petition}, the name of each Plaintiff is listed
-  in the box labeled "Plaintiff". 
+    You can find the name of each {Plaintiff} in the Parties and Attorneys tab 
+    on Case.net.
+
+    If Case.net lists "Doing business as" but not
+    another plaintiff you can answer "no" to this question.
+    
+    ${ collapse_template(find_other_plaintiffs_template) }
   
-  [FILE ComplaintCaptionPlaintiff.png, 100%]
-  
-  % endif  
+  % endif
 fields:
   - Is there another {Plaintiff}?: other_parties.there_is_another
     datatype: yesnomaybe
+---
+Template: find_other_plaintiffs_template
+Subject: |
+  How do I find out if there are other Plaintiffs?
+Content: |
+  If there is more than one plaintiff, they will be listed directly below the first plaintiff.
+  
+  If Case.net lists "Doing business as" but not another plaintiff like in the example below, you can answer "no" to this question.
+
+  [FILE DocketDBAExample.png, 100%]
+
+  ${ warn_picture_is_example_template }
 ---
 id: Landlord representation
 question: |
   Does ${ other_parties[i] } have an attorney?
 subquestion: |
-  % if tenant_using_casenet:
-  You can find the name and address of the attorney in the Parties and Attorneys tab in the online docket.
-  
-  [FILE Parties.png, 100%]
-
-  ${ warn_picture_is_example_template }
-  % elif tenant_got_summons and petition_available:
-  If the landlord is represented by an attorney, then the attorney's name and address will be in the box next to the Landlord's name.
+  % if tenant_got_summons and petition_available:
+    If the landlord is represented by an attorney, then the attorney's name and address will be in the box next to the Landlord's name.
   
   [FILE MOSummonsPlaintiffAttorney.png, 100%]
+  
   % else:
-  If the landlord is represented by an attorney, then it will say "represented by" next to the 
-  landlord's name, and the attorney's name and address will be to the right.
+    You can find out if the landlord is represented by an attorney in the Parties and Attorneys tab on Case.net.
+  
+    ${ collapse_template(find_plaintiff_attorney_representation_template) }
+  
   % endif
 fields:
   - Is ${ other_parties[i] } represented by an {attorney}?: other_parties[i].attorney.there_are_any
     datatype: yesnoradio
+---
+Template: find_plaintiff_attorney_representation_template
+Subject: |
+  How do I find out if ${ other_parties[i] } is represented by an attorney?
+Content: |
+  If the landlord is represented by an attorney, then it will say "represented by" to the right of the landlord's name, and the attorney's name and address will be listed below.
+  
+  [FILE Parties.png, 100%]
+
+  ${ warn_picture_is_example_template }
 ---
 id: opposing attorney name
 sets:
@@ -261,22 +276,32 @@ sets:
 question: |
   What is the name of ${ other_parties[i] }'s {attorney}?
 subquestion: |
-  % if tenant_using_casenet: 
-  You can find the name and address of the attorney in the Parties and Attorneys tab in the online docket.
-  
-  [FILE Parties.png, 100%]
-
-  ${ warn_picture_is_example_template }
-  % elif tenant_got_summons and petition_available: 
+  % if tenant_got_summons and petition_available: 
   If the landlord is represented by an attorney, then the attorney's name and address will be in the box next to the Landlord's name.
   
   [FILE MOSummonsPlaintiffAttorney.png, 100%]
 
   ${ warn_picture_is_example_template }
+  
+  % else: 
+  You can find the name and address of the attorney in the Parties and Attorneys tab on Case.net.
+  
+  ${ collapse_template(find_plaintiff_attorney_name_template) }
+  
   % endif
 fields:
   - code: |
       other_parties[i].attorney[j].name_fields()
+---
+Template: find_plaintiff_attorney_name_template
+Subject: |
+  How do I find the name of ${ other_parties[i] }'s attorney?
+Content: |
+  If the landlord is represented by an attorney, then it will say "represented by" to the right of the landlord's name, and the attorney's name and address will be listed below.
+  
+  [FILE Parties.png, 100%]
+
+  ${ warn_picture_is_example_template }
 ---
 #id: opposing attorney address
 #sets:
@@ -336,30 +361,24 @@ question: |
   When is the tenant's court {hearing}?
   % endif
 subquestion: |
-  % if tenant_using_casenet:
-  % if person_answering == "tenant":
-  Click the "Scheduled Hearings and Trials" tab and find the
-  date scheduled for your case.
-  
-  Your results may look like this:
-  % else:
-  Click the "Scheduled Hearings and Trials" tab and find the
-  date scheduled for the tenant's case.
-  
-  The tenant's results may look like this:
-  % endif
-
-  [FILE ScheduledEvents.png, 100%]
-
-  ${ warn_picture_is_example_template }
-  % else:
-  % if person_answering == "tenant":
-  The {Summons} will say the time and date of your original court hearing.
-  % else:
-  The {Summons} will say the time and date of the tenant's original court hearing.
-  % endif
+  % if tenant_got_summons and petition_available:
+    % if person_answering == "tenant":
+    The {Summons} will say the time and date of your original court hearing.
+    % else:
+    The {Summons} will say the time and date of the tenant's original court hearing.
+    % endif
   
   [FILE MOSummonsHearingDate.png, 100%]
+  
+  % else:
+    % if person_answering == "tenant":
+    Using Case.net, you can find the time and date of your original court hearing on the "Scheduled Hearings and Trials" tab of your case.
+    % else:
+  Using Case.net, you can find the time and date of the tenant's original court hearing on the "Scheduled Hearings and Trials" tab of their case.
+    % endif
+    
+    ${ collapse_template(find_original_hearing_on_casenet_template) }
+    
   % endif
 fields:
   - "Date of original hearing": original_hearing_date
@@ -373,6 +392,28 @@ fields:
   - Time: other_time
     js show if: |
       val("original_hearing_time") == "Other"
+---
+template: find_original_hearing_on_casenet_template
+subject: |
+  % if person_answering == "tenant":
+    How do I find the date and time of my original hearing?
+  % else:
+    How do I find the date and time of the tenant's original hearing?
+  % endif
+content: | 
+  % if person_answering == "tenant":
+    Your original hearing date can be found above the "Judge/Commissioner" information, while the time can be found just above the "Location" information.
+    
+    Your results may look like this:
+  % else:
+    The tenant's original hearing date can be found above the "Judge/Commissioner" information, while the time can be found just above the "Location" information.
+    
+    The tenant's results may look like this:
+  % endif
+    
+  [FILE ScheduledEvents.png, 100%]
+
+  ${ warn_picture_is_example_template }
 ---
 id: any hearings
 question: |
@@ -436,28 +477,18 @@ question: |
   What is the tenant's landlord's name?
   % endif
 subquestion: |
-  % if tenant_using_casenet:
-  % if i == 0:
-    With your case open on case.net, click the tab labeled "Parties & Attorneys." 
-    It may look like this:
-  
-    [FILE Parties.png, 100%]
-
-    ${ warn_picture_is_example_template }
+  % if tenant_got_summons and petition_available:
+    Look at the {Summons} and {Petition}, and write the name of the ${ ordinal(i) } "Plaintiff" exactly as it is written on the Summons and Petition.
     
-    Your name should be listed next to the word "Defendant." The landlord's name should be listed
-    next to the word "Plaintiff." The name may look different than it does on your lease.
+    [FILE ComplaintCaptionPlaintiff.png, 100%]
     
-    Who is listed as the first {Plaintiff}? If there is more than one Plaintiff, you can name them later.
   % else:
-    Who is the ${ ordinal(i) } {Plaintiff} listed on your case?
+    You said you don't have the {Summons} and {Petition} with you.
+
+    If the landlord's name isn't right, it might be a bit tricky for the court person to put your answer in the right spot, so it is best to find this information on Case.net. But, if you know the name they used on the court papers, you can just write it down without checking online.
+    
+    ${ collapse_template(find_landlord_name_on_casenet_template) }
   % endif
-  % elif tenant_got_summons and petition_available:
-  Look at the {Summons} and {Petition}, and write the name of the ${ ordinal(i) } "Plaintiff"
-  exactly as it is written on the Summons and Petition.
-  
-  [FILE ComplaintCaptionPlaintiff.png, 100%]
-  % endif 
 fields:
   - label: |
       % if person_answering == "tenant":
@@ -490,49 +521,80 @@ fields:
       variable: other_parties[i].person_type
       is: "business"
 ---
+template: find_landlord_name_on_casenet_template
+subject: |
+  % if person_answering == "tenant":
+    How do I find my landlord's name on Case.net?
+  % else:
+    How do I find the landlord's name on Case.net?
+  % endif
+content: | 
+  % if i == 0:
+    With your case open on [Case.net](https://www.courts.mo.gov/cnet), click the tab labeled "Parties & Attorneys." 
+    It may look like this:
+  
+    [FILE Parties.png, 100%]
+
+    ${ warn_picture_is_example_template }
+    
+    Your name should be listed next to the word "Defendant." The landlord's name should be listed next to the word "Plaintiff." The name may look different than it does on your lease.
+    
+    Who is listed as the first {Plaintiff}? If there is more than one Plaintiff, you can name them later.
+    
+  % else:
+    Who is the ${ ordinal(i) } {Plaintiff} listed on this case?
+  
+    [FILE ComplaintCaptionPlaintiff.png, 100%]
+  % endif
+---
 template: warn_picture_is_example_template
 content: |
   <div class="alert alert-warning" role="alert">
     <i class="fas fa-exclamation-triangle"></i>
-    <strong>Important</strong>: the picture above is just a sample. Make sure you are looking at the results
-    on Missouri Case.net for your case.
+    <strong>Important</strong>: the picture above is just a sample. Make sure you are looking at the results on Missouri Case.net for your case.
   </div>
 ---
-id: signpost casenet for landlord name
+id: use case net for online docket
 # not (tenant_got_summons and petition_available)
-only sets: signpost_case_net_for_landlord_name
-continue button field: signpost_case_net_for_landlord_name
+only sets: use_case_net_for_online_docket
+continue button field: use_case_net_for_online_docket
 question: |
   % if person_answering == "tenant":
-  Do you want to check your landlord's name online?
-  % else: 
-  Does the tenant want to check the landlord's name online?
+  Use Case.net to lookup your case
+  % else:
+  Use Case.net to lookup the tenant's case
   % endif
 subquestion: |
+  % if person_answering == "tenant":
+  You can use [Case.net](https://www.courts.mo.gov/cnet)
+  to help answer some questions on this website.
+  % else:
+  The tenant may use [Case.net](https://www.courts.mo.gov/cnet)
+  to help answer some questions on this website.
+  % endif
+
   You said you don't have the {Summons} and {Petition} with you. If you want, 
-  you can check the landlord's name online on a free website run by the
-  Missouri Court.
+  you can check the landlord's name and other information, like the court date and the case number online.
 
-  The website is called Case.net. If you click yes, the next screen will explain how to use Case.net.
+  Case.net is a free website from the Missouri Court. You do not need an
+  account for Case.net.
 
-  If the landlord's name isn't right, it might be a bit tricky for the 
-  court person to put your answer in the right spot. But, if you know the 
-  name they used on the court papers, you can just write it down without 
-  checking online.
+  Using Case.net is optional, but it can help you answer the questions more
+  accurately.
+  
+  To use Case.net to answer questions in this interview, you need to:
 
-  You can also use the Case.net website to check other information,
-  like your court date and the case number.
+  1. Click the button below to open a search page on Case.net with your address
+     and court name filled in.
+  1. Find your case name in the search results and open it.
 
-  We can give you step by step instructions if you want to check online.
-fields:
-  - label: |
-      % if person_answering == "tenant":
-      Do you want to use Case.net to help answer some questions?
-      % else:
-      Does the tenant want to use Case.net to help answer some questions?
-      % endif
-    field: tenant_using_casenet
-    datatype: yesnoradio
+  You will need both this website and the Case.net website open at the same time. You will
+  need to switch back and forth between the two windows.
+
+  Look for your eviction case in the search results. Click the link with the case number for your case to see the details about your case. If you do not see your case, try a different
+  search.
+
+  ${ action_button_html(formatted_casenet_url, label="Search Case.net in a new window", icon="up-right-from-square") }
 ---
 comment: |
   This block is not used because of another block that sets docket number underneath.
@@ -573,7 +635,7 @@ validation code: |
 ---
 template: find_case_number_docket_template
 subject: |
-  Where is the case number in the online docket?
+  Where is the case number on Case.net?
 content: |
   The case number is at of the top of the webpage, next to the names of the {Plaintiff} and {Defendant}.
   

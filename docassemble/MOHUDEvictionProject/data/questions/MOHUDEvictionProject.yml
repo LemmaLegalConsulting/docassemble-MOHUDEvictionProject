@@ -118,9 +118,7 @@ code: |
   ######### About your landlord
   nav.set_section("section_eviction_answer_other")
   if not (tenant_got_summons and petition_available):
-    signpost_case_net_for_landlord_name # Alternate version of tenant_using_casenet question
-  if tenant_using_casenet:
-    casenet_login_instructions
+    use_case_net_for_online_docket
     
   other_parties.gather()
 
@@ -130,8 +128,6 @@ code: |
   trial_court.county
   trial_court.circuit
   trial_court.name
-  if not trial_court.county == None and tenant_using_casenet:
-    docket_review
 
   original_hearing_date
   petition_date
@@ -139,8 +135,7 @@ code: |
   docket_number
 
   if not tenant_got_summons or not petition_available:
-    if not trial_court.county == None and tenant_using_casenet:
-      casenet_login_instructions
+    if not trial_court.county == None:
       nav.set_section("section_eviction_answer_case")  
       nav.set_section("section_eviction_answer_other") 
       for party in other_parties:
@@ -476,7 +471,6 @@ code: |
   if not case_type["AC Rent and Possession"] and not case_type["AC Landlord Action (Bulk)"]:
     if unlawful_detainer_kick_out_option:
       motion_to_continue_order
-      define('docket_review', True)
   case_type_kickout = True
 ---
 code: |
