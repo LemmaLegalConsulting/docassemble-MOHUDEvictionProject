@@ -79,6 +79,7 @@ code: |
     other_parties[0].service_address.address
 
   al_user_wants_reminders
+  docket_review_conclusion
   set_progress(100)
   eviction_defender_download
 ---
@@ -113,12 +114,12 @@ code: |
   nav.set_section("section_eviction_answer_you")
   users[0].address.address
   users[0].address.geocode()
+  use_case_net_for_online_docket
   users.gather()
+  set_parts(subtitle=str(users))
   
   ######### About your landlord
   nav.set_section("section_eviction_answer_other")
-  if not (tenant_got_summons and petition_available):
-    use_case_net_for_online_docket
     
   other_parties.gather()
 
@@ -132,20 +133,6 @@ code: |
   original_hearing_date
   petition_date
     
-  docket_number
-
-  if not tenant_got_summons or not petition_available:
-    if not trial_court.county == None:
-      nav.set_section("section_eviction_answer_case")  
-      nav.set_section("section_eviction_answer_other") 
-      for party in other_parties:
-        party.attorney.gather()
-      nav.set_section("section_eviction_answer_case")   
-      users.gather()
-      original_hearing_date
-      set_parts(subtitle=str(users))
-      docket_review_conclusion
-
   # Eviction reasons
   eviction_reason
   check_case_type

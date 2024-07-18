@@ -302,29 +302,7 @@ Content: |
   [FILE Parties.png, 100%]
 
   ${ warn_picture_is_example_template }
----
-#id: opposing attorney address
-#sets:
-#  - other_parties[i].attorney[j].address.address
-#question: |
-#  What is the address of ${ other_parties[i] }'s {attorney}?
-#subquestion: |
-#  % if tenant_using_casenet: 
-#  You can find the address of the attorney in the Parties and Attorneys tab in the online docket.
-#  
-#  [FILE Parties.png, 100%]
-#
-#  ${ warn_picture_is_example_template }
-#  % elif tenant_got_summons and petition_available: 
-#  If the landlord is represented by an attorney, then the attorney's address will be in the box next to the Landlord's name.
-#  
-#  [FILE MOSummonsPlaintiffAttorney.png, 100%]
-#
-#  ${ warn_picture_is_example_template }
-#  % endif
-#fields:
-#  - code: |
-      #other_parties[i].attorney[j].address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)
+
 ---
 id: your address
 sets:
@@ -477,18 +455,24 @@ question: |
   What is the tenant's landlord's name?
   % endif
 subquestion: |
-  % if tenant_got_summons and petition_available:
-    Look at the {Summons} and {Petition}, and write the name of the ${ ordinal(i) } "Plaintiff" exactly as it is written on the Summons and Petition.
-    
-    [FILE ComplaintCaptionPlaintiff.png, 100%]
-    
-  % else:
-    You said you don't have the {Summons} and {Petition} with you.
 
     If the landlord's name isn't right, it might be a bit tricky for the court person to put your answer in the right spot, so it is best to find this information on Case.net. But, if you know the name they used on the court papers, you can just write it down without checking online.
     
+    % if tenant_got_summons and petition_available:
+    Look at the {Summons} and {Petition}, and write the name of the ${ ordinal(i) } "Plaintiff" exactly as it is written on the Summons and Petition.
+    
+    [FILE ComplaintCaptionPlaintiff.png, 100%]
+
     ${ collapse_template(find_landlord_name_on_casenet_template) }
-  % endif
+    
+    % else:
+    
+    ${ collapse_template(find_landlord_name_on_casenet_template) }
+    
+    % endif
+    
+
+
 fields:
   - label: |
       % if person_answering == "tenant":
@@ -565,16 +549,12 @@ question: |
   Use Case.net to lookup the tenant's case
   % endif
 subquestion: |
-  % if person_answering == "tenant":
-  You can use [Case.net](https://www.courts.mo.gov/cnet)
-  to help answer some questions on this website.
-  % else:
-  The tenant may use [Case.net](https://www.courts.mo.gov/cnet)
-  to help answer some questions on this website.
+  % if not (tenant_got_summons and petition_available):
+  You said you don't have the {Summons} and {Petition} with you. 
   % endif
 
-  You said you don't have the {Summons} and {Petition} with you. If you want, 
-  you can check the landlord's name and other information, like the court date and the case number online.
+  You can use [Case.net](https://www.courts.mo.gov/cnet)
+  to help answer some questions on this website. You can check the landlord's name and other information, like the court date and the case number online.
 
   Case.net is a free website from the Missouri Court. You do not need an
   account for Case.net.
