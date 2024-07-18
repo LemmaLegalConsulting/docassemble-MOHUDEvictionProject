@@ -79,6 +79,7 @@ code: |
     other_parties[0].service_address.address
 
   al_user_wants_reminders
+  docket_review_conclusion
   set_progress(100)
   store_variables_snapshot(
       persistent=True,
@@ -234,16 +235,16 @@ code: |
   nav.set_section("section_eviction_answer_you")
   users[0].address.address
   users[0].address.geocode()
+  use_case_net_for_online_docket
   users.gather()
+
   track_user_information
+
+  set_parts(subtitle=str(users))
 
   
   ######### About your landlord
   nav.set_section("section_eviction_answer_other")
-  if not (tenant_got_summons and petition_available):
-    signpost_case_net_for_landlord_name # Alternate version of tenant_using_casenet question
-  if tenant_using_casenet:
-    casenet_login_instructions
     
   other_parties.gather()
 
@@ -253,18 +254,10 @@ code: |
   trial_court.county
   trial_court.circuit
   trial_court.name
-  if not trial_court.county == None and tenant_using_casenet:
-    docket_review
 
   original_hearing_date
   petition_date
     
-  docket_number
-
-  if not tenant_got_summons or not petition_available:
-    if not trial_court.county == None and tenant_using_casenet:
-      docket_review
-
   # Eviction reasons
   eviction_reason
   check_case_type
@@ -593,7 +586,6 @@ code: |
   if not case_type["AC Rent and Possession"] and not case_type["AC Landlord Action (Bulk)"]:
     if unlawful_detainer_kick_out_option:
       motion_to_continue_order
-      define('docket_review', True)
   case_type_kickout = True
 ---
 code: |
