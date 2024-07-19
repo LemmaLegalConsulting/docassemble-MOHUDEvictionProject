@@ -227,6 +227,8 @@ subquestion: |
   
   [FILE MOSummonsType.png, 100%]
   
+  ${ collapse_template(find_case_type_example_template) }
+  
   % else: 
   Look at the "Case Header" Tab on Case.net to answer this question.
 
@@ -345,7 +347,7 @@ fields:
 ---
 template: find_case_type_example_template
 subject: |
-  Case.net case type example:
+  Where do I find the case type on Case.net?
 content: |
   [FILE CaseHeaderType.png, 100%]
 
@@ -437,7 +439,11 @@ code: |
 ---
 id: explain other case net uses
 question: |
-  Other information on Case.net
+  % if person_answering == "tenant":
+  Tracking your case on Case.net
+  % else:
+  Tracking the tenant's case on Case.net
+  % endif
 subquestion: |
   % if person_answering == "tenant":
   Keep a link to [Case.net](https://www.courts.mo.gov/cnet) so you can check it regularly.

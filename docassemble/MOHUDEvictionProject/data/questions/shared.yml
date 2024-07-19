@@ -216,6 +216,8 @@ subquestion:  |
   % if tenant_got_summons and petition_available:
     If you have the {Summons} and {Petition}, the name of each {Plaintiff} is listed
     in the box labeled "Plaintiff".
+    
+    ${ collapse_template(find_other_plaintiffs_template) }
 
   % else:
     You can find the name of each {Plaintiff} in the Parties and Attorneys tab 
@@ -233,7 +235,11 @@ fields:
 ---
 Template: find_other_plaintiffs_template
 Subject: |
+  % if tenant_got_summons and petition_available:
+  How do I find out if there are other Plaintiffs on Case.net?
+  % else:
   How do I find out if there are other Plaintiffs?
+  % endif
 Content: |
   If there is more than one plaintiff, they will be listed directly below the first plaintiff.
   
@@ -252,6 +258,8 @@ subquestion: |
   
   [FILE MOSummonsPlaintiffAttorney.png, 100%]
   
+  ${ collapse_template(find_plaintiff_attorney_representation_template) }
+  
   % else:
     You can find out if the landlord is represented by an attorney in the Parties and Attorneys tab on Case.net.
   
@@ -264,7 +272,11 @@ fields:
 ---
 Template: find_plaintiff_attorney_representation_template
 Subject: |
+  % if tenant_got_summons and petition_available:
+  How do I find out if ${ other_parties[i] } is represented by an attorney using Case.net?
+  % else:
   How do I find out if ${ other_parties[i] } is represented by an attorney?
+  % endif
 Content: |
   If the landlord is represented by an attorney, then it will say "represented by" to the right of the landlord's name, and the attorney's name and address will be listed below.
   
@@ -288,6 +300,8 @@ subquestion: |
 
   ${ warn_picture_is_example_template }
   
+  ${ collapse_template(find_plaintiff_attorney_name_template) }
+  
   % else: 
   You can find the name and address of the attorney in the Parties and Attorneys tab on Case.net.
   
@@ -300,7 +314,11 @@ fields:
 ---
 Template: find_plaintiff_attorney_name_template
 Subject: |
+  % if tenant_got_summons and petition_available:
+  How do I find the name of ${ other_parties[i] }'s attorney on Case.net?
+  % else:
   How do I find the name of ${ other_parties[i] }'s attorney?
+  % endif
 Content: |
   If the landlord is represented by an attorney, then it will say "represented by" to the right of the landlord's name, and the attorney's name and address will be listed below.
   
@@ -353,6 +371,8 @@ subquestion: |
   
   [FILE MOSummonsHearingDate.png, 100%]
   
+  ${ collapse_template(find_original_hearing_on_casenet_template) }
+  
   % else:
     % if person_answering == "tenant":
     Using Case.net, you can find the time and date of your original court hearing on the "Scheduled Hearings and Trials" tab of your case.
@@ -378,10 +398,22 @@ fields:
 ---
 template: find_original_hearing_on_casenet_template
 subject: |
-  % if person_answering == "tenant":
-    How do I find the date and time of my original hearing?
+  % if tenant_got_summons and petition_available:
+  
+    % if person_answering == "tenant":
+    How do I find the date and time of my original hearing on Case.net?
+    % else:
+    How do I find the date and time of the tenant's original hearing on Case.net?
+    % endif
+  
   % else:
+  
+    % if person_answering == "tenant":
+    How do I find the date and time of my original hearing?
+    % else:
     How do I find the date and time of the tenant's original hearing?
+    % endif
+    
   % endif
 content: | 
   % if person_answering == "tenant":
