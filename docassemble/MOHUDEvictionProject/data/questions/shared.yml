@@ -217,6 +217,8 @@ subquestion:  |
     If you have the {Summons} and {Petition}, the name of each {Plaintiff} is listed
     in the box labeled "Plaintiff".
     
+    [FILE ComplaintCaptionPlaintiff.png, 100%]
+    
     ${ collapse_template(find_other_plaintiffs_template) }
 
   % else:

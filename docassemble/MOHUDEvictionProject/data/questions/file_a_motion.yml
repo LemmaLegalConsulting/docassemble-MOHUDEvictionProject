@@ -33,8 +33,10 @@ code: |
   
   nav.set_section("section_about")
   person_answering
+  use_case_net_for_online_docket
   for user in users:
     user.name.first
+    use_case_net_for_online_docket
     user.address.address
     
   nav.set_section("section_about_court")
@@ -92,6 +94,7 @@ code: |
 
   nav.set_section("section_review")
   review_motions
+  docket_review_conclusion
   
   nav.set_section("section_download")
   signature_date
