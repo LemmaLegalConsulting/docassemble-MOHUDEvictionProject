@@ -115,12 +115,6 @@ code: |
   snapshot_user_information_time = current_datetime(timezone = 'America/Chicago')
 ---
 code: |
-  case_type_list = case_type.true_values()
----
-code: |
-  eviction_reason_list = eviction_reason.true_values()
----
-code: |
   beginning_to_user_information_duration = date_difference(starting=start_time(timezone = 'America/Chicago'),ending = snapshot_user_information_time)
 ---
 code: |
