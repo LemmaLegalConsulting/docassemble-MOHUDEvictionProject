@@ -36,7 +36,6 @@ code: |
   use_case_net_for_online_docket
   for user in users:
     user.name.first
-    use_case_net_for_online_docket
     user.address.address
     
   nav.set_section("section_about_court")
@@ -510,6 +509,7 @@ fields:
       is: null
 ---
 ## in future add resource for how they can find this information
+## add screenshot and Case.net insructions
 id: outcome
 question: |
   What was the outcome of this eviction case?
@@ -618,6 +618,7 @@ fields:
     js show if: |
       val("original_hearing_time") == "Other"
 ---
+## add screenshot and Case.net example?
 id: trial date 
 question: |
   Has the court set a date for trial?
