@@ -116,7 +116,6 @@ id: rent pleadings requirement logic
 depends on:
   - eviction_reason
   - tenant_got_summons
-  - petition_available
   - petition_alleges_nonrent
   - petition_states_rent_amount
   - lease_attached
@@ -127,7 +126,7 @@ depends on:
   - petition_separates_nonrent
   - has_written_lease
 code: |
-  if eviction_reason["nonpayment of rent"] and tenant_got_summons and petition_available:
+  if eviction_reason["nonpayment of rent"] and tenant_got_summons:
     if petition_alleges_nonrent or not petition_states_rent_amount or (not has_written_lease and not petition_states_terms_of_lease) or (has_written_lease and not lease_attached and not petition_states_terms_of_lease) or not petition_states_rent_periods or not petition_states_demand_made or (trial_court.circuit == 21 and not petition_separates_nonrent):
       defense_rent_pleading_requirement = True
     else:
@@ -138,11 +137,10 @@ code: |
 id: lease not attached logic
 depends on:
   - tenant_got_summons
-  - petition_available
   - lease_attached
   - has_written_lease
 code: |
-  if tenant_got_summons and petition_available:
+  if tenant_got_summons:
     if has_written_lease and not lease_attached:
       defense_lease_not_attached = True
     else:

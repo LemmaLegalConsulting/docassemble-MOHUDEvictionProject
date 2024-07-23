@@ -133,6 +133,11 @@ fields:
       - The tenant: tenant
       - An attorney: attorney
       - Someone **else** helping a tenant: tenant_helper
+  - This is a right to counsel case for an MO legal aid program: is_right_to_counsel
+    datatype: yesno
+    show if:
+      variable: person_answering
+      is: attorney
   - Will you file an appearance?: representation_type
     input type: radio
     choices:
@@ -513,7 +518,7 @@ subquestion: |
   you can check the landlord's name online on a free website run by the
   Missouri Court.
 
-  The website is called Case.net.
+  The website is called Case.net. If you click yes, the next screen will explain how to use Case.net.
 
   If the landlord's name isn't right, it might be a bit tricky for the 
   court person to put your answer in the right spot. But, if you know the 
@@ -917,6 +922,20 @@ attachment:
     skip undefined: True
     docx template file: motion_to_shorten_time.docx
 ---
+attachment:
+  - name: notice of hearing
+    filename: notice_of_hearing.docx     
+    variable name: notice_of_hearing_attachment[i]       
+    skip undefined: True
+    docx template file: notice_of_hearing.docx
+---
+attachment:
+  - name: motion to dismiss
+    filename: motion_to_dismiss  
+    variable name: motion_to_dismiss_attachment[i]        
+    skip undefined: True
+    docx template file: motion_to_dismiss.docx
+---
 id: preview eviction_defender
 question: |
   % if person_answering == "tenant":
@@ -992,8 +1011,14 @@ subquestion: |
     
     % endif
     * Go to the court and file the forms at the clerk's office.
-  
-  ${ county_dictionary[trial_court.county]['court_address_and_operating_hours'] }
+
+      ${ trial_court.building_name }
+      
+      ${ trial_court.address.on_one_line() }
+      
+      % if trial_court.schedule is not None:
+      ${ trial_court.schedule }
+      % endif
   
   ###Deadline to deliver and file the forms###
   
@@ -1020,14 +1045,30 @@ progress: 100
 ---
 objects:
   - eviction_defender_post_interview_instructions: ALDocument.using(title="Instructions", filename="eviction_helper_next_steps.docx", enabled=True, has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+---
+objects:
   - eviction_motion_to_continue_attachment: ALDocument.using(title="Postpone your eviction hearing", filename="eviction_motion_to_continue.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+---
+objects:
   - eviction_answer_attachment: ALDocument.using(title="Answer and Affirmative Defenses", filename="answer_defenses.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+---
+objects:
   - eviction_motion_for_leave_attachment: ALDocument.using(title="Motion for Leave to File Responsive Pleadings", filename="motion_for_leave_to_file.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+---
+objects:
   - eviction_discovery_attachment: ALDocument.using(title="Discovery", filename="Discovery.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+---
+objects:
   - motion_to_shorten_time_attachment: ALDocument.using(title="File a Motion to Shorten Time", filename="motion_to_shorten_time.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
 ---
 objects:
-  - al_user_bundle: ALDocumentBundle.using(elements=[eviction_defender_post_interview_instructions,eviction_motion_to_continue_attachment,eviction_answer_attachment,eviction_motion_for_leave_attachment,motion_to_shorten_time_attachment,eviction_discovery_attachment], filename="eviction_helper.docx_package.pdf", title="All forms to download for your records", enabled=True)
+  - motion_to_dismiss_attachment: ALDocument.using(title="File a Motion to Dismiss", filename="motion_to_dismiss.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+---
+objects:
+  - notice_of_hearing_attachment: ALDocument.using(title="File a Notice of Hearing", filename="notice_of_hearing.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+---
+objects:
+  - al_user_bundle: ALDocumentBundle.using(elements=[eviction_defender_post_interview_instructions,eviction_motion_to_continue_attachment,eviction_answer_attachment,eviction_motion_for_leave_attachment,motion_to_shorten_time_attachment,eviction_discovery_attachment,motion_to_dismiss_attachment,notice_of_hearing_attachment], filename="eviction_helper.docx_package.pdf", title="All forms to download for your records", enabled=True)
   - al_court_bundle: ALDocumentBundle.using(elements=attachment_list_court, filename="eviction_helper.docx_package.pdf", title="All forms to download for your records", enabled=True)
 ---
 template: about_page_contents

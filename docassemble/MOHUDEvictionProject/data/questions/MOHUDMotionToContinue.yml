@@ -117,9 +117,9 @@ sections:
   - section_eviction_answer_intro: Introduction
   - section_eviction_answer_can_i: Should you file a Motion to Continue?
   - section_eviction_answer_you: Information about you
+  - section_eviction_answer_casenet: Using Case.net
   - section_eviction_answer_other: Information about the other party
   - section_eviction_answer_case: Information about the eviction
-  - section_eviction_answer_casenet: Using Case.net
   - review_eviction_answer: Review your answers
   - section_serve_other_side: Getting a copy to your landlord
   - section_eviction_answer_download: Download, print and file
@@ -203,7 +203,7 @@ id: you can do it affirmation
 question: |
   ${ users[0].familiar() }, you can do this!
 subquestion: |
-  It takes most tenants about **30 minutes** to use this website. But you can 
+  It takes most tenants about **10 minutes** to use this website. But you can 
   save your work and come back at any time.
 
   Just answer the questions on each screen as well as you can. Make sure
@@ -414,7 +414,7 @@ review:
          - Attorney: **None**
       
       % endif
-         - Person or Business: **${ "Person" if item.person_type == "ALIndividual" else "Business" }**
+         - Person or Business: **${ "Person" if item.person_type == "individual" else "Business" }**
       % endfor
       % else:
       **None**

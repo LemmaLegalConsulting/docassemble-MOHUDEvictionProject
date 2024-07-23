@@ -50,7 +50,7 @@ code: |
   if motion_list['motion_to_set_aside_judgment']: 
     final_judgment
   
-  if (motion_list['motion_to_dismiss'] and (not has_written_lease or not lease_attached or not eviction_reason["nonpayment of rent"])) or (motion_list['motion_to_set_aside_judgment'] and (judgment_date_more_than_30 or not final_judgment)):
+  if (motion_list['motion_to_dismiss'] and (not has_written_lease or lease_attached or not eviction_reason["nonpayment of rent"])) or (motion_list['motion_to_set_aside_judgment'] and (judgment_date_more_than_30 or not final_judgment)):
     warning_kickout_loop
   
   trial_court.name
@@ -253,12 +253,13 @@ question: |
   The tenant may not want to {file} this motion
   % endif
 subquestion: |
-  % if motion_list['motion_to_dismiss'] and (not has_written_lease or not lease_attached or not eviction_reason["nonpayment of rent"]):
+  % if motion_list['motion_to_dismiss'] and (not has_written_lease or lease_attached or not eviction_reason["nonpayment of rent"]):
   You selected to fill out a Motion to Dismiss or For a More Definite Statement. To file this motion, it should be true that: 
   
   1. Your ladlord is evicting you for nonpayment of rent;
   2. You have a written lease; AND
-  3. The lease was attached to the Landlord's petition when it was delivered to you.
+  3. The lease was not attached to the Landlord's petition when it was delivered to you.
+  
   % endif
   % if motion_list['motion_to_set_aside_judgment'] and (not final_judgment or judgment_date_more_than_30):
   You selected to fill out a Motion to Set Aside Judgment. To file this motion, it should be true that: 
@@ -861,12 +862,24 @@ attachment:
 ---
 objects:
   - motion_to_set_aside_attachment: ALDocument.using(title="File a Motion to Set Aside Judgment", filename="motion_to_set_aside.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+---
+objects:
   - motion_to_shorten_time_attachment: ALDocument.using(title="File a Motion to Shorten Time", filename="motion_to_shorten_time.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+---
+objects:
   - motion_to_dismiss_attachment: ALDocument.using(title="File a Motion to Dismiss", filename="motion_to_dismiss.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+---
+objects:
   - motion_for_leave_to_file_attachment: ALDocument.using(title="File a Motion for Leave to File Responsive Pleadings", filename="motion_for_leave_to_file_answer.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+---
+objects:
   - motion_to_elevate_security_attachment: ALDocument.using(title="File a Motion to Elevate Security", filename="motion_to_elevate_security.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+---
+objects:
   - notice_of_hearing_attachment: ALDocument.using(title="File a Notice of Hearing", filename="notice_of_hearing.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
-  - file_a_motion_helper_next_steps_attachment: ALDocument.using(title="Next Steps to File a Motion", filename="notice_of_hearing.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+---
+objects:
+  - file_a_motion_helper_next_steps_attachment: ALDocument.using(title="Next Steps to File a Motion", filename="next_steps.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
 ---
 objects:
   - al_user_bundle: ALDocumentBundle.using(elements=[file_a_motion_helper_next_steps_attachment, motion_to_dismiss_attachment, motion_to_shorten_time_attachment, motion_to_set_aside_attachment, motion_for_leave_to_file_attachment, motion_to_elevate_security_attachment,notice_of_hearing_attachment], filename="motions.docx", title="All forms to download for your records", enabled=True)
@@ -926,7 +939,14 @@ subquestion: |
     % endif
     * Go to the court and file the forms at the clerk's office.
   
-  ${ county_dictionary[trial_court.county]['court_address_and_operating_hours'] }
+    ${ trial_court.building_name }
+      
+    ${ trial_court.address.on_one_line() }
+      
+    % if trial_court.schedule is not None:
+    ${ trial_court.schedule }
+    % endif
+  
   
   ###Deadline to deliver and file the forms###
   
@@ -1106,7 +1126,7 @@ review:
          - Attorney: **None**
       
       % endif
-         - Person or Business: **${ "Person" if item.person_type == "ALIndividual" else "Business" }**
+         - Person or Business: **${ "Person" if item.person_type == "individual" else "Business" }**
       % endfor
       % else:
       **None**

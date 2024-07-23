@@ -1,0 +1,126 @@
+---
+include:
+  - docassemble.ALToolbox:data/questions/intake.yml
+  - shared.yml
+---
+objects:
+  - intake_screener: |
+      IntakeQuestionList.using(
+            criteria={
+              "housing": str(intake_criteria),
+            },
+            problem_type = "housing", # Hardcoding for this simple demo
+            model="gpt-4-turbo"
+          )
+---
+mandatory: True
+code: |
+  intake_screener.gather()
+  intake_screener.intake_results
+---
+code: |
+  person_answering = "tenant"
+---
+id: your address
+sets:
+  - users[0].address.address
+  - users[0].address.city
+  - users[0].address.zip
+  - users[0].address.unit
+  - users[0].address.state
+  - users[0].address.country
+question: |
+  % if person_answering == "tenant":
+  Where do you live?
+  % else:
+  Where does the tenant live?
+  % endif
+subquestion: |
+  % if person_answering == "tenant":
+  Write the **Missouri** address that you are being evicted from.
+  % else:
+  Write the **Missouri** address that the tenant is being evicted from.
+  % endif
+fields:
+  - code: |
+      users[0].address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)
+validation code: |
+  if users[0].address.state != "MO":
+    validation_error("Write an address that you are being evicted from in Missouri", field="users[0].address.state")
+---
+depends on: trial_court.county
+code: |
+  if county_dictionary[trial_court.county]['legal_aid_program'].strip() == "Legal Services of Eastern Missouri":
+    intake_criteria = intake_criteria_lsem
+  elif county_dictionary[trial_court.county]['legal_aid_program'].strip() == "Mid-Missouri Legal Services":
+    intake_criteria = intake_criteria_mmls
+  else:
+    intake_criteria = intake_criteria_none
+---
+# Example intake criteria
+template: intake_criteria_none
+content: |
+  Nobody will qualify because there is no legal aid program.
+---
+# Example intake criteria
+template: intake_criteria_lsem
+content: |
+  PROTOCOLS FOR HOUSING INTAKES
+
+  Housing is focusing on eviction lawsuits. Thus, we ask workers to do intakes on court 
+  matters only. (There are a few exceptions listed below.)
+
+  Court Summons The court matters we will mostly take are cases with summons dates, 
+  (first court date, non-trial date). This includes subsidized housing and private 
+  landlord/tenant as usual.
+
+  Other Court Matters 
+  
+  We will also take default judgments, consent judgments, cases 
+  already set for trial, and sheriff evictions with the following limitations. 
+  Default Judgment: If caller contacts us within Ten (10) calendar days from the 
+  date of the default judgment, then please do the intake.
+
+  Cases Already set for Trial: If the caller contacts LSEM at least Ten (10) calendar 
+  days from the date of the trial, then it is OK to do the intake.
+
+  Sheriff Evictions Posted and Consent Judgments: Call and/or email me before
+  doing the intake. We will take these, but are limited based on the specific facts of 
+  the case, which I have to look at before agreeing to open a case.
+  
+  
+  Section 8
+  Please do an intake for a caller facing a proposed termination of Section 8, i.e. if the 
+  caller has received a proposed termination of Section 8 notice from their local housing authority.
+
+  Domestic Violence
+  If domestic violence is present, they should call for a full screening.
+
+  Other Housing Matters
+  For other Housing matters, please refer the caller to the Housing section of
+  our website.
+---
+# Example intake criteria
+template: intake_criteria_mmls
+content: |
+  Priorities:
+  VIII. Housing
+  The Program will provide legal assistance in cases involving:
+  1. Tenants facing eviction by Rent and Possession or Unlawful Detainer or through the expedited
+  eviction process;
+  2. Breach of Contract claims brought by landlords seeking property damage beyond normal wear and
+  tear;
+  3. Enforcement of proper termination/eviction procedures;
+  4. Habitability issues arising before or during a tenant's occupancy;
+  5. Forcible entry by a landlord including, but not limited to, utility shutoffs by a landlord;
+  6. Conversion and replevin claims ($1,000 minimum);
+  7. Recovery of security deposit claims where the initial security deposit amount is at least $300,
+  including cases initially filed by tenants in small claims courts;
+  8. State and federally funded rental housing programs, including, but not limited to, public housing,
+  housing choice vouchers (Section 8), and veteran housing. Services will include assistance in denials
+  of eligibility, termination of benefits and repayment agreements to retain eligibility;
+  9. Cases involving a municipality or other state or local government brought against a tenant seeking
+  to evict a tenant due to over-leasing of rental property by a landlord;
+  10. Lease termination by the tenant due to illegal activity of another tenant or landlord; and
+  11. Housing discrimination.
+  12. Lawsuits to quiet title when necessary to avoid eviction by unlawful detainer.

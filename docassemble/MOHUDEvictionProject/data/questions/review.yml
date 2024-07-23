@@ -407,7 +407,7 @@ review:
       % if other_parties.there_are_any:
       % for item in other_parties:
       
-        - **${ item }** (**${ "Person" if item.person_type == "ALIndividual" else "Business" }**)
+        - **${ item }** (**${ "Person" if item.person_type == "individual" else "Business" }**)
       % endfor
       % else:
       **None**
@@ -2240,7 +2240,7 @@ review:
     show if: not defense_failure_to_terminate
   - raw html: |
       ${ start_accordion('Tenant denies that Tenant violated the terms of the lease or that the claimed violation is a material breach') }
-    show if: not defense_failure_to_terminate
+    show if: not defense_ud_did_not_violate_lease
   - Edit:
       - defense_no_breach
       - recompute:
@@ -2305,7 +2305,7 @@ columns:
   - Name: |
       row_item.name.full() if defined("row_item.name.first") else ""
   - Person or Business: |
-      "Person" if row_item.person_type == "ALIndividual" else "Business"
+      "Person" if row_item.person_type == "individual" else "Business"
   - Represented by an attorney?: |
       "Maybe" if row_item.attorney.there_are_any is None else yesno(row_item.attorney.there_are_any)  
 edit:
