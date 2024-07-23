@@ -217,6 +217,8 @@ subquestion:  |
     If you have the {Summons} and {Petition}, the name of each {Plaintiff} is listed
     in the box labeled "Plaintiff".
     
+    [FILE ComplaintCaptionPlaintiff.png, 100%]
+    
     ${ collapse_template(find_other_plaintiffs_template) }
 
   % else:
@@ -802,6 +804,8 @@ subquestion: |
   % endif
 
   Sometimes a landlord will add "John Doe" or "Jane Doe" as a party.  You do not need to include these additional parties.
+  
+  ${ collapse_template(find_other_defendants_template) }
 fields:
   - label: |
       % if person_answering == "tenant":
@@ -812,6 +816,22 @@ fields:
     field: users.there_is_another
     datatype: yesnoradio
 ---
+## update this screenshot with multiple defendants example
+template: find_other_defendants_template
+subject: |
+  How do I find out if there are other Defendants on Case.net?
+content: |
+  % if person_answering == "tenant":
+    Case.net will list any other Defendant's name directly below yours with the word "Defendent" next to it.
+  % else:
+    Case.net will list any other Defendant's name directly below the first tenant's name with the word "Defendent" next to it.
+  % endif
+  
+  [FILE Parties.png, 100%]
+
+  ${ warn_picture_is_example_template }
+---
+## add screenshot and Case.net example
 id: petition_date 
 question: |
   When did the {Plaintiff} {file} their {petition} in this case?
