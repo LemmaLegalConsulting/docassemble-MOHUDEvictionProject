@@ -79,6 +79,7 @@ code: |
     other_parties[0].service_address.address
 
   al_user_wants_reminders
+  docket_review_conclusion
   set_progress(100)
   store_variables_snapshot(
       persistent=True,
@@ -87,17 +88,25 @@ code: |
           "person_answering": showifdef("person_answering"),
           "is_right_to_counsel": showifdef("is_right_to_counsel"),
           "posting_warning": showifdef("posting_warning"),
-          "recommend_filing_answer": showifdef("recommend_filing_answer"),
           "zip": showifdef("users[0].address.zip"),
           "city": showifdef("users[0].address.city"),
           "county": showifdef("users[0].address.county"),
           "user_information_time": snapshot_user_information_time,
+          "beginning_to_user_information_duration": beginning_to_user_information_duration.minutes,
           "case_information_time": snapshot_case_information_time,
+          "user_to_case_information_duration": user_to_case_information_duration.minutes,
+          "case_type": case_type.true_values().elements,
+          "eviction_reason": eviction_reason.true_values().elements,
           "review_time": snapshot_review_time,
+          "case_to_review_duration": case_to_review_duration.minutes,
           "discovery_time": snapshot_discovery_time,
+          "defenses_list": defenses_list,
+          "review_to_discovery_duration": review_to_discovery_duration.minutes,
           "assembled_documents": assembled_documents,
           "download_time": current_datetime(timezone = 'America/Chicago'),
-          "reached_interview_end": True,
+          "discovery_to_final_duration": discovery_to_final_duration.minutes,
+          "total_interview_duration": total_interview_duration.minutes,
+          "reached_interview_end": True
       },
     )
   eviction_defender_download
@@ -106,20 +115,97 @@ code: |
   snapshot_user_information_time = current_datetime(timezone = 'America/Chicago')
 ---
 code: |
+  beginning_to_user_information_duration = date_difference(starting=start_time(timezone = 'America/Chicago'),ending = snapshot_user_information_time)
+---
+code: |
   snapshot_case_information_time = current_datetime(timezone = 'America/Chicago')
+---
+code: |
+  user_to_case_information_duration = date_difference(starting=snapshot_user_information_time,ending = snapshot_case_information_time)
 ---
 code: |
   snapshot_review_time = current_datetime(timezone = 'America/Chicago')
 ---
 code: |
+  case_to_review_duration = date_difference(starting=snapshot_case_information_time, ending = snapshot_review_time)
+---
+code: |
   snapshot_discovery_time = current_datetime(timezone = 'America/Chicago')
+---
+code: |
+  review_to_discovery_duration = date_difference(starting=snapshot_review_time, ending = snapshot_discovery_time)
+---
+code: |
+  discovery_to_final_duration = date_difference(starting=snapshot_discovery_time, ending = current_datetime(timezone = 'America/Chicago') )
+---
+code: |
+  total_interview_duration = date_difference(starting=start_time(timezone = 'America/Chicago'),ending = current_datetime(timezone = 'America/Chicago') )
+---
+id:  defense logic order
+comment: |
+  This can't be the best way to do this. Can a DADict act like a checkboxes dictionary?
+code: |
+  temp_defenses_list = list()
+  if defense_failure_to_terminate and "Failure to Terminate" not in temp_defenses_list:
+    temp_defenses_list.append("Failure to Terminate")
+  if defense_ud_no_written_notice and "No Notice" not in temp_defenses_list:
+    temp_defenses_list.append("No Notice")
+  if defense_ud_no_rental_period_notice and "Untimely Notice" not in temp_defenses_list:
+    temp_defenses_list.append("Untimely Notice")
+  if defense_ud_lease_requirements and "No Notice Required by Lease" not in temp_defenses_list:
+    temp_defenses_list.append("No Notice Required by Lease")
+  if defense_termination_notice_required_by_law and "No Notice Required by Law" not in temp_defenses_list:
+    temp_defenses_list.append("No Notice Required by Law")
+  if defense_ud_did_not_violate_lease and "No Violation of Lease" not in temp_defenses_list:
+    temp_defenses_list.append("No Violation of Lease")
+  if defense_ud_did_not_violate_lease and defense_no_breach and "No Breach" not in temp_defenses_list:
+    temp_defenses_list.append("No Breach")
+  if defense_ud_did_not_violate_lease and defense_breach_not_material and "Breach Not Material" not in temp_defenses_list:
+    temp_defenses_list.append("Breach Not Material")
+  if defense_discrimination and "Discrimination" not in temp_defenses_list:
+    temp_defenses_list.append("Discrimination")
+  if defense_reasonable_accommodation and "Failure to Provide Reasonable Accommodation" not in temp_defenses_list:
+    temp_defenses_list.append("Failure to Provide Reasonable Accommodation")
+  if defense_vawa and "VAWA Violation" not in temp_defenses_list:
+    temp_defenses_list.append("VAWA Violation")
+  if defense_rent_pleading_requirement and "Rent Pleading Requirement" not in temp_defenses_list:
+    temp_defenses_list.append("Rent Pleading Requirement")
+  if defense_lease_not_attached and "Lease Not Attached" not in temp_defenses_list:
+    temp_defenses_list.append("Lease Not Attached")
+  if defense_tender_refused and "Tender Refused" not in temp_defenses_list:
+    temp_defenses_list.append("Tender Refused")
+  if defense_rent_payment and "Rent Payment" not in temp_defenses_list:
+    temp_defenses_list.append("Rent Payment")
+  if defense_settlement and "Settlement" not in temp_defenses_list:
+    temp_defenses_list.append("Settlement")
+  if defense_lease_signed_under_duress and "Lease Signed Under Duress" not in temp_defenses_list:
+    temp_defenses_list.append("Lease Signed Under Duress")
+  if defense_fraud_lease and "Fraud in the inducement of the rental agreement" not in temp_defenses_list:
+    temp_defenses_list.append("Fraud in the inducement of the rental agreement")
+  if defense_liquidated_damages_late_fees and "Liquidated Damages Late Fees" not in temp_defenses_list:
+    temp_defenses_list.append("Liquidated Damages Late Fees")
+  if defense_estoppel_illegality and "Estoppel-Illegality" not in temp_defenses_list:
+    temp_defenses_list.append("Estoppel-Illegality")
+  if defense_breach_of_cqe and "Breach of CQE / privacy of tenant." not in temp_defenses_list:
+    temp_defenses_list.append("Breach of CQE / privacy of tenant.")
+  if defense_breach_of_habitability and "Breach Of Habitability" not in temp_defenses_list:
+    temp_defenses_list.append("Breach Of Habitability")
+  if defense_foreclosure and "Foreclosure" not in temp_defenses_list:
+    temp_defenses_list.append("Foreclosure")
+  if defense_new_owner_failed_to_provide_notice_of_sale and "New Owner Failed to Provide Notice of Sale" not in temp_defenses_list:
+    temp_defenses_list.append("New Owner Failed to Provide Notice of Sale")
+  if defense_unrepresented_corporation and "Unrepresented Corporation" not in temp_defenses_list:
+    temp_defenses_list.append("Unrepresented Corporation")
+  if defense_excessive_rent_for_subsidized_housing and "Excessive Rent for Subsidized Housing" not in temp_defenses_list:
+    temp_defenses_list.append("Excessive Rent for Subsidized Housing")
+  defenses_list = temp_defenses_list
 ---
 code: |
   store_variables_snapshot(
     persistent=True, 
     data={
         "start_time": start_time(timezone = 'America/Chicago'),
-        "reached_interview_end": False,
+        "reached_interview_end": False
       },
   )
   track_intro = True
@@ -132,53 +218,11 @@ code: |
         "person_answering": showifdef("person_answering"),
         "is_right_to_counsel": showifdef("is_right_to_counsel"),
         "posting_warning": showifdef("posting_warning"),
-        "recommend_filing_answer": showifdef("recommend_filing_answer"),
         "zip": showifdef("users[0].address.zip"),
         "city": showifdef("users[0].address.city"),
         "county": showifdef("users[0].address.county"),
         "user_information_time": snapshot_user_information_time,
-        "case_information_time": snapshot_case_information_time,
-        "review_time": snapshot_review_time,
-        "reached_interview_end": False
-    },
-  )
-  track_review = True
----
-code: |
-  store_variables_snapshot(
-      persistent=True,
-      data={
-          "start_time": start_time(timezone = 'America/Chicago'),
-          "person_answering": showifdef("person_answering"),
-          "is_right_to_counsel": showifdef("is_right_to_counsel"),
-          "posting_warning": showifdef("posting_warning"),
-          "recommend_filing_answer": showifdef("recommend_filing_answer"),
-          "zip": showifdef("users[0].address.zip"),
-          "city": showifdef("users[0].address.city"),
-          "county": showifdef("users[0].address.county"),
-          "user_information_time": snapshot_user_information_time,
-          "case_information_time": snapshot_case_information_time,
-          "review_time": snapshot_review_time,
-          "discovery_time": snapshot_discovery_time,
-          "assembled_documents": assembled_documents,
-          "reached_interview_end": False,
-      },
-  )
-  track_discovery = True
----
-code: |
-  store_variables_snapshot(
-    persistent=True,
-    data={
-        "start_time": start_time(timezone = 'America/Chicago'),
-        "person_answering": showifdef("person_answering"),
-        "is_right_to_counsel": showifdef("is_right_to_counsel"),
-        "posting_warning": showifdef("posting_warning"),
-        "recommend_filing_answer": showifdef("recommend_filing_answer"),
-        "zip": showifdef("users[0].address.zip"),
-        "city": showifdef("users[0].address.city"),
-        "county": showifdef("users[0].address.county"),
-        "user_information_time": snapshot_user_information_time,
+        "beginning_to_user_information_duration": beginning_to_user_information_duration.minutes,
         "reached_interview_end": False,
     },
   )
@@ -192,16 +236,73 @@ code: |
         "person_answering": showifdef("person_answering"),
         "is_right_to_counsel": showifdef("is_right_to_counsel"),
         "posting_warning": showifdef("posting_warning"),
-        "recommend_filing_answer": showifdef("recommend_filing_answer"),
         "zip": showifdef("users[0].address.zip"),
         "city": showifdef("users[0].address.city"),
         "county": showifdef("users[0].address.county"),
         "user_information_time": snapshot_user_information_time,
+        "beginning_to_user_information_duration": beginning_to_user_information_duration.minutes,
         "case_information_time": snapshot_case_information_time,
+        "user_to_case_information_duration": user_to_case_information_duration.minutes,
+        "case_type": case_type.true_values().elements,
+        "eviction_reason": eviction_reason.true_values().elements,
         "reached_interview_end": False,
     },
   )
   track_case_information = True
+---
+code: |
+  store_variables_snapshot(
+    persistent=True,
+    data={
+        "start_time": start_time(timezone = 'America/Chicago'),
+        "person_answering": showifdef("person_answering"),
+        "is_right_to_counsel": showifdef("is_right_to_counsel"),
+        "posting_warning": showifdef("posting_warning"),
+        "zip": showifdef("users[0].address.zip"),
+        "city": showifdef("users[0].address.city"),
+        "county": showifdef("users[0].address.county"),
+        "user_information_time": snapshot_user_information_time,
+        "beginning_to_user_information_duration": beginning_to_user_information_duration.minutes,
+        "case_information_time": snapshot_case_information_time,
+        "user_to_case_information_duration": user_to_case_information_duration.minutes,
+        "case_type": case_type.true_values().elements,
+        "eviction_reason": eviction_reason.true_values().elements,
+        "review_time": snapshot_review_time,
+        "case_to_review_duration": case_to_review_duration.minutes,
+        "discovery_time": snapshot_discovery_time,
+        "defenses_list": defenses_list,
+        "reached_interview_end": False
+    },
+  )
+  track_review = True
+---
+code: |
+  store_variables_snapshot(
+      persistent=True,
+      data={
+          "start_time": start_time(timezone = 'America/Chicago'),
+          "person_answering": showifdef("person_answering"),
+          "is_right_to_counsel": showifdef("is_right_to_counsel"),
+          "posting_warning": showifdef("posting_warning"),
+          "zip": showifdef("users[0].address.zip"),
+          "city": showifdef("users[0].address.city"),
+          "county": showifdef("users[0].address.county"),
+          "user_information_time": snapshot_user_information_time,
+          "beginning_to_user_information_duration": beginning_to_user_information_duration.minutes,
+          "case_information_time": snapshot_case_information_time,
+          "user_to_case_information_duration": user_to_case_information_duration.minutes,
+          "case_type": case_type.true_values().elements,
+          "eviction_reason": eviction_reason.true_values().elements,
+          "review_time": snapshot_review_time,
+          "case_to_review_duration": case_to_review_duration.minutes,
+          "discovery_time": snapshot_discovery_time,
+          "defenses_list": defenses_list,
+          "review_to_discovery_duration": review_to_discovery_duration.minutes,
+          "assembled_documents": assembled_documents,
+          "reached_interview_end": False
+      },
+  )
+  track_discovery = True
 ---
 #################### Interview order #####################
 comment: |
@@ -234,16 +335,16 @@ code: |
   nav.set_section("section_eviction_answer_you")
   users[0].address.address
   users[0].address.geocode()
+  use_case_net_for_online_docket
   users.gather()
+
   track_user_information
+
+  set_parts(subtitle=str(users))
 
   
   ######### About your landlord
   nav.set_section("section_eviction_answer_other")
-  if not (tenant_got_summons and petition_available):
-    signpost_case_net_for_landlord_name # Alternate version of tenant_using_casenet question
-  if tenant_using_casenet:
-    casenet_login_instructions
     
   other_parties.gather()
 
@@ -253,18 +354,10 @@ code: |
   trial_court.county
   trial_court.circuit
   trial_court.name
-  if not trial_court.county == None and tenant_using_casenet:
-    docket_review
 
   original_hearing_date
   petition_date
     
-  docket_number
-
-  if not tenant_got_summons or not petition_available:
-    if not trial_court.county == None and tenant_using_casenet:
-      docket_review
-
   # Eviction reasons
   eviction_reason
   check_case_type
@@ -593,7 +686,6 @@ code: |
   if not case_type["AC Rent and Possession"] and not case_type["AC Landlord Action (Bulk)"]:
     if unlawful_detainer_kick_out_option:
       motion_to_continue_order
-      define('docket_review', True)
   case_type_kickout = True
 ---
 code: |
