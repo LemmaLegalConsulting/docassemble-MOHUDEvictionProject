@@ -1070,6 +1070,91 @@ code: |
 include:
   - review.yml
 ---
+id: waiting screen
+question: |
+  Please wait while we generate your documents
+subquestion: |
+  This can take a few minutes.  You can review this information about the forms, which will also be available on the page you can download the forms.
+  <div class="spinner-border text-primary d-flex justify-content-center" role="status" style="border: 0.25rem solid #007bff;">
+    <span class="sr-only">Creating PDFs...</span>
+  </div>
+  
+    Thank you, ${users}. The forms will be ready to download, print, deliver, and file.
+  
+  **1. View and download the forms below.** Click the "Edit answers" button to fix any mistakes.
+  
+  **2. Print the forms.** You may be able to use a printer at a public library or the county law library.
+  
+  **3. Deliver the forms to:**
+  
+  % if other_parties[0].attorney.there_are_any: 
+  Plaintiff's attorney: ${ other_parties[0].attorney[0].name }
+  
+  % else:
+  Plaintiff: ${ other_parties[0].name }
+  
+  % endif
+  % if other_parties[0].service_method == "email":
+  Email: ${ other_parties[0].service_email }
+  % else:
+  ${ other_parties[0].service_address.block() }
+  % endif
+  
+  **4. Complete and {file} the forms:**
+  
+    * Fill in the date you deliver each form to the other party in the "Certificate of Service" box usually at the end of the document. There are 3 Certificate of Service boxes in the discovery document that you will need to fill in before delivering to the other party. 
+    
+    % if not docket_number: 
+    * Add the case number.
+    
+    % endif
+    * Go to the court and file the forms at the clerk's office.
+
+      ${ trial_court.building_name }
+      
+      ${ trial_court.address.on_one_line() }
+      
+      % if trial_court.schedule is not None:
+      ${ trial_court.schedule }
+      % endif
+  
+  ###Deadline to deliver and file the forms###
+  
+  Deliver and file these forms **as soon as possible**. 
+  % if original_hearing_date_past: 
+  The original hearing date on ${ original_hearing_date } was the deadline to file the answer. Ask the court for more time to file the answer by delivering and filing the **Motion for Leave to File Responsive Pleadings**.
+  % else:
+  The forms must be delivered and filed by **${ original_hearing_date }**. Bring copies with you to court for the hearing.
+  % endif
+event: waiting_screen
+reload: True # This refreshes the page every 10 seconds (by default, it's a global config option)
+---
+code: |
+  generate_downloads_task = background_action('create_downloads')
+---
+event: create_downloads
+code: |
+  # This event actually creates the PDF version of each form. In this example, it loops through user by user
+  # but that's not always needed
+  download_response = {}
+  temp_counter = 0
+  for user in al_user_bundle: # might want to loop through enabled documents instead if you want separate downloads
+    if user.enabled:
+      download_response[temp_counter] = user['final'] # THis is the PDF conversion step which we assign to a temporary list
+      temp_counter += 1
+  background_response_action('save_downloads', download_response=download_response) # This stores the temporary list in a new "action_argument"
+---
+event: save_downloads
+code: |
+  # Docassemble makes you start a new event to actually "save" the results of the background process. Example here
+  ans = action_argument('download_response')
+  temp_counter = 0
+  for user in al_user_bundle:
+    if user.enabled:
+      user['final'].cached_pdf = ans[temp_counter] # This assigns the temporary list item from action_argument to the actual "foreground" interview answers
+      temp_counter += 1
+  background_response() # every ending event needs a background_response() to finish properly
+---
 id: download eviction_defender
 event: eviction_defender_download
 question: |
@@ -1123,15 +1208,13 @@ subquestion: |
   The forms must be delivered and filed by **${ original_hearing_date }**. Bring copies with you to court for the hearing.
   % endif
 
-  ${ action_button_html(url_action('review_eviction_answer'), label='Edit answers', color='info') }
-    
-  % if device().is_mobile:
-  ${ al_user_bundle.download_list_html(format="pdf") }
-  % else:
-  ${ al_user_bundle.download_list_html(format="docx") }
+  % for user in al_user_bundle:
+  % if user.enabled:
+  <h2 class="h4">${ user.title }</h2>
+  ${ action_button_html(user['final'].cached_pdf.docx.url_for(), label=f"{ user.title }", icon="file-word", size="lg", color="primary") }
   % endif
- 
-  ${ al_user_bundle.send_button_html(show_editable_checkbox=True) }
+  % endfor
+  
 
   ${ only_once_review_widget() }
   

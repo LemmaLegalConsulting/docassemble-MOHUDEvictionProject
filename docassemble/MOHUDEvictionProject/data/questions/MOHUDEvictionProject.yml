@@ -109,7 +109,11 @@ code: |
           "reached_interview_end": True
       },
     )
-  eviction_defender_download
+  generate_downloads_task
+  if generate_downloads_task.ready():
+    eviction_defender_download
+  else:
+    waiting_screen
 ---
 code: |
   snapshot_user_information_time = current_datetime(timezone = 'America/Chicago')
