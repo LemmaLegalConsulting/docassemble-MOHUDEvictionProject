@@ -230,7 +230,7 @@ subquestion: |
   ${ collapse_template(find_case_type_example_template) }
   
   % else: 
-  Look at the "Case Header" Tab on Case.net to answer this question.
+  Look at the "Case Header" Tab on [Case.net](https://www.courts.mo.gov/cnet) to answer this question.
 
   Find the field labeled "Case type." There may be more than one case type
   listed.
@@ -349,6 +349,8 @@ template: find_case_type_example_template
 subject: |
   Where do I find the case type on Case.net?
 content: |
+  Your results may look like this:
+
   [FILE CaseHeaderType.png, 100%]
 
   ${ warn_picture_is_example_template }

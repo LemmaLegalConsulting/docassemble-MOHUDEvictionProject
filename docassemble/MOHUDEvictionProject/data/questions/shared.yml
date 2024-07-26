@@ -222,8 +222,8 @@ subquestion:  |
     ${ collapse_template(find_other_plaintiffs_template) }
 
   % else:
-    You can find the name of each {Plaintiff} in the Parties and Attorneys tab 
-    on Case.net.
+    You can find the name of each {Plaintiff} in the "Parties and Attorneys" tab 
+    on [Case.net](https://www.courts.mo.gov/cnet).
 
     If Case.net lists "Doing business as" but not
     another plaintiff you can answer "no" to this question.
@@ -243,6 +243,8 @@ Subject: |
   How do I find out if there are other Plaintiffs?
   % endif
 Content: |
+  Using [Case.net](https://www.courts.mo.gov/cnet), you can find the name of each {Plaintiff} in the "Parties and Attorneys" tab.
+
   If there is more than one plaintiff, they will be listed directly below the first plaintiff.
   
   If Case.net lists "Doing business as" but not another plaintiff like in the example below, you can answer "no" to this question.
@@ -263,7 +265,7 @@ subquestion: |
   ${ collapse_template(find_plaintiff_attorney_representation_template) }
   
   % else:
-    You can find out if the landlord is represented by an attorney in the Parties and Attorneys tab on Case.net.
+    You can find out if the landlord is represented by an attorney in the "Parties and Attorneys" tab on [Case.net](https://www.courts.mo.gov/cnet).
   
     ${ collapse_template(find_plaintiff_attorney_representation_template) }
   
@@ -280,7 +282,13 @@ Subject: |
   How do I find out if ${ other_parties[i] } is represented by an attorney?
   % endif
 Content: |
-  If the landlord is represented by an attorney, then it will say "represented by" to the right of the landlord's name, and the attorney's name and address will be listed below.
+  % if person_answering == "tenant":
+  With your case open on [Case.net](https://www.courts.mo.gov/cnet), click on the "Parties and Attorneys" tab.
+  % else:
+  With the tenant's case open on [Case.net](https://www.courts.mo.gov/cnet), click on the "Parties and Attorneys" tab.
+  % endif
+  
+  If the landlord is represented by an attorney, then it will say "Attorney for Plaintiff" and the attorney's name and address will be listed.
   
   [FILE Parties.png, 100%]
 
@@ -299,13 +307,11 @@ subquestion: |
   If the landlord is represented by an attorney, then the attorney's name and address will be in the box next to the Landlord's name.
   
   [FILE MOSummonsPlaintiffAttorney.png, 100%]
-
-  ${ warn_picture_is_example_template }
   
   ${ collapse_template(find_plaintiff_attorney_name_template) }
   
   % else: 
-  You can find the name and address of the attorney in the Parties and Attorneys tab on Case.net.
+  You can find the name and address of the landlord's attorney in the "Parties and Attorneys" tab on [Case.net](https://www.courts.mo.gov/cnet).
   
   ${ collapse_template(find_plaintiff_attorney_name_template) }
   
@@ -322,7 +328,13 @@ Subject: |
   How do I find the name of ${ other_parties[i] }'s attorney?
   % endif
 Content: |
-  If the landlord is represented by an attorney, then it will say "represented by" to the right of the landlord's name, and the attorney's name and address will be listed below.
+  % if person_answering == "tenant":
+  With your case open on [Case.net](https://www.courts.mo.gov/cnet), click on the "Parties and Attorneys" tab.
+  % else:
+  With the tenant's case open on [Case.net](https://www.courts.mo.gov/cnet), click on the "Parties and Attorneys" tab.
+  % endif
+  
+  If the landlord is represented by an attorney, then it will say "Attorney for Plaintiff" and the attorney's name and address will be listed.
   
   [FILE Parties.png, 100%]
 
@@ -377,9 +389,9 @@ subquestion: |
   
   % else:
     % if person_answering == "tenant":
-    Using Case.net, you can find the time and date of your original court hearing on the "Scheduled Hearings and Trials" tab of your case.
+    Using [Case.net](https://www.courts.mo.gov/cnet), you can find the time and date of your original court hearing on the "Scheduled Hearings and Trials" tab of your case.
     % else:
-  Using Case.net, you can find the time and date of the tenant's original court hearing on the "Scheduled Hearings and Trials" tab of their case.
+  Using [Case.net](https://www.courts.mo.gov/cnet), you can find the time and date of the tenant's original court hearing on the "Scheduled Hearings and Trials" tab of their case.
     % endif
     
     ${ collapse_template(find_original_hearing_on_casenet_template) }
@@ -419,11 +431,11 @@ subject: |
   % endif
 content: | 
   % if person_answering == "tenant":
-    Your original hearing date can be found above the "Judge/Commissioner" information, while the time can be found just above the "Location" information.
+    With your case open on [Case.net](https://www.courts.mo.gov/cnet), click the tab labeled "Scheduled Hearings and Trials." Your original hearing date can be found above the "Judge/Commissioner" information, and the time can be found just above the "Location" information.
     
     Your results may look like this:
   % else:
-    The tenant's original hearing date can be found above the "Judge/Commissioner" information, while the time can be found just above the "Location" information.
+    With the tenant's case open on [Case.net](https://www.courts.mo.gov/cnet), click the tab labeled "Scheduled Hearings and Trials." The tenant's original hearing date can be found above the "Judge/Commissioner" information, and the time can be found just above the "Location" information.
     
     The tenant's results may look like this:
   % endif
@@ -816,28 +828,48 @@ fields:
     field: users.there_is_another
     datatype: yesnoradio
 ---
-## update this screenshot with multiple defendants example
 template: find_other_defendants_template
 subject: |
   How do I find out if there are other Defendants on Case.net?
 content: |
   % if person_answering == "tenant":
-    Case.net will list any other Defendant's name directly below yours with the word "Defendent" next to it.
+    With your case open on [Case.net](https://www.courts.mo.gov/cnet), look for other defendants. Other Defendant's names will be listed directly below yours with the word "Defendent" next to each one.
   % else:
-    Case.net will list any other Defendant's name directly below the first tenant's name with the word "Defendent" next to it.
+    With the tenant's case open on [Case.net](https://www.courts.mo.gov/cnet), look for other defendants. Other Defendant's names will be listed directly below the first tenant's name with the word "Defendent" next to each one.
   % endif
   
-  [FILE Parties.png, 100%]
+  [FILE DocketMultipleDefendants.png, 100%]
 
   ${ warn_picture_is_example_template }
 ---
-## add screenshot and Case.net example
+## Consider adding petition date example from complaint
 id: petition_date 
 question: |
   When did the {Plaintiff} {file} their {petition} in this case?
+subquestion: |
+  Using [Case.net](https://www.courts.mo.gov/cnet), you can find the filing date on the "Case Header" tab.
+
+  ${ collapse_template(find_petition_date_on_casenet_template) }
+  
 fields:
   - Date: petition_date
     datatype: date
+---
+template: find_petition_date_on_casenet_template
+subject: |
+  How do I find the petition filing date on Case.net?
+content: |
+  % if person_answering == "tenant":
+  With your case open on [Case.net](https://www.courts.mo.gov/cnet), click the tab labeled "Case Header." The filing date can be found next to "Date Filed." 
+  % else:
+  With the tenant's case open on [Case.net](https://www.courts.mo.gov/cnet), click the tab labeled "Case Header." The filing date can be found next to "Date Filed." 
+  % endif
+  
+  Your results may look like this:
+
+  [FILE CaseHeaderFilingDate.png, 100%]
+
+  ${ warn_picture_is_example_template }
 ---
 generic object: ALIndividual
 id: service method

@@ -26,7 +26,6 @@ code: |
   
   tenant_got_summons = True
   petition_available = True
-  tenant_using_casenet = False
 
   tenant_doc_name
   landlord_doc_name
@@ -508,17 +507,50 @@ fields:
       variable: rental_address
       is: null
 ---
-## in future add resource for how they can find this information
-## add screenshot and Case.net insructions
 id: outcome
 question: |
   What was the outcome of this eviction case?
+subquestion: |
+  % if person_answering == "tenant":
+  The outcome of your case will be listed under the "Docket Entries" tab on [Case.net](https://www.courts.mo.gov/cnet).
+  % else:
+  The outcome of the tenant's case will be listed under the "Docket Entries" tab on [Case.net](https://www.courts.mo.gov/cnet).
+  % endif
+
+  ${ collapse_template(find_outcome_on_casenet_template) }
+  
 fields:
   - The outcome of this eviction case was: eviction_outcome
     datatype: radio
     choices:
       - Default Judgment
       - Dismissal
+---
+template: find_outcome_on_casenet_template
+subject: |
+  % if person_answering == "tenant":
+  How do I find the outcome of my case on Case.net?
+  % else:
+  How do I find the outcome of the tenant's case on Case.net?
+  % endif
+content: |
+  % if person_answering == "tenant":
+  Using [Case.net](https://www.courts.mo.gov/cnet), click on the "Docket Entries" tab. You can find the outcome of your case in an entry that states "Judgment Entered."
+  
+  In the example below the words "Default Judgment" appear beneath "Judgment Entered."
+  
+  % else:
+  Using [Case.net](https://www.courts.mo.gov/cnet), click on the "Docket Entries" tab. You can find the outcome of the tenant's case in an entry that states "Judgment Entered."
+  
+  In the example below the words "Default Judgment" appear beneath "Judgment Entered."
+  
+  % endif
+  
+  Your results may look this:
+
+  [FILE OutcomeAnon.png, 100%]
+
+  ${ warn_picture_is_example_template }
 ---
 id: reasons for motion
 question: |
