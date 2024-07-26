@@ -410,6 +410,25 @@ fields:
     js show if: |
       val("original_hearing_time") == "Other"
 ---
+question: Final Judgment or Hearing Date?
+subquestion: |
+  You said that the original hearing date has already happened.  What else happened?
+fields: 
+  - Has the court made a final judgment in this case?: final_judgment
+    datatype: yesnomaybe
+  - Date: judgment_date
+    datatype: date
+    max: ${ today() }
+    show if: final_judgment
+  - Has a trial date been scheduled?: trial_date_set
+    datatype: yesnomaybe
+    show if:
+      variable: final_judgment
+      is: False
+  - What date is the trial date set for?: trial_date
+    datatype: date
+    show if: trial_date_set
+---
 template: find_original_hearing_on_casenet_template
 subject: |
   % if tenant_got_summons and petition_available:
@@ -1006,6 +1025,381 @@ code: |
   else:
     x.service_email = x.email
 ---
+depends on: judgment_date
+id: Calculating if judgment_date is more then 30 days ago
+code: |
+  thirty_days_ago = current_datetime() - date_interval(days=30)
+  
+  if final_judgment:
+    judgment_date_more_than_30 = judgment_date <= thirty_days_ago
+  else: 
+    judgment_date_more_than_30 = True
+---
+id: supporting_statement
+question: |
+  Why should the judge agree to cancel the earlier decision because of your request?
+fields: 
+  - Explain: supporting_statement 
+    input type: area
+---
+objects: 
+  - rental_address: ALAddress
+---
+id: rental address
+question: |
+  % if person_answering == "tenant":
+  What is the address of your rental property?
+  % else:
+  What is the address of the tenant's rental property?
+  % endif
+fields:
+  - Rental property address: rental_address
+    datatype: object_radio
+    default: 
+      - users[0].address if defined(users[0].address.attr_name("address")) else None
+    choices:
+      - users[0].address if defined(users[0].address.attr_name("address")) else None
+      - users[0].mailing_address if defined(users[0].mailing_address.attr_name("address")) else None
+    object labeler: |
+      lambda y: y.on_one_line()      
+    none of the above: |
+      Somewhere else   
+  - Address: rental_address.address
+    address autocomplete: True
+    show if:
+      variable: rental_address
+      is: null
+  - Unit: rental_address.unit
+    required: False
+    show if:
+      variable: rental_address
+      is: null
+  - City: rental_address.city
+    show if:
+      variable: rental_address
+      is: null
+  - State: rental_address.state
+    code: |
+      states_list(country_code=AL_DEFAULT_COUNTRY)
+    default: ${ AL_DEFAULT_STATE }
+    show if:
+      variable: rental_address
+      is: null 
+  - Zip: rental_address.zip
+    required: False 
+    show if:
+      variable: rental_address
+      is: null
+---
+## in future add resource for how they can find this information
+## add screenshot and Case.net insructions
+id: outcome
+question: |
+  What was the outcome of this eviction case?
+fields:
+  - The outcome of this eviction case was: eviction_outcome
+    datatype: radio
+    choices:
+      - Default Judgment
+      - Dismissal
+---
+id: reasons for motion
+question: |
+  % if person_answering == "tenant":
+  Why do you need the court records secured?
+  % else: 
+  Why does the tenant need the court records secured?
+  % endif
+fields:
+  - label: |
+      % if person_answering == "tenant":
+      Do any of the following reasons justify securing case records in your case?
+      % else: 
+      Do any of the following reasons justify securing case records in the plaintiff's case?
+      % endif
+    field: reason_for_elevated_security 
+    datatype: checkboxes
+    choices:
+      - Eviction was improperly granted
+      - Domestic violence
+      - Other
+    none of the above: false
+  - Explain: reason_for_elevated_security_other
+    input type: area
+    rows: 5
+    show if:
+      variable: reason_for_elevated_security['Other']
+      is: True
+---
+id: reasons for motion
+question: |
+  % if person_answering == "tenant":
+  Have you already had to pay extra fees or been denied a place to live because of this case getting attention?
+  % else: 
+  Has the tenant already had to pay extra fees or been denied a place to live because of this case getting attention?
+  % endif
+fields:
+  - label: |
+      % if person_answering == "tenant":
+      I am already experiencing the costs of this case getting attention
+      % else: 
+      The tenant is already experiencing the costs of this case getting attention
+      % endif
+    field: tenant_exposed_to_threats
+    datatype: yesnoradio
+---
+id: future costs
+question: |
+  % if person_answering == "tenant":
+  Do you think you will experience costs of this case getting attention in the future?
+  % else: 
+  Does the tenant think they will experience costs of this case getting attention in the future?
+  % endif
+fields:
+  - label: |
+      % if person_answering == "tenant":
+      Do you believe other landlords will refuse to rent to you because the information about this case is public?
+      % else: 
+      Does the tenant believe other landlords will refuse to rent to them because the information about this case is public?
+      % endif
+    field: tenant_believes_landlords_wont_rent 
+    datatype: yesnoradio
+  - label: |
+      % if person_answering == "tenant":
+      Do you believe you will have to pay higher rent, or find a co-signer, or face other economic consequences if this case remains public?
+      % else: 
+      Does the tenant believe they will have to pay higher rent, or find a co-signer, or face other economic consequences if this case remains public?
+      % endif
+    field: economic_consequences
+    datatype: yesnoradio
+  - label: |
+      % if person_answering == "tenant":
+      Do you believe the public visibility of this eviction case will make it harder for you to rent housing?
+      % else: 
+      Does the tenant believe the public visibility of this eviction case will make it harder for the tenant to rent housing?
+      % endif
+    field: tenant_would_be_prejudiced
+    datatype: yesnoradio
+---
+id: hearing date time
+question: |
+  % if person_answering == "tenant":
+  When is your original {hearing} planned?
+  % else: 
+  When is the tenant's original {hearing} planned?
+  % endif
+fields:
+  - Date: original_hearing_date
+    datatype: date
+  - Time: original_hearing_time
+    datatype: radio
+    choices: 
+      - 9:00 AM
+      - Other
+    default: 9:00 AM
+  - Other time: other_time
+    js show if: |
+      val("original_hearing_time") == "Other"
+---
+## add screenshot and Case.net example?
+id: trial date 
+question: |
+  Has the court set a date for trial?
+fields:
+  - The court has set a date for trial: trial_date_set
+    datatype: yesnoradio
+---
+id: answer and assert defenses 
+question: |
+  Do you want to assert {defense|defenses} at trial?
+fields:
+  - I want to assert defenses at trial: wishes_to_assert_affirmative_defenses
+    datatype: yesnoradio
+---
+id: reasons_unable_to_prepare_exists
+question: |
+  Was there a reason you couldn't get your response ready and {file} it on time?
+fields:
+  - There is a reason: reasons_unable_to_prepare_exists
+    datatype: yesnoradio
+  - Explain: reason
+    input type: area
+    show if: reasons_unable_to_prepare_exists
+---
+## in future add link to discovery interview
+id: discovery
+question: |
+  Discovery
+subquestion: |
+  You have the right to have your landlord answer some questions and give you some documents before trial. This is called "discovery."
+  
+  Discovery may help you understand what information or documents your landlord has.
+fields:
+  - Did you request discovery?: discovery_requested
+    datatype: yesnoradio
+  - Are you thinking about requesting discovery?: discovery_planned
+    datatype: yesnoradio
+    show if:
+      variable: discovery_requested
+      is: False
+  - Did the landlord respond to your discovery requests?: discovery_produced
+    datatype: yesnoradio
+    show if:
+      variable: discovery_requested
+      is: True
+  - When did the landlord respond to your discovery requests?: discovery_provided_date
+    datatype: date
+    show if:
+      variable: discovery_produced
+      is: True
+  - Do you disagree with any reasons your landlord gave for not sharing information?: discovery_objections_planned
+    datatype: yesnoradio
+    show if:
+      variable: discovery_produced
+      is: True
+---
+id: trial_date
+question: |
+  % if person_answering == "tenant":
+  When is your trial date planned?
+  % else: 
+  When is the tenant's trial date planned?
+  % endif
+fields:
+  - Date: trial_date
+    datatype: ThreePartsDate
+    alMin: ${ today() }
+  - Time: trial_time
+---
+id: date_counsel_retained
+question: |
+  % if person_answering == "tenant":
+  Did you get a lawyer for this case?
+  % else: 
+  Did the tenant get a lawyer for this case?
+  % endif
+fields:
+  - no label: counsel_retained
+    datatype: yesnoradio
+  - label: |
+      % if person_answering == "tenant":
+      When did you get a lawyer for this case?
+      % else: 
+      When did the tenant get a lawyer for this case?
+      % endif
+    field: date_counsel_retained
+    datatype: ThreePartsDate
+    alMax: ${ today() }
+    show if: counsel_retained
+---
+id: no_dilatory_motive
+question: |
+  % if person_answering == "tenant":
+  Do you have any unfair reasons for making this request?
+  % else:
+  Does the tenant have any unfair reasons for making this request?
+  % endif
+fields:
+  - label: |
+      % if person_answering == "tenant":
+      Do you have a reason for making the time shorter that might not seem fair?
+      % else: 
+      Does the tenant have a reason for making the time shorter that might not seem fair?
+      % endif
+    field: unfair_motive 
+    datatype: yesnoradio
+  - label: |
+      % if person_answering == "tenant":
+      Did you have enough time to ask questions or disagree with the Plaintiff's petition?
+      % else: 
+      Did the tenant have enough time to ask questions or disagree with the Plaintiff's petition?
+      % endif
+    field: enough_time 
+    datatype: yesnoradio
+---
+code: |
+  if not unfair_motive and not enough_time: 
+    no_dilatory_motive = True
+  else:
+    no_dilatory_motive = False
+---
+id: may_resolve_case_more_efficiently
+question: |
+  % if person_answering == "tenant":
+  Could this case be solved faster if the judge approves your request?
+  % else: 
+  Could this case be solved faster if the judge approves the tenant's request?
+  % endif
+fields:
+  - label: |
+      % if person_answering == "tenant":
+      This case could be solved faster if the judge approves my request
+      % else: 
+      This case could be solved faster if the judge approves the tenant's request
+      % endif
+    field: may_resolve_case_more_efficiently
+    datatype: yesnoradio
+---
+id: opposing_party_consent_to_motion_to_elevate_security
+question: |
+  Does ${ other_parties } consent to this Motion to Elevate Security?
+fields:
+  - Does ${ other_parties } consent to this Motion?: opposing_party_consent_to_motion_to_elevate_security
+    datatype: yesnoradio
+---
+id: opposing_party_consent_to_motion_for_leave_to_file
+question: |
+  Does ${ other_parties } consent to this Motion for Leave to File Responsive Pleadings?
+fields:
+  - Does ${ other_parties } consent to this Motion?: opposing_party_consent_to_motion_for_leave_to_file
+    datatype: yesnoradio
+---
+id: opposing_party_consent_to_motion_to_shorten_time
+question: |
+  Does ${ other_parties } consent to this Motion to Shorten Time?
+fields:
+  - Does ${ other_parties } consent to this Motion?: opposing_party_consent_to_motion_to_shorten_time
+    datatype: yesnoradio
+---
+code: |
+  before_trial = date_difference(starting=date_counsel_retained,ending=trial_date)
+  if before_trial.days == 0:
+    days_before_trial = "the same day as"
+  elif before_trial.days == 1:
+    days_before_trial = "the day prior to"
+  else:
+    days_before_trial = nice_number(before_trial.days) + " days prior to"
+---
+id: new hearing date time
+question: When is the new {hearing}?
+fields:
+  - Date: new_hearing_date
+    datatype: ThreePartsDate
+    alMin: ${ today() }
+  - "New hearing time": new_hearing_time
+    datatype: radio
+    choices: 
+      - 9:00 AM
+      - Other
+    default: 9:00 AM
+  - Other time: new_other_time
+    js show if: |
+      val("new_hearing_time") == "Other"
+---
+code: |
+  motions_attached = list()
+  for motion in motion_list.true_values():
+    if not motion == "motion_to_shorten_time":
+      motions_attached.append(motion_list[motion])
+---
+code: |
+  motions_for_hearing = list()
+  for motion in motion_list.true_values():
+    if not motion == "notice_of_hearing":
+      motions_for_hearing.append(motion_checkboxes[motion])
+---
+
+
 attachment:
   - name: eviction motion to continue post interview instructions
     filename: Post-interview-instructions     
@@ -1061,6 +1455,13 @@ attachment:
     variable name: motion_to_dismiss_attachment[i]        
     skip undefined: True
     docx template file: motion_to_dismiss.docx
+---
+attachment:
+  - name: motion to set aside
+    filename: motion_to_set_aside
+    variable name: motion_to_set_aside_attachment[i]        
+    skip undefined: True
+    docx template file: motion_to_set_aside.docx
 ---
 id: preview eviction_defender
 question: |
@@ -1194,7 +1595,10 @@ objects:
   - notice_of_hearing_attachment: ALDocument.using(title="File a Notice of Hearing", filename="notice_of_hearing.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
 ---
 objects:
-  - al_user_bundle: ALDocumentBundle.using(elements=[eviction_defender_post_interview_instructions,eviction_motion_to_continue_attachment,eviction_answer_attachment,eviction_motion_for_leave_attachment,motion_to_shorten_time_attachment,eviction_discovery_attachment,motion_to_dismiss_attachment,notice_of_hearing_attachment], filename="eviction_helper.docx_package.pdf", title="All forms to download for your records", enabled=True)
+  - motion_to_set_aside_attachment: ALDocument.using(title="File a Motion to Set Aside Judgment", filename="motion_to_set_aside.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+---
+objects:
+  - al_user_bundle: ALDocumentBundle.using(elements=[eviction_defender_post_interview_instructions,eviction_motion_to_continue_attachment,eviction_answer_attachment,eviction_motion_for_leave_attachment,motion_to_shorten_time_attachment,eviction_discovery_attachment,motion_to_dismiss_attachment,motion_to_set_aside_attachment,notice_of_hearing_attachment], filename="eviction_helper.docx_package.pdf", title="All forms to download for your records", enabled=True)
   - al_court_bundle: ALDocumentBundle.using(elements=attachment_list_court, filename="eviction_helper.docx_package.pdf", title="All forms to download for your records", enabled=True)
 ---
 template: about_page_contents
