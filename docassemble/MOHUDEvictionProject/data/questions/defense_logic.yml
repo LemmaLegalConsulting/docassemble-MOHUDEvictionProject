@@ -43,7 +43,7 @@ depends on:
   - defense_no_breach
   - defense_breach_not_material
 code: |
-  if case_type["AC Unlawful Detainer"]:
+  if eviction_reason["lease violation"]:
     defense_ud_did_not_violate_lease = (
       defense_no_breach or
       defense_breach_not_material

@@ -50,7 +50,7 @@ code: |
   if motion_list['motion_to_set_aside_judgment']: 
     final_judgment
   
-  if (motion_list['motion_to_dismiss'] and (not has_written_lease or lease_attached or not eviction_reason["nonpayment of rent"])) or (motion_list['motion_to_set_aside_judgment'] and (judgment_date_more_than_30 or not final_judgment)):
+  if (motion_list['motion_to_dismiss'] and (not has_written_lease or lease_attached or not eviction_reason["nonpayment of rent"])) or (motion_list['motion_to_set_aside_judgment'] and (judgment_date_more_than_one_year or not final_judgment)):
     warning_kickout_loop
   
   trial_court.name

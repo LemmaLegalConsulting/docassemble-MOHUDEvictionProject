@@ -1028,12 +1028,12 @@ code: |
 depends on: judgment_date
 id: Calculating if judgment_date is more then 30 days ago
 code: |
-  thirty_days_ago = current_datetime() - date_interval(days=30)
+  one_year_ago = current_datetime() - date_interval(years=1)
   
   if final_judgment:
-    judgment_date_more_than_30 = judgment_date <= thirty_days_ago
+    judgment_date_more_than_one_year = judgment_date <= one_year_ago
   else: 
-    judgment_date_more_than_30 = True
+    judgment_date_more_than_one_year = True
 ---
 id: supporting_statement
 question: |
