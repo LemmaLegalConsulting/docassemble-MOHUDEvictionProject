@@ -1,4 +1,5 @@
 ---
+id: edde include
 include:
   - shared.yml
 ---
@@ -21,12 +22,15 @@ metadata:
   al_weaver_version: "1.7.0"
   generated on: "2022-09-08"
 ---
+id: edde modules
 modules:
   - docassemble.ALToolbox.al_income
 ---
+id: edde interview_short_title
 code: |
   interview_short_title = "Eviction Defender"
 ---
+id: edde sections block
 sections:
   - section_eviction_answer_intro: Getting started
   - section_eviction_answer_can_i: Should you file an Answer?
@@ -39,10 +43,12 @@ sections:
   - section_eviction_discovery: Discovery
   - section_eviction_answer_download: Download, print, deliver, and file
 ---
+id: edde user role
 code: |
   user_role = user_ask_role = "defendant"
 ---
 ###################### Main order ######################
+id: main order
 mandatory: True
 code: |
   al_intro_screen
@@ -110,37 +116,47 @@ code: |
     )
   eviction_defender_download
 ---
+id: snapshot_user_information_time
 code: |
   snapshot_user_information_time = current_datetime(timezone = 'America/Chicago')
 ---
+id: beginning_to_user_information_duration
 code: |
   beginning_to_user_information_duration = date_difference(starting=start_time(timezone = 'America/Chicago'),ending = snapshot_user_information_time)
 ---
+id: snapshot_case_information_time
 code: |
   snapshot_case_information_time = current_datetime(timezone = 'America/Chicago')
 ---
+id: user_to_case_information_duration
 code: |
   user_to_case_information_duration = date_difference(starting=snapshot_user_information_time,ending = snapshot_case_information_time)
 ---
+id: snapshot_review_time
 code: |
   snapshot_review_time = current_datetime(timezone = 'America/Chicago')
 ---
+id: case_to_review_duration
 code: |
   case_to_review_duration = date_difference(starting=snapshot_case_information_time, ending = snapshot_review_time)
 ---
+id: snapshot_discovery_time
 code: |
   snapshot_discovery_time = current_datetime(timezone = 'America/Chicago')
 ---
+id: review_to_discovery_duration
 code: |
   review_to_discovery_duration = date_difference(starting=snapshot_review_time, ending = snapshot_discovery_time)
 ---
+id: discovery_to_final_duration
 code: |
   discovery_to_final_duration = date_difference(starting=snapshot_discovery_time, ending = current_datetime(timezone = 'America/Chicago') )
 ---
+id: total_interview_duration
 code: |
   total_interview_duration = date_difference(starting=start_time(timezone = 'America/Chicago'),ending = current_datetime(timezone = 'America/Chicago') )
 ---
-id:  defense logic order
+id: defenses_list
 comment: |
   This can't be the best way to do this. Can a DADict act like a checkboxes dictionary?
 code: |
@@ -199,6 +215,7 @@ code: |
     temp_defenses_list.append("Excessive Rent for Subsidized Housing")
   defenses_list = temp_defenses_list
 ---
+id: track_intro
 code: |
   store_variables_snapshot(
     persistent=True, 
@@ -209,6 +226,7 @@ code: |
   )
   track_intro = True
 ---
+id: track_user_information
 code: |
   store_variables_snapshot(
     persistent=True,
@@ -227,6 +245,7 @@ code: |
   )
   track_user_information = True
 ---
+id: track_case_information
 code: |
   store_variables_snapshot(
     persistent=True,
@@ -249,6 +268,7 @@ code: |
   )
   track_case_information = True
 ---
+id: track_review
 code: |
   store_variables_snapshot(
     persistent=True,
@@ -275,6 +295,7 @@ code: |
   )
   track_review = True
 ---
+id: track_discovery
 code: |
   store_variables_snapshot(
       persistent=True,
@@ -304,9 +325,9 @@ code: |
   track_discovery = True
 ---
 #################### Interview order #####################
+id: interview_order_eviction
 comment: |
   Controls order and branching logic for questions specific to this form
-id: interview_order_eviction
 code: |
   ############## Intro
   nav.set_section('section_eviction_answer_intro')
@@ -416,24 +437,27 @@ code: |
     
   document_order = True
 ---
+id: precheck_items
 code: |
   interrogatories.precheck_items(limit=24)
   document_requests.precheck_items(limit=None)
   precheck_items = True
 ---
-## other parties 
+## other parties
+id: plaintiffs
 code: | 
   other_parties[i].name.first
   other_parties[i].attorney.gather()
   other_parties[i].complete = True
 ---
 ## other party's attorneys
+id: plaintiffs attorney
 code: |
   other_parties[i].attorney[0].name.first
   other_parties[i].attorney.complete = True
 ---
-sets: posting_warning
 id: soft exit posting eviction
+sets: posting_warning
 decoration: hand
 question: |
   % if person_answering == "tenant":
@@ -569,6 +593,7 @@ subquestion: |
   % endif
 continue button field: recommend_filing_answer
 ---
+id: landlord problems section order
 code: |
   if warranty_breaches.any_true():
     notice_of_breach_to_landlord
@@ -679,14 +704,15 @@ continue button field: eviction_defender_intro
 buttons:
   - I agree: continue
 ---
-only sets: case_type_kickout
 id: case type kickout for answer
+only sets: case_type_kickout
 code: |
   if not case_type["AC Rent and Possession"] and not case_type["AC Landlord Action (Bulk)"]:
     if unlawful_detainer_kick_out_option:
       motion_to_continue_order
   case_type_kickout = True
 ---
+id: petition review order
 code: |
   docket_number
   filing_date
@@ -719,9 +745,11 @@ depends on: original_hearing_date_past
 code: |
   eviction_motion_for_leave_attachment.enabled = original_hearing_date_past
 ---
+id: add eviction discovery if wants discovery
 code: |
   eviction_discovery_attachment.enabled = wants_discovery
 ---
+id: add motion to shorten time if wants discovery and hearing date in future
 code: |
   motion_to_shorten_time_attachment.enabled = wants_discovery and not original_hearing_date_past
 ---
@@ -733,6 +761,7 @@ id: add notice of hearing if any motions enabled
 code: |
   notice_of_hearing_attachment.enabled = motion_to_shorten_time_attachment.enabled or eviction_motion_for_leave_attachment.enabled or eviction_motion_to_continue_attachment.enabled
 ---
+id: motions for hearing
 code: |
   motions_for_hearing_temp = list()
   if motion_to_shorten_time_attachment.enabled and "Motion to Shorten Time" not in motions_for_hearing_temp:
@@ -743,6 +772,7 @@ code: |
     motions_for_hearing_temp.append("Motion to Continue")
   motions_for_hearing = motions_for_hearing_temp
 ---
+id: assembled_documents
 code: |
   assembled_documents_temp = list()
   if "Answer" not in assembled_documents_temp:

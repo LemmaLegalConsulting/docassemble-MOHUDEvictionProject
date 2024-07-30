@@ -6,6 +6,7 @@ question: |
 subquestion: |
   ${ nonpayment_defense_explanation_template }
 ---
+id: nonpayment_defense_explanation_template
 template: nonpayment_defense_explanation_template
 content: |
   Based on your answers, the following defenses are included in 
@@ -130,36 +131,42 @@ content: |
   % endif
   % endif
 ---
+id: defense_failure_to_terminate_template
 template: defense_failure_to_terminate_template
 subject: |
   Landlord did not properly terminate the tenancy in accordance with RSMo § 441.060
 content: |
   A landlord must give proper notice to terminate a lease.
 ---
+id: defense_ud_did_not_violate_lease_template
 template: defense_ud_did_not_violate_lease_template
 subject: |
   Tenant denies that Tenant violated the terms of Tenant's lease or that the claimed violation is a material breach
 content: |
   A landlord should have to prove that the tenant committed a violation serious enough to evict for.
 ---
+id: defense_discrimination_template
 template: defense_discrimination_template
 subject: |
   Landlord discriminated against Tenant in violation of state and federal law
 content: |
   Civil rights laws protect tenants from a landlord discriminating against them because of their race, gender, or other protected status.
 ---
+id: defense_reasonable_accommodation_template
 template: defense_reasonable_accommodation_template
 subject: |
   Landlord failed to reasonably accommodate Tenant's disability
 content: |
   A landlord must make reasonable accommodations for a tenant's disability.  If the landlord fails to make a reasonable accommodation, the landlord should not be able to evict the tenant for problems caused by that failure.
 ---
+id: defense_vawa_template
 template: defense_vawa_template
 subject: |
   Tenant has a defense under the provisions of the Violence Against Women Act, 34 U.S.C. § 12491, et seq.
 content: |
   Residents of subsidized housing cannot be evicted because they are victims of domestic violence.
 ---
+id: defense_rent_pleading_requirement_template
 template: defense_rent_pleading_requirement_template
 subject: |
   Landlord failed to state a claim for rent and possession
@@ -218,6 +225,7 @@ content: |
   % endif
   % endif
 ---
+id: defense_liquidated_damages_late_fees_template
 template: defense_liquidated_damages_late_fees_template
 subject: |
   The late fees attached to the Landlord’s Petition are
@@ -246,18 +254,21 @@ content: |
   This defense alone may not help the tenant avoid the eviction, but it can reduce the amount of money the tenant owes the landlord.
   % endif
 ---
+id: defense_foreclosure_template
 template: defense_foreclosure_template
 subject: |
   The premises have been foreclosed upon but the Landlord has not followed proper procedures
 content: |
   There are special protections for tenants when their landlord loses the home through foreclosure.  The new owner of the home is required to provide notice of the foreclosure
 ---
+id: defense_unrepresented_corporation_template
 template: defense_unrepresented_corporation_template
 subject: |
   The Landlord is required to have an attorney in this case and it must be dismissed
 content: |
   A business entity, like a corporation, must have an attorney to evict a tenant in court.
 ---
+id: defense_lease_not_attached_template
 template: defense_lease_not_attached_template
 subject: | 
   Plaintiff did not provide a copy or description of the lease
@@ -266,6 +277,7 @@ subject: |
 content: |
   A landlord must attach the written {lease} to the landlord's petition to be able to evict.  
 ---
+id: defense_tender_refused_template
 template: defense_tender_refused_template
 subject: | 
   Landlord refused Tenant’s tender of rent
@@ -282,12 +294,14 @@ content: |
   The tenant will need proof such as a letter from the landlord refusing to accept the money, a written check or money order or a witness to the landlord’s refusal. If the tenant has no proof, the tenant can offer to pay the amount claimed plus court costs in front of the judge. Make sure the tenant has a certified check, money order or cash for the full amount with the tenant. Full payment of rent owed plus {court costs} is the tenant's best defense.
   % endif
 ---
+id: defense_rent_payment_template
 template: defense_rent_payment_template
 subject: | 
   Tenant has paid the rent allegedly owed
 content: |
   A landlord also needs to allege that a tenant didn't make the payment that a tenant is obligated to make.
 ---
+id: defense_settlement_template
 template: defense_settlement_template
 subject: | 
   Landlord and Tenant entered into a settlement agreement and Tenant has complied with the settlement’s terms
@@ -298,6 +312,7 @@ content: |
   The tenant can enforce a {settlement|settlement agreement} the tenant made with the landlord to avoid an eviction. The tenant will need to prove that the tenant made an agreement and that the tenant did what the tenant was required to do under the agreement.
   % endif
 ---
+id: defense_lease_signed_under_duress_template
 template: defense_lease_signed_under_duress_template
 subject: | 
   The lease is invalid because unfair duress by Landlord caused Tenant to enter the lease
@@ -308,6 +323,7 @@ content: |
   A landlord who forced the tenant or coerced the tenant into signing a lease should not be able to hold the tenant responsible to charges under that lease.
   % endif
 ---
+id: defense_fraud_lease_template
 template: defense_fraud_lease_template
 subject: | 
   Landlord’s fraudulent promises induced Tenant to enter the lease
@@ -318,12 +334,14 @@ content: |
   A landlord who tricks the tenant into signing a lease should not be able to hold the tenant responsible to charges under that lease.
   % endif
 ---
+id: defense_estoppel_illegality_template
 template: defense_estoppel_illegality_template
 subject: | 
   Landlord is estopped from enforcement of the lease because it has violated Missouri law
 content: |
   "Estopped" means that a landlord should be prevented from benefiting from a lease if a landlord already violated the law.
 ---
+id: defense_breach_of_habitability_template
 template: defense_breach_of_habitability_template
 subject: | 
   Landlord has breached the implied warranty of habitability
@@ -334,12 +352,14 @@ content: |
   For example, the landlord has let the building run down and has not fixed major problems such as lack of running water, even after being notified of such problems. The tenant should ask the judge to let the tenant stay and either continue to pay a lower rent, make the landlord pay the tenant for damages caused by the landlord’s failure to make needed repairs or excuse the tenant from paying all, or part of, the back rent owed. The tenant will need proof such as photos, letters to the tenant's landlord asking for repairs, copies of code violation reports or witnesses such as the building inspector. In some cases, the court may ask for proof that the tenant has set aside the money the tenant did not pay.
   % endif
 ---
+id: defense_new_owner_failed_to_provide_notice_of_sale_template
 template: defense_new_owner_failed_to_provide_notice_of_sale_template
 subject: | 
   The premises have been sold but the prior Landlord has not provided Tenant the required notices and therefore no rent is owed
 content: |
   There are special protections for tenants when their landlord sells the tenant's home.  The new owner of the home is required to provide proof of the sale.
 ---
+id: defense_excessive_rent_for_subsidized_housing_template
 template: defense_excessive_rent_for_subsidized_housing_template
 subject: | 
   Plaintiff has charged Defendant excessive rent in violation of the housing subsidy
@@ -2271,6 +2291,7 @@ review:
   - raw html: |
       ${ end_accordion() }
 ---
+id: users.revisit
 continue button field: users.revisit
 question: |
   Edit users
@@ -2279,6 +2300,7 @@ subquestion: |
 
   ${ users.add_action() }
 ---
+id: users.table
 table: users.table
 rows: users
 columns:
@@ -2291,6 +2313,7 @@ edit:
   - address
 confirm: True
 ---
+id: other_parties.revisit
 continue button field: other_parties.revisit
 question: |
   Edit Plaintiffs/Landlord
@@ -2299,6 +2322,7 @@ subquestion: |
 
   ${ other_parties.add_action() }
 ---
+id: other_parties.table
 table: other_parties.table
 rows: other_parties
 columns:
@@ -2314,6 +2338,7 @@ edit:
   - attorney.revisit
 confirm: True
 ---
+id: other_parties attorney.revisit
 continue button field: other_parties[i].attorney.revisit
 question: |
   Attorney for ${ other_parties[i] }
@@ -2322,6 +2347,7 @@ subquestion: |
 
   ${ other_parties[i].attorney.add_action() }
 ---
+id: other_parties attorney.table
 table: other_parties[i].attorney.table
 rows: other_parties[i].attorney
 columns:
@@ -2333,6 +2359,7 @@ edit:
   - address.address
   - name.first
 ---
+id: false_promises.revisit
 continue button field: false_promises.revisit
 question: |
   Edit False Promises Made By Landlord
@@ -2341,6 +2368,7 @@ subquestion: |
   
   ${ false_promises.add_action() }
 ---
+id: false_promises.table
 table: false_promises.table
 rows: false_promises
 columns:
@@ -2348,6 +2376,7 @@ columns:
       row_item
 edit: True
 ---
+id: offer_attempts.revisit
 continue button field: offer_attempts.revisit
 question: |
   Edit Attempts to Pay Rent
@@ -2356,6 +2385,7 @@ subquestion: |
   
   ${ offer_attempts.add_action() }
 ---
+id: offer_attempts.table
 table: offer_attempts.table
 rows: offer_attempts
 columns:

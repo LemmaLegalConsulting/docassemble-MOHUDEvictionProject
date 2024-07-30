@@ -1,3 +1,4 @@
+id: legal aid locator include
 include:
   - docassemble.AssemblyLine:assembly_line.yml
   - docassemble.ALAnyState:any_state.yml
@@ -22,6 +23,7 @@ metadata:
     - Ian Eisaman
     - Mia Bonardi
 ---
+id: locate legal aid program
 mandatory: True
 question: |
   ${ county_dictionary[trial_court.county]["legal_aid_program"] }
@@ -41,6 +43,7 @@ subquestion: |
 code: |
   users[0].name = "Not Important"
 ---
+id: AL_DEFAULT_STATE
 code: |
   AL_DEFAULT_STATE = "Missouri"
 ---

@@ -1,4 +1,5 @@
 ---
+id: information_collected
 code: |
   what_happens_at_the_hearing_ic = list()
   what_the_judge_can_do_at_the_hearing_ic = list()
