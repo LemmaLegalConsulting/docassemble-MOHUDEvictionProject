@@ -57,6 +57,16 @@ code: |
   eviction_defender_intro
   document_order
   nav.set_section("review_eviction_answer")
+  
+
+  signpost_service_of_process
+  nav.set_section("section_eviction_answer_download")  
+  signature_date
+  if other_parties[0].service_method == "email":
+    other_parties[0].service_email
+  elif other_parties[0].service_method in ["mail", "hand"]:
+    other_parties[0].service_address.address
+    
   review_eviction_answer
   track_review
 
@@ -69,12 +79,16 @@ code: |
     if customize_discovery_choice == "customize_discovery":
       customize_discovery_requests
       review_discovery_requests
-
+    if motion_to_shorten_time_attachment.enabled:
+      motion_to_shorten_time_order
   
   motions_for_hearing
+  notice_of_hearing_attachment.enabled
+  
 
   set_progress(90)
   track_discovery
+
 
   signpost_service_of_process
   nav.set_section("section_eviction_answer_download")  
@@ -83,6 +97,7 @@ code: |
     other_parties[0].service_email
   elif other_parties[0].service_method in ["mail", "hand"]:
     other_parties[0].service_address.address
+
 
   docket_review_conclusion
   set_progress(100)
@@ -96,16 +111,16 @@ code: |
           "zip": showifdef("users[0].address.zip"),
           "city": showifdef("users[0].address.city"),
           "county": showifdef("users[0].address.county"),
-          "user_information_time": snapshot_user_information_time,
-          "beginning_to_user_information_duration": beginning_to_user_information_duration.minutes,
-          "case_information_time": snapshot_case_information_time,
-          "user_to_case_information_duration": user_to_case_information_duration.minutes,
+          "user_information_time": showifdef("snapshot_user_information_time"),
+          "beginning_to_user_information_duration": showifdef("beginning_to_user_information_duration.minutes"),
+          "case_information_time": showifdef("snapshot_case_information_time"),
+          "user_to_case_information_duration": showifdef("user_to_case_information_duration.minutes"),
           "case_type": case_type.true_values().elements,
           "eviction_reason": eviction_reason.true_values().elements,
           "review_time": snapshot_review_time,
-          "case_to_review_duration": case_to_review_duration.minutes,
+          "case_to_review_duration": showifdef("case_to_review_duration.minutes"),
           "discovery_time": snapshot_discovery_time,
-          "defenses_list": defenses_list,
+          "defenses_list": showifdef("defenses_list"),
           "review_to_discovery_duration": review_to_discovery_duration.minutes,
           "assembled_documents": assembled_documents,
           "download_time": current_datetime(timezone = 'America/Chicago'),
@@ -280,16 +295,16 @@ code: |
         "zip": showifdef("users[0].address.zip"),
         "city": showifdef("users[0].address.city"),
         "county": showifdef("users[0].address.county"),
-        "user_information_time": snapshot_user_information_time,
+        "user_information_time": showifdef("snapshot_user_information_time"),
         "beginning_to_user_information_duration": beginning_to_user_information_duration.minutes,
-        "case_information_time": snapshot_case_information_time,
-        "user_to_case_information_duration": user_to_case_information_duration.minutes,
+        "case_information_time": showifdef("snapshot_case_information_time"),
+        "user_to_case_information_duration": showifdef("user_to_case_information_duration.minutes"),
         "case_type": case_type.true_values().elements,
         "eviction_reason": eviction_reason.true_values().elements,
         "review_time": snapshot_review_time,
-        "case_to_review_duration": case_to_review_duration.minutes,
-        "discovery_time": snapshot_discovery_time,
-        "defenses_list": defenses_list,
+        "case_to_review_duration": showifdef("case_to_review_duration.minutes"),
+        "discovery_time": showifdef("snapshot_discovery_time"),
+        "defenses_list": showifdef("defenses_list"),
         "reached_interview_end": False
     },
   )
@@ -307,16 +322,16 @@ code: |
           "zip": showifdef("users[0].address.zip"),
           "city": showifdef("users[0].address.city"),
           "county": showifdef("users[0].address.county"),
-          "user_information_time": snapshot_user_information_time,
-          "beginning_to_user_information_duration": beginning_to_user_information_duration.minutes,
-          "case_information_time": snapshot_case_information_time,
-          "user_to_case_information_duration": user_to_case_information_duration.minutes,
+          "user_information_time": showifdef("snapshot_user_information_time"),
+          "beginning_to_user_information_duration": showifdef("beginning_to_user_information_duration.minutes"),
+          "case_information_time": showifdef("snapshot_case_information_time"),
+          "user_to_case_information_duration": showifdef("user_to_case_information_duration.minutes"),
           "case_type": case_type.true_values().elements,
           "eviction_reason": eviction_reason.true_values().elements,
           "review_time": snapshot_review_time,
-          "case_to_review_duration": case_to_review_duration.minutes,
+          "case_to_review_duration": showifdef("case_to_review_duration.minutes"),
           "discovery_time": snapshot_discovery_time,
-          "defenses_list": defenses_list,
+          "defenses_list": showifdef("defenses_list"),
           "review_to_discovery_duration": review_to_discovery_duration.minutes,
           "assembled_documents": assembled_documents,
           "reached_interview_end": False
@@ -376,6 +391,15 @@ code: |
   trial_court.name
 
   original_hearing_date
+  if original_hearing_date_past:
+    if final_judgment:
+      if motion_to_set_aside_attachment.enabled:
+        if motion_to_set_aside_judgment_order_exit:
+          motion_to_set_aside_exit
+      elif judgment_date_more_than_one_year:
+        old_judgment_warning
+  eviction_motion_to_continue_attachment.enabled
+  eviction_motion_for_leave_attachment.enabled
   petition_date
     
   # Eviction reasons
@@ -430,6 +454,7 @@ code: |
   if landlord_agreement:
     tenant_compliance_with_agreement
   defense_logic
+  any_defense_true
   information_collected
   
   nav.set_section("review_eviction_answer")
@@ -456,6 +481,31 @@ code: |
   other_parties[i].attorney[0].name.first
   other_parties[i].attorney.complete = True
 ---
+
+sets: old_judgment_warning
+id: soft exit old judgment
+decoration: hand
+question: |
+  % if person_answering == "tenant":
+  You may not want to {file} an {answer}
+  % else: 
+  The tenant may not want to {file} an {answer}
+  % endif
+subquestion: |
+  % if person_answering == "tenant":
+  You said that the final judgment date was $( judgment_date }, which was more than a year ago.  Although you may still be able to set aside the judgment, you should talk to a lawyer because it is more complicated.
+  % else: 
+    You said that the final judgment date was $( judgment_date }, which was more than a year ago.  Although the tenant may still be able to set aside the judgment, the tenant should talk to a lawyer because it is more complicated.
+  % endif
+  
+buttons:
+  - ${"I understand, let me keep going" if person_answering == "tenant" else "The tenant understands, let them keep going"}:
+      code: |
+        old_judgment_warning = True
+  - Exit: exit
+    url: https://motenanthelp.org/
+---
+sets: posting_warning
 id: soft exit posting eviction
 sets: posting_warning
 decoration: hand
@@ -713,6 +763,7 @@ code: |
   case_type_kickout = True
 ---
 id: petition review order
+
 code: |
   docket_number
   filing_date
@@ -738,28 +789,60 @@ comment: |
 id: add motion to continue if hearing not in the past
 depends on: original_hearing_date_past
 code: |
-  eviction_motion_to_continue_attachment.enabled = not original_hearing_date_past
+  eviction_motion_to_continue_attachment.enabled = not original_hearing_date_past and not motion_to_set_aside_attachment.enabled
 ---
 id: add motion for leave to file if hearing is in the past
 depends on: original_hearing_date_past
 code: |
-  eviction_motion_for_leave_attachment.enabled = original_hearing_date_past
+  eviction_motion_for_leave_attachment.enabled = original_hearing_date_past and not motion_to_set_aside_attachment.enabled
 ---
 id: add eviction discovery if wants discovery
 code: |
-  eviction_discovery_attachment.enabled = wants_discovery
+  eviction_discovery_attachment.enabled = wants_discovery and not motion_to_set_aside_attachment.enabled
 ---
 id: add motion to shorten time if wants discovery and hearing date in future
 code: |
   motion_to_shorten_time_attachment.enabled = wants_discovery and not original_hearing_date_past
 ---
+depends on:
+  - final_judgment
+  - judgment_date_more_than_one_year
+code: |
+  motion_to_set_aside_attachment.enabled = final_judgment and not judgment_date_more_than_one_year
+---
+question: Motion to Set Aside
+subquestion: |
+  You said that there has already been a final judgment.  In that case, filing a Motion to Set Aside Judgment is required before filing anything else.  
+  
+  Do you want to make a Motion to Set Aside Judgment as recommended or do you want to finish the Answer anyway?
+field: motion_to_set_aside_judgment_order_exit
+datatype: boolean
+buttons:
+  code: |
+    [{'label': "Motion to Set Aside Judgment",
+      'value': True,
+      'css class': 'good',
+      'color': 'success'},
+     {'label': "Finish the eviction answer",
+      'value': False,
+      'css class': 'clueless',
+      'color': 'danger'}]
+---
+only sets: motion_to_set_aside_exit
+code: |
+  petition_date 
+  supporting_statement
+  wants_discovery = False
+  document_order = True
+  motion_to_set_aside_exit = True
+---
 id: add motion to dismiss if no lease
 code: |
-  motion_to_dismiss_attachment.enabled = defense_lease_not_attached
+  motion_to_dismiss_attachment.enabled = not motion_to_set_aside_attachment.enabled and defense_lease_not_attached
 ---
 id: add notice of hearing if any motions enabled
 code: |
-  notice_of_hearing_attachment.enabled = motion_to_shorten_time_attachment.enabled or eviction_motion_for_leave_attachment.enabled or eviction_motion_to_continue_attachment.enabled
+  notice_of_hearing_attachment.enabled = motion_to_shorten_time_attachment.enabled or eviction_motion_for_leave_attachment.enabled or eviction_motion_to_continue_attachment.enabled or motion_to_set_aside_attachment.enabled
 ---
 id: motions for hearing
 code: |
@@ -787,12 +870,14 @@ code: |
     assembled_documents_temp.append("Discovery")
   if motion_to_shorten_time_attachment.enabled and "Motion to Shorten Time" not in assembled_documents_temp:
     assembled_documents_temp.append("Motion to Shorten Time")
+  if motion_to_set_aside_attachment.enabled and "Motion to Set Aside Judgment" not in assembled_documents_temp:
+    assembled_documents_temp.append("Motion to Set Aside Judgment")
   assembled_documents = assembled_documents_temp
 ---
 id: eviction answer determination code
 code: |
   # We now handle unlawful detainer cases
-  eviction_answer_attachment.enabled = True
+  eviction_answer_attachment.enabled = not motion_to_set_aside_attachment.enabled
 ---
 id: signpost claims and defenses section
 decoration: user-shield

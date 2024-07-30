@@ -70,8 +70,7 @@ code: |
   users[0].address.geocode()
   nav.set_section("section_eviction_answer_casenet")
   trial_court.name
-  if not trial_court.county == None and tenant_using_casenet:
-    docket_review
+  use_case_net_for_online_docket
   nav.set_section("section_eviction_answer_other")
   other_parties.gather()
   for party in other_parties:
@@ -344,6 +343,50 @@ subquestion: |
   motion to continue.
   % endif
 continue button field: recommend_filing_answer
+---
+
+id: original hearing
+question: |
+  % if person_answering == "tenant":
+  When is your court {hearing}?
+  % else:
+  When is the tenant's court {hearing}?
+  % endif
+subquestion: |
+  % if tenant_got_summons and petition_available:
+    % if person_answering == "tenant":
+    The {Summons} will say the time and date of your original court hearing.
+    % else:
+    The {Summons} will say the time and date of the tenant's original court hearing.
+    % endif
+  
+  [FILE MOSummonsHearingDate.png, 100%]
+  
+  ${ collapse_template(find_original_hearing_on_casenet_template) }
+  
+  % else:
+    % if person_answering == "tenant":
+    Using [Case.net](https://www.courts.mo.gov/cnet), you can find the time and date of your original court hearing on the "Scheduled Hearings and Trials" tab of your case.
+    % else:
+  Using [Case.net](https://www.courts.mo.gov/cnet), you can find the time and date of the tenant's original court hearing on the "Scheduled Hearings and Trials" tab of their case.
+    % endif
+    
+    ${ collapse_template(find_original_hearing_on_casenet_template) }
+    
+  % endif
+fields:
+  - "Date of original hearing": original_hearing_date
+    datatype: date
+    min: ${ today() }
+  - "Original hearing time": original_hearing_time
+    datatype: radio
+    choices: 
+      - 9:00 AM
+      - Other
+    default: 9:00 AM
+  - Time: other_time
+    js show if: |
+      val("original_hearing_time") == "Other"
 ---
 id: eviction_answer_attachment enabled
 code: |
