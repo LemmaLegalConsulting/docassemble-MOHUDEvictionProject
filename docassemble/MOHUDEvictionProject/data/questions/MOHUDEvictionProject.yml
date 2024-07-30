@@ -78,7 +78,6 @@ code: |
   elif other_parties[0].service_method in ["mail", "hand"]:
     other_parties[0].service_address.address
 
-  al_user_wants_reminders
   docket_review_conclusion
   set_progress(100)
   store_variables_snapshot(
@@ -587,18 +586,18 @@ subquestion: |
   Missouri Tenant Help can help you complete and download forms in 3 steps:
 
   
-  Step 1. Fill in your form.  
+  Step 1. Answer the questions that are asked.  
   
-  Step 2. Preview the completed form.  
+  Step 2. Preview the completed forms.  
   
   % if form_approved_for_email_filing:  
-  Step 3. Email the form to the court using this secure website and save copies
+  Step 3. Email the forms to the court using this secure website and save copies
   for yourself for later reference.  
   % elif al_form_type in ['starts_case','existing_case','appeal']:
-  Step 3. Download and print the final form. **You will need to deliver it
+  Step 3. Download and print the final forms. **You will need to deliver the forms
   to the court on your own.**
   % else:
-  Step 3. Download and print the final form. **You will need to deliver it 
+  Step 3. Download and print the final forms. **You will need to deliver the forms 
   on your own.**
   % endif
   

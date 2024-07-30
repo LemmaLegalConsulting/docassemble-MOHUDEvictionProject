@@ -3,7 +3,7 @@ include:
   - docassemble.GithubFeedbackForm:embedded_review.yml
   - defense_logic.yml
   - information_collected.yml
-  - al_reminders.yml
+#  - al_reminders.yml ## left out in favor of Case.net reminders
   - docassemble.ALToolbox:display_template.yml
   - court_information.yml
   - autoterms.yml
@@ -1212,7 +1212,7 @@ content: |
   * You may not sell the information or the contents of this site. But you can charge for your own time.
   * Please keep your use fair. Do not use this site in a way that is illegal or that makes it harder for other people to use.
   <h3 class="h5">Information we and others collect</h3>
-  * We collect the information that you type to help you complete your forms. We delete all information 180 days after you last update it. You can also delete information immediately.
+  * We collect the information that you type to help you complete your forms. We delete this information 180 days after you last update it. You can also delete information immediately.
   * We log information including IP addresses and web browsers from all visitors. We use this information to keep our site secure. We keep logs for up to 180 days.
   * We use Google Maps to help fill in addresses automatically. This feature sends your IP address to Google Maps to get your approximate location.
   * We use Google Analytics to learn how people use our website. This helps us understand which pages are hardest to use. Google may use this information to show you better advertisements.
@@ -1226,7 +1226,7 @@ content: |
   * Regular security updates
   <h3 class="h5">Sharing your information</h3>
   * We never sell your information.
-  * We share anonymous information with a small number of nonprofits and researchers. We use the information to improve our site and to improve free legal help in Missouri.
+  * We may track certain public information about your case. We use the information to improve our site and to improve free legal help in Missouri.
   * When you visit some pages of the site, the site may ask if you want to apply to get a free lawyer from legal aid. You get to decide if you want to share your personal information.
   * You may choose to email completed forms or share a link to your in-progress work at any time to any person.
   <h3 class="h5">These terms of use can change</h3>

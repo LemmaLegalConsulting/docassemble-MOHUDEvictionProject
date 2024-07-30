@@ -345,11 +345,11 @@ question: |
 subquestion: |
   Missouri Tenant Help can help you complete and download forms in 3 steps:
 
-  Step 1. Fill in your form.  
+  Step 1. Answer the questions that are asked.  
   
-  Step 2. Preview the completed form.  
+  Step 2. Preview the completed forms.  
   
-  Step 3. Download and print the final form. **You will need to deliver it.**
+  Step 3. Download and print the final forms. **You will need to deliver the forms that you complete.**
   
   This site is not a lawyer. If you would like a lawyer, find [a Missouri legal aid provider](https://www.lsmo.org/). If you are outside Missouri, find your [your local
   legal aid provider](https://www.lsc.gov/what-legal-aid/find-legal-aid).
@@ -435,6 +435,10 @@ code: |
 id: judgment_date
 question: |
   Has a judge made a final decision in this case?
+subquestion: |
+  If there has been a judgment, then the judgment and the date will be listed under the "Docket Entries" tab on [Case.net](https://www.courts.mo.gov/cnet).
+  
+  ${ collapse_template(find_judgment_date_on_casenet) }
 fields:
   - A judge entered a final judgment in this case: final_judgment
     datatype: yesnoradio
@@ -442,6 +446,22 @@ fields:
     datatype: date
     max: ${ today() }
     show if: final_judgment
+---
+template: find_judgment_date_on_casenet
+subject: |
+  How do I find the judgment and date on Case.net?
+content: |
+  % if person_answering == "tenant":
+  With your case open on Case.net, click on the "Docket Entries" tab and look for an entry that says "Judgement Entered." The date to the left will be the judgment date.
+  % else:
+  With the tenant's case open on Case.net, click on the "Docket Entries" tab and look for an entry that says "Judgement Entered." The date to the left will be the judgment date.
+  % endif
+  
+  You results may look like this:
+  
+  [FILE OutcomeAnon.png, 100%]
+
+  ${ warn_picture_is_example_template }
 ---
 id: petition_date 
 question: |
