@@ -1,7 +1,9 @@
 ---
+id: discovery include
 modules:
   - .discovery
 ---
+id: discovery objects
 objects:
   - interrogatories: DiscoveryDict.using(yaml_source="data/sources/interrogatories.yml")
   - document_requests: DiscoveryDict.using(yaml_source="data/sources/document_requests.yml")
@@ -63,6 +65,7 @@ validation code: |
   if interrogatories.count_checked() > 25:
     validation_error("You can only ask up to 25 questions.")
 ---
+id: review_discovery_requests
 continue button field: review_discovery_requests
 question: |
   Review discovery requests

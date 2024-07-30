@@ -1,4 +1,6 @@
+####### This file is not currently used because Case.net reminders are a better option #######
 ---
+id: allow_cron
 mandatory: True
 code: |
   allow_cron = True
@@ -86,6 +88,7 @@ fields:
       lambda y: phone_number_is_valid(y) or validation_error("Enter a valid phone number")
     show if: al_user_preferred_reminder_formats["sms"]
 ---
+id: al_reminders
 variable name: al_reminders
 data:
   filing_documents:
@@ -98,6 +101,7 @@ code: |
   al_reminders[i]["initial sms template"] = "al_reminder_initial_sms_template"
   al_reminders[i]["initial email template"] = "al_reminder_initial_email_template"
 ---
+id: al_reminder_initial_sms_template
 template: al_reminder_initial_sms_template
 content: |
   % if person_answering == "tenant":
@@ -108,6 +112,7 @@ content: |
   The tenant will get the reminders at this phone number.
   % endif
 ---
+id: al_reminder_initial_email_template
 template: al_reminder_initial_email_template
 subject: |
   % if person_answering == "tenant":
@@ -124,6 +129,7 @@ content: |
   You will get the reminders using this email address.
   % endif
 ---
+id: al_reminder_filing_template
 template: al_reminder_filing_template
 subject: |
   % if person_answering == "tenant":
@@ -138,6 +144,7 @@ content: |
   If the tenant has not filed yet, they should make a plan to or file today!
   % endif
 ---
+id: reminders response
 event: cron_daily
 code: |
   # NOTE: there can only be one cron_daily per interview. If you want to add additional daily cron tasks instead of replacing
@@ -170,6 +177,7 @@ code: |
     allow_cron = False
   response()
 ---
+id: reminders cold
 code: |
   if al_user_wants_reminders and task_not_yet_performed(f"al_reminder_initial_{reminder}"):
     if al_user_preferred_reminder_formats.get("email") and task_not_yet_performed(f"al_reminder_initial_{reminder}_email"):

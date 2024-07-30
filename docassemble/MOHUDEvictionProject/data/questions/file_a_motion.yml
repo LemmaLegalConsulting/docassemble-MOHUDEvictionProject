@@ -1,4 +1,5 @@
 ---
+id: file a motion include
 include:
   - shared.yml
   - court_information.yml
@@ -18,6 +19,7 @@ metadata:
     - Ian Eisaman
     - Mia Bonardi
 ---
+id: file a motion order
 mandatory: True
 code: |
   nav.set_section("section_intro")
@@ -98,6 +100,7 @@ code: |
   signature_date
   motions_download
 ---
+id: warning_kickout_loop
 reconsider: 
   - go_to_review
   - warning_kickout
@@ -107,9 +110,11 @@ code: |
     
   warning_kickout_loop = True
 ---
+id: enable_al_nav_sections
 code: |
   enable_al_nav_sections = True
 ---
+id: al_nav_sections
 reconsider: True
 variable name: al_nav_sections
 data from code:
@@ -149,6 +154,7 @@ data from code:
   - section_download: |
       "Download, print, and file"
 ---
+id: motion_for_leave_to_file_order
 code: |
   motion_for_leave_to_file_intro
   petition_date
@@ -162,11 +168,13 @@ code: |
   motion_for_leave_to_file_preview
   motion_for_leave_to_file_order = True
 ---
+id: motion_to_dismiss_order
 code: |
   motion_to_dismiss_intro
   motion_to_dismiss_preview
   motion_to_dismiss_order = True
 ---
+id: motion_to_set_aside_judgment_order
 code: |
   motion_to_set_aside_intro
   petition_date 
@@ -174,6 +182,7 @@ code: |
   motion_to_set_aside_preview
   motion_to_set_aside_judgment_order = True
 ---
+id: motion_to_shorten_time_order
 code: |
   motion_to_shorten_time_intro
   trial_date
@@ -186,6 +195,7 @@ code: |
   motion_to_shorten_time_preview
   motion_to_shorten_time_order = True
 ---
+id: motion_to_elevate_security_order
 code: |
   motion_to_elevate_security_intro
   opposing_party_consent_to_motion_to_elevate_security
@@ -197,6 +207,7 @@ code: |
   motion_to_elevate_security_preview
   motion_to_elevate_security_order = True
 ---
+id: notice_of_hearing_order
 code: |
   #notice_of_hearing_intro
   #new_hearing_date
@@ -204,24 +215,31 @@ code: |
   #notice_of_hearing_preview
   notice_of_hearing_order = True
 ---
+id: file_a_motion_helper_next_steps_attachment
 code: |
   file_a_motion_helper_next_steps_attachment.enabled = True
 ---
+id: motion_for_leave_to_file_attachment
 code: |
   motion_for_leave_to_file_attachment.enabled = motion_list['motion_for_leave_to_file']
 ---
+id: motion_to_dismiss_attachment
 code: |
   motion_to_dismiss_attachment.enabled = motion_list['motion_to_dismiss']
 ---
+id: motion_to_set_aside_attachment
 code: |
   motion_to_set_aside_attachment.enabled = motion_list['motion_to_set_aside_judgment']
 ---
+id: motion_to_shorten_time_attachment
 code: |
   motion_to_shorten_time_attachment.enabled = motion_list['motion_to_shorten_time']
 ---
+id: motion_to_elevate_security_attachment
 code: |
   motion_to_elevate_security_attachment.enabled = motion_list['motion_to_elevate_security']
 ---
+id: notice_of_hearing_attachment
 code: |
   notice_of_hearing_attachment.enabled = motion_list.any_true()
 ---
@@ -345,11 +363,11 @@ question: |
 subquestion: |
   Missouri Tenant Help can help you complete and download forms in 3 steps:
 
-  Step 1. Fill in your form.  
+  Step 1. Answer the questions that are asked.  
   
-  Step 2. Preview the completed form.  
+  Step 2. Preview the completed forms.  
   
-  Step 3. Download and print the final form. **You will need to deliver it.**
+  Step 3. Download and print the final forms. **You will need to deliver the forms that you complete.**
   
   This site is not a lawyer. If you would like a lawyer, find [a Missouri legal aid provider](https://www.lsmo.org/). If you are outside Missouri, find your [your local
   legal aid provider](https://www.lsc.gov/what-legal-aid/find-legal-aid).
@@ -377,9 +395,9 @@ fields:
         You cannot continue unless you agree to the terms of use.
 continue button field: al_intro_screen
 ---
+id: motion list
 reconsider: 
   - motion_checkboxes
-id: motion list
 question: |
   Which {motion|motions} do you need?
 fields:
@@ -389,6 +407,7 @@ fields:
     code: |
       motion_checkboxes
 ---
+id: motion_checkboxes
 code: |
   motion_checkboxes = {'motion_for_leave_to_file': 'Motion for Leave to File Responsive Pleadings',
       'motion_to_dismiss': 'Motion to Dismiss or For a More Definite Statement',
@@ -422,8 +441,8 @@ code: |
 #    label: Motion to Set Aside Judgment
 #    visible: ${ final_judgment or judgment_date_more_than_30 }
 ---
-depends on: judgment_date
 id: Calculating if judgment_date is more then 30 days ago
+depends on: judgment_date
 code: |
   thirty_days_ago = current_datetime() - date_interval(days=30)
   
@@ -435,6 +454,10 @@ code: |
 id: judgment_date
 question: |
   Has a judge made a final decision in this case?
+subquestion: |
+  If there has been a judgment, then the judgment and the date will be listed under the "Docket Entries" tab on [Case.net](https://www.courts.mo.gov/cnet).
+  
+  ${ collapse_template(find_judgment_date_on_casenet) }
 fields:
   - A judge entered a final judgment in this case: final_judgment
     datatype: yesnoradio
@@ -442,6 +465,23 @@ fields:
     datatype: date
     max: ${ today() }
     show if: final_judgment
+---
+id: find_judgment_date_on_casenet
+template: find_judgment_date_on_casenet
+subject: |
+  How do I find the judgment and date on Case.net?
+content: |
+  % if person_answering == "tenant":
+  With your case open on Case.net, click on the "Docket Entries" tab and look for an entry that says "Judgement Entered." The date to the left will be the judgment date.
+  % else:
+  With the tenant's case open on Case.net, click on the "Docket Entries" tab and look for an entry that says "Judgement Entered." The date to the left will be the judgment date.
+  % endif
+  
+  You results may look like this:
+  
+  [FILE OutcomeAnon.png, 100%]
+
+  ${ warn_picture_is_example_template }
 ---
 id: petition_date 
 question: |
@@ -458,6 +498,7 @@ fields:
   - Explain: supporting_statement 
     input type: area
 ---
+id: ALAddress
 objects: 
   - rental_address: ALAddress
 ---
@@ -526,6 +567,7 @@ fields:
       - Default Judgment
       - Dismissal
 ---
+id: find_outcome_on_casenet_template
 template: find_outcome_on_casenet_template
 subject: |
   % if person_answering == "tenant":
@@ -766,6 +808,7 @@ fields:
     field: enough_time 
     datatype: yesnoradio
 ---
+id: no_dilatory_motive
 code: |
   if not unfair_motive and not enough_time: 
     no_dilatory_motive = True
@@ -810,6 +853,7 @@ fields:
   - Does ${ other_parties } consent to this Motion?: opposing_party_consent_to_motion_to_shorten_time
     datatype: yesnoradio
 ---
+id: days_before_trial
 code: |
   before_trial = date_difference(starting=date_counsel_retained,ending=trial_date)
   if before_trial.days == 0:
@@ -835,18 +879,21 @@ fields:
     js show if: |
       val("new_hearing_time") == "Other"
 ---
+id: motions_attached
 code: |
   motions_attached = list()
   for motion in motion_list.true_values():
     if not motion == "motion_to_shorten_time":
       motions_attached.append(motion_list[motion])
 ---
+id: motions_for_hearing
 code: |
   motions_for_hearing = list()
   for motion in motion_list.true_values():
     if not motion == "notice_of_hearing":
       motions_for_hearing.append(motion_checkboxes[motion])
 ---
+id: motion_to_shorten_time_attachment
 attachment:
   - name: motion to shorten time
     filename: motion_to_shorten_time.docx     
@@ -854,6 +901,7 @@ attachment:
     skip undefined: True
     docx template file: motion_to_shorten_time.docx
 ---
+id: motion_to_dismiss_attachment
 attachment:
   - name: motion to dismiss
     filename: motion_to_dismiss  
@@ -861,6 +909,7 @@ attachment:
     skip undefined: True
     docx template file: motion_to_dismiss.docx
 ---
+id: motion_to_set_aside_attachment
 attachment:
   - name: motion to set aside
     filename: motion_to_set_aside
@@ -868,6 +917,7 @@ attachment:
     skip undefined: True
     docx template file: motion_to_set_aside.docx
 ---
+id: motion_for_leave_to_file_attachment
 attachment:
   - name: motion for leave to file answer
     filename: motion_for_leave_to_file_answer.docx     
@@ -875,6 +925,7 @@ attachment:
     skip undefined: True
     docx template file: motion_for_leave_to_file.docx
 ---
+id: motion_to_elevate_security_attachment
 attachment:
   - name: motion to elevate security
     filename: motion_to_elevate_security.docx     
@@ -882,6 +933,7 @@ attachment:
     skip undefined: True
     docx template file: motion_to_elevate_security.docx
 ---
+id: notice_of_hearing_attachment
 attachment:
   - name: notice of hearing
     filename: notice_of_hearing.docx     
@@ -889,6 +941,7 @@ attachment:
     skip undefined: True
     docx template file: notice_of_hearing.docx
 ---
+id: file_a_motion_helper_next_steps_attachment
 attachment:
   - name: file a motion helper next steps
     filename: file_a_motion_helper_next_steps.docx     
@@ -896,27 +949,35 @@ attachment:
     skip undefined: True
     docx template file: file_a_motion_helper_next_steps.docx
 ---
+id: objects block
 objects:
   - motion_to_set_aside_attachment: ALDocument.using(title="File a Motion to Set Aside Judgment", filename="motion_to_set_aside.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
 ---
+id: objects block
 objects:
   - motion_to_shorten_time_attachment: ALDocument.using(title="File a Motion to Shorten Time", filename="motion_to_shorten_time.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
 ---
+id: objects block
 objects:
   - motion_to_dismiss_attachment: ALDocument.using(title="File a Motion to Dismiss", filename="motion_to_dismiss.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
 ---
+id: objects block
 objects:
   - motion_for_leave_to_file_attachment: ALDocument.using(title="File a Motion for Leave to File Responsive Pleadings", filename="motion_for_leave_to_file_answer.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
 ---
+id: objects block
 objects:
   - motion_to_elevate_security_attachment: ALDocument.using(title="File a Motion to Elevate Security", filename="motion_to_elevate_security.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
 ---
+id: objects block
 objects:
   - notice_of_hearing_attachment: ALDocument.using(title="File a Notice of Hearing", filename="notice_of_hearing.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
 ---
+id: objects block
 objects:
   - file_a_motion_helper_next_steps_attachment: ALDocument.using(title="Next Steps to File a Motion", filename="next_steps.docx", has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
 ---
+id: objects block
 objects:
   - al_user_bundle: ALDocumentBundle.using(elements=[file_a_motion_helper_next_steps_attachment, motion_to_dismiss_attachment, motion_to_shorten_time_attachment, motion_to_set_aside_attachment, motion_for_leave_to_file_attachment, motion_to_elevate_security_attachment,notice_of_hearing_attachment], filename="motions.docx", title="All forms to download for your records", enabled=True)
   - al_court_bundle: ALDocumentBundle.using(elements=attachment_list_court, filename="motions.docx", title="All forms to download for your records", enabled=True)
@@ -1370,12 +1431,11 @@ review:
 
       Date: ${ showifdef('new_hearing_time') }
 ---
-
-event: |-
-  rental_address.revisit
-
 id: |-
   revisit rental_address
+  
+event: |-
+  rental_address.revisit
 
 question: |-
   Edit your answers about Rental Address
