@@ -1,4 +1,5 @@
 ---
+id: defense modules
 modules:
   - .defenses
 ---
@@ -39,6 +40,7 @@ code: |
 
   defense_logic = True
 ---
+id: breach defense logic
 depends on:
   - defense_vawa
   - defense_reasonable_accommodation
@@ -79,6 +81,7 @@ code: |
   else:
     defense_ud_did_not_violate_lease = None
 ---
+id: lease requirements defense logic
 depends on:
   - got_notice_to_terminate
   - has_written_lease
@@ -94,11 +97,13 @@ code: |
   else:
     defense_ud_lease_requirements = None
 ---
+id: federal emergency not in effect
 code: |
   # See: 24 C.F.R. § 247.4 (c)
   # COVID-19 emergency currently not in effect
   is_federal_emergency = False
 ---
+id: notice defense logic
 depends on:
   - is_federal_emergency
   - case_type
@@ -122,6 +127,7 @@ code: |
   else:
     defense_termination_notice_required_by_law = None
 ---
+id: failure to terminate logic
 depends on:
   - case_type
   - got_notice_to_terminate
@@ -258,6 +264,7 @@ fields:
     field: unfair_duress
     datatype: yesnoradio
 ---
+id: unfair_duress_explanation_template
 template: unfair_duress_explanation_template
 subject: |
   What counts as "unfair pressure"?
@@ -320,6 +327,7 @@ fields:
     datatype: area
     show if: false_promises_exists
 ---
+id: false_promise_example_template
 template: false_promise_example_template
 subject: |
   What counts as a false promise?
@@ -570,10 +578,10 @@ depends on:
   - notice_contains_sale_document
   - trial_court.classification
 ---
+id: new owner facts for non-class 1 counties
 depends on: trial_court.classification
 if: |
   trial_court.classification.strip() != "Class 1"
-id: new owner facts for non-class 1 counties
 question: |
   % if person_answering == "tenant":
   Did your landlord ever sell the house while you were a tenant at this address?
@@ -604,10 +612,10 @@ fields:
     datatype: yesnomaybe
     show if: notice_of_sale_provided_new_landlord
 ---
+id: new owner facts for class 1 counties
 depends on: trial_court.classification
 if: |
   trial_court.classification.strip() == "Class 1"
-id: new owner facts for class 1 counties
 question: |
   % if person_answering == "tenant":
   Did your landlord ever sell the house while you were living at this address?
@@ -659,6 +667,7 @@ depends on:
   - is_rent_subsidized
   - excessive_rent
 ---
+id: times_per_year_list
 variable name: times_per_year_list
 data:
   - [52, "Weekly"]
@@ -792,6 +801,7 @@ fields:
       variable: kind_of_lease_agreement
       is: periodic
 ---
+id: lease_type_text
 variable name: lease_type_text
 use objects: True
 data:
@@ -808,6 +818,7 @@ data:
     question: Unknown
     document: Unknown
 ---
+id: number_of_units_in_building_text
 variable name: number_of_units_in_building_text
 use objects: True
 data: 
@@ -821,6 +832,7 @@ data:
     document: four or more
     question: 4 or more
 ---
+id: why_tenancy_facts_template
 template: why_tenancy_facts_template
 subject: |
   Why does this matter?
@@ -940,6 +952,7 @@ fields:
     js show if: |
       val("tenant_has_disability") && val("tenant_asked_for_accommodation")
 ---
+id: disability_defense_example_template
 template: disability_defense_example_template
 subject: |
   Can you give me an example?
@@ -963,6 +976,7 @@ content: |
   * the request was related to the disability, and
   * it was reasonable (something the landlord could do without too much cost or trouble).
 ---
+id: reasonable accommodation logic
 depends on:
   - tenant_has_disability
   - tenant_needs_accommodation
@@ -986,12 +1000,14 @@ fields:
     field: landlord_refused_section_8
     datatype: yesnoradio
 ---
+id: section 8 discrimination logic
 depends on:
   - users[0].address.city
   - landlord_refused_section_8
 code: |
   defense_ll_refused_section_8 = users[0].normalized_address().city == "St. Louis" and landlord_refused_section_8
 ---
+id: what_is_disability_template
 template: what_is_disability_template
 subject: |
   What is a disability?
@@ -1088,6 +1104,7 @@ fields:
     js show if: |
       val("tenant_protected_classes") && val("tenant_protected_classes").length
 ---
+id: discrimination logic
 depends on:
   - tenant_believes_discrimination
   - tenant_protected_classes
@@ -1145,6 +1162,7 @@ fields:
     required: False
     show if: tenant_is_being_evicted_because_of_dv
 ---
+id: vawa logic
 depends on:
   - is_rent_subsidized
   - tenant_is_dv_survivor
@@ -1156,6 +1174,7 @@ code: |
     tenant_is_being_evicted_because_of_dv
   )
 ---
+id: dv_explanation_template
 template: dv_explanation_template
 subject: |
   Can you give me an example?
@@ -1170,6 +1189,7 @@ content: |
   the tenant, even though a tenant who was not a survivor of domestic violence
   could be evicted for the same reasons.
 ---
+id: subsidized_housing_text
 variable name: subsidized_housing_text
 use objects: True
 data:
@@ -1273,6 +1293,7 @@ fields:
   - Are rent charges separated from other charges: petition_separates_nonrent
     datatype: yesnomaybe
 ---
+id: sets petition_alleges_norent if no rent allegation
 depends on: petition_states_rent_amount
 code: |
   if petition_states_rent_amount:
@@ -1353,6 +1374,7 @@ fields:
       variable: notice_to_terminate_includes_specific_day
       is: specific_day
 ---
+id: notice_to_terminate_includes_specific_day_text
 variable name: notice_to_terminate_includes_specific_day_text
 use objects: True
 data:
@@ -1425,6 +1447,7 @@ fields:
     datatype: yesnomaybe
     show if: lease_says_how_much_notice
 ---
+id: ud notice logic
 depends on:
   - got_notice_to_terminate
 code: |
@@ -1433,6 +1456,7 @@ code: |
   else:
     defense_ud_no_written_notice = None
 ---
+id: rental period logic
 depends on:
   - is_mobile_home_owner
   - rent_day
@@ -1454,6 +1478,7 @@ code: |
   else:
     defense_ud_no_rental_period_notice = None
 ---
+id: sets has written lease based on kind of lease
 depends on:
   - kind_of_lease_agreement
 code: |
@@ -1540,6 +1565,7 @@ fields:
     field: petition_states_rent_periods
     datatype: yesnomaybe
 ---
+id: sets states rent periods to false if no rent allegation
 if: |
   petition_states_rent_amount == False
 code: |
@@ -1848,6 +1874,7 @@ fields:
     datatype: area
     rows: 2
 ---
+id: estoppel_breaches_text
 variable name: estoppel_breaches_text
 use objects: True
 data:
@@ -1861,6 +1888,7 @@ data:
     document: The landlord does not have an occupancy permit for the home.
     question: The landlord does not have an occupancy permit for the home.
 ---
+id: estoppel_explanation_template
 template: estoppel_explanation_template
 subject: |
   What other laws does a landlord have to follow?
@@ -1870,6 +1898,7 @@ content: |
 
   If you are not sure, it is OK to leave this question blank.
 ---
+id: conditions_text
 variable name: conditions_text
 use objects: True
 data:
@@ -1929,6 +1958,7 @@ data:
     document: Broken smoke detectors
 ---
 ## leaving "you" references because not sure how to make conditional
+id: cqe_breaches_text
 variable name: cqe_breaches_text
 use objects: True
 data:
@@ -1981,6 +2011,7 @@ data:
       % endif
     document: Failed to exterminate or take care of vermin or pests in the walls making disruptive noises
 ---
+id: bad_conditions_explanation_template
 template: bad_conditions_explanation_template
 subject: |
   % if person_answering == "tenant":
@@ -2033,6 +2064,7 @@ fields:
     datatype: area
     show if: cqe_breaches["other"]
 ---
+id: bqe_explanation_template
 template: bqe_explanation_template
 subject: |
   Why does this matter?
@@ -2086,6 +2118,7 @@ fields:
       - ${ rent_amount_paid_text["a_portion"] }: a_portion
     show if: was_rent_paid
 ---
+id: rent_amount_paid_text
 variable name: rent_amount_paid_text
 use objects: True
 data:

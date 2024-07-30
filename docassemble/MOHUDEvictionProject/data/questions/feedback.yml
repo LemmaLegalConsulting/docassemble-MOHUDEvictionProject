@@ -1,7 +1,9 @@
 ---
+id: feedback include
 include:
   - docassemble.AssemblyLine:feedback.yml
 ---
+id: al_how_to_get_legal_help
 template: al_how_to_get_legal_help
 subject: |
   Do you need more help?
@@ -16,16 +18,19 @@ content: |
   
   - [Missouri Tenant Help](https://motenanthelp.org/resources/)
 ---
+id: al_app_name
 code: |
   # Set this to the name of your application
   # Defaults to checking for a possible name from global docassemble config
   al_app_name = "Missouri Tenant Help"
 ---
+id: AL_ORGANIZATION_TITLE
 code: |
   # The name of your organization. Defaults to a similar value as `al_app_name`,
   # but is still distinct
   AL_ORGANIZATION_TITLE = "Missouri Tenant Help"
 ---
+id: AL_ORGANIZATION_HOMEPAGE
 code: |
   AL_ORGANIZATION_HOMEPAGE = "https://motenanthelp.org/"
 ---

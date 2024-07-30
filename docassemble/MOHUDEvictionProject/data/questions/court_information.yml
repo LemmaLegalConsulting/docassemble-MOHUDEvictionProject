@@ -1,4 +1,5 @@
 ---
+id: county information
 depends on: users[0].address.address
 code: |
   users[0].address.address
@@ -23,6 +24,7 @@ code: |
   trial_court.division = "Associate Division"
   trial_court.address.county = trial_court.county
 ---
+id: trial_court.address
 code: |
   if len(county_dictionary[trial_court.county]["courts"]) == 1:
     trial_court.address.address = county_dictionary[trial_court.county]["courts"][0]["address"]
@@ -102,7 +104,6 @@ fields:
 under: |
   ${ collapse_template(find_case_number_docket_template) }
 ---
-
 id: reason for eviction
 question: |
   Why does your landlord say they are evicting you?
@@ -345,6 +346,7 @@ fields:
       code: |
         not (tenant_got_summons and petition_available)      
 ---
+id: find_case_type_example_template
 template: find_case_type_example_template
 subject: |
   Where do I find the case type on Case.net?
@@ -355,6 +357,7 @@ content: |
 
   ${ warn_picture_is_example_template }
 ---
+id: what_if_i_disagree_template
 template: what_if_i_disagree_template
 subject: |
   What if the reason the landlord says is not true?
@@ -401,6 +404,7 @@ fields:
     code: |
       county_list
 ---
+id: find_county_name_template
 template: find_county_name_template
 subject: |
   What if I don't know the name of my county?
@@ -408,13 +412,16 @@ content: |
   You can use [data.mo.gov](https://data.mo.gov/Geography/Missouri-Zip-Codes-by-County-City/im7g-fucq/data_preview)
   to look up your county based on zip code and/or city.
 ---
+id: trial_court.county
 depends on: trial_court.county
 code: |
   trial_court.classification = county_dictionary[trial_court.county]['class']
 ---
+id: county_list
 code:
   county_list = sorted(county_dictionary.keys())
 ---
+id: casenet code
 depends on:
   - users[0].address.county
   - users[0].name.first
@@ -478,6 +485,7 @@ subquestion: |
   % endif
 continue button field: docket_review_conclusion
 ---
+id: county_dictionary
 variable name: county_dictionary
 data:  
   Adair County:
