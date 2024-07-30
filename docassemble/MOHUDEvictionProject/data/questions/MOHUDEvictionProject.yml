@@ -424,6 +424,7 @@ code: |
   if landlord_agreement:
     tenant_compliance_with_agreement
   defense_logic
+  any_defense_true
   information_collected
   
   nav.set_section("review_eviction_answer")

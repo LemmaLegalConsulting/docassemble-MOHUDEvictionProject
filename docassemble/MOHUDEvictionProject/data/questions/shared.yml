@@ -368,48 +368,6 @@ validation code: |
   if users[0].address.state != "MO":
     validation_error("Write an address that you are being evicted from in Missouri", field="users[0].address.state")
 ---
-id: original hearing
-question: |
-  % if person_answering == "tenant":
-  When is your court {hearing}?
-  % else:
-  When is the tenant's court {hearing}?
-  % endif
-subquestion: |
-  % if tenant_got_summons and petition_available:
-    % if person_answering == "tenant":
-    The {Summons} will say the time and date of your original court hearing.
-    % else:
-    The {Summons} will say the time and date of the tenant's original court hearing.
-    % endif
-  
-  [FILE MOSummonsHearingDate.png, 100%]
-  
-  ${ collapse_template(find_original_hearing_on_casenet_template) }
-  
-  % else:
-    % if person_answering == "tenant":
-    Using [Case.net](https://www.courts.mo.gov/cnet), you can find the time and date of your original court hearing on the "Scheduled Hearings and Trials" tab of your case.
-    % else:
-  Using [Case.net](https://www.courts.mo.gov/cnet), you can find the time and date of the tenant's original court hearing on the "Scheduled Hearings and Trials" tab of their case.
-    % endif
-    
-    ${ collapse_template(find_original_hearing_on_casenet_template) }
-    
-  % endif
-fields:
-  - "Date of original hearing": original_hearing_date
-    datatype: date
-  - "Original hearing time": original_hearing_time
-    datatype: radio
-    choices: 
-      - 9:00 AM
-      - Other
-    default: 9:00 AM
-  - Time: other_time
-    js show if: |
-      val("original_hearing_time") == "Other"
----
 question: Final Judgment or Hearing Date?
 subquestion: |
   You said that the original hearing date has already happened.  What else happened?
@@ -1181,23 +1139,45 @@ fields:
     field: tenant_would_be_prejudiced
     datatype: yesnoradio
 ---
-id: hearing date time
+id: original hearing
 question: |
   % if person_answering == "tenant":
-  When is your original {hearing} planned?
-  % else: 
-  When is the tenant's original {hearing} planned?
+  When is your court {hearing}?
+  % else:
+  When is the tenant's court {hearing}?
+  % endif
+subquestion: |
+  % if tenant_got_summons and petition_available:
+    % if person_answering == "tenant":
+    The {Summons} will say the time and date of your original court hearing.
+    % else:
+    The {Summons} will say the time and date of the tenant's original court hearing.
+    % endif
+  
+  [FILE MOSummonsHearingDate.png, 100%]
+  
+  ${ collapse_template(find_original_hearing_on_casenet_template) }
+  
+  % else:
+    % if person_answering == "tenant":
+    Using [Case.net](https://www.courts.mo.gov/cnet), you can find the time and date of your original court hearing on the "Scheduled Hearings and Trials" tab of your case.
+    % else:
+  Using [Case.net](https://www.courts.mo.gov/cnet), you can find the time and date of the tenant's original court hearing on the "Scheduled Hearings and Trials" tab of their case.
+    % endif
+    
+    ${ collapse_template(find_original_hearing_on_casenet_template) }
+    
   % endif
 fields:
-  - Date: original_hearing_date
+  - "Date of original hearing": original_hearing_date
     datatype: date
-  - Time: original_hearing_time
+  - "Original hearing time": original_hearing_time
     datatype: radio
     choices: 
       - 9:00 AM
       - Other
     default: 9:00 AM
-  - Other time: other_time
+  - Time: other_time
     js show if: |
       val("original_hearing_time") == "Other"
 ---

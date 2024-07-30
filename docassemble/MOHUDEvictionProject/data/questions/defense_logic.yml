@@ -40,6 +40,34 @@ code: |
   defense_logic = True
 ---
 depends on:
+  - defense_vawa
+  - defense_reasonable_accommodation
+  - defense_discrimination
+  - defense_ll_refused_section_8
+  - defense_rent_pleading_requirement
+  - defense_lease_not_attached
+  - defense_tender_refused
+  - defense_rent_payment
+  - defense_excessive_rent_for_subsidized_housing
+  - defense_settlement
+  - defense_lease_signed_under_duress
+  - defense_fraud_lease
+  - defense_liquidated_damages_late_fees
+  - defense_breach_of_habitability
+  - defense_breach_of_cqe
+  - defense_estoppel_illegality
+  - defense_foreclosure
+  - defense_new_owner_failed_to_provide_notice_of_sale
+  - defense_unrepresented_corporation
+  - defense_ud_no_written_notice
+  - defense_ud_no_rental_period_notice
+  - defense_ud_lease_requirements
+  - defense_termination_notice_required_by_law
+  - defense_failure_to_terminate
+code: |
+  any_defense_true = defense_vawa or defense_reasonable_accommodation or defense_discrimination or defense_ll_refused_section_8 or defense_rent_pleading_requirement or defense_lease_not_attached or defense_tender_refused or defense_rent_payment or defense_excessive_rent_for_subsidized_housing or defense_settlement or defense_lease_signed_under_duress or defense_fraud_lease or defense_liquidated_damages_late_fees or defense_breach_of_habitability or defense_breach_of_cqe or defense_estoppel_illegality or defense_foreclosure or defense_new_owner_failed_to_provide_notice_of_sale or defense_unrepresented_corporation or defense_ud_no_written_notice or defense_ud_no_rental_period_notice or defense_ud_lease_requirements or defense_termination_notice_required_by_law or  defense_failure_to_terminate
+---
+depends on:
   - defense_no_breach
   - defense_breach_not_material
 code: |
