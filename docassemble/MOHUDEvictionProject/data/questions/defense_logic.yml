@@ -222,6 +222,8 @@ question: |
   % endif
 subquestion: |
   A landlord and tenant can agree to "settle" an eviction case, which means an agreement to stop the eviction.
+  
+  <iframe width="480" height="270" src="https://www.powtoon.com/embed/fzjDGEV2MRU/" frameborder="0" allowfullscreen></iframe>
 fields:
   - label: |
       % if person_answering == "tenant":

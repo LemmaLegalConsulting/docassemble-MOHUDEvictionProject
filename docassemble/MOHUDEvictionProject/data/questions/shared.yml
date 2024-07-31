@@ -724,6 +724,11 @@ subquestion: |
  
   [CENTER]
   [FILE ComplaintForm.png]
+  
+  This video explains the Summons.
+  
+  <iframe width="480" height="270" src="https://www.powtoon.com/embed/dvKxPdVmlhD/" frameborder="0" allowfullscreen></iframe>
+  
 fields:
   - label: |
       % if person_answering == "tenant":
@@ -1575,6 +1580,8 @@ subquestion: |
   ${ al_user_bundle.send_button_html(show_editable_checkbox=True) }
 
   ${ only_once_review_widget() }
+  
+  <iframe width="480" height="270" src="https://www.powtoon.com/embed/bUGsl5GXhsp/" frameborder="0" allowfullscreen></iframe>
   
 progress: 100
 ---
