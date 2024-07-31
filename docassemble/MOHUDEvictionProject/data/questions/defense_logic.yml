@@ -130,13 +130,15 @@ code: |
 id: failure to terminate logic
 depends on:
   - case_type
+  - eviction_reason
+  - is_rent_subsidized
   - got_notice_to_terminate
   - defense_ud_no_written_notice
   - defense_ud_no_rental_period_notice
   - defense_ud_lease_requirements
   - defense_termination_notice_required_by_law
 code: |
-  if case_type['AC Unlawful Detainer']:
+  if case_type["AC Unlawful Detainer"] or eviction_reason["holdover tenancy"] or eviction_reason["lease violation"] or eviction_reason["other good cause"] or is_rent_subsidized:
     defense_failure_to_terminate = (not got_notice_to_terminate) or (
       defense_ud_no_written_notice or 
       defense_ud_no_rental_period_notice or
