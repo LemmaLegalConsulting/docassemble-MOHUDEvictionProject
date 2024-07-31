@@ -394,7 +394,6 @@ subquestion: |
   If there has been a judgment, then the judgment and the date will be listed under the "Docket Entries" tab on [Case.net](https://www.courts.mo.gov/cnet).
   
   ${ collapse_template(find_judgment_date_on_casenet) }
-fields:
 fields: 
   - Has the court made a final judgment in this case?: final_judgment
     datatype: yesnomaybe

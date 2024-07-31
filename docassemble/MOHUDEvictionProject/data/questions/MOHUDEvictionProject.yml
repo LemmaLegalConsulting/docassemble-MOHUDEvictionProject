@@ -505,7 +505,6 @@ buttons:
   - Exit: exit
     url: https://motenanthelp.org/
 ---
-sets: posting_warning
 id: soft exit posting eviction
 sets: posting_warning
 decoration: hand
@@ -808,7 +807,7 @@ depends on:
   - final_judgment
   - judgment_date_more_than_one_year
 code: |
-  motion_to_set_aside_attachment.enabled = final_judgment and not judgment_date_more_than_one_year
+  motion_to_set_aside_attachment.enabled = original_hearing_date_past and final_judgment and not judgment_date_more_than_one_year
 ---
 question: Motion to Set Aside
 subquestion: |

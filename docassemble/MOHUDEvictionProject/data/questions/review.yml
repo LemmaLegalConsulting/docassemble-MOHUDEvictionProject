@@ -1534,7 +1534,7 @@ review:
       ${ start_accordion("Landlord failed to reasonably accommodate Tenant's disability") }
     show if: not defense_reasonable_accommodation
   - Edit:
-      - tenant_disability
+      - tenant_has_disability
       - recompute:
         - defense_reasonable_accommodation
         - defense_logic
@@ -1577,7 +1577,7 @@ review:
        <strong>${ "I don't know" if tenant_asked_for_accommodation is None else yesno(tenant_asked_for_accommodation) }</strong>
       % endif
 
-      % if showifdef('tenant_asked_for_accommodation') == False:
+      % if defined('tenant_asked_for_accommodation') and not tenant_asked_for_accommodation:
       % if person_answering == "tenant":
       Would you like to ask now?
       % else:
@@ -1871,8 +1871,16 @@ review:
     show if: not defense_unrepresented_corporation
   - note: |
       A corporation cannot file a court case like an eviction without an attorney.
-    
-      You said that at least one of the plaintiffs is a business who doesn't have a lawyer.  You can change this answer in the "Information about your landlord" section.
+     
+      % for party in other_parties:
+      ${ party.name } is ${ indefinite_article(party.person_type ) } and is 
+      % if not party.attorney.there_are_any:
+      not 
+      % endif
+      represented by an attorney.
+      % endfor
+      
+      You can change this answer in the "Information about your landlord" section.
     show if: not defense_unrepresented_corporation
   - raw html: |
       ${ end_accordion() }
