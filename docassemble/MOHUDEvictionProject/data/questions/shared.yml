@@ -1416,18 +1416,6 @@ fields:
     js show if: |
       val("new_hearing_time") == "Other"
 ---
-code: |
-  motions_attached = list()
-  for motion in motion_list.true_values():
-    if not motion == "motion_to_shorten_time":
-      motions_attached.append(motion_list[motion])
----
-code: |
-  motions_for_hearing = list()
-  for motion in motion_list.true_values():
-    if not motion == "notice_of_hearing":
-      motions_for_hearing.append(motion_checkboxes[motion])
----
 id: attach motion to continue post interview instructions
 attachment:
   - name: eviction motion to continue post interview instructions

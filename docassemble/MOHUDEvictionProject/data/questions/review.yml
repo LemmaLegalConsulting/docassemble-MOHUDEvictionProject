@@ -434,13 +434,14 @@ review:
       % endif
   - note: |
       ##About the Landlord's attorney##
-    show if: other_parties[0].attorney[0].name
+    show if: other_parties[0].attorney.there_are_any and other_parties[0].attorney[0].name
   - Edit: 
       - other_parties[0].attorney[0].name.first
     button: |
       Landlord's attorney: 
       
         - **${ other_parties[0].attorney[0].name }**
+    show if: other_parties[0].attorney.there_are_any
   - raw html: |
       ${ next_accordion("About your rental agreement", showing=False) }
   - Edit:
@@ -2355,8 +2356,7 @@ columns:
       "Maybe" if row_item.attorney.there_are_any is None else yesno(row_item.attorney.there_are_any)  
 edit:
   - name.first
-  - address.address
-  - attorney.revisit
+  - attorney.there_are_any
 confirm: True
 ---
 id: other_parties attorney.revisit

@@ -415,6 +415,20 @@ code: |
       'motion_to_shorten_time': 'Motion to Shorten Time',
       'motion_to_elevate_security': 'Motion to Elevate Security'}
 ---
+code: |
+  temp_motions_for_hearing = list()
+  for motion in motion_list.true_values():
+    if not motion == "notice_of_hearing":
+      temp_motions_for_hearing.append(motion_checkboxes[motion])
+  motions_for_hearing = temp_motions_for_hearing
+---
+code: |
+  temp_motions_attached = list()
+  for motion in motion_list.true_values():
+    if not motion == "motion_to_shorten_time":
+      temp_motions_attached.append(motion_list[motion])
+  motions_attached = temp_motions_attached
+---
 # Keeping for example way to do this in future
 #variable name: motion_checkboxes
 #data:
