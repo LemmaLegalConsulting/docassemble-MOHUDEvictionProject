@@ -2168,13 +2168,20 @@ review:
       ${ start_accordion('Landlord did not properly terminate the tenancy in accordance with RSMo § 441.060') }
     show if: not defense_failure_to_terminate
   - note: |
-      A landlord must give proper notice to evict in an Unlawful Detainer case.  The landlord did not provide proper notice for the following reasons, which will be listed in the complaint:
+      A landlord must give proper notice to evict in an Unlawful Detainer case.  
+      
+      % if not case_type["AC Unlawful Detainer"] and not eviction_reason["holdover tenancy"] and not eviction_reason["lease violation"] and not eviction_reason["other good cause"] and not is_rent_subsidized:
+      
+      A notice is not required in a Rent and Possession case that is not in subsidized housing.
+      
+      % endif
+    
     show if: not defense_failure_to_terminate
   - note: |
-      **Defendant did not get a written notice to terminate Defendant‘s tenancy.**
-    show if: not defense_failure_to_terminate
+      **The Plaintiff gave a written notice to terminate Defendant‘s tenancy.**
+    show if: not defense_failure_to_terminate and (case_type["AC Unlawful Detainer"] or eviction_reason["holdover tenancy"] or eviction_reason["lease violation"] or eviction_reason["other good cause"] or is_rent_subsidized)
   - note: |
-      **Plaintiff did not give Defendant a full rental period's notice**
+      **Plaintiff gave Defendant a full rental period's notice**
       
       % if showifdef('is_mobile_home_owner') == True:
       A mobile home owner must get notice at least 60 days before the filing of the eviction.
@@ -2183,17 +2190,23 @@ review:
       A tenant must get at least a rental period's notice before the filing of the eviction
       
       % endif
-    show if: not defense_failure_to_terminate
+    show if: not defense_failure_to_terminate and (case_type["AC Unlawful Detainer"] or eviction_reason["holdover tenancy"] or eviction_reason["lease violation"] or eviction_reason["other good cause"] or is_rent_subsidized)
   - note: |
-      **Defendant’s lease has not ended because the landlord did not give Defendant the notice required by the lease**
+      **The landlord gave Defendant the notice required by the lease**
       
       Some leases may require a longer amount of notice than the law.  If a lease has this requirement, a landlord must comply with the lease.
-    show if: not defense_failure_to_terminate
+    show if: not defense_failure_to_terminate and has_written_lease and lease_says_how_much_notice
   - note: |
-      **Defendant’s lease has not ended because Defendant did not receive the notice required by state and federal law, including but not limited to 24 C.F.R. § 247.4.**
+      **The lease does not require a longer amount of notice than the law.**
+      
+      Some leases may require a longer amount of notice than the law.  If a lease has this requirement, a landlord must comply with the lease.
+    show if: not defense_failure_to_terminate and has_written_lease and not lease_says_how_much_notice
+
+  - note: |
+      **The landlord gave Defendant the notice required by state and federal law, including but not limited to 24 C.F.R. § 247.4.**
       
       A tenant in subsidized housing must get at least 30 days notice if the tenant is being evicted for nonpayment of rent or other good cause.
-    show if: not defense_failure_to_terminate
+    show if: not defense_failure_to_terminate and is_rent_subsidized
   - Edit:
       - got_notice_to_terminate
       - recompute:
