@@ -44,7 +44,6 @@ code: |
       other_parties[0].attorney[0].address.address
     other_parties[0].service_address.address
 
-  al_user_wants_reminders
   set_progress(100)
   eviction_defender_download
 ---
