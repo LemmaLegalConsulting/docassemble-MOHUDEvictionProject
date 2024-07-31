@@ -1287,40 +1287,21 @@ fields:
     show if:
       variable: discovery_produced
       is: True
+
 ---
-id: trial_date
-question: |
-  % if person_answering == "tenant":
-  When is your trial date planned?
-  % else: 
-  When is the tenant's trial date planned?
-  % endif
-fields:
-  - Date: trial_date
-    datatype: ThreePartsDate
-    alMin: ${ today() }
-  - Time: trial_time
+code: |
+  if not users[0].attorney.there_are_any:
+    counsel_retained = False
+  else:
+    date_counsel_retained
 ---
 id: date_counsel_retained
 question: |
-  % if person_answering == "tenant":
-  Did you get a lawyer for this case?
-  % else: 
-  Did the tenant get a lawyer for this case?
-  % endif
+  When did the tenant retain you as counsel?
 fields:
-  - no label: counsel_retained
-    datatype: yesnoradio
-  - label: |
-      % if person_answering == "tenant":
-      When did you get a lawyer for this case?
-      % else: 
-      When did the tenant get a lawyer for this case?
-      % endif
-    field: date_counsel_retained
+  - no label: date_counsel_retained
     datatype: ThreePartsDate
     alMax: ${ today() }
-    show if: counsel_retained
 ---
 id: no_dilatory_motive
 question: |
@@ -1404,8 +1385,8 @@ id: new hearing date time
 question: When is the new {hearing}?
 fields:
   - Date: new_hearing_date
-    datatype: ThreePartsDate
-    alMin: ${ today() }
+    datatype: date
+    min: ${ today() }
   - "New hearing time": new_hearing_time
     datatype: radio
     choices: 

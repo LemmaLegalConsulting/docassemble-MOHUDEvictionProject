@@ -429,6 +429,25 @@ code: |
       temp_motions_attached.append(motion_list[motion])
   motions_attached = temp_motions_attached
 ---
+only sets: trial_date_set
+question: Trial Date?
+fields: 
+  - Has a trial date been scheduled?: trial_date_set
+    datatype: yesnomaybe
+    show if:
+      variable: final_judgment
+      is: False
+  - What date is the trial date set for?: trial_date
+    datatype: date
+    show if: trial_date_set
+---
+only sets: trial_date
+question: Trial Date?
+fields: 
+  - What date is the trial date set for?: trial_date
+    datatype: date
+    show if: trial_date_set
+---
 # Keeping for example way to do this in future
 #variable name: motion_checkboxes
 #data:

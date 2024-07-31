@@ -464,7 +464,6 @@ code: |
 ---
 id: motion_to_shorten_time_order
 code: |
-  trial_date
   if counsel_retained:
     days_before_trial
   opposing_party_consent_to_motion_to_shorten_time
@@ -810,9 +809,9 @@ id: add eviction discovery if wants discovery
 code: |
   eviction_discovery_attachment.enabled = wants_discovery and not motion_to_set_aside_attachment.enabled
 ---
-id: add motion to shorten time if wants discovery and hearing date in future
+id: add motion to shorten time if wants discovery and hearing date in past 
 code: |
-  motion_to_shorten_time_attachment.enabled = wants_discovery and not original_hearing_date_past
+  motion_to_shorten_time_attachment.enabled = wants_discovery and original_hearing_date_past and not final_judgment and trial_date_set
 ---
 depends on:
   - final_judgment
