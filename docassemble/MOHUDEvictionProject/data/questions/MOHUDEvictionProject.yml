@@ -469,7 +469,6 @@ code: |
   opposing_party_consent_to_motion_to_shorten_time
   no_dilatory_motive 
   may_resolve_case_more_efficiently
-  motions_attached
   motion_to_shorten_time_order = True
 ---
 id: precheck_items
@@ -856,24 +855,18 @@ code: |
 id: motions for hearing
 code: |
   motions_for_hearing_temp = list()
-  if motion_to_shorten_time_attachment.enabled and "Motion to Shorten Time" not in motions_for_hearing_temp:
-    motions_for_hearing_temp.append("Motion to Shorten Time")
+  if motion_to_set_aside_attachment.enabled and "Motion to Set Aside" not in motions_for_hearing_temp:
+    motions_for_hearing_temp.append("Motion to Set Aside")
   if eviction_motion_for_leave_attachment.enabled and "Motion for Leave to File Responsive Pleadings" not in motions_for_hearing_temp:
     motions_for_hearing_temp.append("Motion for Leave to File Responsive Pleadings")
   if eviction_motion_to_continue_attachment.enabled and "Motion to Continue" not in motions_for_hearing_temp:
     motions_for_hearing_temp.append("Motion to Continue")
+  if motion_to_shorten_time_attachment.enabled and "Motion to Shorten Time" not in motions_for_hearing_temp:
+    motions_for_hearing_temp.append("Motion to Shorten Time")
+  if motion_to_dismiss_attachment.enabled and "Motion to Dismiss" not in motions_for_hearing_temp:
+    motions_for_hearing_temp.append("Motion to Dismiss")
   motions_for_hearing = motions_for_hearing_temp
----
-id: motions for hearing
-code: |
-  motions_for_hearing_temp = list()
-  if motion_to_shorten_time_attachment.enabled and "Motion to Shorten Time" not in motions_for_hearing_temp:
-    motions_for_hearing_temp.append("Motion to Shorten Time")
-  if eviction_motion_for_leave_attachment.enabled and "Motion for Leave to File Responsive Pleadings" not in motions_for_hearing_temp:
-    motions_for_hearing_temp.append("Motion for Leave to File Responsive Pleadings")
-  if eviction_motion_to_continue_attachment.enabled and "Motion to Continue" not in motions_for_hearing_temp:
-    motions_for_hearing_temp.append("Motion to Continue")
-  motions_attached = motions_for_hearing_temp
+
 ---
 id: assembled_documents
 code: |

@@ -191,7 +191,6 @@ code: |
   opposing_party_consent_to_motion_to_shorten_time
   no_dilatory_motive 
   may_resolve_case_more_efficiently
-  motions_attached
   motion_to_shorten_time_preview
   motion_to_shorten_time_order = True
 ---
@@ -421,13 +420,6 @@ code: |
     if not motion == "notice_of_hearing":
       temp_motions_for_hearing.append(motion_checkboxes[motion])
   motions_for_hearing = temp_motions_for_hearing
----
-code: |
-  temp_motions_attached = list()
-  for motion in motion_list.true_values():
-    if not motion == "motion_to_shorten_time":
-      temp_motions_attached.append(motion_list[motion])
-  motions_attached = temp_motions_attached
 ---
 only sets: trial_date_set
 question: Trial Date?
