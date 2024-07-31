@@ -90,11 +90,13 @@ code: |
   housing_conditions
   lease_agreement_mentions_repairs
   set_progress(20)
+  nav.set_section("section_about_you")
   users[0].phone_number
+  users[0].address.address
+  nav.set_section("section_landlord")
+  other_parties.gather()
   other_parties[0].address.address
   set_progress(40)
-  other_parties.gather()
-  users[0].address.address
   interview_order_letter_to_request_repairs = True
 ---
 ###################### Main order ######################
@@ -112,6 +114,8 @@ code: |
       persistent=True,
       data={
           "zip": showifdef("users[0].address.zip"),
+          "conditions": housing_conditions.true_values(),
+          "letter_kind": letter_kind,
           "reached_interview_end": True,
       },
   )
@@ -415,6 +419,19 @@ question: |
 fields:
   - code: |
       users[0].address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)
+---
+id: your name
+question:  |
+  Your name
+fields:
+  - First: users[0].name.first
+  - Middle: users[0].name.middle
+    required: False
+  - Last: users[0].name.last
+  - Suffix: users[0].name.suffix
+    code: |
+      name_suffix()
+    required: False
 ---
 # ALDocument objects specify the metadata for each template
 objects:
