@@ -1367,7 +1367,32 @@ review:
       ${ start_accordion('Landlord did not properly terminate the tenancy in accordance with RSMo § 441.060') }
     show if: defense_failure_to_terminate
   - note: |
-      A landlord must give proper notice to evict in an Unlawful Detainer case.  The landlord did not provide proper notice for the following reasons, which will be listed in the complaint:
+      A landlord must give proper notice to evict in an Unlawful Detainer case.  
+      
+            Case Type:
+      % if case_type.any_true():
+      % for item in case_type.true_values():
+      
+        - **${ item }**
+        
+      % endfor
+      % else:
+      **None**
+      % endif
+
+      Eviction Reason:
+      % if eviction_reason.any_true():
+      
+      % for item in eviction_reason.true_values():
+        - **${ item }**
+      % endfor
+      % else:
+      **None**
+      % endif
+      
+      Edit above
+      
+      The landlord did not provide proper notice for the following reasons, which will be listed in the complaint:
     show if: defense_failure_to_terminate
   - note: |
       **Defendant did not get a written notice to terminate Defendant‘s tenancy.**
@@ -2194,12 +2219,34 @@ review:
       
       A notice is not required in a Rent and Possession case that is not in subsidized housing.
       
+      Case Type:
+      % if case_type.any_true():
+      % for item in case_type.true_values():
+      
+        - **${ item }**
+        
+      % endfor
+      % else:
+      **None**
       % endif
-    
+
+      Eviction Reason:
+      % if eviction_reason.any_true():
+      
+      % for item in eviction_reason.true_values():
+        - **${ item }**
+      % endfor
+      % else:
+      **None**
+      % endif
+      
+      % endif
+      
+      Edit above
     show if: not defense_failure_to_terminate
   - note: |
       **The Plaintiff gave a written notice to terminate Defendant‘s tenancy.**
-    show if: not defense_failure_to_terminate and (case_type["AC Unlawful Detainer"] or eviction_reason["holdover tenancy"] or eviction_reason["lease violation"] or eviction_reason["other good cause"] or is_rent_subsidized)
+    show if: not defense_failure_to_terminate and is_rent_subsidized and eviction_reason["other good cause"]
   - note: |
       **Plaintiff gave Defendant a full rental period's notice**
       
