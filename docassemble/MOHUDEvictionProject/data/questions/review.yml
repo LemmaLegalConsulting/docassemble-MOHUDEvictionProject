@@ -549,6 +549,25 @@ review:
 
       Original hearing time: <strong>${ showifdef('original_hearing_time') } ${ showifdef('other_time') }</strong>
   - Edit:
+      - final_judgment
+      - recompute:
+        - judgment_date_more_than_one_year
+        - motion_to_set_aside_attachment.enabled
+    button: |
+      Has the court made a final judgment in this case?:
+      <strong>${ word(yesno(final_judgment)) }</strong> 
+      
+      % if final_judgment:
+      Judgment date: <strong>${ showifdef('judgment_date') }</strong>
+      % else:
+      Has a trial date been scheduled?:
+      <strong>${ word(yesno(trial_date_set)) }</strong> 
+      
+      % if trial_date_set:
+      Trial date: <strong>${ showifdef('trial_date') }</strong>
+      % endif
+      % endif
+  - Edit:
       - case_type
       - recompute:
         - defense_failure_to_terminate
