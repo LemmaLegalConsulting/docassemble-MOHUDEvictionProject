@@ -42,6 +42,9 @@ metadata:
     New as of July 2024. This is a general letter and does not depend on specific law.
 ---
 code: |
+  al_form_requires_digital_signature = False
+---
+code: |
   # This controls the default country and list of states in address field questions
   AL_DEFAULT_COUNTRY = "US"
 ---
@@ -56,7 +59,7 @@ code: |
   al_form_type = "letter" 
 ---
 objects:
-  - users: ALPeopleList
+  - users: ALPeopleList.using(ask_number=True, target_number=1)
   - other_parties: ALPeopleList.using(ask_number=True, target_number=1)
 ---
 sections:
@@ -108,6 +111,8 @@ code: |
   al_intro_screen
   letter_to_request_repairs_intro
   interview_order_letter_to_request_repairs
+  nav.set_section("review_letter_to_request_repairs")
+  review_letter_to_request_repairs
   signature_date
   # Store anonymous data for analytics / statistics
   store_variables_snapshot(
@@ -119,6 +124,7 @@ code: |
           "reached_interview_end": True,
       },
   )
+  nav.set_section("section_download")
   letter_to_request_repairs_download
 ---
 id: letter_to_request_repairs
@@ -151,13 +157,10 @@ field: letter_kind
 buttons:
   - Polite reminder: repairs_only
     image: face-meh
-    css class: bg-yellow
   - Firm request: repairs_and_mention_rights
     image: face-frown
-    css class: bg-orange
   - Urgent demand: withhold_rent
     image: face-angry
-    css class: bg-red
 ---
 objects:
   - housing_conditions_options: DAOrderedDict.using(elements=housing_conditions_options_for_daordered_dict, auto_gather=False, gathered=True)
@@ -246,9 +249,9 @@ fields:
   - Other phone: users[0].phone_number
     datatype: al_international_phone
     required: False
-  - Email: users[0].email
-    datatype: email
-    required: False
+  # - Email: users[0].email
+  #   datatype: email
+  #   required: False
 ---
 id: preview letter_to_request_repairs
 question: |
@@ -273,41 +276,53 @@ id: Letter to request repairs review screen
 event: review_letter_to_request_repairs
 question: |
   Review your answers
+subquestion: |
+  Look over your answers below. If you need to make any changes, click the "Edit" button
+  next to the answer that you want to change.
+
+  Click "Resume" when you are finished.
 review:
-  - Edit: example_defects[1].description
+  - Edit: letter_kind
     button: |
-      **Example defects[1].description**:
-      ${ example_defects[1].description }
+      **Kind of letter**:
+      ${ letter_kind }
+  - Edit: housing_conditions
+    button: |
+      **Problems in your home**:
+
+      % for item in housing_conditions.true_values():
+      * ${ housing_conditions_options[item] }
+      % endfor
+      % if showifdef("housing_conditions_other"):
+      * ${ housing_conditions_other }
+      % endif
   - Edit: users.revisit
     button: |
-      **Users**
+      **About you**
 
       % for item in users:
         * ${ item }
       % endfor
   - Edit: other_parties.revisit
     button: |
-      **Other parties**
+      **About your landlord**
 
       % for item in other_parties:
         * ${ item }
       % endfor
-  - Edit: example_defects[2].description
-    button: |
-      **Example defects[2].description**:
-      ${ example_defects[2].description }
+        
   - Edit: lease_agreement_mentions_repairs
     button: |
       **Lease agreement mentions repairs**:
-      ${ lease_agreement_mentions_repairs }
+      ${ yesno(lease_agreement_mentions_repairs) }
   - Edit: repair_deadline_date
     button: |
       **Date of Repair deadline**:
-      ${ repair_deadline_date }
+      ${ yesno(repair_deadline_date) }
   - Edit: all_repairs_pending
     button: |
       **All repairs pending**:
-      ${ all_repairs_pending }
+      ${ yesno(all_repairs_pending) }
 ---
 continue button field: users.revisit
 question: |
@@ -363,14 +378,17 @@ question: |
   All done
 subquestion: |
   Thank you ${users}. Your form is ready to download and deliver.
+
+  1. Preview your letter to make sure it looks right. Click the "Edit answers" button to fix any mistakes.
+  1. Download or email yourself your form to keep for your records.
+  1. Print and mail or email a copy to your landlord. This interview does **not** send the form to your landlord for you.
   
-  View, download and send your form below. Click the "Edit answers" button to fix any mistakes.
+  View, download and send your form below. 
 
   ${ action_button_html(url_action('review_letter_to_request_repairs'), label='Edit answers', color='info') }
   
   
   ${ al_user_bundle.download_list_html() }
-  
 
   ${ al_user_bundle.send_button_html(show_editable_checkbox=True) }
 
