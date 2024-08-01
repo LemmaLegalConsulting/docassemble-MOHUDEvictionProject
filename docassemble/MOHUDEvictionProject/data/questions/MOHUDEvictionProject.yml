@@ -462,7 +462,6 @@ code: |
   information_collected
   
   nav.set_section("review_eviction_answer")
-  explanation_answer
     
   document_order = True
 ---

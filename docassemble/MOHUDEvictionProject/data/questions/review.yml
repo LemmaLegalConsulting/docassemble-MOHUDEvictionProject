@@ -437,6 +437,33 @@ review:
       
         - **${ other_parties[0].attorney[0].name }**
     show if: other_parties[0].attorney.there_are_any
+  - Edit:
+    - other_parties[0].service_method
+    button: |
+      % if other_parties[0].attorney.there_are_any:
+      Attorney ${ other_parties[0].attorney[0] } will be served by
+      % else:
+      ${ other_parties[0] } will be served by
+      % endif
+      **${ other_parties[0].service_method }**
+  - Edit:
+    - other_parties[0].email
+    - recompute:
+      - other_parties[0].service_email
+    button: |
+      Email for ${ other_parties[0].name }: **${ other_parties[0].email }**
+  - Edit:
+    - other_parties[0].attorney[0].email
+    - recompute:
+      - other_parties[0].service_email
+    button: |
+      Email for ${ other_parties[0].attorney[0].name }: ${ other_parties[0].attorney[0].email }
+  - Edit:
+    - other_parties[0].service_address.address
+    button: |
+      Service address: 
+      
+      **${ other_parties[0].service_address }**
   - raw html: |
       ${ next_accordion("About your rental agreement", showing=False) }
   - Edit:
