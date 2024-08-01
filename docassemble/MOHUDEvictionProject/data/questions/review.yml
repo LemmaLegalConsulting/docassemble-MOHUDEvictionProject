@@ -379,6 +379,10 @@ review:
   - Edit:
       - users.revisit
       - recompute:
+        - trial_court.circuit
+        - trial_court.classification
+        - defense_rent_pleading_requirement
+        - defense_new_owner_failed_to_provide_notice_of_sale
         - defense_logic
     button: |
       Defendants:
@@ -1154,6 +1158,18 @@ review:
       \ and {court costs|costs from the eviction case}.)\n% endif \n <strong>${ yesno(other_charges_alleged)\
       \ }</strong>\n"
     show if: defense_rent_pleading_requirement
+  - Edit:
+      - petition_separates_nonrent
+      - recompute:
+        - defense_rent_pleading_requirement
+    button: |
+      % if person_answering == "tenant":
+      Does the {petition} separate the amount you owe in rent from other charges?
+      % else:
+      Does the {petition} separate the amount the tenant owes in rent from other charges?
+      % endif
+      **${ "Maybe" if petition_separates_nonrent is None else yesno(petition_separates_nonrent) }**
+    show if: defense_rent_pleading_requirement
   - Edit: 
       - petition_states_rent_periods
       - recompute:
@@ -1367,7 +1383,7 @@ review:
       ${ start_accordion('Landlord did not properly terminate the tenancy in accordance with RSMo § 441.060') }
     show if: defense_failure_to_terminate
   - note: |
-      A landlord must give proper notice to evict in an Unlawful Detainer case.  
+      A landlord must give proper notice to evict in an Unlawful Detainer case or in a Rent and Possession case in subsidized housing.  
       
             Case Type:
       % if case_type.any_true():
@@ -1999,6 +2015,18 @@ review:
       \ and {court costs|costs from the eviction case}.)\n% endif \n <strong>${ yesno(other_charges_alleged)\
       \ }</strong>\n"
     show if: not defense_rent_pleading_requirement
+  - Edit:
+      - petition_separates_nonrent
+      - recompute:
+        - defense_rent_pleading_requirement
+    button: |
+      % if person_answering == "tenant":
+      Does the {petition} separate the amount you owe in rent from other charges?
+      % else:
+      Does the {petition} separate the amount the tenant owes in rent from other charges?
+      % endif
+      **${ "Maybe" if petition_separates_nonrent is None else yesno(petition_separates_nonrent) }**
+    show if: not defense_rent_pleading_requirement
   - Edit: 
       - petition_states_rent_periods
       - recompute:
@@ -2398,8 +2426,19 @@ columns:
       row_item.address
 edit:
   - name.first
-  - address
+  - address.address
+  - address.geocoding_reset
+  - address.county
 confirm: True
+---
+code: |
+  undefine('users[i].address.county')
+  users[i].address.reset_geocoding()
+  users[i].address.geocoding_reset = True
+---
+sets: users[i].address.county
+code: |
+  users[i].address.geocode()
 ---
 id: other_parties.revisit
 continue button field: other_parties.revisit

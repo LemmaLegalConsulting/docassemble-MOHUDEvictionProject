@@ -33,7 +33,15 @@ code: |
   landlord_doc_name
   
   nav.set_section("section_about")
-  person_answering
+  
+  if person_answering == "tenant":
+    users[0].attorney.target_number = 0
+  elif person_answering == "attorney" and representation_type == "entering_appearance":
+    users[0].attorney.target_number = 1
+    users[0].attorney[0].name.first
+    users[0].attorney[0].address.address
+  else:
+    users[0].attorney.target_number = 0
   use_case_net_for_online_docket
   for user in users:
     user.name.first
@@ -60,7 +68,6 @@ code: |
     
   nav.set_section("section_about_ll")
   for party in other_parties:
-    party.address.address
     party.attorney.gather()
     
   nav.set_section("section_service_method")
@@ -426,9 +433,6 @@ question: Trial Date?
 fields: 
   - Has a trial date been scheduled?: trial_date_set
     datatype: yesnomaybe
-    show if:
-      variable: final_judgment
-      is: False
   - What date is the trial date set for?: trial_date
     datatype: date
     show if: trial_date_set
