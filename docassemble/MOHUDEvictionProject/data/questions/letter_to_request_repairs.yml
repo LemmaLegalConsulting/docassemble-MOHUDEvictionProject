@@ -1,0 +1,484 @@
+---
+include:
+  - shared.yml
+---
+modules:
+  - docassemble.ALToolbox.llms
+---
+metadata:
+  title: >-
+    Ask your landlord to fix your home
+  short title: >-
+    Repair request
+  description: |-
+    If you are a Missouri tenant, you can use this interview to help you
+    write a letter to your landlord to get repairs made to your home.
+  can_i_use_this_form: |
+    You can use this interview if you are a Missouri tenant.
+  before_you_start: |
+    Before you start, you need to know:
+
+    - The name and address of your landlord
+    - The problems in your home that need to be fixed
+  languages:
+    - en
+    - es
+  authors:
+    - Quinten Steenhuis
+  maturity: production
+  estimated_completion_minutes: 10
+  estimated_completion_delta: 5
+  help_page_url: https://motenanthelp.org
+  LIST_topics: 
+    - HO-05-01-00-00
+  tags: 
+    - HO-05-01-00-00
+  jurisdiction: NAM-US-US+MO
+  review_date: 2024
+  typical_role: "plaintiff"
+  al_weaver_version: "1.10.2"
+  generated_on: "2024-07-30"
+  update_notes: |
+    New as of July 2024. This is a general letter and does not depend on specific law.
+---
+code: |
+  al_form_requires_digital_signature = False
+---
+code: |
+  # This controls the default country and list of states in address field questions
+  AL_DEFAULT_COUNTRY = "US"
+---
+code: |
+  # This controls the default state in address field questions
+  AL_DEFAULT_STATE = "MO"
+---
+code: |
+  interview_short_title = "Write a Letter to request repairs"
+---
+code: |
+  al_form_type = "letter" 
+---
+objects:
+  - users: ALPeopleList.using(ask_number=True, target_number=1)
+  - other_parties: ALPeopleList.using(ask_number=True, target_number=1)
+---
+sections:
+  - section_getting_started: Getting started
+  - section_housing_problems: Your housing problems
+  - section_about_you: About you
+  - section_landlord: About your landlord
+  - review_letter_to_request_repairs: Review your answers
+  - section_download: Download
+---
+language: es
+sections:
+  - section_getting_started: Empezar
+  - section_housing_problems: Problemas de vivienda
+  - section_about_you: Sobre ti
+  - section_landlord: Sobre tu dueño de casa
+  - review_letter_to_request_repairs: Revisar tus respuestas
+  - section_download: Descargar
+---
+#################### Interview order #####################
+comment: |
+  Controls order and branching logic for questions specific to this form
+id: interview_order_letter_to_request_repairs
+code: |
+  nav.set_section("section_getting_started")
+  user_ask_role = "plaintiff"
+  users.gather()
+  letter_kind
+  set_parts(subtitle=str(users))
+  nav.set_section("section_housing_problems")
+  housing_conditions
+  lease_agreement_mentions_repairs
+  set_progress(20)
+  nav.set_section("section_about_you")
+  users[0].phone_number
+  users[0].address.address
+  nav.set_section("section_landlord")
+  other_parties.gather()
+  other_parties[0].address.address
+  set_progress(40)
+  interview_order_letter_to_request_repairs = True
+---
+###################### Main order ######################
+comment: |
+  This block includes the logic for standalone interviews.
+  Delete mandatory: True to include in another interview
+mandatory: True
+code: |
+  al_intro_screen
+  letter_to_request_repairs_intro
+  interview_order_letter_to_request_repairs
+  nav.set_section("review_letter_to_request_repairs")
+  review_letter_to_request_repairs
+  signature_date
+  # Store anonymous data for analytics / statistics
+  store_variables_snapshot(
+      persistent=True,
+      data={
+          "zip": showifdef("users[0].address.zip"),
+          "conditions": housing_conditions.true_values(),
+          "letter_kind": letter_kind,
+          "reached_interview_end": True,
+      },
+  )
+  nav.set_section("section_download")
+  letter_to_request_repairs_download
+---
+id: letter_to_request_repairs
+continue button field: letter_to_request_repairs_intro
+question: |
+  Write your landlord to fix your home
+subquestion: |
+  This interview will help you ask your landlord to fix your home. 
+  
+  It will help you make a letter that you can print and mail or email to your landlord.
+
+  Before you get started, you need to know:
+
+  * Your landlord's name
+  * Your landlord's address
+---
+id: kind of letter
+question: |
+  What kind of letter do you want to write?
+subquestion: |
+  If this is the **first** time that you are letting the landlord know about the problems,
+  you may want to just write a letter so that you have a record in writing that you asked
+  for repairs.
+
+  If you have already asked **multiple times** and the landlord has not fixed the problem,
+  you may want to write a more firm demand for repairs.
+
+  Which kind of letter do you want to write?
+field: letter_kind
+buttons:
+  - Polite reminder: repairs_only
+    image: face-meh
+  - Firm request: repairs_and_mention_rights
+    image: face-frown
+  - Urgent demand: withhold_rent
+    image: face-angry
+---
+objects:
+  - housing_conditions_options: DAOrderedDict.using(elements=housing_conditions_options_for_daordered_dict, auto_gather=False, gathered=True)
+---
+variable name: housing_conditions_options_for_daordered_dict
+data: !!omap
+  - heat_not_working: No heat
+  - no_hot_water: No hot water
+  - locks_missing_unit: Locks missing or not working
+  - outside_windows_not_lockable: Outside windows are not lockable
+  - mouse_rats: Mice or rats
+  - roach_insects: Roaches
+  - bedbug_insects: Bedbugs
+  - other_insects: Insects
+  - dampness_water: Dampness or leaking
+  - mold: Mold
+  - electric_general_maintenance: Electrical fixtures not working
+  - lead_paint_child: Lead paint in a home with a child under 6
+  - window_structural: Windows are broken or not working
+  - ceiling: Ceiling not in good repair
+  - floor: Floor not in good repair
+  - other: Other
+---
+language: es
+variable name: housing_conditions_options
+data:
+  heat_not_working: Sin calefacción
+  no_hot_water: Sin agua caliente
+  locks_missing_unit: Cerraduras faltantes o no funcionan
+  outside_windows_not_lockable: Las ventanas exteriores no se pueden cerrar con llave
+  mouse_rats: Ratones o ratas
+  roach_insects: Cucarachas
+  bedbug_insects: Chinches
+  other_insects: Insectos
+  dampness_water: Humedad o filtraciones
+  mold: Moho
+  electric_general_maintenance: Accesorios eléctricos no funcionan
+  lead_paint_child: Pintura con plomo en una casa con un niño menor de 6 años
+  window_structural: Las ventanas están rotas o no funcionan
+  ceiling: El techo no está en buen estado
+  floor: El piso no está en buen estado
+  other: Otro
+---
+id: housing_conditions
+question: |
+  What are the problems in your home?
+fields:
+  - Pick all that apply: housing_conditions
+    datatype: checkboxes
+    code: housing_conditions_options
+    minlength: 1
+  - Other: housing_conditions_other
+    datatype: area
+    show if: housing_conditions["other"]
+---
+id: Lease agreement mentions repairs
+question: |
+  Facts for your letter
+subquestion: |
+  Answer each question below. It will help us customize your letter.
+fields:
+  - Does your lease say the landlord is responsible for repairs?: lease_agreement_mentions_repairs
+    datatype: yesnomaybe
+  - What deadline do you want your landlord to have to fix the problems?: repair_deadline_date
+    datatype: date
+    default: ${ today().plus(days=14).format("yyyy-MM-dd") }
+    under text: |
+      It is a good idea to give your landlord at least 14 days to fix the problems, which is ${ today().plus(days=14) }.
+  - Did you already ask your landlord to fix the problem?: asked_landlord_to_fix_already
+    datatype: yesnoradio
+  - When?: repair_request_dates
+    show if: asked_landlord_to_fix_already
+    under text: |
+      Write the best day you know. For example: "Last Sunday"
+  - Are **all** of the problems still there?: all_repairs_pending
+    show if: asked_landlord_to_fix_already
+    datatype: yesnomaybe
+---
+id: contact information
+question: |
+  How should your landlord contact you?
+fields:
+  - Cell phone: users[0].mobile_number
+    datatype: al_international_phone
+    required: False
+  - Other phone: users[0].phone_number
+    datatype: al_international_phone
+    required: False
+  # - Email: users[0].email
+  #   datatype: email
+  #   required: False
+---
+id: preview letter_to_request_repairs
+question: |
+  Preview your form before you sign it
+subquestion: |
+  Here is a preview of the form you will sign on the next page.   
+  
+  ${ al_recipient_bundle.as_pdf(key='preview') }
+
+  Click the image to open it in a new tab. Click the "Edit answers" button
+  to edit your answers.
+
+  ${ action_button_html(url_action('review_letter_to_request_repairs'), label='Edit answers', color='info') }
+  
+  Remember to come back to this window to continue and sign your form.
+continue button field: letter_to_request_repairs_preview_question    
+---
+code: |
+  signature_fields = []
+---
+id: Letter to request repairs review screen
+event: review_letter_to_request_repairs
+question: |
+  Review your answers
+subquestion: |
+  Look over your answers below. If you need to make any changes, click the "Edit" button
+  next to the answer that you want to change.
+
+  Click "Resume" when you are finished.
+review:
+  - Edit: letter_kind
+    button: |
+      **Kind of letter**:
+      ${ letter_kind }
+  - Edit: housing_conditions
+    button: |
+      **Problems in your home**:
+
+      % for item in housing_conditions.true_values():
+      * ${ housing_conditions_options[item] }
+      % endfor
+      % if showifdef("housing_conditions_other"):
+      * ${ housing_conditions_other }
+      % endif
+  - Edit: users.revisit
+    button: |
+      **About you**
+
+      % for item in users:
+        * ${ item }
+      % endfor
+  - Edit: other_parties.revisit
+    button: |
+      **About your landlord**
+
+      % for item in other_parties:
+        * ${ item }
+      % endfor
+        
+  - Edit: lease_agreement_mentions_repairs
+    button: |
+      **Lease agreement mentions repairs**:
+      ${ yesno(lease_agreement_mentions_repairs) }
+  - Edit: repair_deadline_date
+    button: |
+      **Date of Repair deadline**:
+      ${ yesno(repair_deadline_date) }
+  - Edit: all_repairs_pending
+    button: |
+      **All repairs pending**:
+      ${ yesno(all_repairs_pending) }
+---
+continue button field: users.revisit
+question: |
+  Edit users
+subquestion: |
+  ${ users.table }
+
+  ${ users.add_action() }
+---
+table: users.table
+rows: users
+columns:
+  - Phone number: |
+      row_item.phone_number if defined("row_item.phone_number") else ""
+  - Name: |
+      row_item.name.full() if defined("row_item.name.first") else ""
+  - Contact information: |
+      row_item.contact_information if defined("row_item.contact_information") else ""
+  - Address: |
+      row_item.address.block() if defined("row_item.address.address") else ""
+edit:
+  - phone_number
+  - name.first
+  - contact_information
+  - address.address
+confirm: True
+
+---
+continue button field: other_parties.revisit
+question: |
+  Edit other_parties
+subquestion: |
+  ${ other_parties.table }
+
+  ${ other_parties.add_action() }
+---
+table: other_parties.table
+rows: other_parties
+columns:
+  - Address: |
+      row_item.address.block() if defined("row_item.address.address") else ""
+  - Name: |
+      row_item.name.full() if defined("row_item.name.first") else ""
+edit:
+  - address.address
+  - name.first
+confirm: True
+
+---
+id: download letter_to_request_repairs
+event: letter_to_request_repairs_download
+question: |
+  All done
+subquestion: |
+  Thank you ${users}. Your form is ready to download and deliver.
+
+  1. Preview your letter to make sure it looks right. Click the "Edit answers" button to fix any mistakes.
+  1. Download or email yourself your form to keep for your records.
+  1. Print and mail or email a copy to your landlord. This interview does **not** send the form to your landlord for you.
+  
+  View, download and send your form below. 
+
+  ${ action_button_html(url_action('review_letter_to_request_repairs'), label='Edit answers', color='info') }
+  
+  
+  ${ al_user_bundle.download_list_html() }
+
+  ${ al_user_bundle.send_button_html(show_editable_checkbox=True) }
+
+progress: 100
+---
+id: other tenants
+question: |
+  Will any other tenants sign this letter?
+subquestion: |
+  % if users.number_gathered() > 1:
+  You have already told us about 
+  ${ users.complete_elements() }
+  % endif
+fields:
+  - label: |
+      Do you want another tenant to sign this letter?
+    field: users.there_is_another
+    datatype: yesnoradio
+sets:
+  - other_parties[i].name.first
+  - other_parties[i].name.last
+  - other_parties[i].name.middle
+  - other_parties[i].name.suffix
+  - other_parties[i].person_type
+---  
+id: names of opposing parties
+question: |
+  % if i >= 1:
+  What is your ${ ordinal(i) } landlord's name?
+  % elif i == 0:
+  What is your landlord's name?
+  % endif
+fields: 
+  - Landlord's name: other_parties[i].name.first
+---
+id: your address
+sets:
+  - users[0].address.address
+  - users[0].address.city
+  - users[0].address.zip
+  - users[0].address.unit
+  - users[0].address.state
+  - users[0].address.country
+question: |
+  Where do you live?
+fields:
+  - code: |
+      users[0].address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)
+---
+id: your name
+question:  |
+  Your name
+fields:
+  - First: users[0].name.first
+  - Middle: users[0].name.middle
+    required: False
+  - Last: users[0].name.last
+  - Suffix: users[0].name.suffix
+    code: |
+      name_suffix()
+    required: False
+---
+# ALDocument objects specify the metadata for each template
+objects:
+  # - letter_to_request_repairs_Post_interview_instructions: ALDocument.using(title="Instructions", filename="letter_to_request_repairs_next_steps.docx", enabled=True, has_addendum=False)
+  - letter_to_request_repairs_attachment: ALDocument.using(title="Letter to request repairs", filename="letter_to_request_repairs", enabled=True, has_addendum=False, )
+---
+# Bundles group the ALDocuments into separate downloads, such as for court and for the user
+objects:
+  - al_user_bundle: ALDocumentBundle.using(elements=[letter_to_request_repairs_attachment], filename="letter_to_request_repairs", title="All forms to download for your records", enabled=True)
+  - al_recipient_bundle: ALDocumentBundle.using(elements=[letter_to_request_repairs_attachment],  filename="letter_to_request_repairs", title="All forms to file", enabled=True)
+---
+# Each attachment defines a key in an ALDocument. We use `i` as the placeholder here so the same template is 
+# used for "preview" and "final" keys, and logic in the template checks the value of 
+# `i` to show or hide the user's signature
+# attachment:
+#   name: Post-interview-Instructions
+#   filename: letter_to_request_repairs_next_steps
+#   docx template file: letter_to_request_repairs_next_steps.docx
+#   variable name: letter_to_request_repairs_Post_interview_instructions[i]
+#   skip undefined: True
+#   tagged pdf: True
+---
+attachment:
+  name: Letter to request repairs
+  filename: letter_to_request_repairs
+  variable name: letter_to_request_repairs_attachment[i]
+  skip undefined: True
+  docx template file: letter_to_request_repairs.docx
+  tagged pdf: True
+
+
+
