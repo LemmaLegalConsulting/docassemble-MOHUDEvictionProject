@@ -379,6 +379,10 @@ review:
   - Edit:
       - users.revisit
       - recompute:
+        - trial_court.circuit
+        - trial_court.classification
+        - defense_rent_pleading_requirement
+        - defense_new_owner_failed_to_provide_notice_of_sale
         - defense_logic
     button: |
       Defendants:
@@ -391,6 +395,10 @@ review:
       % else:
       **None**
       % endif
+  - Edit: 
+      - users[0].attorney[0].name.first
+    button: |
+      Tenant's attorney: **${ users[0].attorney[0].name }**
   - Edit:
       - will_offer_payment
       - recompute:
@@ -402,19 +410,6 @@ review:
       The tenant is able to pay rent and {court costs}:
       % endif
       **${ "Maybe" if will_offer_payment is None else yesno(will_offer_payment) }**
-  - note: |
-      % if person_answering == "attorney":
-      ##About the Tenant's attorney##
-      % endif
-    show if: person_answering == "attorney"
-  - Edit: 
-      - users[0].attorney[0].name.first
-    button: |
-      Tenant's attorney: 
-      
-      % if person_answering == "attorney":
-        - **${ users[0].attorney[0].name }**
-      % endif
   - raw html: |
       ${ next_accordion("Information about your landlord", showing=False) }
   - Edit:
@@ -434,13 +429,41 @@ review:
       % endif
   - note: |
       ##About the Landlord's attorney##
-    show if: other_parties[0].attorney[0].name
+    show if: other_parties[0].attorney.there_are_any and other_parties[0].attorney[0].name
   - Edit: 
       - other_parties[0].attorney[0].name.first
     button: |
       Landlord's attorney: 
       
         - **${ other_parties[0].attorney[0].name }**
+    show if: other_parties[0].attorney.there_are_any
+  - Edit:
+    - other_parties[0].service_method
+    button: |
+      % if other_parties[0].attorney.there_are_any:
+      Attorney ${ other_parties[0].attorney[0] } will be served by
+      % else:
+      ${ other_parties[0] } will be served by
+      % endif
+      **${ other_parties[0].service_method }**
+  - Edit:
+    - other_parties[0].email
+    - recompute:
+      - other_parties[0].service_email
+    button: |
+      Email for ${ other_parties[0].name }: **${ other_parties[0].email }**
+  - Edit:
+    - other_parties[0].attorney[0].email
+    - recompute:
+      - other_parties[0].service_email
+    button: |
+      Email for ${ other_parties[0].attorney[0].name }: ${ other_parties[0].attorney[0].email }
+  - Edit:
+    - other_parties[0].service_address.address
+    button: |
+      Service address: 
+      
+      **${ other_parties[0].service_address }**
   - raw html: |
       ${ next_accordion("About your rental agreement", showing=False) }
   - Edit:
@@ -547,6 +570,25 @@ review:
       Date of original hearing: <strong>${ showifdef('original_hearing_date') }</strong>
 
       Original hearing time: <strong>${ showifdef('original_hearing_time') } ${ showifdef('other_time') }</strong>
+  - Edit:
+      - final_judgment
+      - recompute:
+        - judgment_date_more_than_one_year
+        - motion_to_set_aside_attachment.enabled
+    button: |
+      Has the court made a final judgment in this case?:
+      <strong>${ word(yesno(final_judgment)) }</strong> 
+      
+      % if final_judgment:
+      Judgment date: <strong>${ showifdef('judgment_date') }</strong>
+      % else:
+      Has a trial date been scheduled?:
+      <strong>${ word(yesno(trial_date_set)) }</strong> 
+      
+      % if trial_date_set:
+      Trial date: <strong>${ showifdef('trial_date') }</strong>
+      % endif
+      % endif
   - Edit:
       - case_type
       - recompute:
@@ -1134,6 +1176,18 @@ review:
       \ and {court costs|costs from the eviction case}.)\n% endif \n <strong>${ yesno(other_charges_alleged)\
       \ }</strong>\n"
     show if: defense_rent_pleading_requirement
+  - Edit:
+      - petition_separates_nonrent
+      - recompute:
+        - defense_rent_pleading_requirement
+    button: |
+      % if person_answering == "tenant":
+      Does the {petition} separate the amount you owe in rent from other charges?
+      % else:
+      Does the {petition} separate the amount the tenant owes in rent from other charges?
+      % endif
+      **${ "Maybe" if petition_separates_nonrent is None else yesno(petition_separates_nonrent) }**
+    show if: defense_rent_pleading_requirement
   - Edit: 
       - petition_states_rent_periods
       - recompute:
@@ -1347,7 +1401,32 @@ review:
       ${ start_accordion('Landlord did not properly terminate the tenancy in accordance with RSMo § 441.060') }
     show if: defense_failure_to_terminate
   - note: |
-      A landlord must give proper notice to evict in an Unlawful Detainer case.  The landlord did not provide proper notice for the following reasons, which will be listed in the complaint:
+      A landlord must give proper notice to evict in an Unlawful Detainer case or in a Rent and Possession case in subsidized housing.  
+      
+            Case Type:
+      % if case_type.any_true():
+      % for item in case_type.true_values():
+      
+        - **${ item }**
+        
+      % endfor
+      % else:
+      **None**
+      % endif
+
+      Eviction Reason:
+      % if eviction_reason.any_true():
+      
+      % for item in eviction_reason.true_values():
+        - **${ item }**
+      % endfor
+      % else:
+      **None**
+      % endif
+      
+      Edit above
+      
+      The landlord did not provide proper notice for the following reasons, which will be listed in the complaint:
     show if: defense_failure_to_terminate
   - note: |
       **Defendant did not get a written notice to terminate Defendant‘s tenancy.**
@@ -1534,7 +1613,7 @@ review:
       ${ start_accordion("Landlord failed to reasonably accommodate Tenant's disability") }
     show if: not defense_reasonable_accommodation
   - Edit:
-      - tenant_disability
+      - tenant_has_disability
       - recompute:
         - defense_reasonable_accommodation
         - defense_logic
@@ -1577,7 +1656,7 @@ review:
        <strong>${ "I don't know" if tenant_asked_for_accommodation is None else yesno(tenant_asked_for_accommodation) }</strong>
       % endif
 
-      % if showifdef('tenant_asked_for_accommodation') == False:
+      % if defined('tenant_asked_for_accommodation') and not tenant_asked_for_accommodation:
       % if person_answering == "tenant":
       Would you like to ask now?
       % else:
@@ -1871,8 +1950,16 @@ review:
     show if: not defense_unrepresented_corporation
   - note: |
       A corporation cannot file a court case like an eviction without an attorney.
-    
-      You said that at least one of the plaintiffs is a business who doesn't have a lawyer.  You can change this answer in the "Information about your landlord" section.
+     
+      % for party in other_parties:
+      ${ party.name } is ${ indefinite_article(party.person_type ) } and is 
+      % if not party.attorney.there_are_any:
+      not 
+      % endif
+      represented by an attorney.
+      % endfor
+      
+      You can change this answer in the "Information about your landlord" section.
     show if: not defense_unrepresented_corporation
   - raw html: |
       ${ end_accordion() }
@@ -1945,6 +2032,18 @@ review:
       Does the petition say the tenant owes an amount other than rent? (Not including attorney fees\
       \ and {court costs|costs from the eviction case}.)\n% endif \n <strong>${ yesno(other_charges_alleged)\
       \ }</strong>\n"
+    show if: not defense_rent_pleading_requirement
+  - Edit:
+      - petition_separates_nonrent
+      - recompute:
+        - defense_rent_pleading_requirement
+    button: |
+      % if person_answering == "tenant":
+      Does the {petition} separate the amount you owe in rent from other charges?
+      % else:
+      Does the {petition} separate the amount the tenant owes in rent from other charges?
+      % endif
+      **${ "Maybe" if petition_separates_nonrent is None else yesno(petition_separates_nonrent) }**
     show if: not defense_rent_pleading_requirement
   - Edit: 
       - petition_states_rent_periods
@@ -2160,13 +2259,42 @@ review:
       ${ start_accordion('Landlord did not properly terminate the tenancy in accordance with RSMo § 441.060') }
     show if: not defense_failure_to_terminate
   - note: |
-      A landlord must give proper notice to evict in an Unlawful Detainer case.  The landlord did not provide proper notice for the following reasons, which will be listed in the complaint:
+      A landlord must give proper notice to evict in an Unlawful Detainer case.  
+      
+      % if not case_type["AC Unlawful Detainer"] and not eviction_reason["holdover tenancy"] and not eviction_reason["lease violation"] and not eviction_reason["other good cause"] and not is_rent_subsidized:
+      
+      A notice is not required in a Rent and Possession case that is not in subsidized housing.
+      
+      Case Type:
+      % if case_type.any_true():
+      % for item in case_type.true_values():
+      
+        - **${ item }**
+        
+      % endfor
+      % else:
+      **None**
+      % endif
+
+      Eviction Reason:
+      % if eviction_reason.any_true():
+      
+      % for item in eviction_reason.true_values():
+        - **${ item }**
+      % endfor
+      % else:
+      **None**
+      % endif
+      
+      % endif
+      
+      Edit above
     show if: not defense_failure_to_terminate
   - note: |
-      **Defendant did not get a written notice to terminate Defendant‘s tenancy.**
-    show if: not defense_failure_to_terminate
+      **The Plaintiff gave a written notice to terminate Defendant‘s tenancy.**
+    show if: not defense_failure_to_terminate and is_rent_subsidized and eviction_reason["other good cause"]
   - note: |
-      **Plaintiff did not give Defendant a full rental period's notice**
+      **Plaintiff gave Defendant a full rental period's notice**
       
       % if showifdef('is_mobile_home_owner') == True:
       A mobile home owner must get notice at least 60 days before the filing of the eviction.
@@ -2175,17 +2303,23 @@ review:
       A tenant must get at least a rental period's notice before the filing of the eviction
       
       % endif
-    show if: not defense_failure_to_terminate
+    show if: not defense_failure_to_terminate and (case_type["AC Unlawful Detainer"] or eviction_reason["holdover tenancy"] or eviction_reason["lease violation"] or eviction_reason["other good cause"] or is_rent_subsidized)
   - note: |
-      **Defendant’s lease has not ended because the landlord did not give Defendant the notice required by the lease**
+      **The landlord gave Defendant the notice required by the lease**
       
       Some leases may require a longer amount of notice than the law.  If a lease has this requirement, a landlord must comply with the lease.
-    show if: not defense_failure_to_terminate
+    show if: not defense_failure_to_terminate and has_written_lease and lease_says_how_much_notice
   - note: |
-      **Defendant’s lease has not ended because Defendant did not receive the notice required by state and federal law, including but not limited to 24 C.F.R. § 247.4.**
+      **The lease does not require a longer amount of notice than the law.**
+      
+      Some leases may require a longer amount of notice than the law.  If a lease has this requirement, a landlord must comply with the lease.
+    show if: not defense_failure_to_terminate and has_written_lease and not lease_says_how_much_notice
+
+  - note: |
+      **The landlord gave Defendant the notice required by state and federal law, including but not limited to 24 C.F.R. § 247.4.**
       
       A tenant in subsidized housing must get at least 30 days notice if the tenant is being evicted for nonpayment of rent or other good cause.
-    show if: not defense_failure_to_terminate
+    show if: not defense_failure_to_terminate and is_rent_subsidized
   - Edit:
       - got_notice_to_terminate
       - recompute:
@@ -2310,8 +2444,19 @@ columns:
       row_item.address
 edit:
   - name.first
-  - address
+  - address.address
+  - address.geocoding_reset
+  - address.county
 confirm: True
+---
+code: |
+  undefine('users[i].address.county')
+  users[i].address.reset_geocoding()
+  users[i].address.geocoding_reset = True
+---
+sets: users[i].address.county
+code: |
+  users[i].address.geocode()
 ---
 id: other_parties.revisit
 continue button field: other_parties.revisit
@@ -2334,8 +2479,7 @@ columns:
       "Maybe" if row_item.attorney.there_are_any is None else yesno(row_item.attorney.there_are_any)  
 edit:
   - name.first
-  - address.address
-  - attorney.revisit
+  - attorney.there_are_any
 confirm: True
 ---
 id: other_parties attorney.revisit

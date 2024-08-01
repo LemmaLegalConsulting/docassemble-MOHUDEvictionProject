@@ -220,6 +220,10 @@ id: case type from summons
 question: |
   What kind of {eviction} did the landlord file?
 subquestion: |
+  There are different types of eviction cases.  Knowing the type of eviction case is very important because different defenses may apply depending on the type of eviction.
+  
+  <iframe width="480" height="270" src="https://www.powtoon.com/embed/dGegOXUitAM/" frameborder="0" allowfullscreen></iframe>
+  
   % if tenant_got_summons and petition_available: 
   Look at **your {summons} and {petition}** to answer this question. Find
   the information labeled "Nature of Suit."

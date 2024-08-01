@@ -1,6 +1,63 @@
 ---
 include:
-  - shared.yml
+  - docassemble.AssemblyLine:assembly_line.yml
+  - docassemble.GithubFeedbackForm:embedded_review.yml
+  - defense_logic.yml
+  - information_collected.yml
+  - docassemble.ALToolbox:display_template.yml
+  - court_information.yml
+  - autoterms.yml
+  - discovery.yml
+---
+id: shared modules
+modules:
+  - docassemble.demo.accordion
+---
+id: feedback_form
+code: |
+  feedback_form = f"{user_info().package}:feedback.yml"
+---
+id: features
+features:
+  bootstrap theme: motenanthelp.bootstrap.css
+  css: custom.css
+  inverse navbar: False
+---
+id: default screen parts
+default screen parts:
+  pre: |
+  logo: |
+    <span class="mo-logo">
+      <img src="${ al_logo.url_for() }" alt="${ al_logo.alt_text }"/>
+    </span>
+  short logo: |
+    <span class="mo-logo">
+      <img src="${ al_logo.url_for() }" alt="${ al_logo.alt_text }"/>
+    </span>
+---
+id: github_repo_name
+code: |
+  github_repo_name =  'docassemble-MOHUDEvictionProject'
+---
+id: logo
+objects:
+  - al_logo: DAStaticFile.using(filename="logo.svg")
+---
+id: AL_DEFAULT_COUNTRY
+code: |
+  AL_DEFAULT_COUNTRY = "US"
+---
+id: AL_DEFAULT_STATE
+code: |  
+  AL_DEFAULT_STATE = "MO"
+---
+id: AL_ORGANIZATION_TITLE
+code: |
+  AL_ORGANIZATION_TITLE = "Missouri Tenant Help"
+---
+id: AL_ORGANIZATION_HOMEPAGE
+code: |
+  AL_ORGANIZATION_HOMEPAGE = "https://motenanthelp.org/"
 ---
 modules:
   - docassemble.ALToolbox.llms
@@ -114,6 +171,7 @@ code: |
   nav.set_section("review_letter_to_request_repairs")
   review_letter_to_request_repairs
   signature_date
+  basic_questions_signature_flow
   # Store anonymous data for analytics / statistics
   store_variables_snapshot(
       persistent=True,
@@ -270,17 +328,18 @@ subquestion: |
 continue button field: letter_to_request_repairs_preview_question    
 ---
 code: |
-  signature_fields = []
+  signature_fields = ["users[0].signature"]
 ---
 id: Letter to request repairs review screen
-event: review_letter_to_request_repairs
+continue button field: review_letter_to_request_repairs
 question: |
   Review your answers
 subquestion: |
   Look over your answers below. If you need to make any changes, click the "Edit" button
   next to the answer that you want to change.
 
-  Click "Resume" when you are finished.
+  Click "Next" when you are finished.
+continue button label: Next
 review:
   - Edit: letter_kind
     button: |
