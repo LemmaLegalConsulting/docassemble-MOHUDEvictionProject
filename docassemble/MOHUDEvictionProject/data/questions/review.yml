@@ -395,6 +395,10 @@ review:
       % else:
       **None**
       % endif
+  - Edit: 
+      - users[0].attorney[0].name.first
+    button: |
+      Tenant's attorney: **${ users[0].attorney[0].name }**
   - Edit:
       - will_offer_payment
       - recompute:
@@ -406,19 +410,6 @@ review:
       The tenant is able to pay rent and {court costs}:
       % endif
       **${ "Maybe" if will_offer_payment is None else yesno(will_offer_payment) }**
-  - note: |
-      % if person_answering == "attorney":
-      ##About the Tenant's attorney##
-      % endif
-    show if: person_answering == "attorney"
-  - Edit: 
-      - users[0].attorney[0].name.first
-    button: |
-      Tenant's attorney: 
-      
-      % if person_answering == "attorney":
-        - **${ users[0].attorney[0].name }**
-      % endif
   - raw html: |
       ${ next_accordion("Information about your landlord", showing=False) }
   - Edit:

@@ -781,6 +781,10 @@ review:
       % else:
       **None**
       % endif
+  - Edit: 
+      - users[0].attorney[0].name.first
+    button: |
+      Tenant's attorney: **${ users[0].attorney[0].name }**
   - note: | 
       ##Information about the other party##
   - Edit:
