@@ -36,6 +36,12 @@ code: |
 code: |
   al_interview_languages = ["en", "es"]  
 ---
+default screen parts:
+  navigation bar html: |
+    % if enable_al_language and len(al_interview_languages) > 1:
+    ${ get_language_list_dropdown(al_interview_languages,current=al_user_language, extra_class="text-dark", icon="fa-solid fa-language fa-xl" ) }
+    % endif
+---
 id: edde sections block
 sections:
   - section_eviction_answer_intro: Getting started
