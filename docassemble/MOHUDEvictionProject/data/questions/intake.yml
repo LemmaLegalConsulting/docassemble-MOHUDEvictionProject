@@ -31,8 +31,12 @@ code: |
   nav.set_section("section_income")
   if not income_eligible:
     exit_does_not_qualify_income
+  if address_type == "give_address" and (users[0].address.state != "MO" or users[0].normalized_address().county not in county_dictionary):
+    county_not_in_mo
   nav.set_section("section_problem")
   intake_screener.criteria
+  if intake_screener.criteria["housing"] == "Unable to get program rules.":
+    something_went_wrong
   intake_screener.gather()
   nav.set_section("section_recommendation")
   intake_screener.intake_results
@@ -115,6 +119,22 @@ fields:
     show if:
       variable: citizenship_status_victim
       is: True
+---
+event: county_not_in_mo
+question: |
+  We are sorry, but we can only help with legal aid programs in Missouri
+subquestion: |
+  Based on your address, you do not live in Missouri.
+
+  Try visiting [LSC.gov](https://lsc.gov) to find your local legal aid provider.
+---
+event: something_went_wrong
+question: |
+  We are sorry, but we could not get the rules for the legal aid program in your county
+subquestion: |
+  You can still visit [their website](${ county_dictionary[county_to_use]['legal_aid_program_website'] }) or call them at ${ tel(county_dictionary[county_to_use]['legal_aid_program_phone_app']) }.
+
+  Or, try looking on the [motenanthelp](https://www.motenanthelp.org/) website.
 ---
 event: exit_does_not_qualify_citizenship
 question: |
@@ -367,7 +387,7 @@ code: |
     county_to_use = users[0].address.county
   else:
     county_to_use = users[0].normalized_address().county
-  matching_program = county_dictionary[county_to_use]['legal_aid_program']
+  matching_program = county_dictionary[county_to_use]['legal_aid_program'].strip()
 ---
 code: |
   import ruamel.yaml
@@ -401,8 +421,6 @@ subquestion: |
 fields:
   - I need help with: intake_screener.initial_problem_description
     datatype: area
-    default: |
-      I live in ${ users[0].address.county } and need help with:
 ---
 generic object: IntakeQuestionList
 question: |
@@ -410,6 +428,11 @@ question: |
 fields:
   - ${ x[i].question }: x[i].response
     datatype: area
+under: |
+  % if get_config("debug"):
+  <h2 class="h4">Debug only</h2>
+  ${ collapse_template(intake_rules_template) }
+  % endif
 ---
 continue button field: intake_screener.intake_results
 question: |
@@ -471,3 +494,9 @@ content: |
 
   If you do not want to use this tool, you can visit 
   [their website](${ county_dictionary[county_to_use]['legal_aid_program_website'] }) or call them at ${ tel(county_dictionary[county_to_use]['legal_aid_program_phone_app']) }.
+---
+template: intake_rules_template
+subject: |
+  What are the rules for ${ matching_program }?
+content: |
+  ${ intake_screener.criteria['housing'] }
