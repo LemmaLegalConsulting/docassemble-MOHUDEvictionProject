@@ -1295,7 +1295,7 @@ fields:
 
 ---
 code: |
-  if not users[0].attorney.there_are_any:
+  if users[0].attorney.target_number == 0:
     counsel_retained = False
   else:
     date_counsel_retained
