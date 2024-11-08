@@ -1,4 +1,7 @@
 ---
+translations:
+  - MOHUDEvictionProject_es.xlsx
+---
 id: edde include
 include:
   - shared.yml
@@ -30,6 +33,15 @@ id: edde interview_short_title
 code: |
   interview_short_title = "Eviction Defender"
 ---
+code: |
+  al_interview_languages = ["en", "es"]  
+---
+default screen parts:
+  navigation bar html: |
+    % if enable_al_language and len(al_interview_languages) > 1:
+    ${ get_language_list_dropdown(al_interview_languages,current=al_user_language, extra_class="text-dark", icon="fa-solid fa-language fa-xl" ) }
+    % endif
+---
 id: edde sections block
 sections:
   - section_eviction_answer_intro: Getting started
@@ -42,6 +54,19 @@ sections:
   - review_eviction_answer: Review your answers
   - section_eviction_discovery: Discovery
   - section_eviction_answer_download: Download, print, deliver, and file
+---
+language: es
+sections:
+  - section_eviction_answer_intro: Empezar
+  - section_eviction_answer_can_i: ¿Debería presentar una respuesta?
+  - section_eviction_answer_you: Sobre usted
+  - section_eviction_answer_other: Sobre su arrendador
+  - section_eviction_answer_case: Sobre su caso judicial
+  - section_eviction_answer_tenancy: Sobre su arrendamiento
+  - section_eviction_answer_defenses: Reclamaciones y defensas
+  - review_eviction_answer: Revisar sus respuestas
+  - section_eviction_discovery: Descubrimiento
+  - section_eviction_answer_download: Descargar, imprimir, entregar y presentar  
 ---
 id: edde user role
 code: |
