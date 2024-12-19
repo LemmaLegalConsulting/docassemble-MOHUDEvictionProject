@@ -1544,7 +1544,7 @@ subquestion: |
   
   **4. Complete and {file} the forms:**
   
-    * Fill in the date you deliver each form to the other party in the "Certificate of Service" box usually at the end of the document. There are 3 Certificate of Service boxes in the discovery document that you will need to fill in before delivering to the other party. 
+    * Fill in the date you deliver each form to the other party in the "Certificate of Service" box usually at the end of the document. 
     
     % if not docket_number: 
     * Add the case number.

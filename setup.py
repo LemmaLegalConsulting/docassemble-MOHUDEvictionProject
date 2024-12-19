@@ -54,7 +54,7 @@ setup(name='docassemble.MOHUDEvictionProject',
       url='https://motenanthelp.org/',
       packages=find_packages(),
       namespace_packages=['docassemble'],
-      install_requires=['docassemble.AssemblyLine>=3.1.0'],
+      install_requires=['docassemble.AssemblyLine>=3.2.0'],
       zip_safe=False,
       package_data=find_package_data(where='docassemble/MOHUDEvictionProject/', package='docassemble.MOHUDEvictionProject'),
      )
