@@ -1,3 +1,4 @@
+####### This file is not currently used because Case.net reminders are a better option #######
 ---
 id: reminders
 decoration: bell
@@ -76,6 +77,7 @@ help: |
   you want the tenant's information to be shared.
   % endif
 ---
+id: send_user_email
 code: |
   if email_after_completion and wants_email and task_not_yet_performed("interview complete email"):
       send_email(task="interview complete email",to=users[0].email, template=interview_complete_email, attachments=[zip_file(al_user_bundle.as_list(), filename="Eviction_Forms.zip")])
@@ -83,6 +85,7 @@ code: |
       send_sms(to=phone_number_in_e164(users[0].phone_number), template=interview_complete_text, task='interview complete text')
   send_user_email = True
 ---
+id: cron_daily
 event: cron_daily
 code: |
   import time
@@ -104,6 +107,7 @@ code: |
       
   response() # This stops Docassemble from running the rest of the interview and potentially running into an error
 ---
+id: court_reminder_email
 template: court_reminder_email
 subject: |
   % if person_answering == "tenant":
@@ -150,6 +154,7 @@ content: |
   on ${format_date(start_time())}.
   % endif
 ---
+id: attend_court_text
 template: attend_court_text
 content: |
   % if person_answering == "tenant":
@@ -178,6 +183,7 @@ content: |
    - MADE from GBLS
   % endif
 ---
+id: interview_complete_email
 template: interview_complete_email
 subject: |
   You finished the eviction interview! Keep this for your records (Massachusetts Defense for Eviction) for ${other_parties} v. ${users}
@@ -216,6 +222,7 @@ content: |
   
   Was MADE helpful? [Tell us here](https://www.surveymonkey.com/r/8T2KZBV).
 ---
+id: interview_complete_text
 template: interview_complete_text
 content: |
   Congrats on finishing the interview! 

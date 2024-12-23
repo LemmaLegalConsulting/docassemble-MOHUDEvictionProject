@@ -1,18 +1,78 @@
 ---
+id: discovery include
 modules:
   - .discovery
 ---
+id: discovery objects
 objects:
   - interrogatories: DiscoveryDict.using(yaml_source="data/sources/interrogatories.yml")
   - document_requests: DiscoveryDict.using(yaml_source="data/sources/document_requests.yml")
 ---
 id: wants discovery
 question: |
-  Ask your landlord for information or documents to get ready for court
+  Proving your case
 subquestion: |
+  % if person_answering == "tenant":
+  You will need to prove your case with evidence.  
+  
+  Bring three copies of your evidence to court so you can give a copy to the judge and the landlord.
+  % else:
+  You will need to prove your case with evidence.  
+  
+  The tenant should bring three copies of your evidence to court so you can give a copy to the judge and the landlord.
+  % endif  
+
+  % if defense_tender_refused or defense_rent_payment or defense_settlement or defense_breach_of_habitability:
+
+  ###Evidence###
+  % if person_answering == "tenant":
+  You should
+  % else:
+  The tenant should
+  % endif
+  show the court the following evidence:
+  
+  % if defense_tender_refused:
+
+  % if person_answering == "tenant":
+   1. Evidence that you attempted to pay the rent on: 
+  % else:
+   1. Evidence that the tenant attempted to pay the rent on:
+  % endif
+   % for offer in offer_attempts:
+      - ${ offer.attempt_date }
+   % endfor
+  % endif
+
+  % if defense_rent_payment:
+
+   1. Payment records or a cancelled check showing that the rent was paid.
+  % endif
+
+  % if defense_settlement:
+
+   1. A copy of the {settlement|settlement agreement} made with the landlord.
+  % if person_answering == "tenant":
+   1. Evidence that you complied with the settlement agreement.
+  % else:
+   1. Evidence that the tenant complied with the settlement agreement.
+  % endif
+  % endif
+
+  % if defense_breach_of_habitability:
+
+   1. Photographs or other evidence of the problems in the home.
+   1. A copy of the notice that was sent to the landlord about the problem that needs to be repaired.
+  % endif
+  % endif
+  
+  ## Discovery ##
+  
   You have the right to have your landlord answer some questions and give you some documents before trial. This is called "discovery."
   
   Discovery may help you understand what information or documents your Landlord has.
+  
+  <iframe width="480" height="270" src="https://www.powtoon.com/embed/e7qPiC3sB9G/" frameborder="0" allowfullscreen></iframe>
   
   This website includes a list of common questions to ask and documents to ask your landlord for.
 fields:
@@ -63,6 +123,7 @@ validation code: |
   if interrogatories.count_checked() > 25:
     validation_error("You can only ask up to 25 questions.")
 ---
+id: review_discovery_requests
 continue button field: review_discovery_requests
 question: |
   Review discovery requests

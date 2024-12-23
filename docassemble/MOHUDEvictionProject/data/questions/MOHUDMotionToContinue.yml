@@ -13,6 +13,7 @@ metadata:
     - Ian Eisaman
     - Mia Bonardi
 ---
+id: main interview order
 comment: |
   I added document_order, which is set in the individual interviews.
 ###################### Main order ######################
@@ -43,14 +44,13 @@ code: |
       other_parties[0].attorney[0].address.address
     other_parties[0].service_address.address
 
-  al_user_wants_reminders
   set_progress(100)
   eviction_defender_download
 ---
 #################### Interview order #####################
+id: interview_order_eviction_motion_to_continue
 comment: |
   Controls order and branching logic for the motion to continue, which may be used in a standalone interview and may be used in other interviews with other forms.
-id: interview_order_eviction_motion_to_continue
 code: |
   # Set the allowed courts for this interview REMOVED
   nav.set_section('section_eviction_answer_intro')
@@ -69,8 +69,7 @@ code: |
   users[0].address.geocode()
   nav.set_section("section_eviction_answer_casenet")
   trial_court.name
-  if not trial_court.county == None and tenant_using_casenet:
-    docket_review
+  use_case_net_for_online_docket
   nav.set_section("section_eviction_answer_other")
   other_parties.gather()
   for party in other_parties:
@@ -83,6 +82,7 @@ code: |
   set_progress(50)
   motion_to_continue_order = True
 ---
+id: eviction defender metadata
 comment: |
   Global interview metadata
   This block needs to be above the include block so that this mandatory block is run before any mandatory blocks in the shared.yml
@@ -105,14 +105,17 @@ data:
   typical role: "defendant"
   generate download screen: True
 ---
+id: include motion to continue
 comment: |
   This needs to be below the global interview metadata
 include:
   - shared.yml
 ---
+id: interview_short_title
 code: |
   interview_short_title = "Motion to Continue"
 ---
+id: sections block
 sections:
   - section_eviction_answer_intro: Introduction
   - section_eviction_answer_can_i: Should you file a Motion to Continue?
@@ -212,8 +215,8 @@ subquestion: |
   At the end you will have customized documents, ready to {file} in court.
 continue button field: greet_user
 ---
-sets: posting_warning
 id: soft exit posting for motion for continuance
+sets: posting_warning
 decoration: hand
 question: |
   % if person_answering == "tenant":
@@ -340,21 +343,71 @@ subquestion: |
   % endif
 continue button field: recommend_filing_answer
 ---
+
+id: original hearing
+question: |
+  % if person_answering == "tenant":
+  When is your court {hearing}?
+  % else:
+  When is the tenant's court {hearing}?
+  % endif
+subquestion: |
+  % if tenant_got_summons and petition_available:
+    % if person_answering == "tenant":
+    The {Summons} will say the time and date of your original court hearing.
+    % else:
+    The {Summons} will say the time and date of the tenant's original court hearing.
+    % endif
+  
+  [FILE MOSummonsHearingDate.png, 100%]
+  
+  ${ collapse_template(find_original_hearing_on_casenet_template) }
+  
+  % else:
+    % if person_answering == "tenant":
+    Using [Case.net](https://www.courts.mo.gov/cnet), you can find the time and date of your original court hearing on the "Scheduled Hearings and Trials" tab of your case.
+    % else:
+  Using [Case.net](https://www.courts.mo.gov/cnet), you can find the time and date of the tenant's original court hearing on the "Scheduled Hearings and Trials" tab of their case.
+    % endif
+    
+    ${ collapse_template(find_original_hearing_on_casenet_template) }
+    
+  % endif
+fields:
+  - "Date of original hearing": original_hearing_date
+    datatype: date
+    min: ${ today() }
+  - "Original hearing time": original_hearing_time
+    datatype: radio
+    choices: 
+      - 9:00 AM
+      - Other
+    default: 9:00 AM
+  - Time: other_time
+    js show if: |
+      val("original_hearing_time") == "Other"
+---
+id: eviction_answer_attachment enabled
 code: |
   eviction_motion_to_continue_attachment.enabled = True
 ---
+id: eviction_answer_attachment disabled
 code: |
   eviction_answer_attachment.enabled = False
 ---
+id: eviction_defender_post_interview_instructions disabled
 code: |
   eviction_defender_post_interview_instructions.enabled  = False
 ---
+id: eviction_motion_for_leave_attachment disabled
 code: |
   eviction_motion_for_leave_attachment.enabled = False
 ---
+id: motion_to_shorten_time_attachment disabled
 code: |
   motion_to_shorten_time_attachment.enabled = False
 ---
+id: eviction_discovery_attachment disabled
 code: |
   eviction_discovery_attachment.enabled = False
 ---

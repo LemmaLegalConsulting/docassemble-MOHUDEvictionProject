@@ -44,7 +44,7 @@ def find_package_data(where='.', package='', exclude=standard_exclude, exclude_d
     return out
 
 setup(name='docassemble.MOHUDEvictionProject',
-      version='1.6.2',
+      version='1.7.0',
       description=('Postpone your eviction hearing'),
       long_description='# Missouri eviction answer and motions\r\n\r\nBuilt for Legal Services of Eastern Missouri with a grant from the Department of Housing and Urban Development.\r\n\r\n\r\n',
       long_description_content_type='text/markdown',
@@ -54,7 +54,7 @@ setup(name='docassemble.MOHUDEvictionProject',
       url='https://motenanthelp.org/',
       packages=find_packages(),
       namespace_packages=['docassemble'],
-      install_requires=['docassemble.AssemblyLine>=2.28.1'],
+      install_requires=['docassemble.AssemblyLine>=3.2.0'],
       zip_safe=False,
       package_data=find_package_data(where='docassemble/MOHUDEvictionProject/', package='docassemble.MOHUDEvictionProject'),
      )
