@@ -2,6 +2,7 @@ include:
   - docassemble.PovertyScale:poverty.yml
   - docassemble.ALToolbox:data/questions/intake.yml
   - shared.yml
+  - constants_intake.yml
 ---
 features:
   navigation: True
@@ -10,7 +11,7 @@ sections:
   - section_citizenship: Citizenship
   - section_income: Income and location
   - section_problem: Your problem description
-  - section_recommendation: Recommendation
+  - section_recommendation: Results
 ---
 objects:
   - intake_screener: |
@@ -235,8 +236,8 @@ fields:
   - My household assets are: household_assets_threshold
     datatype: radio
     choices:
-      - Between $0 and $7,500: under
-      - More than $7,500: over
+      - Between $0 and ${ currency(missouri_intake_asset_limit) }: under
+      - More than ${ currency(missouri_intake_asset_limit) }: over
     under text: |
       Include money in your bank account, stocks, bonds, and other assets.
 
@@ -275,15 +276,15 @@ content: |
   % endif
   
   % if assets_eligible:
-  Your household assets are less than $7,500
+  Your household assets are less than ${ currency(missouri_intake_asset_limit) }
   % else:
-  Your household assets are over $7,500
+  Your household assets are over ${ currency(missouri_intake_asset_limit) }
   % endif
   
   <h2 class="h4">Income eligibility rules</h2>
   ${ poverty_scale_table }
 
-  Asset limit is $7,500.
+  Asset limit is ${ currency(missouri_intake_asset_limit) }.
 ---
 code: |
   if poverty_scale_income_qualifies(user_provided_income * income_frequency / 12, household_size=user_provided_hh_size, multiplier=1.25):
