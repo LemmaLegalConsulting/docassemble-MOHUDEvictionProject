@@ -1,4 +1,6 @@
 # These are placeholder rules
+constants:
+    missouri_intake_asset_limit: 10000
 Legal Services of Eastern Missouri:
     housing: |
         PROTOCOLS FOR HOUSING INTAKES

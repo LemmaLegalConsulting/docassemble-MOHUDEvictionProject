@@ -2,7 +2,6 @@ include:
   - docassemble.PovertyScale:poverty.yml
   - docassemble.ALToolbox:data/questions/intake.yml
   - shared.yml
-  - constants_intake.yml
 ---
 features:
   navigation: True
@@ -22,38 +21,61 @@ objects:
 ---
 modules:
   - docassemble.PovertyScale.poverty
+  - .mo_intake
 ---
 mandatory: True
 code: |
   nav.set_section("section_citizenship")
   intake_intro
   if not citizenship_eligible:
+    store_variables_snapshot({"citizenship_eligible": False, "screened_out": True}, persistent=True)
     exit_does_not_qualify_citizenship
   nav.set_section("section_income")
   if not income_eligible:
+    store_variables_snapshot({"citizenship_eligible": showifdef("citizenship_eligibility_reason"), "income_eligible": False, "screened_out": True}, persistent=True)
     exit_does_not_qualify_income
   if address_type == "give_address" and (users[0].address.state != "MO" or users[0].normalized_address().county not in county_dictionary):
+    store_variables_snapshot({"citizenship_eligible": showifdef("citizenship_eligibility_reason"), "income_eligible": True, "zip": users[0].normalized_address().zip, "screened_out": True}, persistent=True)
     county_not_in_mo
+  store_variables_snapshot({"citizenship_eligible": showifdef("citizenship_eligibility_reason"), "income_eligible": True, "screened_out": False, "matching_program": matching_program, "reached_end": False}, persistent=True)
   nav.set_section("section_problem")
   intake_screener.criteria
   if intake_screener.criteria["housing"] == "Unable to get program rules.":
     something_went_wrong
   intake_screener.gather()
+  intake_screener.qualifies
   nav.set_section("section_recommendation")
+  store_variables_snapshot(
+    {
+      "citizenship_eligible": showifdef("citizenship_eligibility_reason"),
+      "income_eligible": showifdef("income_eligibility_reason"), 
+      "screened_out": False, 
+      "matching_program": matching_program, 
+      "reached_end": True,
+      "initial_problem_description": intake_screener.initial_problem_description,
+      "thread": list(intake_screener),
+      "qualifies": intake_screener.qualifies,
+      "recommendation": intake_screener.next_question,
+      "share_data": intake_screener.share_data,
+    }, 
+    persistent=True
+  )
   intake_screener.intake_results
 ---
 id: intake_intro
 continue button field: intake_intro
 question: |
-  Do you qualify for **housing** help from a lawyer?
+  Do you qualify to apply for **housing** help from a lawyer?
 subquestion: |
-  Missouri's free legal aid programs help tenants who:
+  Missouri's free legal aid programs can help tenants who:
 
   1. Are US citizens, Green Card holders, or meet an exception
   1. Have a low income or unusual expenses
   1. Have a problem that the legal aid program is currently staffed to help with
 
-  This tool can help you find out if you qualify and if your housing problem is one that the legal aid program can help with.
+  This tool can help you learn if you qualify to apply for a lawyer and if your housing problem is one that the legal aid program can help with.
+  
+  Due to limited resources, not every eligible tenant will get a lawyer's help.
 
   It uses an AI model to ask you questions and give you answers. It will take about 5 minutes. Your data
   will be kept private and secure.
@@ -165,12 +187,12 @@ fields:
   - note: |
       <h2 class="h4">Where do you live?</h2>
 
-      We need to know your county in Missouri. You can either pick
+      We need to know your county in **Missouri**. You can either pick
       your county from the list, or we can help you find it from your address.
   - I want to: address_type
     datatype: radio
     choices:
-      - Pick my county from a list: pick_county
+      - Pick my **Missouri** county from a list: pick_county
       - Give my address: give_address
   - Street address: users[0].address.address
     address autocomplete: True
@@ -391,58 +413,53 @@ code: |
   matching_program = county_dictionary[county_to_use]['legal_aid_program'].strip()
 ---
 code: |
-  import ruamel.yaml
-  my_yaml = ruamel.yaml.YAML(typ='safe', pure=True)
-  yaml_path = path_and_mimetype("data/sources/placeholder_intake_criteria.yml")[0]
-
-  with open(yaml_path, 'r') as file:
-    criteria_from_yaml = my_yaml.load(file)
-
-  intake_screener.criteria = {
-    "housing": {
-      criteria_from_yaml.get(matching_program,{}).get("housing", "Unable to get program rules.")
-    }
-  }
-
-  del my_yaml
-  del criteria_from_yaml
+  ######## Load the proper intake rules from the data/sources folder ##################
+  intake_screener.criteria = get_intake_criteria(matching_program)
+---
+code: |
+  missouri_intake_asset_limit = get_intake_constants().get("missouri_intake_asset_limit", 10000)
 ---
 question: |
   What is the **housing** problem you are trying to solve?
 subquestion: |
-  Explain what you are looking help with. Do not include any personal information
-  such as your name, address, or phone number.
-
   We will send your answer to an AI model to decide if it is likely that
   **${ matching_program.strip() }** can help you.
 
   Right now, this tool only knows about the rules for housing problems.
 
   ${ collapse_template(explain_ai_use) }
+
+  ${ collapse_template(explain_is_information_safe) }
+
+  ${ collapse_template(explain_no_ai) }
+
+  Explain what you are looking help with. Do not include any personal information
+  such as your name, address, or phone number.
 fields:
   - I need help with: intake_screener.initial_problem_description
     datatype: area
+  - Use my question to help others: intake_screener.share_data
+    datatype: yesno
+    default: True
+    help: |
+      If you say yes, we may use your question to improve this tool.
+      We will not share your income, location, or personal information.
 ---
 generic object: IntakeQuestionList
 question: |
   ${ x[i].question }
 fields:
-  - ${ x[i].question }: x[i].response
+  - no label: x[i].response
     datatype: area
-under: |
-  % if get_config("debug"):
-  <h2 class="h4">Debug only</h2>
-  ${ collapse_template(intake_rules_template) }
-  % endif
 ---
 continue button field: intake_screener.intake_results
 question: |
   % if intake_screener.qualifies:
-  You may qualify for help from ${ matching_program }
+  You may qualify to apply for help from ${ matching_program }
   % elif intake_screener.qualifies is not None:
-  You probably do not qualify for help
+  You probably do not qualify to apply for help
   % else:
-  We need more information to determine if you qualify for help
+  We need more information to determine if you qualify to apply for help
   % endif
 subquestion: |
   This tool uses an AI model and can make mistakes.
@@ -476,19 +493,33 @@ content: |
   need to answer and to help you understand if it is likely
   that you qualify for help.
 
-  <h2 class="h4">Is my information kept safe?</h2>
-  Yes. Your answers are kept private and secure.
+---
+template: explain_is_information_safe
+subject: |
+  Is my information kept safe?
+content: |
+  Your answers are kept private and secure. We use encryption and other
+  controls to limit access to your answers.
 
-  The terms of the AI model do not let allow the company to use
-  your answers or other data for any use other than to help you
-  with your legal problem. It is never used to improve the model's
-  training.
-
-  The provider of this tool, Legal Services of Eastern Missouri,
-  may look at your anonymous answers to improve this tool and to
-  fix it if it is not working correctly.
-
-  <h2 class="h4">What if I don't want to use AI?</h2>
+  * The company that makes the AI model does not have any ownership or right
+    to use your answers. It will not be used to train the model or 
+    for any purpose other than to answer your questions.
+  * Information about your income, location and citizenship status is not given to
+    the AI model.
+  * The nonprofit legal aid provider who built this tool, Legal Services
+    of Eastern Missouri, may look at your answers to improve the tool
+    and to fix it if it is not working correctly.
+  * Legal Services of Eastern Missouri may share your anonymous answers with other
+    legal aid programs or researchers to help you and other tenants better
+    in the future. For example: to test the performance of this and 
+    other tools in the future against the way that real tenants ask for help. You can
+    opt out of this sharing by unchecking the box that says "Use my question to help others."
+  * Your data will never be sold or shared for a commercial purpose.
+---
+template: explain_no_ai
+subject: |
+  What if I don't want to use AI?
+content: |
   Using this tool can help you better understand if 
   you can get help from ${ matching_program }. You may
   need to wait on the phone for a long time to talk to someone.
