@@ -1,0 +1,143 @@
+# These are placeholder rules
+constants:
+    missouri_intake_asset_limit: 10000
+Legal Services of Eastern Missouri:
+    housing: |
+        PROTOCOLS FOR HOUSING INTAKES
+
+        Housing is focusing on eviction lawsuits. Thus, we ask workers to do intakes on court 
+        matters only. (There are a few exceptions listed below.)
+
+        Court Summons The court matters we will mostly take are cases with summons dates, 
+        (first court date, non-trial date). This includes subsidized housing and private 
+        landlord/tenant as usual.
+
+        Other Court Matters 
+        
+        We will also take default judgments, consent judgments, cases 
+        already set for trial, and sheriff evictions with the following limitations. 
+        Default Judgment: If caller contacts us within Ten (10) calendar days from the 
+        date of the default judgment, then please do the intake.
+
+        Cases Already set for Trial: If the caller contacts LSEM at least Ten (10) calendar 
+        days from the date of the trial, then it is OK to do the intake.
+
+        Sheriff Evictions Posted and Consent Judgments: Call and/or email me before
+        doing the intake. We will take these, but are limited based on the specific facts of 
+        the case, which I have to look at before agreeing to open a case.
+        
+        
+        Section 8
+        Please do an intake for a caller facing a proposed termination of Section 8, i.e. if the 
+        caller has received a proposed termination of Section 8 notice from their local housing authority.
+
+        Domestic Violence
+        If domestic violence is present, they should call for a full screening.
+
+        Other Housing Matters
+        For other Housing matters, please refer the caller to the Housing section of
+        our website.
+
+        Uninhabitable Conditions in Rental Property. We will only defend against or sue a landlord
+        when there are extremely poor conditions (no heat, sewage backup, etc.) or the landlord has
+        engaged in outrageous conduct (lockout, theft, utility shut-off, etc.).
+        
+        Older Adults 60+ St. Louis City: All of the above + utility shut-offs and elder financial abuse
+        >$5,000.
+
+        g. Landlord Tenant Lawsuits Lawsuits or pre-lawsuits tenant has good claims against
+        the landlord, management, or landlord lawyer
+        i. Conditions: Tenant must have notified Landlord of conditions issues and landlord
+        has failed to address issues after notice. Any conditions of the premises that are
+        bad enough that a reasonable person would move out if they could. Minor issues
+        are not sufficient! Examples:
+        1. Threat to safety and security of unit (doors won’t lock, windows can’t close,
+        exit doors boarded over, etc.
+        2. No heat or ventilation
+        3. Water leaks causing damage to property
+        4. Plumbing: no water, no hot water, sewage backups, damages to property
+        from leaks, etc.
+        5. Vermin, overwhelming and affecting health and safety of occupants.
+        6. Bedbugs
+        ii. Recent (within 30 days) Unfair or Outrageous Landlord Activities such as:
+        1. Lockouts, utility shut-offs, nailing doors/windows shut,
+        2. Renting condemned property
+        3. Self-help eviction by landlord
+        4. Taking or destroying of tenant property
+
+        4. HOUSING - Tenant Claims Against Landlords
+        a. ONLY IF tenant has solid damage claims against the landlord, management, or
+        landlord lawyer.
+        b. Bad Conditions: Tenant must have notified Landlord of conditions issues and landlord
+        has failed to address issues after notice. Any conditions of the premises that are bad
+        enough that a reasonable person would move out if they could. Examples:
+        i. Security of unit (doors won’t lock, windows can’t close, etc.)
+        ii. No heat or ventilation
+        iii. Leaking roof causing damage
+        iv. Plumbing causing sewage backups
+        v. Vermin that are overwhelming and directly affecting health and safety of
+        occupants.
+        vi. Bedbugs, etc.
+        c. Unfair or Outrageous Landlord Activities (within last 30 days or so) such as:
+        i. Lockouts, utility shut-offs, nailing doors/windows shut
+        ii. Renting condemned property
+        iii. Self-help eviction by landlord
+        iv. Taking or destroying of tenant personal property
+Legal Aid of Western Missouri - St Joseph:
+    housing: |
+        “We are currently accepting all applications for legal assistance with landlord/tenant matters. However,
+        priority is given to tenants who are at risk or facing eviction.”
+Legal Aid of Western Missouri - Central:
+    housing: |
+        “We are currently only taking housing applications if a client is at risk of being evicted from a HUD-
+        assisted rental unit. All other housing applications are referred to our office through the Right to
+        Counsel Program of Kansas City. We do not currently have capacity for non-RTC or non-HUD assisted
+        rental property cases.”
+        Script:
+        1. What city do you live in?
+        2. Has your landlord filed an eviction against you in court?
+        a. If the caller lives in Kansas City and an eviction has been filed, we provide information
+        on how to apply for the Right to Counsel program.
+
+        3. If the caller does not live in Kansas City, we ask if their rent is subsidized, or they live in an
+        income restricted property.
+        a. If the property is not HUD-assisted rental unit, we provide information for the Missouri
+        Bar to look for a private attorney and other relevant resources (rental and utility
+        assistance).
+        b. If the property is a HUD-assisted rental unit and the client is at risk or facing eviction, we
+        will complete an application.
+Legal Aid of Western Missouri - Warrensburg:
+    housing: |
+        “We are currently accepting all applications for legal assistance with landlord/tenant matters. However,
+        priority is given to tenants who are at risk or facing eviction.”
+Legal Aid of Western Missouri - Joplin:
+    housing: |
+        “We are currently accepting all applications for legal assistance with landlord/tenant matters. However,
+        priority is given to tenants who are at risk or facing eviction.”    
+Mid-Missouri Legal Services:
+    housing: |
+        Priorities:
+        VIII. Housing
+        The Program will provide legal assistance in cases involving:
+        1. Tenants facing eviction by Rent and Possession or Unlawful Detainer or through the expedited
+        eviction process;
+        2. Breach of Contract claims brought by landlords seeking property damage beyond normal wear and
+        tear;
+        3. Enforcement of proper termination/eviction procedures;
+        4. Habitability issues arising before or during a tenant's occupancy;
+        5. Forcible entry by a landlord including, but not limited to, utility shutoffs by a landlord;
+        6. Conversion and replevin claims ($1,000 minimum);
+        7. Recovery of security deposit claims where the initial security deposit amount is at least $300,
+        including cases initially filed by tenants in small claims courts;
+        8. State and federally funded rental housing programs, including, but not limited to, public housing,
+        housing choice vouchers (Section 8), and veteran housing. Services will include assistance in denials
+        of eligibility, termination of benefits and repayment agreements to retain eligibility;
+        9. Cases involving a municipality or other state or local government brought against a tenant seeking
+        to evict a tenant due to over-leasing of rental property by a landlord;
+        10. Lease termination by the tenant due to illegal activity of another tenant or landlord; and
+        11. Housing discrimination.
+        12. Lawsuits to quiet title when necessary to avoid eviction by unlawful detainer.    
+Legal Services of Southern Missouri:
+    housing: |
+        LSSM accepts cases involving landlord-tenant disputes, including evictions, security deposit disputes,
+        and cases involving bad housing conditions that the landlord is liable to repair.

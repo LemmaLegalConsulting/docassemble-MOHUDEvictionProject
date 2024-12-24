@@ -1,0 +1,534 @@
+include:
+  - docassemble.PovertyScale:poverty.yml
+  - docassemble.ALToolbox:data/questions/intake.yml
+  - shared.yml
+---
+features:
+  navigation: True
+---
+sections:
+  - section_citizenship: Citizenship
+  - section_income: Income and location
+  - section_problem: Your problem description
+  - section_recommendation: Results
+---
+objects:
+  - intake_screener: |
+      IntakeQuestionList.using(
+            problem_type = "housing",
+            model="gpt-4-turbo"
+          )
+---
+modules:
+  - docassemble.PovertyScale.poverty
+  - .mo_intake
+---
+mandatory: True
+code: |
+  nav.set_section("section_citizenship")
+  intake_intro
+  if not citizenship_eligible:
+    store_variables_snapshot({"citizenship_eligible": False, "screened_out": True}, persistent=True)
+    exit_does_not_qualify_citizenship
+  nav.set_section("section_income")
+  if not income_eligible:
+    store_variables_snapshot({"citizenship_eligible": showifdef("citizenship_eligibility_reason"), "income_eligible": False, "screened_out": True}, persistent=True)
+    exit_does_not_qualify_income
+  if address_type == "give_address" and (users[0].address.state != "MO" or users[0].normalized_address().county not in county_dictionary):
+    store_variables_snapshot({"citizenship_eligible": showifdef("citizenship_eligibility_reason"), "income_eligible": True, "zip": users[0].normalized_address().zip, "screened_out": True}, persistent=True)
+    county_not_in_mo
+  store_variables_snapshot({"citizenship_eligible": showifdef("citizenship_eligibility_reason"), "income_eligible": True, "screened_out": False, "matching_program": matching_program, "reached_end": False}, persistent=True)
+  nav.set_section("section_problem")
+  intake_screener.criteria
+  if intake_screener.criteria["housing"] == "Unable to get program rules.":
+    something_went_wrong
+  intake_screener.gather()
+  intake_screener.qualifies
+  nav.set_section("section_recommendation")
+  store_variables_snapshot(
+    {
+      "citizenship_eligible": showifdef("citizenship_eligibility_reason"),
+      "income_eligible": showifdef("income_eligibility_reason"), 
+      "screened_out": False, 
+      "matching_program": matching_program, 
+      "reached_end": True,
+      "initial_problem_description": intake_screener.initial_problem_description,
+      "thread": list(intake_screener),
+      "qualifies": intake_screener.qualifies,
+      "recommendation": intake_screener.next_question,
+      "share_data": intake_screener.share_data,
+    }, 
+    persistent=True
+  )
+  intake_screener.intake_results
+---
+id: intake_intro
+continue button field: intake_intro
+question: |
+  Do you qualify to apply for **housing** help from a lawyer?
+subquestion: |
+  Missouri's free legal aid programs can help tenants who:
+
+  1. Are US citizens, Green Card holders, or meet an exception
+  1. Have a low income or unusual expenses
+  1. Have a problem that the legal aid program is currently staffed to help with
+
+  This tool can help you learn if you qualify to apply for a lawyer and if your housing problem is one that the legal aid program can help with.
+  
+  Due to limited resources, not every eligible tenant will get a lawyer's help.
+
+  It uses an AI model to ask you questions and give you answers. It will take about 5 minutes. Your data
+  will be kept private and secure.
+---
+id: citizenship status
+question: |
+  Immigration or citizenship status
+fields:
+  - Are you a U.S. citizen?: citizenship_status_citizen
+    datatype: yesnoradio
+  - Are you a permanent resident (Green Card holder)?: citizenship_status_permanent_resident
+    datatype: yesnoradio
+    show if:
+      variable: citizenship_status_citizen
+      is: False
+  - Are you married to a U.S. citizen, a parent of a U.S. citizen, or an unmarried child under 21 of a U.S. citizen?: citizenship_status_family
+    datatype: yesnoradio
+    show if:
+      variable: citizenship_status_permanent_resident
+      is: False
+  - label: |
+      Are you waiting to hear about an application for another kind of immigration status?
+
+      ${ collapse_template(what_status_template) }
+    field: filed_application
+    label above field: True
+    datatype: yesnoradio
+    show if:
+      variable: citizenship_status_family
+      is: True
+  - Are you a farm or forest worker with an H-2 visa?: citizenship_status_worker
+    datatype: yesnoradio
+    show if:
+      variable: citizenship_status_permanent_resident
+      is: False
+  - label: |
+      Do you need help with a legal issue related to your employment contract that involves:
+
+      - Pay
+      - Housing
+      - Travel, or
+      - Other work issues?
+    field: related_to_employment_contract
+    label above field: True
+    datatype: yesnoradio
+    show if:
+      variable: citizenship_status_worker
+      is: True
+  - Are you a political refugee or asylee?: citizenship_status_refugee
+    datatype: yesnoradio
+    show if:
+      variable: citizenship_status_permanent_resident
+      is: False
+  - Are you a victim of assault or other physical crime?: citizenship_status_victim
+    datatype: yesnoradio
+    show if:
+      variable: citizenship_status_permanent_resident
+      is: False
+    help: |
+      You may qualify if you are a victim of a crime under the rules of the
+      U-Visa program.
+  - Is your housing problem related to the crime or assault?: related_to_battery
+    datatype: yesnoradio
+    show if:
+      variable: citizenship_status_victim
+      is: True
+---
+event: county_not_in_mo
+question: |
+  We are sorry, but we can only help with legal aid programs in Missouri
+subquestion: |
+  Based on your address, you do not live in Missouri.
+
+  Try visiting [LSC.gov](https://lsc.gov) to find your local legal aid provider.
+---
+event: something_went_wrong
+question: |
+  We are sorry, but we could not get the rules for the legal aid program in your county
+subquestion: |
+  You can still visit [their website](${ county_dictionary[county_to_use]['legal_aid_program_website'] }) or call them at ${ tel(county_dictionary[county_to_use]['legal_aid_program_phone_app']) }.
+
+  Or, try looking on the [motenanthelp](https://www.motenanthelp.org/) website.
+---
+event: exit_does_not_qualify_citizenship
+question: |
+  You do not qualify for help from a Missouri legal aid program
+decoration: hand
+subquestion: |
+      Because you are not a citizen, lawful permanent resident, or meet an exception, you do not qualify
+      to get help from a Missouri legal aid program.
+
+      Other organizations may be able to help. Try looking on the [motenanthelp](https://www.motenanthelp.org/) website.
+---
+event: exit_does_not_qualify_income
+question: |
+  You do not qualify for help from a Missouri legal aid program
+decoration: hand
+subquestion: |
+  Because your income is too high and you do not meet an exception, you do not qualify to get help from a Missouri legal aid program.
+
+  Other organizations may be able to help. Try looking on the [motenanthelp](https://www.motenanthelp.org/) website.
+
+  ${ income_eligibility_explanation }
+---
+id: income and location
+question: |
+  Income and location
+fields:
+  - note: |
+      <h2 class="h4">Where do you live?</h2>
+
+      We need to know your county in **Missouri**. You can either pick
+      your county from the list, or we can help you find it from your address.
+  - I want to: address_type
+    datatype: radio
+    choices:
+      - Pick my **Missouri** county from a list: pick_county
+      - Give my address: give_address
+  - Street address: users[0].address.address
+    address autocomplete: True
+    required: False
+    show if:
+      variable: address_type
+      is: give_address
+  - City: users[0].address.city
+    required: False
+    show if:
+      variable: address_type
+      is: give_address
+  - State: users[0].address.state
+    default: MO
+    code: |
+      states_list(country_code="US")
+    show if:
+      variable: address_type
+      is: give_address
+  - ZIP code: users[0].address.zip
+    required: False
+    show if:
+      variable: address_type
+      is: give_address
+  - County: users[0].address.county
+    input type: dropdown
+    code: |
+      county_dictionary.keys()
+    show if:
+      variable: address_type
+      is: pick_county
+  - note: |
+      <h2 class="h4">How big is your household?</h2>
+  - How many people are part of your household, including you?: user_provided_hh_size
+    datatype: integer
+    default: 1
+    minlength: 1
+    under text: |
+      Include yourself, your spouse, children, and anyone else who lives with you. Do not include roommates.
+  - note: |
+      <h2 class="h4">What is your income?</h2>
+
+      Include all income for everyone in your household. Include:
+
+      * Salary and wages
+      * Social Security
+      * Unemployment
+      * Child support
+  - My household income is about: user_provided_income
+    datatype: currency
+    label above field: True
+    grid: 6
+  - Every: income_frequency
+    datatype: integer
+    label above field: True
+    grid: 6
+    choices:
+      - Week: 52
+      - Two weeks: 26
+      - Twice a month: 24
+      - Month: 12
+      - Year: 1
+  - My household assets are: household_assets_threshold
+    datatype: radio
+    choices:
+      - Between $0 and ${ currency(missouri_intake_asset_limit) }: under
+      - More than ${ currency(missouri_intake_asset_limit) }: over
+    under text: |
+      Include money in your bank account, stocks, bonds, and other assets.
+
+      You do not need to include the home you live in or a car you drive to work.
+---
+template: what_status_template
+subject: |
+  What kind of status counts?
+content: |
+      - Getting permanent residency (also called a Green Card) (I-485) or (I-485A) or (I-512) or (I-360) or INA 245A (I-698)
+      - Bringing a family member to the U.S. (I-130)
+      - Asylum or Withholding of Removal, or for family members of a refugee or asylee (I-730)
+      - Fiancé visa (I-129F)
+      - Immigrant visa (DS-230)    
+      - V nonimmigrant status or extension of V status (I-539 or I-539A)
+      - Permanent residency with the American Consulate (OF-230)
+      - Stopping deportation (I-256A or EOIR-40), or canceling removal (EOIR-42), family unity (I-817), or NACARA suspension or special rule cancellation and adjustment (I-881)
+      - Work permit (card), Form I-688B or I-766, with codes C9 or “Serves as I-512 Advance Parole”, or a9, or a13, or A13, or a14, or A14, a15, or A15, c16, or C16, c8, or C8, c10, or C10, c21, or C21, c24, or C24
+      - Any verification from INS/USCIS/DHS, or another official document
+
+---
+template: income_eligibility_explanation
+subject: |
+  Why don't I qualify?
+content: |
+  % if poverty_scale_income_qualifies(user_provided_income * income_frequency / 12, household_size=user_provided_hh_size, multiplier=1.25):
+  Your household's annual income of ${ currency(user_provided_income * income_frequency) } for a household of 
+  ${ user_provided_hh_size } is below the limit.
+  % elif income_eligible: 
+  Your annual income is above the limit, but you meet an exception:
+  ${ income_eligibility_reason }.
+  % else:
+  Your household's annual income of ${ currency(user_provided_income * income_frequency) } for a household of 
+  ${ user_provided_hh_size } 
+  is below the income limit.
+  % endif
+  
+  % if assets_eligible:
+  Your household assets are less than ${ currency(missouri_intake_asset_limit) }
+  % else:
+  Your household assets are over ${ currency(missouri_intake_asset_limit) }
+  % endif
+  
+  <h2 class="h4">Income eligibility rules</h2>
+  ${ poverty_scale_table }
+
+  Asset limit is ${ currency(missouri_intake_asset_limit) }.
+---
+code: |
+  if poverty_scale_income_qualifies(user_provided_income * income_frequency / 12, household_size=user_provided_hh_size, multiplier=1.25):
+    income_eligibility_reason = "Income Below 125% under 3-1"
+    income_eligible = True    
+  elif benefit_reason['keep_benefits']:
+    income_eligibility_reason = "Maintaining Benefits under 3-2(1)"
+    income_eligible = True
+  elif poverty_scale_income_qualifies(user_provided_income, household_size=user_provided_hh_size, multiplier=2.00):
+    if benefit_reason['keep_benefits'] or benefit_reason['get_benefits']:
+      income_eligibility_reason = "Obtaining Benefits under 3-2(3)"
+      income_eligible = True
+    elif other_factors:
+      income_eligibility_reason = "Other Factors under 3-2(4)"
+      income_eligible = True
+    else:
+      income_eligible = False
+  else:
+    income_eligible = False
+---
+code: |
+  if household_assets_threshold == "over":
+    assets_eligible = False
+  else:
+    assets_eligible = True
+---
+id: exceptions
+question: |
+  Special circumstances
+subquestion: |
+  It looks like your income may be too high to qualify for help. But there are some exceptions if:
+
+  * You are applying for trying to keep government benefits
+  * You have high nursing home or medical expenses
+  * You have other unusually high expenses or your income changes often
+
+  Government benefits include:
+
+  * TAFDC
+  * SSI or other disability benefits
+  * Section 8 voucher
+  * VA benefits
+  * Other government programs for people with low income or a disability
+
+  Do any of these apply to you?
+fields:
+  - I need a legal aid lawyer's help to: benefit_reason
+    datatype: checkboxes
+    choices:
+      - Keep government benefits, like TAFDC, SSI, a Section 8 voucher, or a similar government program: keep_benefits
+      - Get government benefits for someone with a disability: get_benefits_disability
+      - Get other government benefits: get_benefits
+    none of the above: False
+  - Most of my money is spent on a nursing home or medical expenses: nursing_home
+    datatype: yesno
+  - I have other high expenses or my income changes often: other_factors
+    datatype: yesno
+---
+code: |
+  if citizenship_status_citizen:
+    citizenship_eligibility_reason = "Citizen"
+    citizenship_eligible = True
+  elif citizenship_status_permanent_resident:
+    citizenship_eligibility_reason = "Permanent Resident"
+    citizenship_eligible = True
+  elif citizenship_status_worker and related_to_employment_contract:
+    citizenship_eligibility_reason = "Agricultural or Forestry Worker"
+    citizenship_eligibility_reason = "Citizen"
+    citizenship_eligible = True
+  elif citizenship_status_family and filed_application:
+    citizenship_eligibility_reason = "Family member of citizen"
+    citizenship_eligible = True
+  elif citizenship_status_refugee:
+    citizenship_eligibility_reason = "Refugee"
+    citizenship_eligible = True
+  elif citizenship_status_victim and related_to_battery:
+    citizenship_eligibility_reason = "U-Visa eligible"
+    citizenship_eligible = True
+  else:
+    citizenship_eligible = False
+---
+code: |
+  citizenship_status = dict()
+---
+id: county fallback
+question: |
+  What county in Missouri do you live in?
+fields:
+  - County: users[0].address.county
+    input type: dropdown
+    code: |
+      county_dictionary.keys()
+    show if:
+      variable: address_type
+      is: pick_county
+---
+depends on:
+  - users[0].address.county
+code: |
+  if not (hasattr(users[0].normalized_address(), "county") and users[0].normalized_address().county):
+    county_to_use = users[0].address.county
+  else:
+    county_to_use = users[0].normalized_address().county
+  matching_program = county_dictionary[county_to_use]['legal_aid_program'].strip()
+---
+code: |
+  ######## Load the proper intake rules from the data/sources folder ##################
+  intake_screener.criteria = get_intake_criteria(matching_program)
+---
+code: |
+  missouri_intake_asset_limit = get_intake_constants().get("missouri_intake_asset_limit", 10000)
+---
+question: |
+  What is the **housing** problem you are trying to solve?
+subquestion: |
+  We will send your answer to an AI model to decide if it is likely that
+  **${ matching_program.strip() }** can help you.
+
+  Right now, this tool only knows about the rules for housing problems.
+
+  ${ collapse_template(explain_ai_use) }
+
+  ${ collapse_template(explain_is_information_safe) }
+
+  ${ collapse_template(explain_no_ai) }
+
+  Explain what you are looking help with. Do not include any personal information
+  such as your name, address, or phone number.
+fields:
+  - I need help with: intake_screener.initial_problem_description
+    datatype: area
+  - Use my question to help others: intake_screener.share_data
+    datatype: yesno
+    default: True
+    help: |
+      If you say yes, we may use your question to improve this tool.
+      We will not share your income, location, or personal information.
+---
+generic object: IntakeQuestionList
+question: |
+  ${ x[i].question }
+fields:
+  - no label: x[i].response
+    datatype: area
+---
+continue button field: intake_screener.intake_results
+question: |
+  % if intake_screener.qualifies:
+  You may qualify to apply for help from ${ matching_program }
+  % elif intake_screener.qualifies is not None:
+  You probably do not qualify to apply for help
+  % else:
+  We need more information to determine if you qualify to apply for help
+  % endif
+subquestion: |
+  This tool uses an AI model and can make mistakes.
+  Here is what the AI intake tool said:
+
+  <blockquote class="border-start border-5 ps-3">
+    <p>
+        ${ intake_screener.next_question }
+    </p>
+  </blockquote>
+
+  % if intake_screener.qualifies:
+  You can contact ${ matching_program } for a full intake with your housing problem.
+  Not all qualifying tenants get help, depending on the legal aid program's resources.
+
+  Visit [their website](${ county_dictionary[county_to_use]['legal_aid_program_website'] }) or call them at ${ tel(county_dictionary[county_to_use]['legal_aid_program_phone_app']) }.
+  % endif
+
+  ${ collapse_template(explain_ai_use) }
+---
+template: explain_ai_use
+subject: |
+  How do you use AI?
+content: |
+  An AI model is a program, like ChatGPT, that looks at your
+  answers to questions and the rules for your local legal
+  aid organization. We currently use the OpenAI GPT-4-turbo
+  model.
+
+  We use the AI model to decide what follow-up questions you 
+  need to answer and to help you understand if it is likely
+  that you qualify for help.
+
+---
+template: explain_is_information_safe
+subject: |
+  Is my information kept safe?
+content: |
+  Your answers are kept private and secure. We use encryption and other
+  controls to limit access to your answers.
+
+  * The company that makes the AI model does not have any ownership or right
+    to use your answers. It will not be used to train the model or 
+    for any purpose other than to answer your questions.
+  * Information about your income, location and citizenship status is not given to
+    the AI model.
+  * The nonprofit legal aid provider who built this tool, Legal Services
+    of Eastern Missouri, may look at your answers to improve the tool
+    and to fix it if it is not working correctly.
+  * Legal Services of Eastern Missouri may share your anonymous answers with other
+    legal aid programs or researchers to help you and other tenants better
+    in the future. For example: to test the performance of this and 
+    other tools in the future against the way that real tenants ask for help. You can
+    opt out of this sharing by unchecking the box that says "Use my question to help others."
+  * Your data will never be sold or shared for a commercial purpose.
+---
+template: explain_no_ai
+subject: |
+  What if I don't want to use AI?
+content: |
+  Using this tool can help you better understand if 
+  you can get help from ${ matching_program }. You may
+  need to wait on the phone for a long time to talk to someone.
+
+  If you do not want to use this tool, you can visit 
+  [their website](${ county_dictionary[county_to_use]['legal_aid_program_website'] }) or call them at ${ tel(county_dictionary[county_to_use]['legal_aid_program_phone_app']) }.
+---
+template: intake_rules_template
+subject: |
+  What are the rules for ${ matching_program }?
+content: |
+  ${ intake_screener.criteria['housing'] }
