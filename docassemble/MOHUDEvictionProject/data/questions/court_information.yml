@@ -5,7 +5,7 @@ code: |
   users[0].address.address
   trial_court = ALCourt("trial_court")
   if not hasattr(users[0].normalized_address(), "county") and users[0].normalized_address().city.lower() in ["st. louis", "saint louis"]:
-    trial_court.county = "City of St. Louis"
+    trial_court.county = "St. Louis, City of"
     trial_court.circuit = 22
   else:
     if hasattr(users[0].normalized_address(), "county") and users[0].normalized_address().county in county_dictionary:
@@ -2968,6 +2968,30 @@ data:
         state: MO
         zip: 63640
         schedule: 8 a.m. to 5 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays<br /></a>Passport hours are 8 a.m. to 4 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a>
+  St. Louis, City of:
+    circuit: 22
+    class: |
+      Class 1
+    casenet_code: |-
+       STL
+    legal_aid_program_website: |
+      http://www.lsem.org/
+    legal_aid_program: |
+      Legal Services of Eastern Missouri
+    legal_aid_program_online_app: |
+      https://lsem.org/get-help-now/
+    legal_aid_program_phone_app: |
+      1-800-444-0514
+    legal_aid_program_office_app_addresses: |
+      LSEM - St. Louis - Main Office
+      701 Market St., Peabody Plaza Building, Suite 1100, St. Louis, MO 63101
+    courts: 
+      - name: St. Louis Circuit Court
+        address: 10 N. Tucker Boulevard
+        city: St. Louis
+        state: MO
+        zip: 63101
+        schedule: <strong>Civil Court Building</strong><br />For jurors and attorneys - 7:30 a.m. to 5 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays<br /></a>For the general public - 8:30 a.m. to 5 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a><a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank"><br /></a>
   St. Louis County:
     circuit: 21
     class: |
@@ -3439,27 +3463,3 @@ data:
         city: Hartville
         state: MO
         zip: 65667
-  City of St. Louis:
-    circuit: 22
-    class: |
-      Class 1
-    casenet_code: |-
-       STL
-    legal_aid_program_website: |
-      http://www.lsem.org/
-    legal_aid_program: |
-      Legal Services of Eastern Missouri
-    legal_aid_program_online_app: |
-      https://lsem.org/get-help-now/
-    legal_aid_program_phone_app: |
-      1-800-444-0514
-    legal_aid_program_office_app_addresses: |
-      LSEM - St. Louis - Main Office
-      701 Market St., Peabody Plaza Building, Suite 1100, St. Louis, MO 63101
-    courts: 
-      - name: St. Louis Circuit Court
-        address: 10 N. Tucker Boulevard
-        city: St. Louis
-        state: MO
-        zip: 63101
-        schedule: <strong>Civil Court Building</strong><br />For jurors and attorneys - 7:30 a.m. to 5 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays<br /></a>For the general public - 8:30 a.m. to 5 p.m. Monday through Friday, excluding <a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank">state holidays</a><a title="link to information about state holidays and other court closures" href="https://www.courts.mo.gov/page.jsp?id=7100" target="_blank"><br /></a>

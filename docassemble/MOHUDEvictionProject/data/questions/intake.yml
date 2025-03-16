@@ -67,18 +67,15 @@ continue button field: intake_intro
 question: |
   Do you qualify to apply for **housing** help from a lawyer?
 subquestion: |
-  Missouri's free legal aid programs can help tenants who:
+  Missouri's free legal aid programs can help eligible tenants who:
 
-  1. Are US citizens, Green Card holders, or meet an exception
-  1. Have a low income or unusual expenses
-  1. Have a problem that the legal aid program is currently staffed to help with
+  1. Are US citizens, Green Card holders, or meet an exception to legal residency requirements
+  1. Have a lower income or otherwise fit income and asset requirements, and 
+  1. Have a legal issue the program has the capacity and expertise to handle. 
 
-  This tool can help you learn if you qualify to apply for a lawyer and if your housing problem is one that the legal aid program can help with.
-  
-  Due to limited resources, not every eligible tenant will get a lawyer's help.
+  This AI chatbot, Missouri Legal Services AI Chatbot (MOLS) may help you decide if you are likely to be eligible for legal aid, and have a housing issue that your regional legal aid might accept. Chatting with MOS is a fast and easy way to take the first steps toward seeking free legal help from your local legal aid program. However, due to limited resources, not every eligible tenant can get a legal aid lawyer's help in every case.
 
-  It uses an AI model to ask you questions and give you answers. It will take about 5 minutes. Your data
-  will be kept private and secure.
+  MOLS will ask you questions and give you answers. It will take about 5 minutes. Your data will be kept private and secure.
 ---
 id: citizenship status
 question: |
@@ -255,15 +252,13 @@ fields:
       - Twice a month: 24
       - Month: 12
       - Year: 1
-  - My household assets are: household_assets_threshold
+  - My household assets are about: household_assets_threshold
     datatype: radio
     choices:
-      - Between $0 and ${ currency(missouri_intake_asset_limit) }: under
-      - More than ${ currency(missouri_intake_asset_limit) }: over
+      - Between $0 and $${ thousands(missouri_intake_asset_limit) }: under
+      - More than $${ thousands(missouri_intake_asset_limit) }: over
     under text: |
-      Include money in your bank account, stocks, bonds, and other assets.
-
-      You do not need to include the home you live in or a car you drive to work.
+      Estimate the value of your current assets. Include money in your bank accounts, stocks, bonds, and other assets. Do not include the home you live in or the car you drive to work.
 ---
 template: what_status_template
 subject: |
@@ -452,7 +447,7 @@ fields:
   - no label: x[i].response
     datatype: area
 ---
-continue button field: intake_screener.intake_results
+event: intake_screener.intake_results
 question: |
   % if intake_screener.qualifies:
   You may qualify to apply for help from ${ matching_program }
@@ -462,9 +457,8 @@ question: |
   We need more information to determine if you qualify to apply for help
   % endif
 subquestion: |
-  This tool uses an AI model and can make mistakes.
-  Here is what the AI intake tool said:
-
+  MOLS is an AI mode. It can make mistakes. Based on your description of your housing problem, MOLS said:
+  
   <blockquote class="border-start border-5 ps-3">
     <p>
         ${ intake_screener.next_question }
@@ -472,10 +466,15 @@ subquestion: |
   </blockquote>
 
   % if intake_screener.qualifies:
-  You can contact ${ matching_program } for a full intake with your housing problem.
-  Not all qualifying tenants get help, depending on the legal aid program's resources.
+  Only ${ matching_program } can do an official eligibility review and intake. 
+  Not all eligible tenants can receive free legal help. Case acceptance depends on each 
+  legal aid program’s resources and capacity. 
 
-  Visit [their website](${ county_dictionary[county_to_use]['legal_aid_program_website'] }) or call them at ${ tel(county_dictionary[county_to_use]['legal_aid_program_phone_app']) }.
+  You can visit your [local legal aid's website](${ county_dictionary[county_to_use]['legal_aid_program_website'] }) 
+  or call ${ tel(county_dictionary[county_to_use]['legal_aid_program_phone_app']) }.
+  % else:
+  You may find other helpful resources in our [document library](https://motenanthelp.org/resources/) 
+  or [learning modules](https://motenanthelp.org/learn/).
   % endif
 
   ${ collapse_template(explain_ai_use) }
