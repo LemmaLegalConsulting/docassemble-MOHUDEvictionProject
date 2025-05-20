@@ -107,6 +107,10 @@ code: |
   store_variables_snapshot(
       persistent=True,
       data={
+          "completion_time": today(),
+          "original_hearing_date": showifdef("original_hearing_date"),
+          "county": showifdef("trial_court.address.county"),
+          "case_number": showifdef("docket_number"),
           "zip": showifdef("users[0].address.zip"),
           "reached_interview_end": True,
       },
