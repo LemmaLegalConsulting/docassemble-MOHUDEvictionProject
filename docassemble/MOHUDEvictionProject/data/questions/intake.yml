@@ -1,3 +1,11 @@
+---
+metadata:
+  title: MOLS Intake Screener
+  description: |
+    This is the intake screener for the Missouri Tenant Help website.
+    
+    It uses AI to help tenants understand if they are likely to qualify for legal aid.
+---
 include:
   - docassemble.PovertyScale:poverty.yml
   - docassemble.ALToolbox:data/questions/intake.yml
