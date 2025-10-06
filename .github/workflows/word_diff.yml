@@ -1,0 +1,17 @@
+on:
+  #pull_request:
+  push:
+  workflow_dispatch:
+
+jobs:
+  docx-review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Diff Word documents
+        uses: SuffolkLITLab/ALActions/word_diff@main
+        with:
+          # Optional: override the base commit if needed
+          # base_ref: main
+          artifact_name: word-doc-diff
+          output_dir: word_diffs
+          summary_file: word_diff_summary.md

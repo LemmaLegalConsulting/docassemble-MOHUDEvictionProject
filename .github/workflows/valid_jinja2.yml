@@ -1,0 +1,27 @@
+name: Validate DOCX Templates
+
+on:
+  #pull_request:
+  #  paths:
+  #    - '**/*.docx'
+  push:
+    paths:
+      - '**/*.docx'
+  workflow_dispatch:
+
+jobs:
+  validate-docx:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Needed for git diff comparison
+          
+      - name: Validate DOCX Jinja2 templates
+        uses: SuffolkLITLab/ALActions/valid_jinja2@main
+        with:
+          # Optional: customize artifact and output names
+          artifact_name: jinja-validation-report
+          output_dir: jinja_validation
+          summary_file: jinja_validation_summary.md
