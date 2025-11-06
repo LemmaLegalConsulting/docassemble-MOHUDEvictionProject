@@ -635,8 +635,7 @@ subquestion: |
   
   To use Case.net to answer questions in this interview, you need to:
 
-  1. Click the button below to open a search page on Case.net with your address
-     and court name filled in.
+  1. Open [Case.net Name Search](https://www.courts.mo.gov/cnet/nameSearch.do?newSearch=Y) in a new tab or window. You can try to enter your last name in the box and search all participating courts.  If you have a common last name, you may want to select the court for your county or add your first name.
   1. Find your case name in the search results and open it.
 
   You will need both this website and the Case.net website open at the same time. You will
@@ -645,7 +644,6 @@ subquestion: |
   Look for your eviction case in the search results. Click the link with the case number for your case to see the details about your case. If you do not see your case, try a different
   search.
 
-  ${ action_button_html(formatted_casenet_url, label="Search Case.net in a new window", icon="up-right-from-square") }
 ---
 id: docket number
 comment: |
