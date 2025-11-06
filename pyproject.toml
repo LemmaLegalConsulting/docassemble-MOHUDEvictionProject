@@ -1,0 +1,30 @@
+license = "MIT"
+license-files = [
+    "LICENSE",
+]
+
+[build-system]
+requires = [
+    "setuptools==80.9.0",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "docassemble.MOHUDEvictionProject"
+version = "1.8.3"
+description = "Postpone your eviction hearing"
+readme = "README.md"
+authors = [
+    { name = "Quinten Steenhuis", email = "admin@lemmalegal.com" },
+]
+dependencies = [
+    "docassemble.AssemblyLine @ git+https://github.com/suffolklitlab/docassemble-AssemblyLine.git@main",
+]
+
+[project.urls]
+Homepage = "https://motenanthelp.org/"
+
+[tool.setuptools.packages.find]
+where = [
+    ".",
+]

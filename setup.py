@@ -1,6 +1,6 @@
 import os
 import sys
-from setuptools import setup, find_packages
+from setuptools import setup, find_namespace_packages
 from fnmatch import fnmatchcase
 from distutils.util import convert_path
 
@@ -50,12 +50,10 @@ setup(name='docassemble.MOHUDEvictionProject',
       long_description_content_type='text/markdown',
       author='Quinten Steenhuis',
       author_email='admin@lemmalegal.com',
-      license='The MIT License',
+      license='MIT',
       url='https://motenanthelp.org/',
-      packages=find_packages(),
-      namespace_packages=['docassemble'],
-      install_requires=['docassemble.AssemblyLine>=3.2.0'],
+      packages=find_namespace_packages(),
+      install_requires=['docassemble.AssemblyLine @ git+https://github.com/suffolklitlab/docassemble-AssemblyLine.git@main'],
       zip_safe=False,
       package_data=find_package_data(where='docassemble/MOHUDEvictionProject/', package='docassemble.MOHUDEvictionProject'),
      )
-
