@@ -24,7 +24,7 @@ objects:
   - intake_screener: |
       IntakeQuestionList.using(
             problem_type = "housing",
-            model="gpt-4-turbo"
+            model="gpt-5.2"
           )
 ---
 modules:
