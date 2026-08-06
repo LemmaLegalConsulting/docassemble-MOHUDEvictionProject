@@ -411,6 +411,18 @@ id: eviction_discovery_attachment disabled
 code: |
   eviction_discovery_attachment.enabled = False
 ---
+id: motion_to_dismiss_attachment disabled
+code: |
+  motion_to_dismiss_attachment.enabled = False
+---
+id: motion_to_set_aside_attachment
+code: |
+  motion_to_set_aside_attachment.enabled = False
+---
+id: notice_of_hearing_attachment disabled
+code: |
+  notice_of_hearing_attachment.enabled = False
+---
 id: eviction motion to continue review screen
 continue button field: review_eviction_answer
 question: |

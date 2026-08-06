@@ -1,11 +1,6 @@
-license = "MIT"
-license-files = [
-    "LICENSE",
-]
-
 [build-system]
 requires = [
-    "setuptools==80.9.0",
+    "setuptools>=80.9.0",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -18,7 +13,7 @@ authors = [
     { name = "Quinten Steenhuis", email = "admin@lemmalegal.com" },
 ]
 dependencies = [
-    "docassemble.AssemblyLine @ git+https://github.com/suffolklitlab/docassemble-AssemblyLine.git@main",
+    "docassemble.AssemblyLine>=4.7.0",
 ]
 
 [project.urls]
