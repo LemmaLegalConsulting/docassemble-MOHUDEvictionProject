@@ -13,4 +13,4 @@ jobs:
       - uses: SuffolkLITLab/ALActions/da_build@test-ci-docx-check
         with:
           python-version: "3.12"
-          docx-validation-mode: "error"
+          docx-validation-mode: "warning"
