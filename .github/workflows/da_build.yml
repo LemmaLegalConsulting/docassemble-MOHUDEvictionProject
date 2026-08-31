@@ -7,6 +7,10 @@ jobs:
   build-n-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: SuffolkLITLab/ALActions/da_build@main
+      # TESTING ONLY -- do not merge. Points at the ALActions branch that adds
+      # DOCX template accessibility checking, so we can see how it renders in
+      # CI before it ships. Revert to `da_build@main` before merging anything.
+      - uses: SuffolkLITLab/ALActions/da_build@test-ci-docx-check
         with:
           python-version: "3.12"
+          docx-validation-mode: "warning"
