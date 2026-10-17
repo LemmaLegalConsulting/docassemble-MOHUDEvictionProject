@@ -19,6 +19,10 @@ authors = [
 ]
 dependencies = [
     "docassemble.AssemblyLine @ git+https://github.com/suffolklitlab/docassemble-AssemblyLine.git@main",
+    "docassemble.ALAnyState",
+    "docassemble.ALToolbox",
+    "docassemble.PovertyScale",
+    "docassemble.GithubFeedbackForm",
 ]
 
 [project.urls]
