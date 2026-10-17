@@ -1,41 +1,36 @@
-name: Use ALKiln testing framework v4 to run tests
-
+name: ALKiln end-to-end interviews
 on:
+  pull_request:
   push:
+    branches: [main]
   workflow_dispatch:
     inputs:
       tags:
-        description: 'Optional. Use a "tag expression" specify which tagged tests to run. See https://cucumber.io/docs/cucumber/api/#tag-expressions for syntax.'
-        default: ''
-  # To run your tests on a schedule, delete the first "#" symbol at the beginning of each line below.
-  ## Also see https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule
-  ## Also see https://crontab.guru/examples.html
-  #schedule:
-  #  - cron: '0 1 * * TUE'
-
+        description: Optional Cucumber tag expression
+        required: false
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: alkiln-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 jobs:
-
-  interview-testing:
+  interviews:
     runs-on: ubuntu-latest
-    name: Run interview tests
+    timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v2
-      - name: Use ALKiln to run tests
-        uses: SuffolkLITLab/ALKiln@releases/v4
+      - name: Make room for docassemble
+        run: sudo rm -rf /usr/local/lib/android /opt/ghc /usr/share/dotnet /opt/hostedtoolcache/CodeQL
+      - name: Start an isolated temporary docassemble server
+        id: server
+        uses: SuffolkLITLab/ALKiln/action_for_github_server@7b399f7138a06cb411cb93bda4d2015cea9216c5 # v5
         with:
-          SERVER_URL: "${{ secrets.SERVER_URL }}"
-          DOCASSEMBLE_DEVELOPER_API_KEY: "${{ secrets.DOCASSEMBLE_DEVELOPER_API_KEY }}"
-      - run: echo "Finished running ALKiln tests"
-      
-      ## To make a new issue in your repository when a test fails,
-      ## simply delete the first "#" symbol in each line below
-      #- name: If any tests failed create an issue
-      #  if: ${{ failure() }}
-      #  uses: actions-ecosystem/action-create-issue@v1
-      #  with:
-      #    github_token: "${{ secrets.github_token }}"
-      #    title: ALKiln tests failed
-      #    body: |
-      #      An ALKiln test failed. See the action at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}.
-      #    labels: |
-      #      bug
+          DOCASSEMBLE_IMAGE: jhpyle/docassemble:1.10.7@sha256:c0b0a707a6cd2149d5777ee83af1ea1de544210e597371eac93e67a1503c395c
+      - name: Run interview tests and upload reports
+        uses: SuffolkLITLab/ALKiln@7b399f7138a06cb411cb93bda4d2015cea9216c5 # v5
+        with:
+          SERVER_URL: ${{ steps.server.outputs.SERVER_URL }}
+          DOCASSEMBLE_DEVELOPER_API_KEY: ${{ steps.server.outputs.DOCASSEMBLE_DEVELOPER_API_KEY }}
+          INSTALL_METHOD: server
+          ALKILN_VERSION: 5.17.1
+          ALKILN_TAG_EXPRESSION: ${{ inputs.tags }}
