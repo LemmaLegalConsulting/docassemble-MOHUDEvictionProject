@@ -24,7 +24,6 @@ Feature: Complete MOHUDEvictionProject interview
       | other_parties[0].name.first | John |
       | other_parties[0].name.last | Landlord |
       | other_parties.there_is_another | False |
-      | dont_know_docket_number | False |
       | docket_number | 26SL-AC01234 |
       | trial_court.name | 22nd Judicial Circuit - St. Louis |
       | person_answering | tenant |

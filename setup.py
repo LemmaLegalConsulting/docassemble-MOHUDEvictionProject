@@ -53,7 +53,7 @@ setup(name='docassemble.MOHUDEvictionProject',
       license='MIT',
       url='https://motenanthelp.org/',
       packages=find_namespace_packages(),
-      install_requires=['docassemble.AssemblyLine @ git+https://github.com/suffolklitlab/docassemble-AssemblyLine.git@main'],
+      install_requires=['docassemble.AssemblyLine @ git+https://github.com/suffolklitlab/docassemble-AssemblyLine.git@main', 'docassemble.ALAnyState', 'docassemble.ALToolbox', 'docassemble.PovertyScale', 'docassemble.GithubFeedbackForm'],
       zip_safe=False,
       package_data=find_package_data(where='docassemble/MOHUDEvictionProject/', package='docassemble.MOHUDEvictionProject'),
      )
