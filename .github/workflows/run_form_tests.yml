@@ -34,3 +34,6 @@ jobs:
           INSTALL_METHOD: server
           ALKILN_VERSION: 5.17.1
           ALKILN_TAG_EXPRESSION: ${{ inputs.tags }}
+      - name: Show isolated server errors
+        if: failure()
+        run: docker exec docassemble_container tail -n 120 /usr/share/docassemble/log/docassemble.log || true
