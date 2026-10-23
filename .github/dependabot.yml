@@ -1,0 +1,15 @@
+# Keep dependency and Action updates visible as reviewable pull requests.
+version: 2
+updates:
+- package-ecosystem: github-actions
+  directories:
+  - /
+  schedule:
+    interval: weekly
+  open-pull-requests-limit: 10
+- package-ecosystem: pip
+  directories:
+  - /
+  schedule:
+    interval: weekly
+  open-pull-requests-limit: 10

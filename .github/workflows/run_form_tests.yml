@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Run interview tests
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Use ALKiln to run tests
         uses: SuffolkLITLab/ALKiln@releases/v4
         with:

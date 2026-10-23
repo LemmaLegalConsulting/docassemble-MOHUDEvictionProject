@@ -8,5 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: SuffolkLITLab/ALActions/da_build@main
+        env:
+          UV_CONSTRAINT: ${{ github.workspace }}/requirements-ci-certifi.txt
         with:
           python-version: "3.12"
