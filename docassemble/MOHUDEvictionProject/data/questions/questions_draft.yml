@@ -6,6 +6,7 @@ comment: |
   
   If does_landlord_match == False, then include Person suing is not the landlord defense
     "There is no landlord-tenant relationship between Plaintiff and Defendant in this case."
+id: "if person answering tenant does the name of the plaintiff match the name of your landlord else does the name of the plaintiff match the name of the tenants landlord endif"
 question: |
   % if person_answering == "tenant":
   Does the name of the Plaintiff match the name of your landlord?
@@ -69,6 +70,7 @@ comment: |
       "The only information Defendant has received as to who owns the property is (ownership_reliable_explanation)
   
   OR MAYBE more simply "There is no attornment between Plaintiff and Defendant in this case."
+id: "if person answering tenant has other parties shown you proof that they own the property else has other parties shown the tenant proof that they own the property endif"
 question: |
   % if person_answering == "tenant":
   Has ${ other_parties } shown you proof that they own the property?

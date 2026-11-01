@@ -235,7 +235,7 @@ subquestion:  |
     If you have the {Summons} and {Petition}, the name of each {Plaintiff} is listed
     in the box labeled "Plaintiff".
     
-    [FILE ComplaintCaptionPlaintiff.png, 100%]
+    [FILE ComplaintCaptionPlaintiff.png, 100%, Sample petition with the Plaintiff record title owner box highlighted at the upper left]
     
     ${ collapse_template(find_other_plaintiffs_template) }
 
@@ -279,7 +279,7 @@ subquestion: |
   % if tenant_got_summons and petition_available:
     If the landlord is represented by an attorney, then the attorney's name and address will be in the box next to the Landlord's name.
   
-  [FILE MOSummonsPlaintiffAttorney.png, 100%]
+  [FILE MOSummonsPlaintiffAttorney.png, 100%, Sample summons with the Plaintiff Petitioner Attorney Address box highlighted at the upper right]
   
   ${ collapse_template(find_plaintiff_attorney_representation_template) }
   
@@ -326,7 +326,7 @@ subquestion: |
   % if tenant_got_summons and petition_available: 
   If the landlord is represented by an attorney, then the attorney's name and address will be in the box next to the Landlord's name.
   
-  [FILE MOSummonsPlaintiffAttorney.png, 100%]
+  [FILE MOSummonsPlaintiffAttorney.png, 100%, Sample summons with the Plaintiff Petitioner Attorney Address box highlighted at the upper right]
   
   ${ collapse_template(find_plaintiff_attorney_name_template) }
   
@@ -389,6 +389,7 @@ validation code: |
   if users[0].address.state != "MO":
     validation_error("Write an address that you are being evicted from in Missouri", field="users[0].address.state")
 ---
+id: "final judgment or hearing date"
 question: Final Judgment or Hearing Date?
 subquestion: |
   If there has been a judgment, then the judgment and the date will be listed under the "Docket Entries" tab on [Case.net](https://www.courts.mo.gov/cnet).
@@ -488,7 +489,7 @@ subquestion: |
   tab will **only** show an event named "Summons Issued - Landlord/Tenant", like this:
   % endif
   
-  [FILE Docket.png, 100%]
+  [FILE Docket.png, 100%, Sample Case.net docket entries list the summons and hearing schedule and identify the attorney who filed the petition]
 
   ${ warn_picture_is_example_template }
 fields:
@@ -530,7 +531,7 @@ subquestion: |
     % if tenant_got_summons and petition_available:
     Look at the {Summons} and {Petition}, and write the name of the ${ ordinal(i) } "Plaintiff" exactly as it is written on the Summons and Petition.
     
-    [FILE ComplaintCaptionPlaintiff.png, 100%]
+    [FILE ComplaintCaptionPlaintiff.png, 100%, Sample petition with the Plaintiff record title owner box highlighted at the upper left]
 
     ${ collapse_template(find_landlord_name_on_casenet_template) }
     
@@ -598,7 +599,7 @@ content: |
   % else:
     Who is the ${ ordinal(i) } {Plaintiff} listed on this case?
   
-    [FILE ComplaintCaptionPlaintiff.png, 100%]
+    [FILE ComplaintCaptionPlaintiff.png, 100%, Sample petition with the Plaintiff record title owner box highlighted at the upper left]
   % endif
 ---
 id: warn_picture_is_example_template
@@ -668,7 +669,13 @@ fields:
       % endif
     field: dont_know_docket_number
     datatype: yesnowide
-  - no label: docket_number
+  - label: |
+      % if person_answering == "tenant":
+      What is the case number for your case?
+      % else:
+      What is the case number for the tenant's case?
+      % endif
+    field: docket_number
     hide if: dont_know_docket_number
   - note: |
       % if person_answering == "tenant":
@@ -716,12 +723,12 @@ subquestion: |
   The Summons will look like this:
  
   [CENTER]
-  [FILE MOSummons.png]
+  [FILE MOSummons.png, 100%, Sample Missouri Associate Division Summons marked sample only and not for court use]
  
   The Petition looks different in some counties, but it may look like this:
  
   [CENTER]
-  [FILE ComplaintForm.png]
+  [FILE ComplaintForm.png, 100%, Sample Missouri Landlord Petition with party information at the top and numbered allegations below]
 under: |  
   This video explains the Summons.
   
@@ -768,7 +775,7 @@ fields:
       **You may want to stop and get the Summons and Petition now.** It can help you answer
       the questions on this website more accurately. If you cannot easily get it,
       it is OK to keep going.
-      % else: 
+      % else:
       **The tenant may want to stop and get the Summons and Petition now.** It can help them answer
       the questions on this website more accurately. If they cannot easily get it,
       it is OK to keep going.
@@ -837,7 +844,7 @@ subquestion: |
   % endif
   % if tenant_got_summons and petition_available:
   
-  [FILE ComplaintCaptionDefendant.png, 100%]
+  [FILE ComplaintCaptionDefendant.png, 100%, Sample petition with the Defendant box highlighted below the Plaintiff box]
   
   % endif
 
@@ -1125,7 +1132,7 @@ fields:
   - label: |
       % if person_answering == "tenant":
       Do any of the following reasons justify securing case records in your case?
-      % else: 
+      % else:
       Do any of the following reasons justify securing case records in the plaintiff's case?
       % endif
     field: reason_for_elevated_security 
@@ -1142,7 +1149,7 @@ fields:
       variable: reason_for_elevated_security['Other']
       is: True
 ---
-id: reasons for motion
+id: "reasons for motion 2"
 question: |
   % if person_answering == "tenant":
   Have you already had to pay extra fees or been denied a place to live because of this case getting attention?
@@ -1153,7 +1160,7 @@ fields:
   - label: |
       % if person_answering == "tenant":
       I am already experiencing the costs of this case getting attention
-      % else: 
+      % else:
       The tenant is already experiencing the costs of this case getting attention
       % endif
     field: tenant_exposed_to_threats
@@ -1170,7 +1177,7 @@ fields:
   - label: |
       % if person_answering == "tenant":
       Do you believe other landlords will refuse to rent to you because the information about this case is public?
-      % else: 
+      % else:
       Does the tenant believe other landlords will refuse to rent to them because the information about this case is public?
       % endif
     field: tenant_believes_landlords_wont_rent 
@@ -1178,7 +1185,7 @@ fields:
   - label: |
       % if person_answering == "tenant":
       Do you believe you will have to pay higher rent, or find a co-signer, or face other economic consequences if this case remains public?
-      % else: 
+      % else:
       Does the tenant believe they will have to pay higher rent, or find a co-signer, or face other economic consequences if this case remains public?
       % endif
     field: economic_consequences
@@ -1186,7 +1193,7 @@ fields:
   - label: |
       % if person_answering == "tenant":
       Do you believe the public visibility of this eviction case will make it harder for you to rent housing?
-      % else: 
+      % else:
       Does the tenant believe the public visibility of this eviction case will make it harder for the tenant to rent housing?
       % endif
     field: tenant_would_be_prejudiced
@@ -1207,7 +1214,7 @@ subquestion: |
     The {Summons} will say the time and date of the tenant's original court hearing.
     % endif
   
-  [FILE MOSummonsHearingDate.png, 100%]
+  [FILE MOSummonsHearingDate.png, 100%, Sample summons with the Date Time and Location of Court Appearance box highlighted]
   
   ${ collapse_template(find_original_hearing_on_casenet_template) }
   
@@ -1317,7 +1324,7 @@ fields:
   - label: |
       % if person_answering == "tenant":
       Do you have a reason for making the time shorter that might not seem fair?
-      % else: 
+      % else:
       Does the tenant have a reason for making the time shorter that might not seem fair?
       % endif
     field: unfair_motive 
@@ -1325,7 +1332,7 @@ fields:
   - label: |
       % if person_answering == "tenant":
       Did you have enough time to ask questions or disagree with the Plaintiff's petition?
-      % else: 
+      % else:
       Did the tenant have enough time to ask questions or disagree with the Plaintiff's petition?
       % endif
     field: enough_time 
@@ -1348,7 +1355,7 @@ fields:
   - label: |
       % if person_answering == "tenant":
       This case could be solved faster if the judge approves my request
-      % else: 
+      % else:
       This case could be solved faster if the judge approves the tenant's request
       % endif
     field: may_resolve_case_more_efficiently

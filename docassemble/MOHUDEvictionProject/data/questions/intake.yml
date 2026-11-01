@@ -149,6 +149,7 @@ fields:
       is: True
 ---
 event: county_not_in_mo
+id: "we are sorry but we can only help with legal aid programs in missouri"
 question: |
   We are sorry, but we can only help with legal aid programs in Missouri
 subquestion: |
@@ -157,6 +158,7 @@ subquestion: |
   Try visiting [LSC.gov](https://lsc.gov) to find your local legal aid provider.
 ---
 event: something_went_wrong
+id: "we are sorry but we could not get the rules for the legal aid program in your county"
 question: |
   We are sorry, but we could not get the rules for the legal aid program in your county
 subquestion: |
@@ -165,6 +167,7 @@ subquestion: |
   Or, try looking on the [motenanthelp](https://www.motenanthelp.org/) website.
 ---
 event: exit_does_not_qualify_citizenship
+id: "you do not qualify for help from a missouri legal aid program"
 question: |
   You do not qualify for help from a Missouri legal aid program
 decoration: hand
@@ -175,6 +178,7 @@ subquestion: |
       Other organizations may be able to help. Try looking on the [motenanthelp](https://www.motenanthelp.org/) website.
 ---
 event: exit_does_not_qualify_income
+id: "you do not qualify for help from a missouri legal aid program 2"
 question: |
   You do not qualify for help from a Missouri legal aid program
 decoration: hand
@@ -403,8 +407,7 @@ fields:
     code: |
       county_dictionary.keys()
     show if:
-      variable: address_type
-      is: pick_county
+      code: address_type == "pick_county"
 ---
 depends on:
   - users[0].address.county
@@ -422,6 +425,7 @@ code: |
 code: |
   missouri_intake_asset_limit = get_intake_constants().get("missouri_intake_asset_limit", 10000)
 ---
+id: "what is the housing problem you are trying to solve"
 question: |
   What is the **housing** problem you are trying to solve?
 subquestion: |
@@ -449,6 +453,7 @@ fields:
       We will not share your income, location, or personal information.
 ---
 generic object: IntakeQuestionList
+id: "x i question"
 question: |
   ${ x[i].question }
 fields:
@@ -456,6 +461,7 @@ fields:
     datatype: area
 ---
 event: intake_screener.intake_results
+id: "if intake screener qualifies you may qualify to apply for help from matching program elif intake screener qualifies is not none you probably do not qualify to apply for help else we need more information to determine if you qualify to apply for help endif"
 question: |
   % if intake_screener.qualifies:
   You may qualify to apply for help from ${ matching_program }
