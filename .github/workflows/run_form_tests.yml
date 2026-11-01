@@ -36,3 +36,9 @@ jobs:
           INSTALL_METHOD: server
           ALKILN_VERSION: 5.17.0
           ALKILN_TAG_EXPRESSION: ${{ inputs.tags }}
+      - name: Show isolated-server errors when tests fail
+        if: failure()
+        run: |
+          # This server contains only synthetic test data and ephemeral credentials.
+          docker exec docassemble_container sh -c \
+            'tail -n 200 /usr/share/docassemble/log/docassemble.log /usr/share/docassemble/log/uwsgi.log'
