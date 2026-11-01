@@ -167,7 +167,7 @@ content: |
   Check the court event notice you got from the court to find out if the hearing is in 
   person or virtual and the time and place to attend court.
   
-  Get ready here: https://gbls.org/tactics/12
+  Get ready here: https://www.masslegalhelp.org/housing-apartments-shelter/eviction/chapter-12-evictions
    - MADE from GBLS
   % else:
     Reminder: Tenant's court date in ${landlord} v. ${tenant} is ${format_date(court_date)}!
@@ -179,7 +179,7 @@ content: |
   Check the court event notice tenant got from the court to find out if the hearing is in 
   person or virtual and the time and place to attend court.
   
-  Get ready here: https://gbls.org/tactics/12
+  Get ready here: https://www.masslegalhelp.org/housing-apartments-shelter/eviction/chapter-12-evictions
    - MADE from GBLS
   % endif
 ---
@@ -233,7 +233,7 @@ content: |
   The tenant must file their paperwork and attend court on ${ format_date(original_hearing_date) }.
   % endif
   
-  Get ready here: https://gbls.org/tactics/12
+  Get ready here: https://www.masslegalhelp.org/housing-apartments-shelter/eviction/chapter-12-evictions
   
    - MADE from GBLS.
   How was MADE? Tell us here: https://www.surveymonkey.com/r/8T2KZBV
