@@ -26,6 +26,19 @@ jobs:
         with:
           # docassemble 1.10.8 removed fieldset/aria-checked markup used by ALKiln 5.
           DOCASSEMBLE_IMAGE: jhpyle/docassemble:1.10.7@sha256:c0b0a707a6cd2149d5777ee83af1ea1de544210e597371eac93e67a1503c395c
+      - name: Reload installed custom datatypes
+        run: |
+          # dainstall returned while the original web worker was still running;
+          # reload it so newly installed ALToolbox custom field keys are registered.
+          docker exec docassemble_container touch /usr/share/docassemble/webapp/docassemble.wsgi
+          sleep 10
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent http://localhost/health_check > /dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          exit 1
       - name: Use ALKiln to run tests
         uses: SuffolkLITLab/ALKiln@24a5b5d3269179ee349be3a4266f7ced8cef6bfb
         with:
