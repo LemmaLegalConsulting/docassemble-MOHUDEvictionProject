@@ -43,3 +43,8 @@ def test_southern_missouri_referrals_are_not_concatenated():
         assert referral["legal_aid_program_online_app"].strip() == "https://application.lsosm.org/"
         assert referral["legal_aid_program_phone_app"].strip() == "1-800-444-4863"
         assert "Sikeston" in referral["legal_aid_program_office_app_addresses"]
+
+
+def test_docassemble_uses_native_namespace_packaging():
+    # A legacy pkg_resources initializer breaks the whole server on setuptools 82+.
+    assert not (ROOT / "docassemble/__init__.py").exists()
