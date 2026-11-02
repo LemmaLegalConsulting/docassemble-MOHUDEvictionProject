@@ -170,7 +170,7 @@ question: |
 fields:
   - I don't know the docket number: dont_know_docket_number
     datatype: yesnowide
-  - no label: docket_number
+  - "What is the docket number for your case?": docket_number
     hide if: dont_know_docket_number
 validation code: |
   # This should be safe to 
@@ -257,6 +257,7 @@ review:
       ${ original_hearing_time }
 ---
 continue button field: users.revisit
+id: "edit users"
 question: |
   Edit users
 subquestion: |
@@ -275,6 +276,7 @@ confirm: True
 
 ---
 continue button field: other_parties.revisit
+id: "edit other parties"
 question: |
   Edit other_parties
 subquestion: |

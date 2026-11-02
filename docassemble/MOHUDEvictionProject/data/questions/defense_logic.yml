@@ -1253,7 +1253,7 @@ subquestion: |
 
   Look for a line that looks something like this:
 
-  [FILE ComplaintRentAmount.png, 100%]
+  [FILE ComplaintRentAmount.png, 100%, Sample petition paragraph 3 states the unpaid rent due and leaves a blank for the dollar amount]
 
   The landlord's petition may look different.
   % endif
@@ -1522,7 +1522,7 @@ subquestion: |
   
   A rental summary in the petition may look like this:
 
-  [FILE ComplaintTerms.png, 100%]
+  [FILE ComplaintTerms.png, 100%, Sample petition paragraph 2 describes a month-to-month tenancy and leaves blanks for monthly rent and the day payment is due]
 fields:
   - note: |
       <h2 class="h4">Summary of rental agreement</h2>
@@ -1532,8 +1532,9 @@ fields:
       * The rent amount,
       * The day rent is due, and
       * The kind of agreement (year to year or {month-to-month lease|month to month}).
-    js show if: |
-      val("has_written_lease") === false || val("lease_attached") === false    
+    show if:
+      code: |
+        has_written_lease == False or lease_attached == False
   - label: |
       % if person_answering == "tenant":
       Does the {petition|Landlord's Petition} include a summary of your rental agreement?
@@ -1587,7 +1588,7 @@ subquestion: |
   
   The Demand may look like this, but can have different language:
   
-  [FILE ComplaintDemand.png, 100%]
+  [FILE ComplaintDemand.png, 100%, Sample petition paragraph 5 says the plaintiff demanded unpaid rent and the defendant failed or refused to pay all or part of it]
  
 fields:
   - "Does the {petition|Landlord's Petition} say the landlord demanded rent?": petition_states_demand_made

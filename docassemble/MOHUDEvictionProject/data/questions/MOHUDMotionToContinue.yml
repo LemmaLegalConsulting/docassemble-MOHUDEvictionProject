@@ -359,7 +359,7 @@ subquestion: |
     The {Summons} will say the time and date of the tenant's original court hearing.
     % endif
   
-  [FILE MOSummonsHearingDate.png, 100%]
+  [FILE MOSummonsHearingDate.png, 100%, Sample summons with the Date Time and Location of Court Appearance box highlighted]
   
   ${ collapse_template(find_original_hearing_on_casenet_template) }
   

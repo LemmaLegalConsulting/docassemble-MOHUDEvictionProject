@@ -76,7 +76,7 @@ subquestion: |
   
   at the top of the {Summons}.
   
-  [FILE MOSummonsCourtNameCaseNumber.png, 100%]
+  [FILE MOSummonsCourtNameCaseNumber.png, 100%, Sample summons with the judicial circuit and county heading and Case Number box highlighted]
       
   % endif
 fields:
@@ -230,7 +230,7 @@ subquestion: |
   
   Example:
   
-  [FILE MOSummonsType.png, 100%]
+  [FILE MOSummonsType.png, 100%, Sample summons with the Nature of Suit box highlighted]
   
   ${ collapse_template(find_case_type_example_template) }
   
@@ -2918,21 +2918,18 @@ data:
       Class 3
     casenet_code: |-
        SYR
+    # Service area verified against https://www.lsmo.org/page/951/offices
     legal_aid_program_website: |
-      https://lawmo.org/http://www.lsosm.org/
+      https://www.lsosm.org/
     legal_aid_program: |
-      Legal Aid of Western MissouriLegal Services of Southern Missouri
+      Legal Services of Southern Missouri
     legal_aid_program_online_app: |
-      https://lawmo.org/get-legal-helphttps://application.lsosm.org/
+      https://application.lsosm.org/
     legal_aid_program_phone_app: |
-      (816) 474-67501-800-444-4863
+      1-800-444-4863
     legal_aid_program_office_app_addresses: |
-      Legal Aid of Western Missouri (LAWMO) - Kansas City - Central Office
-      4001 Martin Luther King, Jr. Blvd., Suite 300, Kansas City, MO 64130
-      LAWMO - Kansas City - Westside Office
-      920 Southwest Blvd., Kansas City,  64108
-      Legal Services of Southern Missouri – Rolla
-      1000 N. Pine, Suite B, Rolla, MO 65401
+      Legal Services of Southern Missouri - Sikeston
+      2201 East Malone Avenue, Suite A, Sikeston, MO 63801
     courts: 
       - name: Ste. Genevieve County Courthouse
         address: 55 South 3rd Street
@@ -2946,21 +2943,18 @@ data:
       Class 1
     casenet_code: |-
        SAL
+    # Service area verified against https://www.lsmo.org/page/951/offices
     legal_aid_program_website: |
-      https://lawmo.org/http://www.lsosm.org/
+      https://www.lsosm.org/
     legal_aid_program: |
-      Legal Aid of Western MissouriLegal Services of Southern Missouri
+      Legal Services of Southern Missouri
     legal_aid_program_online_app: |
-      https://lawmo.org/get-legal-helphttps://application.lsosm.org/
+      https://application.lsosm.org/
     legal_aid_program_phone_app: |
-      (816) 474-67501-800-444-4863
+      1-800-444-4863
     legal_aid_program_office_app_addresses: |
-      Legal Aid of Western Missouri (LAWMO) - Kansas City - Central Office
-      4001 Martin Luther King, Jr. Blvd., Suite 300, Kansas City, MO 64130
-      LAWMO - Kansas City - Westside Office
-      920 Southwest Blvd., Kansas City,  64108
-      Legal Services of Southern Missouri – Rolla
-      1000 N. Pine, Suite B, Rolla, MO 65401
+      Legal Services of Southern Missouri - Sikeston
+      2201 East Malone Avenue, Suite A, Sikeston, MO 63801
     courts: 
       - name: St. Francois County Courthouse
         address: 1 North Washington Street

@@ -12,3 +12,5 @@ jobs:
           UV_CONSTRAINT: ${{ github.workspace }}/requirements-ci-certifi.txt
         with:
           python-version: "3.12"
+      - name: Run offline interview configuration regression tests
+        run: uvx --with ruamel.yaml pytest tests/test_interview_configuration.py -q

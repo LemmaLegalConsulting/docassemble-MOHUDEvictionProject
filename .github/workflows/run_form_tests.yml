@@ -1,41 +1,57 @@
-name: Use ALKiln testing framework v4 to run tests
+name: Run isolated interview tests
 
 on:
   push:
   workflow_dispatch:
     inputs:
       tags:
-        description: 'Optional. Use a "tag expression" specify which tagged tests to run. See https://cucumber.io/docs/cucumber/api/#tag-expressions for syntax.'
+        description: Optional ALKiln tag expression
         default: ''
-  # To run your tests on a schedule, delete the first "#" symbol at the beginning of each line below.
-  ## Also see https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule
-  ## Also see https://crontab.guru/examples.html
-  #schedule:
-  #  - cron: '0 1 * * TUE'
+
+permissions:
+  contents: read
 
 jobs:
-
   interview-testing:
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     name: Run interview tests
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Use ALKiln to run tests
-        uses: SuffolkLITLab/ALKiln@releases/v4
+      # ALKiln v4 uses retired upload-artifact v2. Pin v5 and use an isolated
+      # server so Dependabot branches do not require repository secrets.
+      - name: Start an isolated docassemble server
+        id: server
+        uses: SuffolkLITLab/ALKiln/action_for_github_server@24a5b5d3269179ee349be3a4266f7ced8cef6bfb
         with:
-          SERVER_URL: "${{ secrets.SERVER_URL }}"
-          DOCASSEMBLE_DEVELOPER_API_KEY: "${{ secrets.DOCASSEMBLE_DEVELOPER_API_KEY }}"
-      - run: echo "Finished running ALKiln tests"
-      
-      ## To make a new issue in your repository when a test fails,
-      ## simply delete the first "#" symbol in each line below
-      #- name: If any tests failed create an issue
-      #  if: ${{ failure() }}
-      #  uses: actions-ecosystem/action-create-issue@v1
-      #  with:
-      #    github_token: "${{ secrets.github_token }}"
-      #    title: ALKiln tests failed
-      #    body: |
-      #      An ALKiln test failed. See the action at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}.
-      #    labels: |
-      #      bug
+          # docassemble 1.10.8 removed fieldset/aria-checked markup used by ALKiln 5.
+          DOCASSEMBLE_IMAGE: jhpyle/docassemble:1.10.7@sha256:c0b0a707a6cd2149d5777ee83af1ea1de544210e597371eac93e67a1503c395c
+      - name: Reload installed custom datatypes
+        run: |
+          # dainstall returned while the original web worker was still running;
+          # reload it so newly installed ALToolbox custom field keys are registered.
+          docker exec docassemble_container touch /usr/share/docassemble/webapp/docassemble.wsgi
+          sleep 10
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent http://localhost/health_check > /dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          exit 1
+      - name: Use ALKiln to run tests
+        uses: SuffolkLITLab/ALKiln@24a5b5d3269179ee349be3a4266f7ced8cef6bfb
+        with:
+          SERVER_URL: ${{ steps.server.outputs.SERVER_URL }}
+          DOCASSEMBLE_DEVELOPER_API_KEY: ${{ steps.server.outputs.DOCASSEMBLE_DEVELOPER_API_KEY }}
+          # The isolated-server action already installs this checkout. Avoid a
+          # redundant playground upload (which failed after server install passed).
+          INSTALL_METHOD: server
+          ALKILN_VERSION: 5.17.0
+          ALKILN_TAG_EXPRESSION: ${{ inputs.tags }}
+      - name: Show isolated-server errors when tests fail
+        if: failure()
+        run: |
+          # This server contains only synthetic test data and ephemeral credentials.
+          docker exec docassemble_container sh -c \
+            'tail -n 200 /usr/share/docassemble/log/docassemble.log /usr/share/docassemble/log/uwsgi.log'
