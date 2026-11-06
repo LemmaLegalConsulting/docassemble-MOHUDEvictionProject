@@ -616,7 +616,7 @@ data:
       Legal Services of Southern Missouri – Main Office – Springfield
       809 N. Campbell Avenue, Springfield, MO 65802
     courts: 
-      - name: Barry County Courthouse
+      - name: Barry County Judicial Center
         address: 102 West Street
         city: Cassville
         state: MO
@@ -701,7 +701,7 @@ data:
       305 North Holden, Warrensburg,  64093
     courts: 
       - name: Benton County Courthouse
-        address: 316 Van Buren St.
+        address: 316 Van Buren Road
         unit: P.O. Box 37
         city: Warsaw
         state: MO
@@ -854,8 +854,8 @@ data:
       Mid-Missouri Legal Services (MMLS) - Columbia - Main Office
       117 North Garth, Columbia, MO 65203
     courts: 
-      - name: Callaway County Courthouse
-        address: 10 E. 5th Street
+      - name: Callaway County Justice Center
+        address: 5 E. 2nd Street
         city: Fulton
         state: MO
         zip: 65251
@@ -2115,9 +2115,9 @@ data:
       Legal Services of Southern Missouri – Rolla
       1000 N. Pine, Suite B, Rolla, MO 65401
     courts: 
-      - name: Madison County Courthouse
+      - name: Madison County Justice Center
         address: 3 Court Square
-        unit: P.O. Box 470
+        unit: Suite 1
         city: Fredericktown
         state: MO
         zip: 63645
@@ -2322,7 +2322,7 @@ data:
       701 Market St., Peabody Plaza Building, Suite 1100, St. Louis, MO 63101
     courts: 
       - name: Montgomery County Courthouse
-        address: Temporary location - 723 N. Sturgeon
+        address: 211 E. Third Street
         city: Montgomery City
         state: MO
         zip: 63361
@@ -2553,7 +2553,7 @@ data:
       2201 E. Malone Avenue, Sikeston, MO 63801
     courts: 
       - name: Perry County Courthouse
-        address: 15 West Ste. Marie Street
+        address: 400 W. St. Joseph Street, Suite 4
         city: Perryville
         state: MO
         zip: 63775
