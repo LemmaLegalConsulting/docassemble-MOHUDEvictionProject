@@ -11,7 +11,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "docassemble.MOHUDEvictionProject"
-version = "1.8.3"
+version = "1.8.4"
 description = "Postpone your eviction hearing"
 readme = "README.md"
 authors = [
